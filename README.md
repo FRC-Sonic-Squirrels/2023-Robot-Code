@@ -15,6 +15,11 @@ Major differences:
 * use cSpell VS Code plugin and a lot of spelling corrections
 * Use SDS Mk4i by default (original defaulted to Mk4)
 
+### Competition Robot Features
+
+1. Autonomous
+    1.  score from pre-set position at start of autonomous.
+
 
 **Features**
 ----
