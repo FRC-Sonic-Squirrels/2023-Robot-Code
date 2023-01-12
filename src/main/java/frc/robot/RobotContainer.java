@@ -70,6 +70,9 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser =
       new LoggedDashboardChooser<>("Auto Routine");
 
+  private final LoggedDashboardChooser<Command> testautoChooser =
+      new LoggedDashboardChooser<>("test Auto routines");
+
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
 
@@ -278,6 +281,12 @@ public class RobotContainer {
     Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
+  public void configureTestAutoCommands() {
+    SwerveAutos autos = new SwerveAutos(drivetrain, intake);
+
+    testautoChooser.addDefaultOption("do nothing", new InstantCommand());
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -285,5 +294,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public Command getTestAutonomousCommand() {
+    return testautoChooser.get();
   }
 }

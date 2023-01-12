@@ -139,7 +139,10 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    // TODO:remember to change this back to actual auto chooser
+    // autonomousCommand = robotContainer.getAutonomousCommand();
+
+    autonomousCommand = robotContainer.getTestAutonomousCommand();
 
     // schedule the autonomous command
     if (autonomousCommand != null) {
