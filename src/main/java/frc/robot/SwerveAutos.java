@@ -48,4 +48,23 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
+
+  public Command curve() {
+    PathPlannerTrajectory path = 
+      PathPlanner.loadPath(
+        "curve", 
+        AUTO_MAX_SPEED_METERS_PER_SECOND, 
+        AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+        return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+  }
+  public Command rotateAroundPoint() {
+    PathPlannerTrajectory path = 
+      PathPlanner.loadPath(
+        "rotateAroundPoint", 
+        AUTO_MAX_SPEED_METERS_PER_SECOND, 
+        AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+        return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+  }
 }
