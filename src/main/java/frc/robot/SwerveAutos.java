@@ -73,8 +73,7 @@ public class SwerveAutos {
         return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
-
-  public Command 2mForwardWithIntake() {
+  public Command testPath2mForwardWithIntake() {
     HashMap<String, Command> eventMap = new HashMap<>();
 
     eventMap.put("extendIntake", this.intake.extendCommand());
