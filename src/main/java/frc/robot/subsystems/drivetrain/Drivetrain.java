@@ -593,11 +593,26 @@ public class Drivetrain extends SubsystemBase {
     return driveVelocityAverage / 4.0;
   }
 
+  /**
+   * Uses the max drivetrain velocity when generating the path
+   * @param targetPose
+   * @return
+   */
   public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose) {
     return PathPlanner.generatePath(
         new PathConstraints(
             DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
             DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
+        PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
+        new PathPoint(
+            targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+  }
+
+  public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose, double driveVelocityConstraint, double angularVelocityConstant) {
+    return PathPlanner.generatePath(
+        new PathConstraints(
+            driveVelocityConstraint,
+            angularVelocityConstant),
         PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
         new PathPoint(
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));

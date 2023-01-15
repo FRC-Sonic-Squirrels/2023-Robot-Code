@@ -19,7 +19,21 @@ public class FollowPathOnTheFly extends FollowPath {
    * @param drivetrain
    */
   public FollowPathOnTheFly(Pose2d targetPose, Drivetrain drivetrain) {
-    super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false);
+    super(
+      drivetrain.generateOnTheFlyTrajectory(targetPose),
+      drivetrain, 
+      false);
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public FollowPathOnTheFly(Pose2d targetPose, Drivetrain drivetrain, double driveVelocityConstraint, double angularVelocityConstant) {
+    super(
+      drivetrain.generateOnTheFlyTrajectory(
+        targetPose, 
+        driveVelocityConstraint,
+        angularVelocityConstant), 
+      drivetrain, 
+      false);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
