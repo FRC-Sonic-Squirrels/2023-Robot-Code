@@ -111,7 +111,9 @@ public class RobotContainer {
                         BACK_LEFT_MODULE_DRIVE_MOTOR,
                         BACK_LEFT_MODULE_STEER_MOTOR,
                         BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET),
+                        BACK_LEFT_MODULE_STEER_OFFSET,
+                        false,
+                        true),
                     2,
                     MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -122,7 +124,9 @@ public class RobotContainer {
                         BACK_RIGHT_MODULE_DRIVE_MOTOR,
                         BACK_RIGHT_MODULE_STEER_MOTOR,
                         BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET),
+                        BACK_RIGHT_MODULE_STEER_OFFSET,
+                        true,
+                        false),
                     3,
                     MAX_VELOCITY_METERS_PER_SECOND);
 
