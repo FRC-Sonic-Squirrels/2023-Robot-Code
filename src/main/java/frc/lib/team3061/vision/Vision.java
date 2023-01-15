@@ -65,8 +65,8 @@ public class Vision extends SubsystemBase {
     visionIO.updateInputs(io);
     Logger.getInstance().processInputs("Vision", io);
 
-    //TODO: figure out how this affects our position and how this effects auto paths
-    //where is the red alliance origin? top right? bottom right? 
+    // TODO: figure out how this affects our position and how this effects auto paths
+    // where is the red alliance origin? top right? bottom right?
     if (DriverStation.getAlliance() != lastAlliance) {
       lastAlliance = DriverStation.getAlliance();
       if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
