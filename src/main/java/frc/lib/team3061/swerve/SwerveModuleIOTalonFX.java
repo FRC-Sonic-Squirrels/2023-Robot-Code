@@ -40,6 +40,10 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   private SimpleMotorFeedforward feedForward;
   private double angleOffsetDeg;
 
+  //2023 robot might have unflipped motors on the mk4i, dubbed mk4i- 
+  private boolean driveUnivert = false;
+  private boolean steerUnivert = false; 
+
   /**
    * Make a new SwerveModuleIOTalonFX object.
    *
@@ -51,6 +55,36 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
    */
   public SwerveModuleIOTalonFX(
       int moduleNumber, int driveMotorID, int angleMotorID, int canCoderID, double angleOffsetDeg) {
+
+    this.angleOffsetDeg = angleOffsetDeg;
+
+    this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
+
+    CANDeviceFinder can = new CANDeviceFinder();
+    can.isDevicePresent(CANDeviceType.TALON, driveMotorID, "Mod " + moduleNumber + "Drive");
+    can.isDevicePresent(CANDeviceType.TALON, angleMotorID, "Mod " + moduleNumber + "Angle");
+    // check for the CANcoder on the CAN bus when supported by CANDeviceFinder
+
+    configAngleEncoder(canCoderID);
+    configAngleMotor(angleMotorID);
+    configDriveMotor(driveMotorID);
+  }
+
+  /**
+   * 
+   * @param moduleNumber the module number (0-3); primarily used for logging
+   * @param driveMotorID the CAN ID of the drive motor
+   * @param angleMotorID the CAN ID of the angle motor
+   * @param canCoderID the CAN ID of the CANcoder
+   * @param angleOffsetDeg the absolute offset of the angle encoder in degrees
+   * @param driveUnivert univert the drive motor on the mk4i 
+   * @param steerUnivert univert the steer motor on the mk4i 
+   */
+  public SwerveModuleIOTalonFX(
+      int moduleNumber, int driveMotorID, int angleMotorID, int canCoderID, double angleOffsetDeg, boolean driveUninvert, boolean steerUninvert) {
+
+    this.driveUnivert = driveUninvert;
+    this.steerUnivert = steerUninvert; 
 
     this.angleOffsetDeg = angleOffsetDeg;
 
@@ -87,7 +121,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             ANGLE_CONTINUOUS_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_DURATION);
-    angleMotorConfig.INVERTED = ANGLE_MOTOR_INVERTED;
+    
+    angleMotorConfig.INVERTED = steerUnivert ? !ANGLE_MOTOR_INVERTED : ANGLE_MOTOR_INVERTED;
+
     angleMotorConfig.NEUTRAL_MODE = ANGLE_NEUTRAL_MODE;
     angleMotorConfig.SLOT0_KP = turnKp.get();
     angleMotorConfig.SLOT0_KI = turnKi.get();
@@ -110,7 +146,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             DRIVE_CONTINUOUS_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_DURATION);
-    driveMotorConfig.INVERTED = DRIVE_MOTOR_INVERTED;
+
+    driveMotorConfig.INVERTED = driveUnivert ? !DRIVE_MOTOR_INVERTED : DRIVE_MOTOR_INVERTED;
+
     driveMotorConfig.NEUTRAL_MODE = DRIVE_NEUTRAL_MODE;
     driveMotorConfig.OPEN_LOOP_RAMP_RATE = OPEN_LOOP_RAMP;
     driveMotorConfig.CLOSED_LOOP_RAMP_RATE = CLOSED_LOOP_RAMP;
