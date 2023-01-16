@@ -19,13 +19,13 @@ import frc.robot.subsystems.intake.Intake;
 
 /** Add your docs here. */
 public class DriveToGridPosition {
-    Drivetrain drivetrain;
-    Intake intake;
+    private Drivetrain drivetrain;
+    private Intake intake;
 
-    CommandXboxController controller; 
+    private CommandXboxController controller; 
 
-    public static double drive_slow_test_vel = 0.2;
-    public static double angular_slow_test_vel = 0.2;
+    private static double drive_slow_test_vel = 0.2;
+    private static double angular_slow_test_vel = 0.2;
 
     public DriveToGridPosition(Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
         this.drivetrain = drivetrain;
