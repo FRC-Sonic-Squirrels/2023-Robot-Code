@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -42,6 +43,8 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ResourceBundle.Control;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -51,17 +54,17 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverController = new XboxController(0);
+  private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+//   private final JoystickButton zeroGyro =
+//       new JoystickButton(driverController, XboxController.Button.kBack.value);
+//   private final JoystickButton robotCentric =
+//       new JoystickButton(driverController, XboxController.Button.kB.value);
+//   private final JoystickButton xStance =
+//       new JoystickButton(driverController, XboxController.Button.kA.value);
+//   private final JoystickButton intakeOut =
+//       new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
 
   private Drivetrain drivetrain;
   private Intake intake;
@@ -221,26 +224,30 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    robotCentric.toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+    // robotCentric.toggleOnTrue(
+    //     Commands.either(
+    //         Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //         Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //         drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
-    zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // x-stance
-    xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    // xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
-    // intake
-    intakeOut.whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    intakeOut.onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    // // intake
+    // intakeOut.whileTrue(
+    //     Commands.runOnce(intake::extend, intake)
+    //         .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // intakeOut.onFalse(
+    //     Commands.runOnce(intake::retract, intake)
+    //         .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    driverController.back()
+			.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+
   }
 
   /** Use this method to define your commands for autonomous mode. */
