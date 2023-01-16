@@ -50,6 +50,28 @@ public class FollowPath extends PPSwerveControllerCommand {
     this.initialPath = initialPath;
   }
 
+  // might not want to flip trajectory based on alliance color, needs testing
+  public FollowPath(
+      PathPlannerTrajectory trajectory,
+      Drivetrain subsystem,
+      boolean initialPath,
+      boolean useAllianceColor) {
+    super(
+        trajectory,
+        subsystem::getPose,
+        KINEMATICS,
+        subsystem.getAutoXController(),
+        subsystem.getAutoYController(),
+        subsystem.getAutoThetaController(),
+        subsystem::setSwerveModuleStates,
+        useAllianceColor,
+        subsystem);
+
+    this.drivetrain = subsystem;
+    this.trajectory = trajectory;
+    this.initialPath = initialPath;
+  }
+
   /**
    * This method is invoked once when this command is scheduled. If the trajectory is the first in a
    * sequence of trajectories or the only trajectory, initialize the gyro and odometry to match the
