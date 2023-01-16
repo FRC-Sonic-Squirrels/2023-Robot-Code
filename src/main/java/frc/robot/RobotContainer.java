@@ -10,14 +10,17 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -33,6 +36,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.DriveToGridPosition.GridPositions;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -68,6 +72,8 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+
+	DriveToGridPosition autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -248,6 +254,24 @@ public class RobotContainer {
     driverController.back()
 			.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
+
+		driverController.x()
+			.onTrue(
+				autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8) //some command
+          //you can do this because Trigger implements BooleanSupplier
+					.until(
+						anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)
+					)
+			);
+
+    driverController.a()
+      .onTrue(
+        autoDriveToGrid.driveToCommunityCheckPointBasedOnPos()
+          .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController))
+      );
+		
+		
+
   }
 
   /** Use this method to define your commands for autonomous mode. */
@@ -293,4 +317,14 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
+
+	public Trigger anyJoystickInputAboveForTrigger(double threshold, double forSeconds, CommandXboxController controller){
+	  return new Trigger(
+      () -> (controller.getLeftX() > threshold ||
+             controller.getLeftY() > threshold || 
+             controller.getRightX() > threshold ||
+             controller.getRightY() > threshold
+            )  
+    ).debounce(forSeconds);
+	}
 }
