@@ -114,9 +114,19 @@ public class DriveToGridPosition {
     public enum GridPositions {
         // GRID_8_LINEUP(2.0, 1.05),
         // GRID_8_SCORE(1.8, 1.05, 180),
+        GRID_7(
+            new Pose2d(2.0, 1.6, Rotation2d.fromDegrees(180)),
+            new Pose2d(1.8, 1.6, Rotation2d.fromDegrees(180))
+        ),
+
         GRID_8(
             new Pose2d(2.0, 1.05, Rotation2d.fromDegrees(180)),
             new Pose2d(1.8, 1.05, Rotation2d.fromDegrees(180))
+        ),
+
+        Grid_9(
+            new Pose2d(2.0, 0.48, Rotation2d.fromDegrees(180)),
+            new Pose2d(1.8, 0.48, Rotation2d.fromDegrees(180))
         );
 
         public final Pose2d lineUpPos;
