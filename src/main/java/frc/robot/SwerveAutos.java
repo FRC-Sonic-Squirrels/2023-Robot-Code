@@ -3,7 +3,9 @@ package frc.robot;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
 import java.util.HashMap;
+import java.util.List;
 
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
@@ -61,7 +63,7 @@ public class SwerveAutos {
         AUTO_MAX_SPEED_METERS_PER_SECOND, 
         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-        return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
   public Command rotateAroundPoint() {
     PathPlannerTrajectory path = 
@@ -70,7 +72,7 @@ public class SwerveAutos {
         AUTO_MAX_SPEED_METERS_PER_SECOND, 
         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-        return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command testPath2mForwardWithIntake() {
@@ -85,6 +87,22 @@ public class SwerveAutos {
         AUTO_MAX_SPEED_METERS_PER_SECOND, 
         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-        return new SequentialCommandGroup(new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), eventMap));
+    return new SequentialCommandGroup(new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), eventMap));
+  }
+
+  public Command testPathSquareGroup(){
+    List<PathPlannerTrajectory> pathGroup1 = 
+    PathPlanner.loadPathGroup(
+      "squarePathGroup", 
+      new PathConstraints(
+        AUTO_MAX_SPEED_METERS_PER_SECOND, 
+        AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
+    
+    return new SequentialCommandGroup(
+      new FollowPath(pathGroup1.get(0), drivetrain, true),
+      new FollowPath(pathGroup1.get(1), drivetrain, true),
+      new FollowPath(pathGroup1.get(2), drivetrain, true),
+      new FollowPath(pathGroup1.get(3), drivetrain, true)
+      );
   }
 }
