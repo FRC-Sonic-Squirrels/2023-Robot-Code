@@ -365,7 +365,7 @@ public class Drivetrain extends SubsystemBase {
       estimatedPoseWithoutGyro = estimatedPoseWithoutGyro.exp(twist);
     }
 
-    poseEstimator.updateWithTime(this.timer.get(), this.getRotation(), swerveModulePositions);
+    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
 
     field.setRobotPose(poseEstimator.getEstimatedPosition());
 
