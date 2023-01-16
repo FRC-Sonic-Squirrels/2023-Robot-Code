@@ -33,18 +33,20 @@ public class DriveToGridPosition {
         this.controller = controller;
     }
 
-    public Command driveToGridPosAndScore(){
+    public Command driveToGridPosAndScore(GridPositions gridPos){
         
         return new SequentialCommandGroup(
             new FollowPathOnTheFly(
-                GridPositions.BOTTOM_ENTRANCE_CHECKPOINT.pose, 
+                //TODO: combine this with the logic for determining which entrance to use 
+                //for testing use bottom entrance bc thats whats set up in the portable
+                SelectedEntrance.BOTTOM.insideCheckpointPos,
                 drivetrain, 
                 drive_slow_test_vel, 
                 angular_slow_test_vel),
             
-            new FollowPathOnTheFly(GridPositions.GRID_8_LINEUP.pose, drivetrain, drive_slow_test_vel, angular_slow_test_vel),
+            new FollowPathOnTheFly(gridPos.lineUpPos, drivetrain, drive_slow_test_vel, angular_slow_test_vel),
 
-            new FollowPathOnTheFly(GridPositions.GRID_8_SCORE.pose, drivetrain, drive_slow_test_vel, angular_slow_test_vel),
+            new FollowPathOnTheFly(gridPos.scorePos, drivetrain, drive_slow_test_vel, angular_slow_test_vel),
             
             Commands.run(() -> intake.extend(), intake), 
 
@@ -110,22 +112,25 @@ public class DriveToGridPosition {
     }
 
     public enum GridPositions {
-        TOP_ENTRANCE_CHECKPOINT(0.0, 0.0, 0.0),
-        BOTTOM_ENTRANCE_CHECKPOINT(2.17, 0.7, 180),
-    
-        GRID_8_LINEUP(2.0, 1.05, 180),
-        GRID_8_SCORE(1.8, 1.05, 180);
+        // GRID_8_LINEUP(2.0, 1.05),
+        // GRID_8_SCORE(1.8, 1.05, 180),
+        GRID_8(
+            new Pose2d(2.0, 1.05, Rotation2d.fromDegrees(180)),
+            new Pose2d(1.8, 1.05, Rotation2d.fromDegrees(180))
+        );
 
-        public final Pose2d pose;
+        public final Pose2d lineUpPos;
+        public final Pose2d scorePos; 
     
-        private GridPositions(double x, double y, double rotationDegrees) {
-          pose = new Pose2d(x, y, Rotation2d.fromDegrees(rotationDegrees));
+        private GridPositions(Pose2d lineUpPos, Pose2d scorePos) {
+          this.lineUpPos = lineUpPos; 
+          this.scorePos = scorePos;
         }
     }
 
     public static enum SelectedEntrance {
-        TOP(GridPositions.TOP_ENTRANCE_CHECKPOINT.pose), 
-        BOTTOM(GridPositions.BOTTOM_ENTRANCE_CHECKPOINT.pose),
+        TOP(new Pose2d(2.17, 4.64, Rotation2d.fromDegrees(180))), 
+        BOTTOM(new Pose2d(2.17, 0.7, Rotation2d.fromDegrees(180))),
         UNKNOWN(new Pose2d());
 
         public final Pose2d insideCheckpointPos;
