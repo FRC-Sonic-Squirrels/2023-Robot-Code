@@ -115,7 +115,5 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_I_CONTROLLER = 0.0;
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
-  public static final double AUTO_ROTATE_P_CONTROLLER = 0;
-
   public static final double DEADBAND = 0.1;
 }
