@@ -3,6 +3,7 @@ package frc.lib.team3061.vision;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.File;
 import java.nio.file.Path;
@@ -21,9 +22,11 @@ public final class VisionConstants {
 
   // FIXME: update this with the real transform from the robot to the camera
   public static final Transform3d ROBOT_TO_CAMERA =
-      new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));
+      new Transform3d(
+          new Translation3d(Units.inchesToMeters(-7), 0.0, Units.inchesToMeters(31.5)),
+          new Rotation3d(0, 0, Units.degreesToRadians(180)));
 
   public static final double MAXIMUM_AMBIGUITY = 0.2;
 
-  public static final double MAX_POSE_DIFFERENCE_METERS = 1.0;
+  public static final double MAX_POSE_DIFFERENCE_METERS = 10.0;
 }
