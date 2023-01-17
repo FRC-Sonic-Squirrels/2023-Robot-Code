@@ -54,10 +54,11 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-  private final Trigger zeroGyro = driverController.back();
-  private final Trigger robotCentric = driverController.b();
-  private final Trigger xStance = driverController.a();
-  private final Trigger intakeOut = driverController.rightBumper();
+  // these triggers are now directly detected
+  // zeroGyro is assigned to back
+  // robotCentric is assigned to b
+  // xStance is assigned to a
+  // intakeOut is assigned to right bumper
 
   private Drivetrain drivetrain;
   private Intake intake;
@@ -217,24 +218,24 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    robotCentric.toggleOnTrue(
+    driverController.b().toggleOnTrue(
         Commands.either(
             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
             drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
-    zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // x-stance
-    xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
     // intake
-    intakeOut.whileTrue(
+    driverController.rightBumper().whileTrue(
         Commands.runOnce(intake::extend, intake)
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    intakeOut.onFalse(
+    driverController.rightBumper().onFalse(
         Commands.runOnce(intake::retract, intake)
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
