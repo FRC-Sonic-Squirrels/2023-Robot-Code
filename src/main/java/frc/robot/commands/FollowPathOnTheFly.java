@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import java.util.List;
 
 public class FollowPathOnTheFly extends FollowPath {
   /** Creates a new DriveToSpecificPose. */
@@ -31,6 +32,19 @@ public class FollowPathOnTheFly extends FollowPath {
     super(
         drivetrain.generateOnTheFlyTrajectory(
             targetPose, driveVelocityConstraint, angularVelocityConstant),
+        drivetrain,
+        false);
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public FollowPathOnTheFly(
+      List<Pose2d> targetPoses,
+      Drivetrain drivetrain,
+      double driveVelocityConstraint,
+      double angularVelocityConstant) {
+    super(
+        drivetrain.generateOnTheFlyTrajectory(
+            targetPoses, driveVelocityConstraint, angularVelocityConstant),
         drivetrain,
         false);
     // Use addRequirements() here to declare subsystem dependencies.

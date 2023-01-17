@@ -35,6 +35,8 @@ import frc.lib.team3061.gyro.GyroIOInputsAutoLogged;
 import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team6328.util.TunableNumber;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -365,7 +367,8 @@ public class Drivetrain extends SubsystemBase {
       estimatedPoseWithoutGyro = estimatedPoseWithoutGyro.exp(twist);
     }
 
-    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
+    poseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
 
     field.setRobotPose(poseEstimator.getEstimatedPosition());
 
@@ -595,10 +598,13 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Uses the max drivetrain velocity when generating the path
+   *
    * @param targetPose
    * @return
    */
   public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose) {
+
+    //
     return PathPlanner.generatePath(
         new PathConstraints(
             DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
@@ -608,14 +614,34 @@ public class Drivetrain extends SubsystemBase {
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
   }
 
-  public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose, double driveVelocityConstraint, double angularVelocityConstant) {
-    return PathPlanner.generatePath(
-        new PathConstraints(
-            driveVelocityConstraint,
-            angularVelocityConstant),
-        PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
-        new PathPoint(
-            targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+  public PathPlannerTrajectory generateOnTheFlyTrajectory(
+      Pose2d targetPose, double driveVelocityConstraint, double angularVelocityConstant) {
+    var path =
+        PathPlanner.generatePath(
+            new PathConstraints(driveVelocityConstraint, angularVelocityConstant),
+            PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
+            new PathPoint(
+                targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+
+    return path;
+  }
+
+  public PathPlannerTrajectory generateOnTheFlyTrajectory(
+      List<Pose2d> targetPoses, double driveVelocityConstraint, double angularVelocityConstant) {
+
+    ArrayList<PathPoint> points = new ArrayList<PathPoint>();
+
+    points.add(PathPoint.fromCurrentHolonomicState(getPose(), chassisSpeeds));
+
+    for (Pose2d pos : targetPoses) {
+      points.add(new PathPoint(pos.getTranslation(), pos.getRotation()));
+    }
+
+    var path =
+        PathPlanner.generatePath(
+            new PathConstraints(driveVelocityConstraint, angularVelocityConstant), points);
+
+    return path;
   }
 
   private enum DriveMode {
