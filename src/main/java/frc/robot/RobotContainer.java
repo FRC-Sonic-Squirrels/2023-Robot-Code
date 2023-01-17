@@ -10,13 +10,13 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -51,17 +51,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverController = new XboxController(0);
+  private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  private final Trigger zeroGyro = driverController.back();
+  private final Trigger robotCentric = driverController.b();
+  private final Trigger xStance = driverController.a();
+  private final Trigger intakeOut = driverController.rightBumper();
 
   private Drivetrain drivetrain;
   private Intake intake;
