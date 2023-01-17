@@ -10,16 +10,12 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -47,8 +43,6 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.ResourceBundle.Control;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -61,19 +55,18 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-//   private final JoystickButton zeroGyro =
-//       new JoystickButton(driverController, XboxController.Button.kBack.value);
-//   private final JoystickButton robotCentric =
-//       new JoystickButton(driverController, XboxController.Button.kB.value);
-//   private final JoystickButton xStance =
-//       new JoystickButton(driverController, XboxController.Button.kA.value);
-//   private final JoystickButton intakeOut =
-//       new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  //   private final JoystickButton zeroGyro =
+  //       new JoystickButton(driverController, XboxController.Button.kBack.value);
+  //   private final JoystickButton robotCentric =
+  //       new JoystickButton(driverController, XboxController.Button.kB.value);
+  //   private final JoystickButton xStance =
+  //       new JoystickButton(driverController, XboxController.Button.kA.value);
+  //   private final JoystickButton intakeOut =
+  //       new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
 
   private Drivetrain drivetrain;
   private Intake intake;
-
-	DriveToGridPosition autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
+  private DriveToGridPosition autoDriveToGrid;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -206,6 +199,7 @@ public class RobotContainer {
      * direction. This is why the left joystick's y axis specifies the velocity in the x direction
      * and the left joystick's x axis specifies the velocity in the y direction.
      */
+
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
             drivetrain,
@@ -213,6 +207,7 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
     configureButtonBindings();
     configureAutoCommands();
   }
@@ -251,27 +246,36 @@ public class RobotContainer {
     //     Commands.runOnce(intake::retract, intake)
     //         .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    driverController.back()
-			.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
+    driverController
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd =
+                      autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8); // some command
+                  // you can do this because Trigger implements BooleanSupplier
+                  cmd.schedule();
+                }));
 
-		driverController.x()
-			.onTrue(
-				autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8) //some command
-          //you can do this because Trigger implements BooleanSupplier
-					.until(
-						anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)
-					)
-			);
+    driverController
+        .a()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd = autoDriveToGrid.testSequence(GridPositions.GRID_8); // some command
+                  // you can do this because Trigger implements BooleanSupplier
+                  cmd.schedule();
+                }));
+    // .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
 
-    driverController.a()
-      .onTrue(
-        autoDriveToGrid.driveToCommunityCheckPointBasedOnPos()
-          .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController))
-      );
-		
-		
-
+    // driverController
+    //     .a()
+    //     .onTrue(
+    //         autoDriveToGrid
+    //             .driveToCommunityCheckPointBasedOnPos()
+    //             .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
   }
 
   /** Use this method to define your commands for autonomous mode. */
@@ -318,13 +322,14 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-	public Trigger anyJoystickInputAboveForTrigger(double threshold, double forSeconds, CommandXboxController controller){
-	  return new Trigger(
-      () -> (controller.getLeftX() > threshold ||
-             controller.getLeftY() > threshold || 
-             controller.getRightX() > threshold ||
-             controller.getRightY() > threshold
-            )  
-    ).debounce(forSeconds);
-	}
+  public Trigger anyJoystickInputAboveForTrigger(
+      double threshold, double forSeconds, CommandXboxController controller) {
+    return new Trigger(
+            () ->
+                (controller.getLeftX() > threshold
+                    || controller.getLeftY() > threshold
+                    || controller.getRightX() > threshold
+                    || controller.getRightY() > threshold))
+        .debounce(forSeconds);
+  }
 }
