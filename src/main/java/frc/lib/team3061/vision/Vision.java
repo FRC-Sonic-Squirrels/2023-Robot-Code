@@ -2,7 +2,6 @@ package frc.lib.team3061.vision;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -67,14 +66,14 @@ public class Vision extends SubsystemBase {
 
     // TODO: figure out how this affects our position and how this effects auto paths
     // where is the red alliance origin? top right? bottom right?
-    if (DriverStation.getAlliance() != lastAlliance) {
-      lastAlliance = DriverStation.getAlliance();
-      if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
-        layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-      } else {
-        layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-      }
-    }
+    // if (DriverStation.getAlliance() != lastAlliance) {
+    //   lastAlliance = DriverStation.getAlliance();
+    //   if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+    //     layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+    //   } else {
+    //     layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+    //   }
+    // }
 
     if (lastTimestamp < getLatestTimestamp()) {
       lastTimestamp = getLatestTimestamp();
@@ -93,18 +92,19 @@ public class Vision extends SubsystemBase {
             Pose3d cameraPose = tagPose.transformBy(cameraToTarget.inverse());
             // camera might not be in the center of the robot
             Pose3d robotPose = cameraPose.transformBy(VisionConstants.ROBOT_TO_CAMERA.inverse());
-            if (poseEstimator
-                    .getEstimatedPosition()
-                    .minus(robotPose.toPose2d())
-                    .getTranslation()
-                    .getNorm()
-                < VisionConstants.MAX_POSE_DIFFERENCE_METERS) {
-              poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp());
+            // TODO: check back on this
+            // if (poseEstimator
+            //         .getEstimatedPosition()
+            //         .minus(robotPose.toPose2d())
+            //         .getTranslation()
+            //         .getNorm()
+            //     < VisionConstants.MAX_POSE_DIFFERENCE_METERS) {
+            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp());
 
-              Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
-              Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
-              Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
-            }
+            Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
+            Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
+            Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
+            // }
           }
         }
       }
