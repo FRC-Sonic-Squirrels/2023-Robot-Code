@@ -90,7 +90,22 @@ public class DriveWithSetRotation extends CommandBase {
       else {
         pov = -pov;
       }
+
+      if (Math.toRadians(pov) != m_setRotationRadians) {
+
+        // only reset PID is target angle changes
+        SmartDashboard.putNumber("TargetAngle", pov);
+        m_setRotationRadians = Math.toRadians(pov);
+      }
     }
+
+    double rotationOutput = rotationController.calculate(m_drivetrain.getPose().getRotation().getRadians(), m_setRotationRadians);
+
+    if (Math.abs(rotationOutput) < 0.05) {
+      rotationOutput = 0;
+    }
+
+    //m_drivetrain.drive(rotationOutput, pov, rotationOutput);
   }
 
   // Called once the command ends or is interrupted.
