@@ -33,6 +33,10 @@ public final class Constants {
 
   private static final RobotType ROBOT = RobotType.ROBOT_2023_PRESEASON;
 
+  public static final int WRIST_SOLENOID_DEPLOY = 0;
+
+  public static final int WRIST_SOLENOID_RETRACT = 1;
+
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
 
