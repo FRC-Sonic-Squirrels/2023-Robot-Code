@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
@@ -30,7 +31,7 @@ public class DriveWithSetRotation extends CommandBase {
   private double m_setRotationRadians;
 
   // PID controller to maintain fixed rotation, with P being a TunableNumber
-  private ProfiledPIDController rotationController = new ProfiledPIDController(0, 0, 0,
+  private ProfiledPIDController rotationController = new ProfiledPIDController(4.9, 0, 0,
     new TrapezoidProfile.Constraints(DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
       DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
@@ -50,15 +51,47 @@ public class DriveWithSetRotation extends CommandBase {
 
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
     rotationController.setTolerance(rotationRadians);
+
+    SmartDashboard.putNumber("Target Angle Radians", m_setRotationRadians);
+    SmartDashboard.putNumber("Current Robot Angle Radians", m_drivetrain.getPose().getRotation().getRadians());
+    SmartDashboard.putNumber("Current Robot Angle Velocity Radians", rotationRadians);
+    SmartDashboard.putNumber("Rotation Output", 0.0);
+
+    SmartDashboard.putNumber("Angle Error Radians", rotationController.getPositionError());
+    SmartDashboard.putNumber("Angle Velocity Error Radians", rotationController.getVelocityError());
+
+    SmartDashboard.putBoolean("Angle at Target", rotationController.atGoal());
+
+    SmartDashboard.putNumber("X Position", m_translationXSupplier.getAsDouble());
+    SmartDashboard.putNumber("Y Position", m_translationYSupplier.getAsDouble());
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    // resets robot position to its current measured position
+    rotationController.reset(m_drivetrain.getPose().getRotation().getRadians());
+    rotationController.setGoal(m_setRotationRadians);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    
+    double pov = m_rotationPOVSupplier.getAsDouble();
+
+    // if pov was < 0 that would mean theres no input
+    if (pov >= 0) {
+
+      // angle correction
+      if (pov > 180) {
+        pov = 360 - pov;
+      }
+      else {
+        pov = -pov;
+      }
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override

@@ -98,7 +98,7 @@ public final class DrivetrainConstants {
   
   //TODO: find actual max angular acceleration
   public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 
-      1;
+      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
   public static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05;
 
@@ -118,8 +118,6 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_P_CONTROLLER = 4.9;
   public static final double AUTO_TURN_I_CONTROLLER = 0.0;
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
-
-  public static final double AUTO_ROTATE_P_CONTROLLER = 0;
 
   public static final double DEADBAND = 0.1;
 }
