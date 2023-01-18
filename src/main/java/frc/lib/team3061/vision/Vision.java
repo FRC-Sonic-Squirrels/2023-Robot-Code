@@ -93,18 +93,18 @@ public class Vision extends SubsystemBase {
             // camera might not be in the center of the robot
             Pose3d robotPose = cameraPose.transformBy(VisionConstants.ROBOT_TO_CAMERA.inverse());
             // TODO: check back on this
-            // if (poseEstimator
-            //         .getEstimatedPosition()
-            //         .minus(robotPose.toPose2d())
-            //         .getTranslation()
-            //         .getNorm()
-            //     < VisionConstants.MAX_POSE_DIFFERENCE_METERS) {
-            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp());
+            if (poseEstimator
+                    .getEstimatedPosition()
+                    .minus(robotPose.toPose2d())
+                    .getTranslation()
+                    .getNorm()
+                < VisionConstants.MAX_POSE_DIFFERENCE_METERS) {
+              poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp());
 
-            Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
-            Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
-            Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
-            // }
+              Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
+              Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
+              Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
+            }
           }
         }
       }
