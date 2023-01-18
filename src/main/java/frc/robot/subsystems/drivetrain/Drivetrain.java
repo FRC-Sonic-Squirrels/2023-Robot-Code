@@ -249,6 +249,21 @@ public class Drivetrain extends SubsystemBase {
         new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
   }
 
+  /** unsure how reliable this method did, needs more testing before being used in comp */
+  public void resetOdometry(Pose2d pos) {
+    setGyroOffset(pos.getRotation().getRadians());
+
+    for (int i = 0; i < 4; i++) {
+      swerveModulePositions[i] = swerveModules[i].getPosition();
+    }
+
+    estimatedPoseWithoutGyro = new Pose2d(pos.getTranslation(), pos.getRotation());
+    poseEstimator.resetPosition(
+        this.getRotation(),
+        swerveModulePositions,
+        new Pose2d(pos.getTranslation(), pos.getRotation()));
+  }
+
   /**
    * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
    * rotational directions. The velocities may be specified from either the robot's frame of
@@ -391,6 +406,9 @@ public class Drivetrain extends SubsystemBase {
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
+
+    Logger.getInstance().recordOutput("Odometry/xvel", getCurrentChassisSpeeds().vxMetersPerSecond);
+    Logger.getInstance().recordOutput("Odometry/yvel", getCurrentChassisSpeeds().vyMetersPerSecond);
   }
 
   /**

@@ -10,6 +10,8 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -248,26 +250,35 @@ public class RobotContainer {
 
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
-    driverController
-        .x()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var cmd =
-                      autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8); // some command
-                  // you can do this because Trigger implements BooleanSupplier
-                  cmd.schedule();
-                }));
+    // driverController
+    //     .x()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var cmd =
+    //                   autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8); // some
+    // command
+    //               // you can do this because Trigger implements BooleanSupplier
+    //               cmd.schedule();
+    //             }));
 
     driverController
         .a()
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = autoDriveToGrid.testSequence(GridPositions.GRID_8); // some command
+                  var cmd =
+                      autoDriveToGrid.testGenerateAndFollow(GridPositions.GRID_8); // some command
                   // you can do this because Trigger implements BooleanSupplier
                   cmd.schedule();
                 }));
+
+    driverController
+        .b()
+        .onTrue(
+            new InstantCommand(
+                () -> drivetrain.resetOdometry(new Pose2d(4.5, 1.13, new Rotation2d())),
+                drivetrain));
     // .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
 
     // driverController

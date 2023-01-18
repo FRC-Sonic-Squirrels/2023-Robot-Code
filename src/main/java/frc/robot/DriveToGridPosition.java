@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -13,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.FollowPathOnTheFly;
+import frc.robot.commands.GenerateAndFollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import java.util.ArrayList;
 
@@ -26,6 +30,11 @@ public class DriveToGridPosition {
 
   private static double drive_slow_test_vel = 0.5;
   private static double angular_slow_test_vel = 0.2;
+
+  private static PathConstraints constraints =
+      new PathConstraints(
+          DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND * 0.5,
+          DrivetrainConstants.AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND * 0.5);
 
   public DriveToGridPosition(
       Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
@@ -71,6 +80,29 @@ public class DriveToGridPosition {
 
     return new SequentialCommandGroup(
         new FollowPathOnTheFly(points, drivetrain, drive_slow_test_vel, angular_slow_test_vel));
+  }
+
+  public Command testGenerateAndFollow(GridPositions gridPos) {
+    ArrayList<PathPoint> pointsEntry = new ArrayList<PathPoint>();
+
+    pointsEntry.add(
+        new PathPoint(
+            SelectedEntrance.BOTTOM.insideCheckpointPos.getTranslation(),
+            Rotation2d.fromDegrees(180)));
+
+    pointsEntry.add(new PathPoint(gridPos.lineUpPos.getTranslation(), Rotation2d.fromDegrees(180)));
+
+    pointsEntry.add(new PathPoint(gridPos.scorePos.getTranslation(), Rotation2d.fromDegrees(180)));
+
+    // ArrayList<Pose2d> pointsExit = new ArrayList<Pose2d>();
+    // pointsExit.add(gridPos.lineUpPos);
+    // pointsExit.add(SelectedEntrance.BOTTOM.insideCheckpointPos);
+
+    return new SequentialCommandGroup(
+        new GenerateAndFollowPath(drivetrain, pointsEntry, constraints, true)
+
+        // new GenerateAndFollowPath(drivetrain, pointsExit, constraints)
+        );
   }
 
   public Command driveToCommunityCheckPointBasedOnPos() {
