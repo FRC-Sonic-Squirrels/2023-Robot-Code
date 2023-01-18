@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -218,11 +217,13 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    driverController.b().toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+    driverController
+        .b()
+        .toggleOnTrue(
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
@@ -232,12 +233,16 @@ public class RobotContainer {
     driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
     // intake
-    driverController.rightBumper().whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    driverController.rightBumper().onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    driverController
+        .rightBumper()
+        .whileTrue(
+            Commands.runOnce(intake::extend, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    driverController
+        .rightBumper()
+        .onFalse(
+            Commands.runOnce(intake::retract, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
 
   /** Use this method to define your commands for autonomous mode. */
