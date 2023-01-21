@@ -101,8 +101,6 @@ public class Drivetrain extends SubsystemBase {
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
-  private boolean overRideStop = false;
-
   private final SwerveDrivePoseEstimator poseEstimator;
   private Timer timer;
   private boolean brakeMode;
@@ -176,10 +174,6 @@ public class Drivetrain extends SubsystemBase {
    */
   public void zeroGyroscope() {
     setGyroOffset(0.0);
-  }
-
-  public void overrideStop() {
-    overRideStop = true;
   }
 
   /**
@@ -339,10 +333,6 @@ public class Drivetrain extends SubsystemBase {
    * after this method is invoked.
    */
   public void stop() {
-    if (overRideStop) {
-      overRideStop = false;
-      return;
-    }
     chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
     SwerveModuleState[] states = KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
     setSwerveModuleStates(states);

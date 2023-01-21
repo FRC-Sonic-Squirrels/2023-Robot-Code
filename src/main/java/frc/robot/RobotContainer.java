@@ -269,8 +269,15 @@ public class RobotContainer {
                 () -> {
                   var cmd =
                       autoDriveToGrid.testGenerateAndFollow(GridPositions.GRID_8); // some command
-                  drivetrain.overrideStop();
-                  // you can do this because Trigger implements BooleanSupplier
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
                   cmd.schedule();
                 }));
 

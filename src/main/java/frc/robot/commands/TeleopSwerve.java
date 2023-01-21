@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.OverrideDrivetrainStop;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import java.util.function.DoubleSupplier;
@@ -17,12 +18,13 @@ import org.littletonrobotics.junction.Logger;
  *
  * <p>At End: stops the drivetrain
  */
-public class TeleopSwerve extends CommandBase {
+public class TeleopSwerve extends CommandBase implements OverrideDrivetrainStop {
 
   private final Drivetrain drivetrain;
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
+  private boolean overideStopFlag = false;
 
   /**
    * Create a new TeleopSwerve command object.
@@ -72,9 +74,15 @@ public class TeleopSwerve extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
+    if (overideStopFlag) {
+      overideStopFlag = false;
+      Logger.getInstance().recordOutput("ActiveCommands/TeleopSwerve", false);
+      return;
+    }
+
     this.drivetrain.stop();
 
-    super.end(interrupted);
+    // super.end(interrupted);
 
     Logger.getInstance().recordOutput("ActiveCommands/TeleopSwerve", false);
   }
@@ -106,5 +114,10 @@ public class TeleopSwerve extends CommandBase {
     } else {
       return 0.0;
     }
+  }
+
+  @Override
+  public void overideStop() {
+    overideStopFlag = true;
   }
 }
