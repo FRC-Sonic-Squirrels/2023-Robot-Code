@@ -13,6 +13,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -162,13 +163,26 @@ public class GenerateAndFollowPath extends CommandBase {
   public void initialize() {
 
     List<PathPoint> pathPoints = new ArrayList<PathPoint>();
-    pathPoints.add(
-        PathPoint.fromCurrentHolonomicState(
-            drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds()));
 
-    var p =
-        PathPoint.fromCurrentHolonomicState(
-            drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds());
+    ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
+
+    double linearVel =
+        Math.sqrt(
+            (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
+                + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
+
+    Pose2d currentPose = drivetrain.getPose();
+    Pose2d initialPose =
+        new Pose2d(currentPose.getX() - 0.5, currentPose.getY(), currentPose.getRotation());
+
+    PathPoint initialPoint =
+        new PathPoint(
+            initialPose.getTranslation(),
+            Rotation2d.fromDegrees(180),
+            initialPose.getRotation(),
+            linearVel);
+
+    pathPoints.add(initialPoint);
 
     pathPoints.addAll(this.pathWaypoints);
 
