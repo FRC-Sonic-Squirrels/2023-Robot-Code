@@ -395,10 +395,11 @@ public class Drivetrain extends SubsystemBase {
    * stopped moving, and brake mode is enabled, disable it.
    */
   private void updateBrakeMode() {
-    if (DriverStation.isEnabled() && !brakeMode) {
-      brakeMode = true;
-      setBrakeMode(true);
-
+    if (DriverStation.isEnabled()) {
+      if(!brakeMode) {
+        brakeMode = true;
+        setBrakeMode(true);
+      }
     } else {
       boolean stillMoving = false;
       for (SwerveModule mod : swerveModules) {
