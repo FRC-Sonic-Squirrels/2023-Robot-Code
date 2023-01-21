@@ -282,6 +282,9 @@ public class RobotContainer {
         "testPath2mForwardWithIntake",
         new SwerveAutos(drivetrain, intake).testPath2mForwardWithIntake());
     autoChooser.addOption(
+        "forwardLeft",
+        new SwerveAutos(drivetrain, intake).forwardLeft());
+    autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(
             drivetrain,

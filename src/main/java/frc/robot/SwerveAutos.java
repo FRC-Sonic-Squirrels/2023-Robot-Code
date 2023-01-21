@@ -113,4 +113,14 @@ public class SwerveAutos {
         new FollowPath(pathGroup1.get(2), drivetrain, true),
         new FollowPath(pathGroup1.get(3), drivetrain, true));
   }
+
+  public Command forwardLeft() {
+    PathPlannerTrajectory path =
+        PathPlanner.loadPath(
+            "forwardLeft",
+            AUTO_MAX_SPEED_METERS_PER_SECOND*0.1,
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+  }
 }
