@@ -142,7 +142,7 @@ public class Robot extends LoggedRobot {
     // TODO:remember to change this back to actual auto chooser
     // autonomousCommand = robotContainer.getAutonomousCommand();
 
-    autonomousCommand = robotContainer.getTestAutonomousCommand();
+    autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command
     if (autonomousCommand != null) {

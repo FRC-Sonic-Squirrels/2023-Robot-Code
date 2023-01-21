@@ -10,14 +10,14 @@
         "x": 3.0000000000000018,
         "y": 1.0
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "extendIntake"
+          "event1"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
@@ -34,14 +34,14 @@
         "y": 1.0
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "retractIntake"
+          "event2"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
@@ -49,5 +49,5 @@
       }
     }
   ],
-  "markers": []
+  "markers": [{ "name": "event1", "position": 0}, {"name":"event2", "position":1}]
 }

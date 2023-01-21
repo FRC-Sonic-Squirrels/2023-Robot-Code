@@ -5,7 +5,6 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
@@ -44,15 +43,17 @@ public class Intake extends SubsystemBase {
     io.setExtended(false);
   }
 
-  public Command extendCommand(){
-    return new InstantCommand(() -> {
-      extend();
-  });
+  public Command extendCommand() {
+    return new InstantCommand(
+        () -> {
+          extend();
+        });
   }
 
-  public Command retractCommand(){
-    return new InstantCommand(() -> {
-      retract();
-  });
+  public Command retractCommand() {
+    return new InstantCommand(
+        () -> {
+          retract();
+        });
   }
 }

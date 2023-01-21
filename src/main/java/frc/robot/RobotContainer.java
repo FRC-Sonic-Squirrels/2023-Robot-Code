@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -37,6 +38,7 @@ import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizatio
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
@@ -248,6 +250,7 @@ public class RobotContainer {
 
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
+
     PathPlannerTrajectory testPath2mForward =
         PathPlanner.loadPath(
             "2mForward",
@@ -263,10 +266,10 @@ public class RobotContainer {
             "3mForward360",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForwardWithIntake = 
+    PathPlannerTrajectory testPath2mForwardWithIntake =
         PathPlanner.loadPath(
-            "testPath2mForwardWithIntake", 
-            AUTO_MAX_SPEED_METERS_PER_SECOND, 
+            "testPath2mForwardWithIntake",
+            AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
@@ -276,7 +279,8 @@ public class RobotContainer {
     autoChooser.addOption(
         "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
     autoChooser.addOption(
-        "testPath2mForwardWithIntake", new FollowPath(testPath2mForwardWithIntake, drivetrain, true));
+        "testPath2mForwardWithIntake",
+        new SwerveAutos(drivetrain, intake).testPath2mForwardWithIntake());
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(
