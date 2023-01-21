@@ -263,6 +263,11 @@ public class RobotContainer {
             "3mForward360",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory testPath2mForwardWithIntake = 
+        PathPlanner.loadPath(
+            "testPath2mForwardWithIntake", 
+            AUTO_MAX_SPEED_METERS_PER_SECOND, 
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
     autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
@@ -270,6 +275,8 @@ public class RobotContainer {
         "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
     autoChooser.addOption(
         "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
+    autoChooser.addOption(
+        "testPath2mForwardWithIntake", new FollowPath(testPath2mForwardWithIntake, drivetrain, true));
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(
