@@ -33,8 +33,8 @@ public class DriveToGridPosition {
 
   private static PathConstraints constraints =
       new PathConstraints(
-          DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND * 0.5,
-          DrivetrainConstants.AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND * 0.5);
+          DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND,
+          DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
   public DriveToGridPosition(
       Drivetrain drivetrain, Intake intake, CommandXboxController controller) {

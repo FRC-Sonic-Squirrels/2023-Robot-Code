@@ -164,6 +164,30 @@ public class GenerateAndFollowPath extends CommandBase {
 
     List<PathPoint> pathPoints = new ArrayList<PathPoint>();
 
+    // ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
+
+    // double linearVel =
+    //     Math.sqrt(
+    //         (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
+    //             + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
+
+    // Pose2d currentPose = drivetrain.getPose();
+    // Pose2d initialPose =
+    //     new Pose2d(currentPose.getX() - 0.5, currentPose.getY(), currentPose.getRotation());
+
+    // PathPoint initialPoint =
+    //     new PathPoint(
+    //         initialPose.getTranslation(),
+    //         Rotation2d.fromDegrees(180),
+    //         initialPose.getRotation(),
+    //         linearVel);
+
+    // pathPoints.add(initialPoint);
+
+    // pathPoints.add(
+    //     PathPoint.fromCurrentHolonomicState(
+    //         drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds()));
+
     ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
 
     double linearVel =
@@ -171,18 +195,22 @@ public class GenerateAndFollowPath extends CommandBase {
             (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
                 + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
 
-    Pose2d currentPose = drivetrain.getPose();
-    Pose2d initialPose =
-        new Pose2d(currentPose.getX() - 0.5, currentPose.getY(), currentPose.getRotation());
+    // pathPoints.add(
+    //     new PathPoint(
+    //         drivetrain.getPose(),
+    //         Rotation2d.fromDegrees(180),
+    //         drivetrain.getPose().getRotation(),
+    //         linearVel));
 
-    PathPoint initialPoint =
+    this.timer.reset();
+    this.timer.start();
+
+    pathPoints.add(
         new PathPoint(
-            initialPose.getTranslation(),
+            drivetrain.getPose().getTranslation(),
             Rotation2d.fromDegrees(180),
-            initialPose.getRotation(),
-            linearVel);
-
-    pathPoints.add(initialPoint);
+            drivetrain.getPose().getRotation(),
+            linearVel));
 
     pathPoints.addAll(this.pathWaypoints);
 
@@ -194,9 +222,6 @@ public class GenerateAndFollowPath extends CommandBase {
 
     SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
     this.field.getObject("traj").setTrajectory(this.trajectory);
-
-    this.timer.reset();
-    this.timer.start();
 
     PathPlannerServer.sendActivePath(this.trajectory.getStates());
 
@@ -230,6 +255,15 @@ public class GenerateAndFollowPath extends CommandBase {
         currentPose.getRotation().getRadians() - desiredState.holonomicRotation.getRadians());
 
     ChassisSpeeds targetChassisSpeeds = this.controller.calculate(currentPose, desiredState);
+
+    Logger.getInstance()
+        .recordOutput("Odometry/vxMetersPerSecond", targetChassisSpeeds.vxMetersPerSecond);
+    Logger.getInstance()
+        .recordOutput("Odometry/vyMetersPerSecond", targetChassisSpeeds.vyMetersPerSecond);
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/omegaradPerSecond",
+            Math.toDegrees(targetChassisSpeeds.omegaRadiansPerSecond));
 
     if (this.useKinematics) {
       SwerveModuleState[] targetModuleStates =

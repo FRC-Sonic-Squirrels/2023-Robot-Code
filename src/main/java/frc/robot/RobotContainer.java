@@ -269,6 +269,7 @@ public class RobotContainer {
                 () -> {
                   var cmd =
                       autoDriveToGrid.testGenerateAndFollow(GridPositions.GRID_8); // some command
+                  drivetrain.overrideStop();
                   // you can do this because Trigger implements BooleanSupplier
                   cmd.schedule();
                 }));
