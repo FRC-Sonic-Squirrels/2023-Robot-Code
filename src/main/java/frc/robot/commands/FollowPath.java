@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.KINEMATICS;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,6 +24,7 @@ public class FollowPath extends PPSwerveControllerCommand {
   private Drivetrain drivetrain;
   private PathPlannerTrajectory trajectory;
   private boolean initialPath;
+  private boolean useAllianceColor = false;
 
   /**
    * Constructs a new FollowPath object.
@@ -70,6 +73,7 @@ public class FollowPath extends PPSwerveControllerCommand {
     this.drivetrain = subsystem;
     this.trajectory = trajectory;
     this.initialPath = initialPath;
+    this.useAllianceColor = useAllianceColor;
   }
 
   /**
@@ -86,7 +90,20 @@ public class FollowPath extends PPSwerveControllerCommand {
 
     if (initialPath) {
       // reset odometry to the starting pose of the trajectory
-      this.drivetrain.resetOdometry(this.trajectory.getInitialState());
+      PathPlannerState initialState = this.trajectory.getInitialState();
+      boolean flipped = false;
+      if (useAllianceColor) {
+        initialState =
+            PathPlannerTrajectory.transformStateForAlliance(
+                initialState, DriverStation.getAlliance());
+        flipped = true;
+      }
+
+      Logger.getInstance().recordOutput("Odometry/state pos ", initialState.poseMeters);
+      Logger.getInstance().recordOutput("Odometry/flipped path ", flipped);
+      this.drivetrain.resetOdometry(initialState);
+
+      // this.drivetrain.resetOdometry(this.trajectory.getInitialState());
     }
 
     // reset the theta controller such that old accumulated ID values aren't used with the new path
