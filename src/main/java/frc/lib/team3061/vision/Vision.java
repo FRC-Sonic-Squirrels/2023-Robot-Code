@@ -2,6 +2,7 @@ package frc.lib.team3061.vision;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,9 +46,9 @@ public class Vision extends SubsystemBase {
       noAprilTagLayoutAlert.set(true);
     }
 
-    for (AprilTag tag : layout.getTags()) {
-      Logger.getInstance().recordOutput("Vision/AprilTags/" + tag.ID, tag.pose);
-    }
+    // for (AprilTag tag : layout.getTags()) {
+    //   Logger.getInstance().recordOutput("Vision/AprilTags/" + tag.ID, tag.pose);
+    // }
   }
 
   public double getLatestTimestamp() {
@@ -66,14 +67,26 @@ public class Vision extends SubsystemBase {
 
     // TODO: figure out how this affects our position and how this effects auto paths
     // where is the red alliance origin? top right? bottom right?
-    // if (DriverStation.getAlliance() != lastAlliance) {
-    //   lastAlliance = DriverStation.getAlliance();
-    //   if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
-    //     layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-    //   } else {
-    //     layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-    //   }
-    // }
+    // FIXME: leave this commented or not
+    if (DriverStation.getAlliance() != lastAlliance) {
+      lastAlliance = DriverStation.getAlliance();
+      if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+        layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+        Logger.getInstance().recordMetadata("Odometry/tagorigin", "RED");
+      } else {
+        layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+        Logger.getInstance().recordMetadata("Odometry/tagorigin", "blue");
+      }
+
+      for (AprilTag tag : layout.getTags()) {
+        Logger.getInstance()
+            .recordOutput("Vision/2d_tags/" + tag.ID, layout.getTagPose(tag.ID).get().toPose2d());
+      }
+      for (AprilTag tag : layout.getTags()) {
+        Logger.getInstance()
+            .recordOutput("Vision/3d_AprilTags/" + tag.ID, layout.getTagPose(tag.ID).get());
+      }
+    }
 
     if (lastTimestamp < getLatestTimestamp()) {
       lastTimestamp = getLatestTimestamp();
