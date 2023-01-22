@@ -97,54 +97,11 @@ public class GenerateAndFollowPath extends CommandBase {
     addRequirements(requirements);
   }
 
-  /**
-   * Constructs a new PPSwerveControllerCommand that when executed will follow the provided
-   * trajectory. This command will not return output voltages but rather raw module states from the
-   * position controllers which need to be put into a velocity PID.
-   *
-   * <p>Note: The controllers will *not* set the output to zero upon completion of the path- this is
-   * left to the user, since it is not appropriate for paths with nonstationary endstates.
-   *
-   * @param trajectory The trajectory to follow.
-   * @param poseSupplier A function that supplies the robot pose - use one of the odometry classes
-   *     to provide this.
-   * @param kinematics The kinematics for the robot drivetrain.
-   * @param xController The Trajectory Tracker PID controller for the robot's x position.
-   * @param yController The Trajectory Tracker PID controller for the robot's y position.
-   * @param rotationController The Trajectory Tracker PID controller for angle for the robot.
-   * @param outputModuleStates The raw output module states from the position controllers.
-   * @param requirements The subsystems to require.
-   */
-  private GenerateAndFollowPath(
-      Drivetrain drivetrain,
-      List<PathPoint> pathWaypoints,
-      PathConstraints pathConstraints,
-      Supplier<Pose2d> poseSupplier,
-      SwerveDriveKinematics kinematics,
-      PIDController xController,
-      PIDController yController,
-      PIDController rotationController,
-      Consumer<SwerveModuleState[]> outputModuleStates,
-      Subsystem... requirements) {
-    this(
-        drivetrain,
-        pathWaypoints,
-        pathConstraints,
-        poseSupplier,
-        kinematics,
-        xController,
-        yController,
-        rotationController,
-        outputModuleStates,
-        true,
-        requirements);
-  }
-
   public GenerateAndFollowPath(
       Drivetrain drivetrain,
       List<PathPoint> poses,
       PathConstraints pathConstraints,
-      boolean initial) {
+      boolean useAllianceColor) {
     this(
         drivetrain,
         poses,
@@ -155,6 +112,7 @@ public class GenerateAndFollowPath extends CommandBase {
         drivetrain.getAutoYController(),
         drivetrain.getAutoThetaController(),
         drivetrain::setSwerveModuleStates,
+        useAllianceColor,
         drivetrain);
   }
 
@@ -233,6 +191,11 @@ public class GenerateAndFollowPath extends CommandBase {
     PathPlannerState desiredState = (PathPlannerState) this.trajectory.sample(currentTime);
 
     // if (useAllianceColor && trajectory.fromGUI) {
+    //   desiredState =
+    //       PathPlannerTrajectory.transformStateForAlliance(
+    //           desiredState, DriverStation.getAlliance());
+    // }
+    // if (useAllianceColor) {
     //   desiredState =
     //       PathPlannerTrajectory.transformStateForAlliance(
     //           desiredState, DriverStation.getAlliance());
