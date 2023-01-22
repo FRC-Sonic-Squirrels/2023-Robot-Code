@@ -6,8 +6,11 @@ package frc.robot;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -105,6 +108,35 @@ public class DriveToGridPosition {
         );
   }
 
+  public Command testAllianceFlip(TestPos pos) {
+    ArrayList<PathPoint> pointsEntry = new ArrayList<PathPoint>();
+
+    // pointsEntry.add(
+    //     new PathPoint(
+    //         SelectedEntrance.BOTTOM.insideCheckpointPos.getTranslation(),
+    //         Rotation2d.fromDegrees(180)));
+
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      pos.flipForRed();
+    }
+
+    pointsEntry.add(
+        new PathPoint(pos.lineUpPoint.getFirst().getTranslation(), pos.lineUpPoint.getSecond()));
+
+    pointsEntry.add(
+        new PathPoint(pos.scorePoint.getFirst().getTranslation(), pos.scorePoint.getSecond()));
+
+    // ArrayList<Pose2d> pointsExit = new ArrayList<Pose2d>();
+    // pointsExit.add(gridPos.lineUpPos);
+    // pointsExit.add(SelectedEntrance.BOTTOM.insideCheckpointPos);
+
+    return new SequentialCommandGroup(
+        new GenerateAndFollowPath(drivetrain, pointsEntry, constraints, true)
+
+        // new GenerateAndFollowPath(drivetrain, pointsExit, constraints)
+        );
+  }
+
   public Command driveToCommunityCheckPointBasedOnPos() {
     /**
      * Bottom entrance constraints: x < 4.65 0.01 < y < 1.4
@@ -179,6 +211,40 @@ public class DriveToGridPosition {
     private GridPositions(Pose2d lineUpPos, Pose2d scorePos) {
       this.lineUpPos = lineUpPos;
       this.scorePos = scorePos;
+    }
+  }
+
+  public enum TestPos {
+    GRID_8(
+        new Pair<Pose2d, Rotation2d>(
+            new Pose2d(2.0, 1.05, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)),
+        new Pair<Pose2d, Rotation2d>(
+            new Pose2d(1.8, 1.05, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)));
+
+    private Pair<Pose2d, Rotation2d> lineUpPoint;
+    private Pair<Pose2d, Rotation2d> scorePoint;
+
+    private TestPos(Pair<Pose2d, Rotation2d> lineUpPoint, Pair<Pose2d, Rotation2d> scorePoint) {
+      this.lineUpPoint = lineUpPoint;
+      this.scorePoint = scorePoint;
+    }
+
+    public void flipForRed() {
+      lineUpPoint =
+          new Pair<Pose2d, Rotation2d>(
+              new Pose2d(
+                  16.5 - lineUpPoint.getFirst().getX(),
+                  lineUpPoint.getFirst().getY(),
+                  lineUpPoint.getFirst().getRotation()),
+              new Rotation2d(-lineUpPoint.getSecond().getCos(), lineUpPoint.getSecond().getSin()));
+
+      scorePoint =
+          new Pair<Pose2d, Rotation2d>(
+              new Pose2d(
+                  16.5 - scorePoint.getFirst().getX(),
+                  scorePoint.getFirst().getY(),
+                  scorePoint.getFirst().getRotation()),
+              scorePoint.getSecond().unaryMinus());
     }
   }
 

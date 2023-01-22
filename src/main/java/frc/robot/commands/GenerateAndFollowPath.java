@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -233,11 +232,11 @@ public class GenerateAndFollowPath extends CommandBase {
     double currentTime = this.timer.get();
     PathPlannerState desiredState = (PathPlannerState) this.trajectory.sample(currentTime);
 
-    if (useAllianceColor && trajectory.fromGUI) {
-      desiredState =
-          PathPlannerTrajectory.transformStateForAlliance(
-              desiredState, DriverStation.getAlliance());
-    }
+    // if (useAllianceColor && trajectory.fromGUI) {
+    //   desiredState =
+    //       PathPlannerTrajectory.transformStateForAlliance(
+    //           desiredState, DriverStation.getAlliance());
+    // }
 
     Pose2d currentPose = this.poseSupplier.get();
     this.field.setRobotPose(currentPose);

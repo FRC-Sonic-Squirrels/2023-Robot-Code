@@ -35,6 +35,7 @@ import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.GridPositions;
+import frc.robot.DriveToGridPosition.TestPos;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -269,6 +270,24 @@ public class RobotContainer {
                 () -> {
                   var cmd =
                       autoDriveToGrid.testGenerateAndFollow(GridPositions.GRID_8); // some command
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  cmd.schedule();
+                }));
+
+    driverController
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd = autoDriveToGrid.testAllianceFlip(TestPos.GRID_8); // some command
 
                   Command currentCmd = drivetrain.getCurrentCommand();
 
