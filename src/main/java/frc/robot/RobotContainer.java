@@ -29,10 +29,8 @@ import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
-import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.GridPositions;
 import frc.robot.DriveToGridPosition.TestPos;
@@ -44,8 +42,6 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
-import java.io.IOException;
-import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -307,6 +303,15 @@ public class RobotContainer {
             new InstantCommand(
                 () -> drivetrain.resetOdometry(new Pose2d(4.5, 1.13, new Rotation2d())),
                 drivetrain));
+
+    PathPlannerTrajectory testAllianceFlipPath =
+        PathPlanner.loadPath(
+            "testPath",
+            AUTO_MAX_SPEED_METERS_PER_SECOND,
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    driverController.y().onTrue(new FollowPath(testAllianceFlipPath, drivetrain, true, true));
+
     // .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
 
     // driverController
@@ -335,12 +340,20 @@ public class RobotContainer {
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
+    PathPlannerTrajectory testAllianceFlipPath =
+        PathPlanner.loadPath(
+            "testPath",
+            AUTO_MAX_SPEED_METERS_PER_SECOND,
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
     autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
     autoChooser.addOption(
         "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
     autoChooser.addOption(
-        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
+        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true, true));
+    autoChooser.addOption(
+        "test alliance flip path", new FollowPath(testAllianceFlipPath, drivetrain, true, true));
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(
