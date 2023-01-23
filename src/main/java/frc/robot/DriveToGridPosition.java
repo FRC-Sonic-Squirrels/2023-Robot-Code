@@ -181,10 +181,19 @@ public class DriveToGridPosition {
     //         entranceCheckpoint.location.heading,
     //         entranceCheckpoint.location.pose.getRotation()));
 
+    Pose2d firstPose = null;
+
     for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {
       if (currentPose.getX() > checkPoint.pose.getX()) {
         points.add(EntranceCheckpoint.toPathPoint(checkPoint));
+        if (firstPose == null) {
+          firstPose = checkPoint.pose;
+        }
       }
+    }
+
+    if (firstPose == null) {
+      firstPose = physicalBay.lineup.pose;
     }
 
     points.add(
@@ -203,7 +212,7 @@ public class DriveToGridPosition {
     // }
 
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, points, constraints, false));
+        new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false));
   }
 
   public Command driveToCommunityCheckPointBasedOnPos() {

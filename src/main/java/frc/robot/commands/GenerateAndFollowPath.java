@@ -47,6 +47,8 @@ public class GenerateAndFollowPath extends CommandBase {
   private final List<PathPoint> pathWaypoints;
   private final PathConstraints pathConstraints;
 
+  private Pose2d firstPathPose;
+
   /**
    * Constructs a new PPSwerveControllerCommand that when executed will follow the provided
    * trajectory. This command will not return output voltages but rather raw module states from the
@@ -116,6 +118,28 @@ public class GenerateAndFollowPath extends CommandBase {
         drivetrain);
   }
 
+  public GenerateAndFollowPath(
+      Drivetrain drivetrain,
+      List<PathPoint> poses,
+      PathConstraints pathConstraints,
+      Pose2d firstPathPose,
+      boolean useAllianceColor) {
+    this(
+        drivetrain,
+        poses,
+        pathConstraints,
+        drivetrain::getPose,
+        DrivetrainConstants.KINEMATICS,
+        drivetrain.getAutoXController(),
+        drivetrain.getAutoYController(),
+        drivetrain.getAutoThetaController(),
+        drivetrain::setSwerveModuleStates,
+        useAllianceColor,
+        drivetrain);
+
+    this.firstPathPose = firstPathPose;
+  }
+
   @Override
   public void initialize() {
 
@@ -162,13 +186,37 @@ public class GenerateAndFollowPath extends CommandBase {
     this.timer.reset();
     this.timer.start();
 
-    // FIXME: heading is hard coded
+    Pose2d currentPose = drivetrain.getPose();
+
+    // FIXME: this is okay for if the robot is still but if its in motion use the chassis speeds for
+    // heading
+    double heading;
+    if (this.firstPathPose != null) {
+      heading =
+          Math.atan2(
+              firstPathPose.getY() - currentPose.getY(),
+              firstPathPose.getX() - firstPathPose.getY());
+    } else {
+      heading = Math.toRadians(180);
+    }
+
     pathPoints.add(
         new PathPoint(
-            drivetrain.getPose().getTranslation(),
-            Rotation2d.fromDegrees(180),
-            drivetrain.getPose().getRotation(),
+            currentPose.getTranslation(),
+            Rotation2d.fromRadians(heading),
+            currentPose.getRotation(),
             linearVel));
+
+    Logger.getInstance()
+        .recordOutput("DriverAssist/GridPosition/initialHeading", Math.toDegrees(heading));
+
+    // FIXME: heading is hard coded
+    // pathPoints.add(
+    //     new PathPoint(
+    //         drivetrain.getPose().getTranslation(),
+    //         Rotation2d.fromDegrees(180),
+    //         drivetrain.getPose().getRotation(),
+    //         linearVel));
 
     pathPoints.addAll(this.pathWaypoints);
 
