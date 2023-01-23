@@ -33,6 +33,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.TestPos;
+import frc.robot.GridPositionHandler.DeadzoneBox;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -41,6 +42,7 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -220,6 +222,18 @@ public class RobotContainer {
    */
   public static RobotContainer getInstance() {
     return robotContainer;
+  }
+
+  public void testBox() {
+    for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaBlue) {
+      box.Log();
+    }
+
+    var inside =
+        GridPositionHandler.DeadzoneBox.TEST_DEADZONE.insideBox(
+            drivetrain.getPose().getTranslation());
+
+    Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
   }
 
   /** Use this method to define your button->command mappings. */

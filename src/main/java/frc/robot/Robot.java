@@ -132,6 +132,8 @@ public class Robot extends LoggedRobot {
 
     robotContainer.gridPositionHandler.log();
 
+    robotContainer.testBox();
+
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
   }
 

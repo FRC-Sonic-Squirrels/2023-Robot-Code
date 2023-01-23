@@ -143,6 +143,16 @@ public class DriveToGridPosition {
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
     Alliance alliance = DriverStation.getAlliance();
+
+    boolean validStart = GridPositionHandler.isValidPointToStart(drivetrain.getPose(), alliance);
+
+    if (!validStart) {
+      Logger.getInstance().recordOutput("DriverAssist/GridPosition/valid_start", false);
+      return errorRumbleControllerCommand();
+    }
+
+    Logger.getInstance().recordOutput("DriverAssist/GridPosition/valid_start", true);
+
     PhysicalGridLocation physicalBay =
         GridPositionHandler.getPhysicalLocationForLogicalBay(logicalBay, alliance);
 
@@ -152,6 +162,16 @@ public class DriveToGridPosition {
 
     EntranceCheckpoint entranceCheckpoint =
         GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
+
+    // Pose2d currentPose = drivetrain.getPose();
+
+    // if (!(currentPose.getX() < entranceCheckpoint.location.pose.getX())) {
+    //   points.add(
+    //       new PathPoint(
+    //           entranceCheckpoint.location.pose.getTranslation(),
+    //           entranceCheckpoint.location.heading,
+    //           entranceCheckpoint.location.pose.getRotation()));
+    // }
 
     points.add(
         new PathPoint(
