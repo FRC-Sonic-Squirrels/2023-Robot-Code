@@ -190,6 +190,8 @@ public class GenerateAndFollowPath extends CommandBase {
 
     // FIXME: this is okay for if the robot is still but if its in motion use the chassis speeds for
     // heading
+    // NOTE: I think u have to swap the X and Y in the atan2 arguments because of how the field is
+    // oriented
     double heading;
     if (this.firstPathPose != null) {
       heading =
