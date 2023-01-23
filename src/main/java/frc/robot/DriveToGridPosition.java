@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.GridPositionHandler.EntranceCheckpoint;
 import frc.robot.GridPositionHandler.LogicalGridLocation;
 import frc.robot.GridPositionHandler.PhysicalGridLocation;
+import frc.robot.GridPositionHandler.PoseAndHeading;
 import frc.robot.commands.FollowPathOnTheFly;
 import frc.robot.commands.GenerateAndFollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -144,6 +145,7 @@ public class DriveToGridPosition {
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
     Alliance alliance = DriverStation.getAlliance();
 
+    // FIXME: ADD THIS BACK
     boolean validStart = GridPositionHandler.isValidPointToStart(drivetrain.getPose(), alliance);
 
     if (!validStart) {
@@ -163,7 +165,7 @@ public class DriveToGridPosition {
     EntranceCheckpoint entranceCheckpoint =
         GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
 
-    // Pose2d currentPose = drivetrain.getPose();
+    Pose2d currentPose = drivetrain.getPose();
 
     // if (!(currentPose.getX() < entranceCheckpoint.location.pose.getX())) {
     //   points.add(
@@ -173,11 +175,17 @@ public class DriveToGridPosition {
     //           entranceCheckpoint.location.pose.getRotation()));
     // }
 
-    points.add(
-        new PathPoint(
-            entranceCheckpoint.location.pose.getTranslation(),
-            entranceCheckpoint.location.heading,
-            entranceCheckpoint.location.pose.getRotation()));
+    // points.add(
+    //     new PathPoint(
+    //         entranceCheckpoint.location.pose.getTranslation(),
+    //         entranceCheckpoint.location.heading,
+    //         entranceCheckpoint.location.pose.getRotation()));
+
+    for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {
+      if (currentPose.getX() > checkPoint.pose.getX()) {
+        points.add(EntranceCheckpoint.toPathPoint(checkPoint));
+      }
+    }
 
     points.add(
         new PathPoint(

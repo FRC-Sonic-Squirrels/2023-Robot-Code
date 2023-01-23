@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,8 +28,9 @@ public class GridPositionHandler {
 
   public static final DeadzoneBox[] allowAbleActivationAreaBlue = {
     DeadzoneBox.BLUE_COMMUNITY,
-    DeadzoneBox.BLUE_COMMUNITY_PART_2,
-    DeadzoneBox.BLUE_ENTRANCE_HUMAN_PLAYER_SIDE
+    DeadzoneBox.BLUE_ENTRANCE_WALL_SIDE,
+    DeadzoneBox.BLUE_ENTRANCE_HUMAN_PLAYER_SIDE,
+    DeadzoneBox.BLUE_IN_FRONT_PAD
   };
 
   private int bayIndex = 0;
@@ -81,13 +83,13 @@ public class GridPositionHandler {
         return EntranceCheckpoint.BLUE_WALL;
       }
     }
-    if (alliance == Alliance.Red) {
-      if (y > 5.2) {
-        return EntranceCheckpoint.RED_WALL;
-      } else {
-        return EntranceCheckpoint.RED_HUMAN_PLAYER;
-      }
-    }
+    // if (alliance == Alliance.Red) {
+    //   if (y > 5.2) {
+    //     return EntranceCheckpoint.RED_WALL;
+    //   } else {
+    //     return EntranceCheckpoint.RED_HUMAN_PLAYER;
+    //   }
+    // }
 
     // FIXME should not be null
     return null;
@@ -252,25 +254,56 @@ public class GridPositionHandler {
     // TODO: Add a to pathpoint function(add this to the other physical grid locations as well)
     BLUE_WALL(
         new PoseAndHeading(
-            new Pose2d(2.5, 0.7, Rotation2d.fromDegrees(0)),
+            new Pose2d(2.5, 0.7, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+        new PoseAndHeading(
+            new Pose2d(3.85, 0.7, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+        new PoseAndHeading(
+            new Pose2d(5.5, 0.7, Rotation2d.fromDegrees(0)),
             Rotation2d.fromDegrees(180))), // x:2.17
 
     BLUE_HUMAN_PLAYER(
         new PoseAndHeading(
-            new Pose2d(2.5, 4.64, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
-
-    RED_WALL(
+            new Pose2d(2.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
         new PoseAndHeading(
-            new Pose2d(2.5, 7.18, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
-
-    RED_HUMAN_PLAYER(
+            new Pose2d(3.85, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
         new PoseAndHeading(
-            new Pose2d(2.5, 3.4, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)));
+            new Pose2d(5.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)));
 
-    public final PoseAndHeading location;
+    // RED_WALL(
+    //     new PoseAndHeading(
+    //         new Pose2d(2.5, 7.18, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
 
-    private EntranceCheckpoint(PoseAndHeading location) {
-      this.location = location;
+    // RED_HUMAN_PLAYER(
+    //     new PoseAndHeading(
+    //         new Pose2d(2.5, 3.4, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)));
+
+    public final PoseAndHeading checkPointInside;
+    public final PoseAndHeading checkPointMiddle;
+    public final PoseAndHeading checkPointOutside;
+
+    private PoseAndHeading[] orderOutsideIn;
+
+    private EntranceCheckpoint(
+        PoseAndHeading inside, PoseAndHeading middle, PoseAndHeading outside) {
+      this.checkPointInside = inside;
+      this.checkPointMiddle = middle;
+      this.checkPointOutside = outside;
+
+      orderOutsideIn = new PoseAndHeading[3];
+      orderOutsideIn[0] = outside;
+      orderOutsideIn[1] = middle;
+      orderOutsideIn[2] = inside;
+    }
+
+    public PoseAndHeading[] getOrderOutsideIn() {
+      return orderOutsideIn;
+    }
+
+    public static PathPoint toPathPoint(PoseAndHeading selectedCheckPoint) {
+      return new PathPoint(
+          selectedCheckPoint.pose.getTranslation(),
+          selectedCheckPoint.heading,
+          selectedCheckPoint.pose.getRotation());
     }
   }
 
@@ -313,6 +346,7 @@ public class GridPositionHandler {
   }
 
   public enum DeadzoneBox {
+    // TODO: add a flip for red option so making bounding boxes for red is less manual work
     TEST_DEADZONE(
         new Translation2d(10, 10),
         new Translation2d(10, 5),
@@ -320,9 +354,11 @@ public class GridPositionHandler {
         new Translation2d(5, 5)),
 
     BLUE_COMMUNITY(new Translation2d(1.4, 5.3), new Translation2d(3.4, 0.0)),
-    BLUE_COMMUNITY_PART_2(new Translation2d(2.9, 1.5), new Translation2d(5.0, 0.0)),
+    BLUE_ENTRANCE_WALL_SIDE(new Translation2d(2.9, 1.5), new Translation2d(5.5, 0.0)),
 
-    BLUE_ENTRANCE_HUMAN_PLAYER_SIDE(new Translation2d(3.0, 5.3), new Translation2d(5.0, 4.2));
+    BLUE_ENTRANCE_HUMAN_PLAYER_SIDE(new Translation2d(3.0, 5.3), new Translation2d(5.5, 4.2)),
+
+    BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0));
 
     private Translation2d topL;
     private Translation2d topR;
