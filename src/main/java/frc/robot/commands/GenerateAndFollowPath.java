@@ -162,6 +162,7 @@ public class GenerateAndFollowPath extends CommandBase {
     this.timer.reset();
     this.timer.start();
 
+    // FIXME: heading is hard coded
     pathPoints.add(
         new PathPoint(
             drivetrain.getPose().getTranslation(),

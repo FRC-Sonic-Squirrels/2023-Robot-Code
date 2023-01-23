@@ -17,12 +17,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.GridPositionHandler.EntranceCheckpoint;
+import frc.robot.GridPositionHandler.LogicalGridLocation;
+import frc.robot.GridPositionHandler.PhysicalGridLocation;
 import frc.robot.commands.FollowPathOnTheFly;
 import frc.robot.commands.GenerateAndFollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import java.util.ArrayList;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class DriveToGridPosition {
@@ -135,6 +139,43 @@ public class DriveToGridPosition {
 
         // new GenerateAndFollowPath(drivetrain, pointsExit, constraints)
         );
+  }
+
+  public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    Alliance alliance = DriverStation.getAlliance();
+    PhysicalGridLocation physicalBay =
+        GridPositionHandler.getPhysicalLocationForLogicalBay(logicalBay, alliance);
+
+    Logger.getInstance().recordOutput("DriverAssist/GridPosition/physical_bay", physicalBay.name());
+
+    ArrayList<PathPoint> points = new ArrayList<PathPoint>();
+
+    EntranceCheckpoint entranceCheckpoint =
+        GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
+
+    points.add(
+        new PathPoint(
+            entranceCheckpoint.location.pose.getTranslation(),
+            entranceCheckpoint.location.heading,
+            entranceCheckpoint.location.pose.getRotation()));
+
+    points.add(
+        new PathPoint(
+            physicalBay.lineup.pose.getTranslation(),
+            physicalBay.lineup.heading,
+            physicalBay.lineup.pose.getRotation()));
+
+    points.add(
+        new PathPoint(
+            physicalBay.score.pose.getTranslation(),
+            physicalBay.score.heading,
+            physicalBay.score.pose.getRotation()));
+
+    // for (int i = 0; i < points.size(); i++) {
+    // }
+
+    return new SequentialCommandGroup(
+        new GenerateAndFollowPath(drivetrain, points, constraints, false));
   }
 
   public Command driveToCommunityCheckPointBasedOnPos() {

@@ -76,7 +76,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        logger.addDataReceiver(new WPILOGWriter(""));
+        // logger.addDataReceiver(new WPILOGWriter(""));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -129,6 +129,8 @@ public class Robot extends LoggedRobot {
      * for anything in the Command-based framework to work.
      */
     CommandScheduler.getInstance().run();
+
+    robotContainer.gridPositionHandler.log();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
   }

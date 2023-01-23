@@ -32,7 +32,6 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
-import frc.robot.DriveToGridPosition.GridPositions;
 import frc.robot.DriveToGridPosition.TestPos;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
@@ -65,7 +64,9 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+
   private DriveToGridPosition autoDriveToGrid;
+  public final GridPositionHandler gridPositionHandler = new GridPositionHandler();
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -266,7 +267,8 @@ public class RobotContainer {
             new InstantCommand(
                 () -> {
                   var cmd =
-                      autoDriveToGrid.testGenerateAndFollow(GridPositions.GRID_8); // some command
+                      autoDriveToGrid.testLogicalBay(
+                          gridPositionHandler.getDesiredBay()); // some command
 
                   Command currentCmd = drivetrain.getCurrentCommand();
 
@@ -303,6 +305,15 @@ public class RobotContainer {
             new InstantCommand(
                 () -> drivetrain.resetOdometry(new Pose2d(4.5, 1.13, new Rotation2d())),
                 drivetrain));
+
+    driverController
+        .povRight()
+        .onTrue(
+            Commands.runOnce(() -> gridPositionHandler.incrementNextBay())
+                .andThen(Commands.print("Incremented bay")));
+    driverController
+        .povLeft()
+        .onTrue(Commands.runOnce(() -> gridPositionHandler.decrementNextBay()));
 
     PathPlannerTrajectory testAllianceFlipPath =
         PathPlanner.loadPath(
