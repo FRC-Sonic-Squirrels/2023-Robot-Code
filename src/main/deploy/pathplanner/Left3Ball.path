@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 1.05
+        "x": 1.9921901184743878,
+        "y": 4.414086773965274
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.445982860581984,
-        "y": 0.7755490088726267
+        "x": 2.687572740246642,
+        "y": 4.434621250761536
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -17,7 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "score"
+          "scoreCube"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
@@ -26,16 +26,41 @@
     },
     {
       "anchorPoint": {
-        "x": 5.43426296553021,
-        "y": 0.9948848428367311
+        "x": 3.3179060588890428,
+        "y": 4.644032941912038
       },
       "prevControl": {
-        "x": 4.553732702329884,
-        "y": 0.5603374402183889
+        "x": 2.4507629784490357,
+        "y": 4.692207557492038
       },
       "nextControl": {
-        "x": 5.813824727120844,
-        "y": 1.1822010368684723
+        "x": 4.0396692043117,
+        "y": 4.6039349893885575
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.427954221293058,
+        "y": 3.362588167484028
+      },
+      "prevControl": {
+        "x": 5.996414685137063,
+        "y": 5.366652175612044
+      },
+      "nextControl": {
+        "x": 5.4148079470631565,
+        "y": 3.316241980368441
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -51,16 +76,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.291922312803256,
-        "y": 2.149866097164433
+        "x": 6.401081456009068,
+        "y": 3.372223090600028
       },
       "prevControl": {
-        "x": 4.936877201736169,
-        "y": 2.3531228638244905
+        "x": 6.401081456009068,
+        "y": 3.3433183212520277
       },
       "nextControl": {
-        "x": 6.520631472076068,
-        "y": 2.1155597232735124
+        "x": 6.401081456009068,
+        "y": 5.530789945553623
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -78,41 +103,16 @@
     },
     {
       "anchorPoint": {
-        "x": 5.466493913757059,
-        "y": 0.8767780035560083
+        "x": 3.3275409820050426,
+        "y": 4.653667865028039
       },
       "prevControl": {
-        "x": 5.718073988957152,
-        "y": 0.9682616672651344
+        "x": 5.442601962103026,
+        "y": 4.32734417095578
       },
       "nextControl": {
-        "x": 5.10924813785113,
-        "y": 0.746870448681123
-      },
-      "holonomicAngle": null,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.152286529965356,
-        "y": 0.9720139269094513
-      },
-      "prevControl": {
-        "x": 2.6554466803655434,
-        "y": 0.48028923447290395
-      },
-      "nextControl": {
-        "x": 1.9634713526073777,
-        "y": 1.1565378502365669
+        "x": 1.6414294367050295,
+        "y": 4.91381078916004
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -128,12 +128,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.060802866256231,
-        "y": 2.744509911273745
+        "x": 2.0460962075770324,
+        "y": 2.7266832418280225
       },
       "prevControl": {
-        "x": 2.04936740829259,
-        "y": 1.9554633117825433
+        "x": 2.662731287001037,
+        "y": 3.536016783572029
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -143,7 +143,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "score"
+          "scoreCube"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
