@@ -396,7 +396,7 @@ public class Drivetrain extends SubsystemBase {
    */
   private void updateBrakeMode() {
     if (DriverStation.isEnabled()) {
-      if(!brakeMode) {
+      if (!brakeMode) {
         brakeMode = true;
         setBrakeMode(true);
       }

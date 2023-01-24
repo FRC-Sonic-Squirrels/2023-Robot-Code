@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -38,7 +37,6 @@ import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizatio
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
@@ -281,45 +279,21 @@ public class RobotContainer {
     autoChooser.addOption(
         "testPath2mForwardWithIntake",
         new SwerveAutos(drivetrain, intake).testPath2mForwardWithIntake());
+    autoChooser.addOption("forwardLeft", new SwerveAutos(drivetrain, intake).forwardLeft());
+    autoChooser.addOption("middle1Ball", new SwerveAutos(drivetrain, intake).middle1Ball());
     autoChooser.addOption(
-        "forwardLeft",
-        new SwerveAutos(drivetrain, intake).forwardLeft());
+        "middle1BallEngage", new SwerveAutos(drivetrain, intake).middle1BallEngage());
+    autoChooser.addOption("right1Ball", new SwerveAutos(drivetrain, intake).right1Ball());
+    autoChooser.addOption("right1BallTaxi", new SwerveAutos(drivetrain, intake).right1BallTaxi());
+    autoChooser.addOption("right2Ball", new SwerveAutos(drivetrain, intake).right2Ball());
     autoChooser.addOption(
-        "middle1Ball",
-        new SwerveAutos(drivetrain, intake).middle1Ball());
-    autoChooser.addOption(
-        "middle1BallEngage",
-        new SwerveAutos(drivetrain, intake).middle1BallEngage());
-    autoChooser.addOption(
-        "right1Ball",
-        new SwerveAutos(drivetrain, intake).right1Ball());
-    autoChooser.addOption(
-        "right1BallTaxi",
-        new SwerveAutos(drivetrain, intake).right1BallTaxi());
-    autoChooser.addOption(
-        "right2Ball",
-        new SwerveAutos(drivetrain, intake).right2Ball());
-    autoChooser.addOption(
-        "right2BallEngage",
-        new SwerveAutos(drivetrain, intake).right2BallEngage());
-    autoChooser.addOption(
-        "right3Ball",
-        new SwerveAutos(drivetrain, intake).right3Ball());
-    autoChooser.addOption(
-        "left1Ball",
-        new SwerveAutos(drivetrain, intake).left1Ball());
-    autoChooser.addOption(
-        "left1BallTaxi",
-        new SwerveAutos(drivetrain, intake).left1BallTaxi());
-    autoChooser.addOption(
-        "left2Ball",
-        new SwerveAutos(drivetrain, intake).left2Ball());
-    autoChooser.addOption(
-        "left2BallEngage",
-        new SwerveAutos(drivetrain, intake).left2BallEngage());
-    autoChooser.addOption(
-        "left3Ball",
-        new SwerveAutos(drivetrain, intake).left3Ball());
+        "right2BallEngage", new SwerveAutos(drivetrain, intake).right2BallEngage());
+    autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right3Ball());
+    autoChooser.addOption("left1Ball", new SwerveAutos(drivetrain, intake).left1Ball());
+    autoChooser.addOption("left1BallTaxi", new SwerveAutos(drivetrain, intake).left1BallTaxi());
+    autoChooser.addOption("left2Ball", new SwerveAutos(drivetrain, intake).left2Ball());
+    autoChooser.addOption("left2BallEngage", new SwerveAutos(drivetrain, intake).left2BallEngage());
+    autoChooser.addOption("left3Ball", new SwerveAutos(drivetrain, intake).left3Ball());
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(

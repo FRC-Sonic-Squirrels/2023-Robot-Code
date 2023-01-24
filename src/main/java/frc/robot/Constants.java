@@ -8,10 +8,7 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 

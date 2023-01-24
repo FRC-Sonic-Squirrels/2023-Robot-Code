@@ -1,12 +1,11 @@
 package frc.robot.subsystems.drivetrain;
 
-import java.util.HashMap;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team3061.swerve.SwerveModuleConstants;
+import java.util.HashMap;
 
 public final class DrivetrainConstants {
 
@@ -124,4 +123,6 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
   public static final double DEADBAND = 0.1;
+
+  public static final HashMap<String, Command> EVENT_MAP = new HashMap<>();
 }
