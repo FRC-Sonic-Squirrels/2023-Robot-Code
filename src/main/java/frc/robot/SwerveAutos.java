@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.FollowPath;
@@ -122,5 +123,200 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+  }
+
+  public Command middle1Ball() {
+    return new SequentialCommandGroup(
+      new InstantCommand());
+  }
+
+  public Command middle1BallEngage() {
+    PathPlannerTrajectory path =
+      PathPlanner.loadPath(
+          "middle1BallEngage",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path, drivetrain, true));
+  }
+
+  public Command right1Ball() {
+    return new SequentialCommandGroup(
+      new InstantCommand()
+    );
+  }
+
+  public Command right1BallTaxi() {
+    PathPlannerTrajectory path =
+      PathPlanner.loadPath(
+          "right1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path, drivetrain, true));
+  }
+
+  public Command right2Ball() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "right1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "right2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path1, drivetrain, true),
+      new FollowPath(path2, drivetrain, false));
+  }
+
+  public Command right2BallEngage() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "right1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "right2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path3 =
+      PathPlanner.loadPath(
+          "right2BallEngage",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), null) ,
+      new FollowPath(path2, drivetrain, false),
+      new FollowPath(path3, drivetrain, false));
+  }
+
+  public Command right3Ball() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "right1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "right2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+        AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path3 =
+      PathPlanner.loadPath(
+          "right3Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path1, drivetrain, true),
+      new FollowPath(path2, drivetrain, false),
+      new FollowPath(path3, drivetrain, false));
+  }
+
+  public Command left1Ball() {
+    return new SequentialCommandGroup(
+      new InstantCommand()
+    );
+  }
+
+  public Command left1BallTaxi() {
+    PathPlannerTrajectory path =
+      PathPlanner.loadPath(
+          "left1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path, drivetrain, true));
+  }
+
+  public Command left2Ball() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "left1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "left2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path1, drivetrain, true),
+      new FollowPath(path2, drivetrain, false));
+  }
+
+  public Command left2BallEngage() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "left1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "left2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path3 =
+      PathPlanner.loadPath(
+          "left2BallEngage",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path1, drivetrain, true),
+      new FollowPath(path2, drivetrain, false),
+      new FollowPath(path3, drivetrain, false));
+  }
+
+  public Command left3Ball() {
+    PathPlannerTrajectory path1 =
+      PathPlanner.loadPath(
+          "left1BallTaxi",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path2 =
+      PathPlanner.loadPath(
+          "left2Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    
+    PathPlannerTrajectory path3 =
+      PathPlanner.loadPath(
+          "left3Ball",
+          AUTO_MAX_SPEED_METERS_PER_SECOND,
+          AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      new InstantCommand(), 
+      new FollowPath(path1, drivetrain, true),
+      new FollowPath(path2, drivetrain, false),
+      new FollowPath(path3, drivetrain, false));
   }
 }
