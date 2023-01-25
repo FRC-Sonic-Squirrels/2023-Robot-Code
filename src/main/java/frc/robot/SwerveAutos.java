@@ -25,26 +25,6 @@ public class SwerveAutos {
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     this.drivetrain = drivetrain;
     this.intake = intake;
-    DrivetrainConstants.EVENT_MAP.put(
-        "extendIntake",
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "retractIntake",
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "scoreCube",
-        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
-      DrivetrainConstants.EVENT_MAP.put(
-        "scoreCone",
-        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "groundPickup",
-        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "engage",
-        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
   }
 
   public Command testPath2mForward() {
@@ -136,7 +116,7 @@ public class SwerveAutos {
 
   public Command middle1Ball() {
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"));
+      DrivetrainConstants.EVENT_MAP.get("scoreCube"));
   }
 
   public Command middle1BallEngage() {
@@ -153,7 +133,7 @@ public class SwerveAutos {
 
   public Command right1Ball() {
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"));
+      DrivetrainConstants.EVENT_MAP.get("scoreCone"));
   }
 
   public Command right1BallTaxi() {
@@ -207,7 +187,7 @@ public class SwerveAutos {
 
   public Command left1Ball() {
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score")
+      DrivetrainConstants.EVENT_MAP.get("scoreCone")
     );
   }
 

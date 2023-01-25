@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -37,6 +40,7 @@ import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizatio
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
@@ -249,6 +253,27 @@ public class RobotContainer {
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
 
+    DrivetrainConstants.EVENT_MAP.put(
+        "extendIntake",
+        Commands.runOnce(intake::extend, intake)
+            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "retractIntake",
+        Commands.runOnce(intake::retract, intake)
+            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "scoreCube",
+        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
+      DrivetrainConstants.EVENT_MAP.put(
+        "scoreCone",
+        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "groundPickup",
+        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "engage",
+        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
+    
     PathPlannerTrajectory testPath2mForward =
         PathPlanner.loadPath(
             "2mForward",
@@ -262,11 +287,6 @@ public class RobotContainer {
     PathPlannerTrajectory testPath3mForward360 =
         PathPlanner.loadPath(
             "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForwardWithIntake =
-        PathPlanner.loadPath(
-            "testPath2mForwardWithIntake",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
