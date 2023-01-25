@@ -252,27 +252,6 @@ public class RobotContainer {
 
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
-
-    DrivetrainConstants.EVENT_MAP.put(
-        "extendIntake",
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "retractIntake",
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "scoreCube",
-        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
-      DrivetrainConstants.EVENT_MAP.put(
-        "scoreCone",
-        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "groundPickup",
-        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
-    DrivetrainConstants.EVENT_MAP.put(
-        "engage",
-        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
     
     PathPlannerTrajectory testPath2mForward =
         PathPlanner.loadPath(
@@ -309,11 +288,13 @@ public class RobotContainer {
     autoChooser.addOption(
         "right2BallEngage", new SwerveAutos(drivetrain, intake).right2BallEngage());
     autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right3Ball());
+    autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right4Ball());
     autoChooser.addOption("left1Ball", new SwerveAutos(drivetrain, intake).left1Ball());
     autoChooser.addOption("left1BallTaxi", new SwerveAutos(drivetrain, intake).left1BallTaxi());
     autoChooser.addOption("left2Ball", new SwerveAutos(drivetrain, intake).left2Ball());
     autoChooser.addOption("left2BallEngage", new SwerveAutos(drivetrain, intake).left2BallEngage());
     autoChooser.addOption("left3Ball", new SwerveAutos(drivetrain, intake).left3Ball());
+    autoChooser.addOption("left4Ball", new SwerveAutos(drivetrain, intake).left4Ball());
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(

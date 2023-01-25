@@ -25,6 +25,27 @@ public class SwerveAutos {
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     this.drivetrain = drivetrain;
     this.intake = intake;
+
+    DrivetrainConstants.EVENT_MAP.put(
+        "extendIntake",
+        Commands.runOnce(intake::extend, intake)
+            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "retractIntake",
+        Commands.runOnce(intake::retract, intake)
+            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "scoreCube",
+        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
+      DrivetrainConstants.EVENT_MAP.put(
+        "scoreCone",
+        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "groundPickup",
+        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
+    DrivetrainConstants.EVENT_MAP.put(
+        "engage",
+        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
   }
 
   public Command testPath2mForward() {
@@ -185,6 +206,18 @@ public class SwerveAutos {
         new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
+  public Command right4Ball() {
+    PathPlannerTrajectory path =
+        PathPlanner.loadPath(
+            "right3Ball",
+            AUTO_MAX_SPEED_METERS_PER_SECOND,
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+        right3Ball(),
+        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+  }
+
   public Command left1Ball() {
     return new SequentialCommandGroup(
       DrivetrainConstants.EVENT_MAP.get("scoreCone")
@@ -236,6 +269,18 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
       left2Ball(),
+      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+  }
+
+  public Command left4Ball() {
+    PathPlannerTrajectory path =
+        PathPlanner.loadPath(
+            "left4Ball",
+            AUTO_MAX_SPEED_METERS_PER_SECOND,
+            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+
+    return new SequentialCommandGroup(
+      left3Ball(),
       new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 }
