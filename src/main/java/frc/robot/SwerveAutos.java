@@ -8,7 +8,9 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.FollowPathWithEvents;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -33,16 +35,16 @@ public class SwerveAutos {
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
     DrivetrainConstants.EVENT_MAP.put(
         "scoreCube",
-        new InstantCommand());
+        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
       DrivetrainConstants.EVENT_MAP.put(
         "scoreCone",
-        new InstantCommand());
+        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
     DrivetrainConstants.EVENT_MAP.put(
         "groundPickup",
-        new InstantCommand());
+        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
     DrivetrainConstants.EVENT_MAP.put(
         "engage",
-        new InstantCommand());
+        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
   }
 
   public Command testPath2mForward() {
@@ -145,7 +147,7 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"), 
+      middle1Ball(), 
       new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
@@ -162,79 +164,45 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"), 
+      right1Ball(), 
       new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right2Ball() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "right1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    PathPlannerTrajectory path2 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "right2Ball",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"),
-        new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP));
+      right1BallTaxi(),
+        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right2BallEngage() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "right1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path2 =
-        PathPlanner.loadPath(
-            "right2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path3 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "right2BallEngage",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"),
-      new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-      new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP),
-      new FollowPathWithEvents(new FollowPath(path3, drivetrain, true), path3.getMarkers(), DrivetrainConstants.EVENT_MAP));
+      right2Ball(),
+      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right3Ball() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "right1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path2 =
-        PathPlanner.loadPath(
-            "right2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path3 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "right3Ball",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-        DrivetrainConstants.EVENT_MAP.get("score"),
-        new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path3, drivetrain, true), path3.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        right2Ball(),
+        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left1Ball() {
@@ -251,78 +219,43 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"), 
+      left1Ball(), 
       new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left2Ball() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "left1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path2 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "left2Ball",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-        DrivetrainConstants.EVENT_MAP.get("score"),
-        new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        left1BallTaxi(),
+        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left2BallEngage() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "left1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path2 =
-        PathPlanner.loadPath(
-            "left2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path3 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "left2BallEngage",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-        DrivetrainConstants.EVENT_MAP.get("score"),
-        new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path3, drivetrain, true), path3.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        left2Ball(),
+        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left3Ball() {
-    PathPlannerTrajectory path1 =
-        PathPlanner.loadPath(
-            "left1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path2 =
-        PathPlanner.loadPath(
-            "left2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    PathPlannerTrajectory path3 =
+    PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "left3Ball",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("score"),
-        new FollowPathWithEvents(new FollowPath(path1, drivetrain, true), path1.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path2, drivetrain, true), path2.getMarkers(), DrivetrainConstants.EVENT_MAP),
-        new FollowPathWithEvents(new FollowPath(path3, drivetrain, true), path3.getMarkers(), DrivetrainConstants.EVENT_MAP));
+      left2Ball(),
+      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
   }
 }

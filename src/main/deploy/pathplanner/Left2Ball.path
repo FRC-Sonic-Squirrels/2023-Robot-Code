@@ -99,5 +99,5 @@
       }
     }
   ],
-  "markers": []
+  "markers": [{ "name": "groundPickup", "position": 1}, {"name":"scoreCube", "position":2}]
 }
