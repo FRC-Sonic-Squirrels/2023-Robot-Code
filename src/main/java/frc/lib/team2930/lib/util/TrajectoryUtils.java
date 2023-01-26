@@ -3,7 +3,6 @@ package frc.lib.team2930.lib.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.drive.Vector2d;
 
 /**
  * Utilities for manipulating Trajectories, Pose2d, Rotation2d, and Vector2d.
@@ -19,20 +18,20 @@ public class TrajectoryUtils {
 
   // private method that gets the angle between two Translation2ds
   public static Rotation2d getTranslationsAngle(Translation2d pose1, Translation2d pose2) {
-    Vector2d vector1 = new Vector2d(pose1.getX(), pose1.getY());
-    Vector2d vector2 = new Vector2d(pose2.getX(), pose2.getY());
-    double dotProduct = vector1.dot(vector2);
-    double magnitude = vector1.magnitude() * vector2.magnitude();
+    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
+    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
+    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
+    double magnitude = Vector2dClassToTranslation2d.magnitude(vector1) * Vector2dClassToTranslation2d.magnitude(vector2);
 
     return new Rotation2d( Math.acos(dotProduct/magnitude) );
   }
 
   // private method that gets the angle between two Translation2ds
   public static double getTranslationsAngleDouble(Translation2d pose1, Translation2d pose2) {
-    Vector2d vector1 = new Vector2d(pose1.getX(), pose1.getY());
-    Vector2d vector2 = new Vector2d(pose2.getX(), pose2.getY());
-    double dotProduct = vector1.dot(vector2);
-    double magnitude = vector1.magnitude() * vector2.magnitude();
+    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
+    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
+    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
+    double magnitude = Vector2dClassToTranslation2d.magnitude(vector1) * Vector2dClassToTranslation2d.magnitude(vector2);
 
     return Math.acos(dotProduct/magnitude);
   }

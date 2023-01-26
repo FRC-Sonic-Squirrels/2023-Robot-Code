@@ -28,7 +28,7 @@ public class Vector2dClassToTranslation2d {
    * @param vec Vector with which to perform dot product.
    * @return Dot product of this vector with argument.
    */
-  public double dot(Translation2d vec1, Translation2d vec2) {
+  public static double dot(Translation2d vec1, Translation2d vec2) {
     return vec1.getX() * vec2.getX() + vec2.getY() * vec2.getY();
   }
 
@@ -37,7 +37,7 @@ public class Vector2dClassToTranslation2d {
    *
    * @return Magnitude of vector.
    */
-  public double magnitude(Translation2d vec) {
+  public static double magnitude(Translation2d vec) {
     return Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
   }
 

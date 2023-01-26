@@ -46,8 +46,8 @@ public class SwerveUtils {
    * @return
    */
   public static Rotation2d getTargetHeading(Translation2d robotLocation, Translation2d point) {
-    double product = robotLocation.dot(point);
-    double magnitudes = magnitude(robotLocation) * point.magnitude();
+    double product = Vector2dClassToTranslation2d.dot(robotLocation, point);
+    double magnitudes = Vector2dClassToTranslation2d.magnitude(robotLocation) * Vector2dClassToTranslation2d.magnitude(point);
     double angle_rad = Math.acos(product / magnitudes);
 
     return new Rotation2d(angle_rad);
