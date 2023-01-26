@@ -288,7 +288,7 @@ public class RobotContainer {
     autoChooser.addOption(
         "right2BallEngage", new SwerveAutos(drivetrain, intake).right2BallEngage());
     autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right3Ball());
-    autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right4Ball());
+    autoChooser.addOption("right4Ball", new SwerveAutos(drivetrain, intake).right4Ball());
     autoChooser.addOption("left1Ball", new SwerveAutos(drivetrain, intake).left1Ball());
     autoChooser.addOption("left1BallTaxi", new SwerveAutos(drivetrain, intake).left1BallTaxi());
     autoChooser.addOption("left2Ball", new SwerveAutos(drivetrain, intake).left2Ball());
