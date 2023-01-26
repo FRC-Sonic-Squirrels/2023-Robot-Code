@@ -11,11 +11,9 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -26,11 +24,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   // Unsure if we need a friction brake solenoid, including one just in case
   private Solenoid frictionBrakeSolenoid = new Solenoid(PneumaticsModuleType.REVPH, -3);
 
-  //FIXME: find actual number measurements, most of these are placeholders
-  //TODO: find the number of gear teeth (ticks) required to move the chain an inch
+  // FIXME: find actual number measurements, most of these are placeholders
+  // TODO: find the number of gear teeth (ticks) required to move the chain an inch
   private final double winchDiameterInches = 0;
   private final double winchCircumference = 0;
-  private final double gearRatio = 1.0/6.0;
+  private final double gearRatio = 1.0 / 6.0;
   private final double ticksPerInch = 0;
 
   private final double max_extension_inches = 0;
@@ -44,7 +42,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean m_atMaxHeight;
   public double m_currentHeight;
 
-
   /** Creates a new ElevatorSubsystem. */
   public ElevatorSubsystem() {
 
@@ -52,22 +49,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     winchFollowTalon.configFactoryDefault();
 
     TalonFXConfiguration leadConfig = new TalonFXConfiguration();
-    leadConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
+    leadConfig.primaryPID.selectedFeedbackSensor =
+        TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
     // Details on elevator motors, gearing and calculated kP and kFF are here
     // https://docs.google.com/spreadsheets/d/13KUbQWcU_HbGfyZCWiUc_FifyZQka65Ql4cd2lHTFQk/edit#gid=57306390
     // this also has suggest trapezoidal velocity profile constants.
-    //TODO: see if these PID values need to be changed
-    leadConfig.slot0.kF = 0.054; 
-		leadConfig.slot0.kP = 0.48; //0.054836;
-		leadConfig.slot0.kI = 0.0;
-		leadConfig.slot0.kD = 0.0;
-		leadConfig.slot0.integralZone = 0.0;
-		leadConfig.slot0.closedLoopPeakOutput = 1.0;
+    // TODO: see if these PID values need to be changed
+    leadConfig.slot0.kF = 0.054;
+    leadConfig.slot0.kP = 0.48; // 0.054836;
+    leadConfig.slot0.kI = 0.0;
+    leadConfig.slot0.kD = 0.0;
+    leadConfig.slot0.integralZone = 0.0;
+    leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
-    //TODO: see if this command is needed even with motion magic constraints. Maybe have a safe default?
-    leadConfig.motionAcceleration = 30000;   //60941;  //  20521 ticks/100ms     = 11 in/s
-    leadConfig.motionCruiseVelocity = 15235;           //  20521 ticks/100ms/sec = 11 in/s^2
+    // TODO: see if this command is needed even with motion magic constraints. Maybe have a safe
+    // default?
+    leadConfig.motionAcceleration = 30000; // 60941;  //  20521 ticks/100ms     = 11 in/s
+    leadConfig.motionCruiseVelocity = 15235; //  20521 ticks/100ms/sec = 11 in/s^2
 
     winchLeadTalon.configAllSettings(leadConfig);
 
@@ -78,8 +77,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     winchFollowTalon.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
-    winchLeadTalon.configForwardLimitSwitchSource
-      (LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+    winchLeadTalon.configForwardLimitSwitchSource(
+        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
     winchFollowTalon.follow(winchLeadTalon);
     winchLeadTalon.setInverted(false);
@@ -88,7 +87,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     // JVN Motor currently predicts 56.51 amps per motor under load
     // TODO: find new measurements based on new values
     SupplyCurrentLimitConfiguration currentLimit =
-      new SupplyCurrentLimitConfiguration(true, 20, 25, 0.1);
+        new SupplyCurrentLimitConfiguration(true, 20, 25, 0.1);
     winchLeadTalon.configSupplyCurrentLimit(currentLimit);
     winchFollowTalon.configSupplyCurrentLimit(currentLimit);
 
@@ -97,7 +96,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // reduce CAN traffic whenever possible
     // https://docs.ctre-phoenix.com/en/latest/ch18_CommonAPI.html
-    //TODO: add MotorUtils or an equivalent to this project to reduce CAN traffic in winchFollowTalon
+    // TODO: add MotorUtils or an equivalent to this project to reduce CAN traffic in
+    // winchFollowTalon
 
   }
 
