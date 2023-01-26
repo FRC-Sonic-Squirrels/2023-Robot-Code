@@ -36,16 +36,16 @@ public class SwerveAutos {
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
     DrivetrainConstants.EVENT_MAP.put(
         "scoreCube",
-        new SequentialCommandGroup(new PrintCommand("cube scored"), new WaitCommand(1)));
+        new SequentialCommandGroup(new PrintCommand("cube scored"), Commands.waitSeconds(2)));
       DrivetrainConstants.EVENT_MAP.put(
         "scoreCone",
-        new SequentialCommandGroup(new PrintCommand("cone scored"), new WaitCommand(1)));
+        new SequentialCommandGroup(new PrintCommand("cone scored"), Commands.waitSeconds(2)));
     DrivetrainConstants.EVENT_MAP.put(
         "groundPickup",
-        new SequentialCommandGroup(new PrintCommand("object picked up"), new WaitCommand(1)));
+        new SequentialCommandGroup(new PrintCommand("object picked up"), Commands.waitSeconds(2)));
     DrivetrainConstants.EVENT_MAP.put(
         "engage",
-        new SequentialCommandGroup(new PrintCommand("engaged"), new WaitCommand(1)));
+        new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
   }
 
   public Command testPath2mForward() {
