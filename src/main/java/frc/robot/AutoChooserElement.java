@@ -7,7 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import java.util.function.Supplier;
@@ -30,12 +29,37 @@ public class AutoChooserElement {
     this.next = null;
   }
 
-  public AutoChooserElement setNext(AutoChooserElement next) {
-    if (this.next == null) {
-      this.next = next;
+  public String toString() {
+    String s = "pose: ";
+    if (initialPose != null) {
+      s += initialPose.toString();
     } else {
-      DriverStation.reportError(
-          "AutoChooserElement next already populated", Thread.currentThread().getStackTrace());
+      s += "NONE";
+    }
+    s += "\n";
+    s += "trajectory: ";
+    if (trajectory != null) {
+      // s += trajectory.toString();
+      s += "YES";
+    } else {
+      s += "NONE";
+    }
+    s += "\n";
+    if (next != null) {
+      s += "Next:\n";
+      s += next.toString();
+    } else {
+      s += " END";
+    }
+
+    return s;
+  }
+
+  public AutoChooserElement setNext(AutoChooserElement append) {
+    if (this.next == null) {
+      this.next = append;
+    } else {
+      next.setNext(append);
     }
     return this;
   }
@@ -43,7 +67,7 @@ public class AutoChooserElement {
   public Command getCommand() {
     SequentialCommandGroup command = commandSupplier.get();
     if (next != null) {
-      command.addCommands(next.getCommand());
+      return new SequentialCommandGroup(command, next.getCommand());
     }
     return command;
   }
@@ -65,6 +89,7 @@ public class AutoChooserElement {
     } else if ((trajectory != null) && (next != null)) {
       fullTrajectory.concatenate(next.getTrajectory());
     }
+
     if (fullTrajectory == null) {
       return new Trajectory();
     }

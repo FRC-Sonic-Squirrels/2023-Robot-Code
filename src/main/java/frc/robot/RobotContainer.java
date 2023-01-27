@@ -290,10 +290,10 @@ public class RobotContainer {
     // autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
     autoChooser.addOption("right1Ball", autos.right1Ball());
     autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
-    // autoChooser.addOption("right2Ball", autos.right2Ball());
-    // autoChooser.addOption("right2BallEngage", autos.right2BallEngage());
-    // autoChooser.addOption("right3Ball", autos.right3Ball());
-    // autoChooser.addOption("right4Ball", autos.right4Ball());
+    autoChooser.addOption("right2Ball", autos.right2Ball());
+    autoChooser.addOption("right2BallEngage", autos.right2BallEngage());
+    autoChooser.addOption("right3Ball", autos.right3Ball());
+    autoChooser.addOption("right4Ball", autos.right4Ball());
     // autoChooser.addOption("left1Ball", autos.left1Ball());
     // autoChooser.addOption("left1BallTaxi", autos.left1BallTaxi());
     // autoChooser.addOption("left2Ball", autos.left2Ball());
