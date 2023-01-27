@@ -7,10 +7,8 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.FollowPathWithEvents;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -37,15 +35,14 @@ public class SwerveAutos {
     DrivetrainConstants.EVENT_MAP.put(
         "scoreCube",
         new SequentialCommandGroup(new PrintCommand("cube scored"), Commands.waitSeconds(2)));
-      DrivetrainConstants.EVENT_MAP.put(
+    DrivetrainConstants.EVENT_MAP.put(
         "scoreCone",
         new SequentialCommandGroup(new PrintCommand("cone scored"), Commands.waitSeconds(2)));
     DrivetrainConstants.EVENT_MAP.put(
         "groundPickup",
         new SequentialCommandGroup(new PrintCommand("object picked up"), Commands.waitSeconds(2)));
     DrivetrainConstants.EVENT_MAP.put(
-        "engage",
-        new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
+        "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
   }
 
   public Command testPath2mForward() {
@@ -108,7 +105,9 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
         new FollowPathWithEvents(
-            new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command testPathSquareGroup() {
@@ -136,8 +135,7 @@ public class SwerveAutos {
   }
 
   public Command middle1Ball() {
-    return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("scoreCube"));
+    return new SequentialCommandGroup(DrivetrainConstants.EVENT_MAP.get("scoreCube"));
   }
 
   public Command middle1BallEngage() {
@@ -148,13 +146,15 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      middle1Ball(), 
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        middle1Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right1Ball() {
-    return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("scoreCone"));
+    return new SequentialCommandGroup(DrivetrainConstants.EVENT_MAP.get("scoreCone"));
   }
 
   public Command right1BallTaxi() {
@@ -165,8 +165,11 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      right1Ball(), 
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        right1Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right2Ball() {
@@ -178,8 +181,11 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      right1BallTaxi(),
-        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        right1BallTaxi(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right2BallEngage() {
@@ -190,8 +196,11 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      right2Ball(),
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        right2Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right3Ball() {
@@ -203,7 +212,10 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
         right2Ball(),
-        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command right4Ball() {
@@ -215,13 +227,14 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
         right3Ball(),
-        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left1Ball() {
-    return new SequentialCommandGroup(
-      DrivetrainConstants.EVENT_MAP.get("scoreCone")
-    );
+    return new SequentialCommandGroup(DrivetrainConstants.EVENT_MAP.get("scoreCone"));
   }
 
   public Command left1BallTaxi() {
@@ -232,8 +245,11 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      left1Ball(), 
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        left1Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left2Ball() {
@@ -245,7 +261,10 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
         left1BallTaxi(),
-        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left2BallEngage() {
@@ -257,7 +276,10 @@ public class SwerveAutos {
 
     return new SequentialCommandGroup(
         left2Ball(),
-        new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left3Ball() {
@@ -268,8 +290,11 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      left2Ball(),
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        left2Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 
   public Command left4Ball() {
@@ -280,7 +305,10 @@ public class SwerveAutos {
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     return new SequentialCommandGroup(
-      left3Ball(),
-      new FollowPathWithEvents(new FollowPath(path, drivetrain, true), path.getMarkers(), DrivetrainConstants.EVENT_MAP));
+        left3Ball(),
+        new FollowPathWithEvents(
+            new FollowPath(path, drivetrain, true),
+            path.getMarkers(),
+            DrivetrainConstants.EVENT_MAP));
   }
 }
