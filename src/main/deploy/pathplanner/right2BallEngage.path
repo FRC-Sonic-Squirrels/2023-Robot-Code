@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3409853309062503,
-        "y": 1.690592265607885
+        "x": 2.129415614038075,
+        "y": 1.8411087321461368
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -16,11 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "scoreCube"
-        ],
-        "executionBehavior": "parallel",
-        "waitBehavior": "after",
+        "names": [],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
         "waitTime": 1.0
       }
     },
@@ -30,14 +28,14 @@
         "y": 2.6301553316373383
       },
       "prevControl": {
-        "x": 1.7761271793527944,
-        "y": 2.2028391107352885
+        "x": 1.8549646229107004,
+        "y": 2.412881630328168
       },
       "nextControl": {
-        "x": 2.255205651638122,
-        "y": 2.8016872010919482
+        "x": 2.2873357622087367,
+        "y": 2.770057788878718
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 1.0,
       "isLocked": false,
@@ -59,7 +57,7 @@
         "y": 2.64715318694546
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -74,5 +72,12 @@
       }
     }
   ],
-  "markers": [{"name":"engage", "position":1}]
+  "markers": [
+    {
+      "position": 2.0,
+      "names": [
+        "engage"
+      ]
+    }
+  ]
 }

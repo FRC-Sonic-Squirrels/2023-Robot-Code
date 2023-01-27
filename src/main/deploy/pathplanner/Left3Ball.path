@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.687572740246642,
-        "y": 4.434621250761536
+        "x": 2.6440112224019026,
+        "y": 4.528441353601679
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -16,11 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "scoreCube"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "after",
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
         "waitTime": 1.0
       }
     },
@@ -30,12 +28,12 @@
         "y": 4.644032941912038
       },
       "prevControl": {
-        "x": 2.4507629784490357,
-        "y": 4.692207557492038
+        "x": 2.506720315984574,
+        "y": 4.3338142995808795
       },
       "nextControl": {
-        "x": 4.0396692043117,
-        "y": 4.6039349893885575
+        "x": 5.22842472218468,
+        "y": 5.374665242911084
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -51,19 +49,19 @@
     },
     {
       "anchorPoint": {
-        "x": 5.427954221293058,
-        "y": 3.362588167484028
+        "x": 6.852259753021646,
+        "y": 3.5907338005831497
       },
       "prevControl": {
-        "x": 5.996414685137063,
-        "y": 5.366652175612044
+        "x": 6.17756773316685,
+        "y": 4.791456886765413
       },
       "nextControl": {
-        "x": 5.4148079470631565,
-        "y": 3.316241980368441
+        "x": 6.17756773316685,
+        "y": 4.791456886765413
       },
-      "holonomicAngle": 0,
-      "isReversal": false,
+      "holonomicAngle": -45.00000000000003,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -76,43 +74,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.69012914948907,
-        "y": 3.381858013716028
+        "x": 3.330138700220339,
+        "y": 4.562747727492601
       },
       "prevControl": {
-        "x": 6.69012914948907,
-        "y": 3.352953244368028
+        "x": 5.1026346845846335,
+        "y": 5.386100700874726
       },
       "nextControl": {
-        "x": 6.69012914948907,
-        "y": 5.540424868669623
-      },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "after",
-        "waitTime": 1.0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 3.3275409820050426,
-        "y": 4.653667865028039
-      },
-      "prevControl": {
-        "x": 5.442601962103026,
-        "y": 4.32734417095578
-      },
-      "nextControl": {
-        "x": 1.6414294367050295,
-        "y": 4.91381078916004
+        "x": 2.774241190401751,
+        "y": 4.3045243680929985
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -128,12 +99,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.0460962075770324,
-        "y": 2.7266832418280225
+        "x": 1.9921901184743878,
+        "y": 4.414086773965274
       },
       "prevControl": {
-        "x": 2.662731287001037,
-        "y": 3.536016783572029
+        "x": 2.2323347357108405,
+        "y": 4.528441353601679
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -142,14 +113,25 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "scoreCube"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "after",
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
         "waitTime": 1.0
       }
     }
   ],
-  "markers": [{ "name": "groundPickup", "position": 1}, {"name":"scoreCube", "position":2}]
+  "markers": [
+    {
+      "position": 2.0,
+      "names": [
+        "groundPickup"
+      ]
+    },
+    {
+      "position": 4.0,
+      "names": [
+        "scoreCubeMid"
+      ]
+    }
+  ]
 }
