@@ -165,6 +165,10 @@ public class DriveToGridPosition {
     EntranceCheckpoint entranceCheckpoint =
         GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
 
+    if (entranceCheckpoint == EntranceCheckpoint.ERROR) {
+      return errorRumbleControllerCommand();
+    }
+
     Pose2d currentPose = drivetrain.getPose();
 
     // if (!(currentPose.getX() < entranceCheckpoint.location.pose.getX())) {
