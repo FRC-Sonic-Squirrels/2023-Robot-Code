@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.Logger;
 public class GridPositionHandler {
 
   public static final String ROOT_TABLE = "DriverAssist/GridPosition";
+  private static final double FIELD_WIDTH_METERS = 8.02;
 
   private static final LogicalGridLocation[] logicalGridOrder = {
     LogicalGridLocation.LOGICAL_BAY_1,
@@ -31,6 +32,13 @@ public class GridPositionHandler {
     DeadzoneBox.BLUE_ENTRANCE_WALL_SIDE,
     DeadzoneBox.BLUE_ENTRANCE_HUMAN_PLAYER_SIDE,
     DeadzoneBox.BLUE_IN_FRONT_PAD
+  };
+
+  public static final DeadzoneBox[] allowAbleActivationAreaRed = {
+    DeadzoneBox.RED_COMMUNITY,
+    DeadzoneBox.RED_ENTRANCE_WALL_SIDE,
+    DeadzoneBox.RED_ENTRANCE_HUMAN_PLAYER_SIDE,
+    DeadzoneBox.RED_IN_FRONT_PAD
   };
 
   private int bayIndex = 0;
@@ -83,16 +91,15 @@ public class GridPositionHandler {
         return EntranceCheckpoint.BLUE_WALL;
       }
     }
-    // if (alliance == Alliance.Red) {
-    //   if (y > 5.2) {
-    //     return EntranceCheckpoint.RED_WALL;
-    //   } else {
-    //     return EntranceCheckpoint.RED_HUMAN_PLAYER;
-    //   }
-    // }
+    if (alliance == Alliance.Red) {
+      if (y > 5.32) {
+        return EntranceCheckpoint.RED_WALL;
+      } else {
+        return EntranceCheckpoint.RED_HUMAN_PLAYER;
+      }
+    }
 
-    // FIXME should not be null
-    return null;
+    return EntranceCheckpoint.ERROR;
   }
 
   public static boolean isValidPointToStart(Pose2d currentPos, Alliance alliance) {
@@ -102,11 +109,17 @@ public class GridPositionHandler {
           return true;
         }
       }
-      return false;
     }
 
-    // FIX ME: numbers for red alliance
-    return true;
+    if (alliance == Alliance.Red) {
+      for (DeadzoneBox box : allowAbleActivationAreaRed) {
+        if (box.insideBox(currentPos.getTranslation())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   public void log() {
@@ -122,6 +135,11 @@ public class GridPositionHandler {
     public PoseAndHeading(Pose2d pose, Rotation2d heading) {
       this.pose = pose;
       this.heading = heading;
+    }
+
+    public PoseAndHeading() {
+      this.pose = new Pose2d();
+      this.heading = new Rotation2d();
     }
   }
 
@@ -250,7 +268,7 @@ public class GridPositionHandler {
     }
   }
 
-  public enum EntranceCheckpoint {
+  public static enum EntranceCheckpoint {
     // TODO: Add a to pathpoint function(add this to the other physical grid locations as well)
     BLUE_WALL(
         new PoseAndHeading(
@@ -267,8 +285,13 @@ public class GridPositionHandler {
         new PoseAndHeading(
             new Pose2d(3.85, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
         new PoseAndHeading(
-            new Pose2d(5.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)));
+            new Pose2d(5.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
 
+    RED_WALL(BLUE_WALL),
+
+    RED_HUMAN_PLAYER(BLUE_HUMAN_PLAYER),
+
+    ERROR();
     // RED_WALL(
     //     new PoseAndHeading(
     //         new Pose2d(2.5, 7.18, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
@@ -293,6 +316,36 @@ public class GridPositionHandler {
       orderOutsideIn[0] = outside;
       orderOutsideIn[1] = middle;
       orderOutsideIn[2] = inside;
+    }
+
+    private EntranceCheckpoint(EntranceCheckpoint blueToFlip) {
+      var checkPointsOutSideIn = blueToFlip.getOrderOutsideIn();
+
+      PoseAndHeading[] redSideCheckpoints = new PoseAndHeading[3];
+
+      for (int i = 0; i < checkPointsOutSideIn.length; i++) {
+        PoseAndHeading original = checkPointsOutSideIn[i];
+
+        Pose2d alteredPose =
+            new Pose2d(
+                original.pose.getX(),
+                FIELD_WIDTH_METERS - original.pose.getY(),
+                original.pose.getRotation());
+
+        redSideCheckpoints[i] = new PoseAndHeading(alteredPose, original.heading);
+
+        this.orderOutsideIn = redSideCheckpoints;
+      }
+
+      checkPointOutside = redSideCheckpoints[0];
+      checkPointMiddle = redSideCheckpoints[1];
+      checkPointInside = redSideCheckpoints[2];
+    }
+
+    private EntranceCheckpoint() {
+      this.checkPointInside = new PoseAndHeading();
+      this.checkPointMiddle = new PoseAndHeading();
+      this.checkPointOutside = new PoseAndHeading();
     }
 
     public PoseAndHeading[] getOrderOutsideIn() {
@@ -376,11 +429,20 @@ public class GridPositionHandler {
         new Translation2d(5, 5)),
 
     BLUE_COMMUNITY(new Translation2d(1.4, 5.3), new Translation2d(3.4, 0.0)),
-    BLUE_ENTRANCE_WALL_SIDE(new Translation2d(2.9, 1.5), new Translation2d(5.5, 0.0)),
 
+    BLUE_ENTRANCE_WALL_SIDE(new Translation2d(2.9, 1.5), new Translation2d(5.5, 0.0)),
     BLUE_ENTRANCE_HUMAN_PLAYER_SIDE(new Translation2d(3.0, 5.3), new Translation2d(5.5, 4.2)),
 
-    BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0));
+    BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0)),
+
+    // ----------------------RED----------------------------'
+
+    RED_COMMUNITY(BLUE_COMMUNITY),
+
+    RED_ENTRANCE_WALL_SIDE(BLUE_ENTRANCE_WALL_SIDE),
+    RED_ENTRANCE_HUMAN_PLAYER_SIDE(BLUE_ENTRANCE_HUMAN_PLAYER_SIDE),
+
+    RED_IN_FRONT_PAD(BLUE_IN_FRONT_PAD);
 
     private Translation2d topL;
     private Translation2d topR;
@@ -401,6 +463,16 @@ public class GridPositionHandler {
 
       this.topL = new Translation2d(topR.getX(), backL.getY());
       this.backR = new Translation2d(backL.getX(), topR.getY());
+    }
+
+    private DeadzoneBox(DeadzoneBox blueToFlip) {
+      this.backR =
+          new Translation2d(blueToFlip.backL.getX(), FIELD_WIDTH_METERS - blueToFlip.backL.getY());
+      this.topL =
+          new Translation2d(blueToFlip.topL.getX(), FIELD_WIDTH_METERS - blueToFlip.topR.getY());
+
+      this.topR = new Translation2d(topL.getX(), backR.getY());
+      this.backL = new Translation2d(backR.getX(), topL.getY());
     }
 
     public boolean insideBox(Translation2d point) {

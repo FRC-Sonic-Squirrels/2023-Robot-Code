@@ -230,14 +230,23 @@ public class RobotContainer {
       box.Log();
     }
 
+    for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaRed) {
+      box.Log();
+    }
+
+    GridPositionHandler.DeadzoneBox.TEST_DEADZONE.Log();
+
     var inside =
-        GridPositionHandler.DeadzoneBox.TEST_DEADZONE.insideBox(
+        GridPositionHandler.DeadzoneBox.RED_COMMUNITY.insideBox(
             drivetrain.getPose().getTranslation());
 
     Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
 
     EntranceCheckpoint.BLUE_WALL.log();
     EntranceCheckpoint.BLUE_HUMAN_PLAYER.log();
+
+    EntranceCheckpoint.RED_WALL.log();
+    EntranceCheckpoint.RED_HUMAN_PLAYER.log();
   }
 
   /** Use this method to define your button->command mappings. */
