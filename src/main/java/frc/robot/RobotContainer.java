@@ -333,13 +333,13 @@ public class RobotContainer {
         .povLeft()
         .onTrue(Commands.runOnce(() -> gridPositionHandler.decrementNextBay()));
 
-    PathPlannerTrajectory testAllianceFlipPath =
-        PathPlanner.loadPath(
-            "testPath",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    // PathPlannerTrajectory testAllianceFlipPath =
+    //     PathPlanner.loadPath(
+    //         "testPath",
+    //         AUTO_MAX_SPEED_METERS_PER_SECOND,
+    //         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    driverController.y().onTrue(new FollowPath(testAllianceFlipPath, drivetrain, true, true));
+    // driverController.y().onTrue(new FollowPath(testAllianceFlipPath, drivetrain, true, true));
 
     // .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
 
@@ -369,11 +369,11 @@ public class RobotContainer {
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    PathPlannerTrajectory testAllianceFlipPath =
-        PathPlanner.loadPath(
-            "testPath",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    // PathPlannerTrajectory testAllianceFlipPath =
+    //     PathPlanner.loadPath(
+    //         "testPath",
+    //         AUTO_MAX_SPEED_METERS_PER_SECOND,
+    //         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
     autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
@@ -381,8 +381,8 @@ public class RobotContainer {
         "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
     autoChooser.addOption(
         "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true, true));
-    autoChooser.addOption(
-        "test alliance flip path", new FollowPath(testAllianceFlipPath, drivetrain, true, true));
+    // autoChooser.addOption(
+    //     "test alliance flip path", new FollowPath(testAllianceFlipPath, drivetrain, true, true));
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(

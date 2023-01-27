@@ -197,7 +197,7 @@ public class GenerateAndFollowPath extends CommandBase {
       heading =
           Math.atan2(
               firstPathPose.getY() - currentPose.getY(),
-              firstPathPose.getX() - firstPathPose.getY());
+              firstPathPose.getX() - firstPathPose.getX());
     } else {
       heading = Math.toRadians(180);
     }
