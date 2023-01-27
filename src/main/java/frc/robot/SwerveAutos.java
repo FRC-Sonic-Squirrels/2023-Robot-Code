@@ -5,6 +5,7 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -19,7 +20,7 @@ import java.util.List;
 public class SwerveAutos {
   private Drivetrain drivetrain;
   private Intake intake;
-  HashMap<Integer, PathPlannerTrajectory> trajectoryMap = new HashMap<>();
+  HashMap<Integer, Trajectory> trajectoryMap = new HashMap<>();
 
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     this.drivetrain = drivetrain;
@@ -52,11 +53,11 @@ public class SwerveAutos {
     return eventMap;
   }
 
-  private void setInitialTrajectory(int hashCode, PathPlannerTrajectory trajectory) {
+  private void setInitialTrajectory(int hashCode, Trajectory trajectory) {
     trajectoryMap.put(hashCode, trajectory);
   }
 
-  public PathPlannerTrajectory getInitialTrajectory(int hashCode) {
+  public Trajectory getInitialTrajectory(int hashCode) {
     return trajectoryMap.get(hashCode);
   }
 
@@ -227,10 +228,9 @@ public class SwerveAutos {
             new FollowPathWithEvents(
                 new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
 
-    PathPlannerTrajectory initial = trajectoryMap.get(right1BallTaxi.hashCode());
+    Trajectory initial = trajectoryMap.get(right1BallTaxi.hashCode());
 
-    // FIXME: concatenate initial and path
-    setInitialTrajectory(c.hashCode(), initial);
+    setInitialTrajectory(c.hashCode(), initial.concatenate(path));
 
     return c;
   }
