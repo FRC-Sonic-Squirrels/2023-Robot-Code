@@ -192,6 +192,8 @@ public class GenerateAndFollowPath extends CommandBase {
     // heading
     // NOTE: I think u have to swap the X and Y in the atan2 arguments because of how the field is
     // oriented
+    // FIXME: if the different in the x/y is small enough just use default heading, causes weird
+    // jerk when super close to checkpoint
     double heading;
     if (this.firstPathPose != null) {
       heading =
