@@ -34,6 +34,7 @@ import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.TestPos;
 import frc.robot.GridPositionHandler.DeadzoneBox;
+import frc.robot.GridPositionHandler.EntranceCheckpoint;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -234,6 +235,9 @@ public class RobotContainer {
             drivetrain.getPose().getTranslation());
 
     Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
+
+    EntranceCheckpoint.BLUE_WALL.log();
+    EntranceCheckpoint.BLUE_HUMAN_PLAYER.log();
   }
 
   /** Use this method to define your button->command mappings. */

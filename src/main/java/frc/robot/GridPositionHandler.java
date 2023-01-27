@@ -305,6 +305,28 @@ public class GridPositionHandler {
           selectedCheckPoint.heading,
           selectedCheckPoint.pose.getRotation());
     }
+
+    public void log() {
+      Pose2d insidePose =
+          new Pose2d(checkPointInside.pose.getTranslation(), checkPointInside.heading);
+      Pose2d middlePose =
+          new Pose2d(checkPointMiddle.pose.getTranslation(), checkPointMiddle.heading);
+      Pose2d outsidePose =
+          new Pose2d(checkPointOutside.pose.getTranslation(), checkPointOutside.heading);
+
+      Logger.getInstance()
+          .recordOutput(
+              "DriverAssist/GridPosition/entrance " + this.name() + "/insideCheckpoint",
+              insidePose);
+      Logger.getInstance()
+          .recordOutput(
+              "DriverAssist/GridPosition/entrance " + this.name() + "/middleCheckpoint",
+              middlePose);
+      Logger.getInstance()
+          .recordOutput(
+              "DriverAssist/GridPosition/entrance " + this.name() + "/outsideCheckpoint",
+              outsidePose);
+    }
   }
 
   public enum LogicalGridLocation {
