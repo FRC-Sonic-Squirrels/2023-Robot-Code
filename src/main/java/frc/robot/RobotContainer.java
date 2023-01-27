@@ -65,6 +65,7 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+  public SwerveAutos autos;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -265,32 +266,30 @@ public class RobotContainer {
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
+    autos = new SwerveAutos(drivetrain, intake);
+
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
     autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
     autoChooser.addOption(
         "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
     autoChooser.addOption(
         "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
-    autoChooser.addOption(
-        "testPath2mForwardWithIntake",
-        new SwerveAutos(drivetrain, intake).testPath2mForwardWithIntake());
-    autoChooser.addOption("forwardLeft", new SwerveAutos(drivetrain, intake).forwardLeft());
-    autoChooser.addOption("middle1Ball", new SwerveAutos(drivetrain, intake).middle1Ball());
-    autoChooser.addOption(
-        "middle1BallEngage", new SwerveAutos(drivetrain, intake).middle1BallEngage());
-    autoChooser.addOption("right1Ball", new SwerveAutos(drivetrain, intake).right1Ball());
-    autoChooser.addOption("right1BallTaxi", new SwerveAutos(drivetrain, intake).right1BallTaxi());
-    autoChooser.addOption("right2Ball", new SwerveAutos(drivetrain, intake).right2Ball());
-    autoChooser.addOption(
-        "right2BallEngage", new SwerveAutos(drivetrain, intake).right2BallEngage());
-    autoChooser.addOption("right3Ball", new SwerveAutos(drivetrain, intake).right3Ball());
-    autoChooser.addOption("right4Ball", new SwerveAutos(drivetrain, intake).right4Ball());
-    autoChooser.addOption("left1Ball", new SwerveAutos(drivetrain, intake).left1Ball());
-    autoChooser.addOption("left1BallTaxi", new SwerveAutos(drivetrain, intake).left1BallTaxi());
-    autoChooser.addOption("left2Ball", new SwerveAutos(drivetrain, intake).left2Ball());
-    autoChooser.addOption("left2BallEngage", new SwerveAutos(drivetrain, intake).left2BallEngage());
-    autoChooser.addOption("left3Ball", new SwerveAutos(drivetrain, intake).left3Ball());
-    autoChooser.addOption("left4Ball", new SwerveAutos(drivetrain, intake).left4Ball());
+    autoChooser.addOption("testPath2mForwardWithIntake", autos.testPath2mForwardWithIntake());
+    autoChooser.addOption("forwardLeft", autos.forwardLeft());
+    autoChooser.addOption("middle1Ball", autos.middle1Ball());
+    autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
+    autoChooser.addOption("right1Ball", autos.right1Ball());
+    autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
+    autoChooser.addOption("right2Ball", autos.right2Ball());
+    autoChooser.addOption("right2BallEngage", autos.right2BallEngage());
+    autoChooser.addOption("right3Ball", autos.right3Ball());
+    autoChooser.addOption("right4Ball", autos.right4Ball());
+    autoChooser.addOption("left1Ball", autos.left1Ball());
+    autoChooser.addOption("left1BallTaxi", autos.left1BallTaxi());
+    autoChooser.addOption("left2Ball", autos.left2Ball());
+    autoChooser.addOption("left2BallEngage", autos.left2BallEngage());
+    autoChooser.addOption("left3Ball", autos.left3Ball());
+    autoChooser.addOption("left4Ball", autos.left4Ball());
     autoChooser.addOption(
         "Drive Characterization",
         new FeedForwardCharacterization(
@@ -303,8 +302,6 @@ public class RobotContainer {
   }
 
   public void configureTestAutoCommands() {
-    SwerveAutos autos = new SwerveAutos(drivetrain, intake);
-
     testautoChooser.addDefaultOption("do nothing", new InstantCommand());
   }
 

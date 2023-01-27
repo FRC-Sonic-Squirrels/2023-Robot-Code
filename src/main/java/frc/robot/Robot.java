@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.team6328.util.Alert;
@@ -66,7 +69,7 @@ public class Robot extends LoggedRobot {
 
     switch (Constants.getMode()) {
       case REAL:
-        // FIXME: this requires a USB stick to be inserted into the ROBOrio
+        // FIXME: this requires a USB stick to be inserted into the roboRIO
         logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
 
         // Provide log data over the network, viewable in Advantage Scope.
@@ -131,6 +134,23 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+
+    if (this.isDisabled()) {
+      autonomousCommand = robotContainer.getAutonomousCommand();
+      if (autonomousCommand != null) {
+        int autoHashCode = autonomousCommand.hashCode();
+        SmartDashboard.putNumber("AutoName", autoHashCode);
+        PathPlannerTrajectory trajectory = robotContainer.autos.getInitialTrajectory(autoHashCode);
+        if (trajectory != null) {
+          Logger.getInstance().recordOutput("Odometry/trajectory", trajectory);
+          Logger.getInstance()
+              .recordOutput("Odometry/startPose", trajectory.getInitialHolonomicPose());
+        } else {
+          Logger.getInstance().recordOutput("Odometry/trajectory", new PathPlannerTrajectory());
+          Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
+        }
+      }
+    }
   }
 
   /**
