@@ -61,17 +61,15 @@ public class SwerveAutos {
     return trajectoryMap.get(hashCode);
   }
 
-  public Command testPath2mForward() {
+  public AutoChooserElement testPath2mForward() {
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "2mForward",
             AUTO_TEST_MAX_SPEED_METERS_PER_SECOND,
             AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new AutoChooserElement(
+        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public Command testPath2mForward180() {
@@ -87,17 +85,15 @@ public class SwerveAutos {
     return c;
   }
 
-  public Command testPath3mForward360() {
+  public AutoChooserElement testPath3mForward360() {
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "3mForward360",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new AutoChooserElement(
+        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public Command curve() {
@@ -157,17 +153,15 @@ public class SwerveAutos {
         new FollowPath(pathGroup1.get(3), drivetrain, true));
   }
 
-  public Command forwardLeft() {
+  public AutoChooserElement forwardLeft() {
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "forwardLeft",
             AUTO_MAX_SPEED_METERS_PER_SECOND * 0.1,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new AutoChooserElement(
+        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public SequentialCommandGroup middle1Ball() {
@@ -192,25 +186,28 @@ public class SwerveAutos {
     return c;
   }
 
-  public Command right1Ball() {
-    return new SequentialCommandGroup(getEventMap().get("scoreCone"));
+  public AutoChooserElement right1Ball() {
+    return new AutoChooserElement(
+        null, () -> new SequentialCommandGroup(getEventMap().get("scoreCone")));
   }
 
-  public SequentialCommandGroup right1BallTaxi() {
+  public AutoChooserElement right1BallTaxi() {
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
             "right1BallTaxi",
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    SequentialCommandGroup c =
-        new SequentialCommandGroup(
-            right1Ball(),
-            new FollowPathWithEvents(
-                new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return right1Ball()
+        .setNext(
+            new AutoChooserElement(
+                path,
+                () ->
+                    new SequentialCommandGroup(
+                        new FollowPathWithEvents(
+                            new FollowPath(path, drivetrain, true),
+                            path.getMarkers(),
+                            getEventMap()))));
   }
 
   public Command right2Ball() {
@@ -221,18 +218,19 @@ public class SwerveAutos {
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    SequentialCommandGroup right1BallTaxi = right1BallTaxi();
-    SequentialCommandGroup c =
-        new SequentialCommandGroup(
-            right1BallTaxi(),
-            new FollowPathWithEvents(
-                new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
+    // SequentialCommandGroup right1BallTaxi = right1BallTaxi();
+    // SequentialCommandGroup c =
+    //     new SequentialCommandGroup(
+    //         right1BallTaxi(),
+    //         new FollowPathWithEvents(
+    //             new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
 
-    Trajectory initial = trajectoryMap.get(right1BallTaxi.hashCode());
+    // Trajectory initial = trajectoryMap.get(right1BallTaxi.hashCode());
 
-    setInitialTrajectory(c.hashCode(), initial.concatenate(path));
+    // setInitialTrajectory(c.hashCode(), initial.concatenate(path));
 
-    return c;
+    // return c;
+    return new SequentialCommandGroup(null);
   }
 
   public Command right2BallEngage() {

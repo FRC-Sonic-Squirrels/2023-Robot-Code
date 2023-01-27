@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlannerTrajectory;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +25,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
+  private AutoChooserElement currentAuto = null;
+  private int currentAutoHashId = 0;
   private RobotContainer robotContainer;
 
   private final Alert logReceiverQueueAlert =
@@ -137,17 +137,15 @@ public class Robot extends LoggedRobot {
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
 
     if (this.isDisabled()) {
-      autonomousCommand = robotContainer.getAutonomousCommand();
-      if (autonomousCommand != null) {
-        int autoHashCode = autonomousCommand.hashCode();
+      currentAuto = robotContainer.getSelectedAutonomous();
+      if (currentAuto != null) {
+        int autoHashCode = currentAuto.hashCode();
         SmartDashboard.putNumber("AutoName", autoHashCode);
-        Trajectory trajectory = robotContainer.autos.getInitialTrajectory(autoHashCode);
-        if (trajectory != null) {
-          Logger.getInstance().recordOutput("Odometry/trajectory", trajectory);
-          Logger.getInstance().recordOutput("Odometry/startPose", trajectory.getInitialPose());
-        } else {
-          Logger.getInstance().recordOutput("Odometry/trajectory", new PathPlannerTrajectory());
-          Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
+        if (currentAutoHashId != autoHashCode) {
+          currentAutoHashId = autoHashCode;
+          Trajectory trajectory = currentAuto.getTrajectory();
+          Logger.getInstance().recordOutput("Odometry/trajectory", currentAuto.getTrajectory());
+          Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
         }
       }
     }
