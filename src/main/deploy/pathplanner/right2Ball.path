@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 5.62,
-        "y": 0.75
+        "x": 6.63,
+        "y": 0.94
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.237287763037066,
-        "y": 0.8864129266720079
+        "x": 6.1482538441999965,
+        "y": 0.8629206150719982
       },
       "holonomicAngle": 0.0,
       "isReversal": false,
@@ -16,37 +16,8 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "scoreCone"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.728668841953069,
-        "y": 0.9249526191360088
-      },
-      "prevControl": {
-        "x": 6.246922686153066,
-        "y": 0.8478732342080071
-      },
-      "nextControl": {
-        "x": 6.246922686153066,
-        "y": 0.8478732342080071
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -57,8 +28,8 @@
         "y": 1.052062132654934
       },
       "prevControl": {
-        "x": 2.5145956083638277,
-        "y": 0.6861274778184346
+        "x": 2.6783175962928243,
+        "y": 0.4688537765092641
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -67,14 +38,19 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "scoreCube"
-        ],
-        "executionBehavior": "parallel",
+        "names": [],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": [{ "name": "groundPickup", "position": 1}, {"name":"scoreCube", "position":2}]
+  "markers": [
+    {
+      "position": 1.0,
+      "names": [
+        "scoreCubeHigh"
+      ]
+    }
+  ]
 }

@@ -2,67 +2,38 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 3.96,
-        "y": 4.7
+        "x": 6.63,
+        "y": 4.597054101383524
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.859493757449055,
-        "y": 4.7500170961880395
+        "x": 5.3427793018210865,
+        "y": 4.631360475274445
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.69976407260507,
-        "y": 4.595858326332038
+        "x": 3.787557018765963,
+        "y": 4.665666849165367
       },
       "prevControl": {
-        "x": 5.613395566059212,
-        "y": 4.6301647002229585
+        "x": 4.450813580657118,
+        "y": 4.654231391201726
       },
       "nextControl": {
-        "x": 5.613395566059212,
-        "y": 4.6301647002229585
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "score"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 3.8478268302690473,
-        "y": 4.701842480608039
-      },
-      "prevControl": {
-        "x": 4.190890569178261,
-        "y": 4.690407022644398
-      },
-      "nextControl": {
-        "x": 3.4792491005359385,
-        "y": 4.714128404932476
+        "x": 3.4188293813430186,
+        "y": 4.672024222224383
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -99,5 +70,12 @@
       }
     }
   ],
-  "markers": [{ "name": "groundPickup", "position": 1}, {"name":"scoreCube", "position":2}]
+  "markers": [
+    {
+      "position": 2.0,
+      "names": [
+        "scoreCubeHigh"
+      ]
+    }
+  ]
 }

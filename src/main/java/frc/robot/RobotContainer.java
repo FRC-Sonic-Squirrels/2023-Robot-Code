@@ -247,6 +247,10 @@ public class RobotContainer {
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
 
+//   public Pose2d getSelectedInitialState(){
+    
+//   }
+
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
 
