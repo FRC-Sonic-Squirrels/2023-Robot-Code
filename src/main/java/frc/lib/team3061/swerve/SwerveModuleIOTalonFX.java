@@ -221,4 +221,10 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
     // always leave the angle motor in coast mode
     mAngleMotor.setNeutralMode(NeutralMode.Coast);
   }
+
+  public void resetToAbsolute() {
+    double absolutePosition =
+        Conversions.degreesToFalcon(getCanCoder().getDegrees() - angleOffsetDeg, ANGLE_GEAR_RATIO);
+    mAngleMotor.setSelectedSensorPosition(absolutePosition);
+  }
 }
