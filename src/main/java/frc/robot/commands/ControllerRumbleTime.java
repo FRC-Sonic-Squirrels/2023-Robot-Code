@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -13,9 +13,11 @@ public class ControllerRumbleTime extends CommandBase {
 
   /**
    * Rumble the controller until the specified time has passed
+   *
    * @param rumbleTime Seconds
    */
-  public ControllerRumbleTime(CommandXboxController controller, double rumbleTime, double rumbleStrength) {
+  public ControllerRumbleTime(
+      CommandXboxController controller, double rumbleTime, double rumbleStrength) {
     this.controller = controller;
     this.rumbleTime = rumbleTime;
     this.rumbleStrength = rumbleStrength;
