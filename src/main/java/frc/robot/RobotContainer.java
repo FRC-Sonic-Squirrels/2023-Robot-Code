@@ -53,25 +53,12 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-<<<<<<< HEAD
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
-  private final JoystickButton rumbleTest = 
-      new JoystickButton(driverController, FRONT_LEFT_MODULE_DRIVE_MOTOR)
-=======
   // these triggers are now directly detected
   // zeroGyro is assigned to back
   // robotCentric is assigned to b
   // xStance is assigned to a
   // intakeOut is assigned to right bumper
 
->>>>>>> 7ae2e38cd2353aa0a736bf3a9effb0400c3806a3
   private Drivetrain drivetrain;
   private Intake intake;
 
