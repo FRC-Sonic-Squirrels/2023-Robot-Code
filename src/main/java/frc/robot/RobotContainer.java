@@ -31,6 +31,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.DriveWithSetRotation;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -243,8 +244,27 @@ public class RobotContainer {
         .onFalse(
             Commands.runOnce(intake::retract, intake)
                 .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-  }
 
+    driverController
+        .povDown()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    180)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    driverController
+        .povUp()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    0)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+  }
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
     PathPlannerTrajectory testPath2mForward =
