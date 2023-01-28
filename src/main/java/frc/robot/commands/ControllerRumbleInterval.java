@@ -53,7 +53,7 @@ public class ControllerRumbleInterval extends CommandBase {
         rumbling = false;
         stopRumbling = Timer.getFPGATimestamp();
         controller.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-  
+
         // we finished a cycle
         cycles += 1;
       }
@@ -62,22 +62,22 @@ public class ControllerRumbleInterval extends CommandBase {
       if (Timer.getFPGATimestamp() - stopRumbling >= intervalSpace) {
         rumbling = true;
         startRumbling = Timer.getFPGATimestamp();
-        controller.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+        controller.getHID().setRumble(RumbleType.kBothRumble, rumbleStrength);
       }
     }
 
-    SmartDashboard.putBoolean("rumble", rumbling);
-    SmartDashboard.putNumber("cycle", cycles);
+    // SmartDashboard.putBoolean("rumble", rumbling);
+    // SmartDashboard.putNumber("cycle", cycles);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     controller.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-    SmartDashboard.putBoolean("rumble", false);
-    
+    // SmartDashboard.putBoolean("rumble", false);
+
     cycles = 0;
-    SmartDashboard.putNumber("cycle", cycles);
+    // SmartDashboard.putNumber("cycle", cycles);
   }
 
   // Returns true when the command should end.
