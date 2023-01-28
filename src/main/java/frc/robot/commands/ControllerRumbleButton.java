@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.function.BooleanSupplier;
-import java.util.function.BooleanSupplier;
 
 public class ControllerRumbleButton extends CommandBase {
   private CommandXboxController controller;
