@@ -104,6 +104,6 @@ public final class Constants {
     public static final int channel_12 = 12;
     public static final int channel_13 = 13;
     public static final int channel_14_intake = 14;
-    public static final int channel_15_friction_brake = 15;  
+    public static final int channel_15_friction_brake = 15;
   }
 }

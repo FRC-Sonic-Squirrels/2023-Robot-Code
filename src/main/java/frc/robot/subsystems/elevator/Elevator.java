@@ -16,10 +16,11 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
   private double MAX_VOLTAGE = 10.0;
+  public static double toleranceInches = 0.05;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
-    zero();
+    io.zeroHeight();
   }
 
   @Override
@@ -38,16 +39,33 @@ public class Elevator extends SubsystemBase {
     runElevatorVoltage(0.0);
   }
 
-  public void zero() {
-    // TODO: implement zeroing the encoder to height zero
+  public void setHeightInches(double targetHeightInches) {
+    io.setHeightInches(targetHeightInches);
   }
 
-  public void setHeight(double targetHeight) {
-    io.setHeightInches(targetHeight);
+  public double getHeightInches() {
+    return inputs.ElevatorHeightInches;
   }
 
-  public double getHeight() {
-    return io.getHeightInches();
+  /**
+   * @return true if withing tolerance of target height
+   */
+  public boolean isAtHeight(double heightInches) {
+    return (Math.abs(heightInches - inputs.ElevatorHeightInches) < toleranceInches);
+  }
+
+  /**
+   * isAtHeight() check if the elevator is at the target height.
+   *
+   * @return true if the elevator is at the height setpoint
+   */
+  public boolean isAtHeight() {
+    return isAtHeight(inputs.ElevatorHeightInches);
+  }
+
+  /** atLowerLimit() returns true if the lower limit switch is triggered. */
+  public boolean atLowerLimit() {
+    return (inputs.ElevatorAtLowerLimit);
   }
 
   // TODO: implement methods to get upper and lower limit switch status

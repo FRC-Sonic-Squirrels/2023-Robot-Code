@@ -11,6 +11,7 @@ public interface ElevatorIO {
   /** Contains all of the input data received from hardware. */
   public static class ElevatorIOInputs implements LoggableInputs {
     public double ElevatorHeightInches = 0.0;
+    public double ElevatorTargetHeightInches = 0.0;
     public double ElevatorVelocityInchesPerSecond = 0.0;
     public boolean ElevatorAtLowerLimit = false;
     public boolean ElevatorAtUpperLimit = false;
@@ -21,6 +22,7 @@ public interface ElevatorIO {
 
     public void toLog(LogTable table) {
       table.put("ElevatorHeightInches", ElevatorHeightInches);
+      table.put("ElevatorTargetHeightInches", ElevatorTargetHeightInches);
       table.put("ElevatorAtLowerLimit", ElevatorAtLowerLimit);
       table.put("ElevatorVelocityInchesPerSecond", ElevatorVelocityInchesPerSecond);
       table.put("ElevatorVelocityRPM", ElevatorVelocityRPM);
@@ -50,46 +52,17 @@ public interface ElevatorIO {
 
   public default void setHeightInches(double targetHeightInches) {}
 
-  public default double getHeightInches() {
-    // TODO: estimate height for simulation
-    return 0.0;
-  }
-
-  public default double getHeightTicks() {
-    return 0.0;
-  }
-
-  public default void zeroHeight() {}
-
   public default void stop() {}
 
-  public default void brakeOff(){}
+  public default void brakeOff() {}
 
-  public default void brakeOn(){}
-
-  public default boolean atLowerLimit() {
-    return false;
-  }
+  public default void brakeOn() {}
 
   public default void setMotionMagicSetPoint(double heightInches) {}
 
-  public default boolean isAtHeight(double heightInches) {
-    return false;
-  }
-
-  public default boolean isAtHeight() {
-    return false;
-  }
-
   public default void hold() {}
 
-  public default void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed){}
+  public default void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed) {}
 
-  public default double heightToTicks(double heightInches) {
-    return 0.0;
-  }
-
-  public default double ticksToHeight(double ticks) {
-    return 0.0;
-  }
+  public default void zeroHeight() {}
 }

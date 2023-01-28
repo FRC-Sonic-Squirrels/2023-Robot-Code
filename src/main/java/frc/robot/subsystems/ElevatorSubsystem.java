@@ -42,7 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean m_atMaxHeight;
   public double m_currentHeight;
 
-  /** Creates a new ElevatorSubsystem. 
+  /** Creates a new ElevatorSubsystem.
   public ElevatorSubsystem() {
 
     winchLeadTalon.configFactoryDefault();
