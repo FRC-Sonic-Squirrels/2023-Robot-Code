@@ -1,7 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
+/*
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -42,7 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean m_atMaxHeight;
   public double m_currentHeight;
 
-  /** Creates a new ElevatorSubsystem. */
+  /** Creates a new ElevatorSubsystem. 
   public ElevatorSubsystem() {
 
     winchLeadTalon.configFactoryDefault();
@@ -106,3 +106,4 @@ public class ElevatorSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 }
+*/
