@@ -46,6 +46,8 @@ public interface ElevatorIO {
   /** Run the Elevator open loop at the specified voltage. */
   public default void setElevatorVoltage(double volts) {}
 
+  public default void setPercent(double percent){}
+
   public default void setHeight(double targetHeight) {}
 
   public default double getHeight() {
