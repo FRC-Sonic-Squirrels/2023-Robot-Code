@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems.elevator;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -22,8 +19,10 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.team2930.lib.util.MotorUtils;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIVOR_canId;
+import org.littletonrobotics.junction.Logger;
 
 // Details on the TalonFX motion profile control can be found here:
 // https://docs.ctre-phoenix.com/en/stable/ch16_ClosedLoop.html
@@ -47,8 +46,8 @@ public class ElevatorReal2022 implements ElevatorIO {
   private double feedForwardClimbing = 0.025734; // from JVM calculator
   private double feedForwardDescending = 0.0257; // 0.001;
   private final double ticks2distance = gearRatio * winchCircumference / 2048;
-  //TODO make sure conversion is correct
-  private final double ticks2rotation = 1/4096;
+  // TODO make sure conversion is correct
+  private final double ticks2rotation = 1 / 4096;
   private boolean zeroed = false;
 
   public boolean m_atMaxheight;
@@ -56,6 +55,13 @@ public class ElevatorReal2022 implements ElevatorIO {
   private double m_currentHeight;
 
   private double targetHeightInches;
+
+  private final TunableNumber Kp =
+      new TunableNumber("AutoDrive/DriveKp", Constants.ElevatorConstants.P_CONTROLLER);
+  private final TunableNumber Ki =
+      new TunableNumber("AutoDrive/DriveKi", Constants.ElevatorConstants.I_CONTROLLER);
+  private final TunableNumber Kd =
+      new TunableNumber("AutoDrive/DriveKd", Constants.ElevatorConstants.D_CONTROLLER);
 
   public ElevatorReal2022() {
     winch_lead_talon.configFactoryDefault();
@@ -70,9 +76,9 @@ public class ElevatorReal2022 implements ElevatorIO {
     // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
     // this also has suggest trapezoidal velocity profile constants.
     leadConfig.slot0.kF = 0.054;
-    leadConfig.slot0.kP = 0.48; // 0.054836;
-    leadConfig.slot0.kI = 0.0;
-    leadConfig.slot0.kD = 0.0;
+    leadConfig.slot0.kP = Kp.get(); // 0.054836;
+    leadConfig.slot0.kI = Ki.get();
+    leadConfig.slot0.kD = Kd.get();
     leadConfig.slot0.integralZone = 0.0;
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
@@ -96,8 +102,8 @@ public class ElevatorReal2022 implements ElevatorIO {
     winch_lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
     winch_lead_talon.configForwardLimitSwitchSource(
-      LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
-  
+        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
+
     winch_follow_talon.follow(winch_lead_talon);
     winch_lead_talon.setInverted(true);
     winch_follow_talon.setInverted(true);
@@ -281,9 +287,9 @@ public class ElevatorReal2022 implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-    if(winch_lead_talon.isRevLimitSwitchClosed()==1){
+    if (winch_lead_talon.isRevLimitSwitchClosed() == 1) {
       inputs.ElevatorAtLowerLimit = true;
-    } else{
+    } else {
       inputs.ElevatorAtLowerLimit = false;
     }
 
@@ -296,27 +302,31 @@ public class ElevatorReal2022 implements ElevatorIO {
     }
 
     inputs.ElevatorTargetHeightInches = targetHeightInches;
-    inputs.ElevatorHeightInches = ticksToHeight(winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    inputs.ElevatorHeightInches =
+        ticksToHeight(winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
 
     inputs.ElevatorAppliedVolts = winch_lead_talon.getMotorOutputVoltage();
     inputs.ElevatorCurrentAmps = new double[] {winch_lead_talon.getSupplyCurrent()};
     inputs.ElevatorTempCelsius = new double[] {winch_lead_talon.getTemperature()};
-    inputs.ElevatorVelocityInchesPerSecond = ticks2distance * 10.0 * winch_lead_talon.getSelectedSensorVelocity();
-    inputs.ElevatorVelocityRPM = winch_lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotation;
+    inputs.ElevatorVelocityInchesPerSecond =
+        ticks2distance * 10.0 * winch_lead_talon.getSelectedSensorVelocity();
+    inputs.ElevatorVelocityRPM =
+        winch_lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotation;
 
-   Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimit", maxExtensionInches);
-   Logger.getInstance().recordOutput("elevator/ElevatorHeightTicks", winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
-   Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimitTicks", heightToTicks(maxExtensionInches));
-    
+    Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimit", maxExtensionInches);
+    Logger.getInstance()
+        .recordOutput(
+            "elevator/ElevatorHeightTicks",
+            winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    Logger.getInstance()
+        .recordOutput("elevator/ElevatorAtUpperSoftLimitTicks", heightToTicks(maxExtensionInches));
   }
 
   // @Override
   public void periodic() {
 
-    
-
     // check if we triggered lower limit switch, and reset elevator to zero
-    
+
     // SmartDashboard.putBoolean("ELEVATOR AT THE MAX HEIGHT", m_atMaxheight);
 
     // // if(this.getCurrentCommand() != null){
@@ -336,7 +346,8 @@ public class ElevatorReal2022 implements ElevatorIO {
     // SmartDashboard.putNumber(
     //     "Elevator current vel ticks", winch_lead_talon.getSelectedSensorVelocity() * 10.0);
     // // SmartDashboard.putNumber("Elevator SetPoint inches", heightSetpointInches);
-    // // SmartDashboard.putNumber("Elevator SetPoint (ticks)", heightToTicks(heightSetpointInches));
+    // // SmartDashboard.putNumber("Elevator SetPoint (ticks)",
+    // heightToTicks(heightSetpointInches));
     // SmartDashboard.putNumber("Elevator Error", heightSetpointInches - getHeightInches());
     // SmartDashboard.putBoolean("Elevator limit", atLowerLimit());
     // SmartDashboard.putNumber("Elevator %output", winch_lead_talon.getMotorOutputPercent());

@@ -209,8 +209,9 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    elevator.setDefaultCommand(new ElevatorControlCommand(elevator, operatorController,
-        Constants.ElevatorConstants.elevatorSpeedMultiplier));
+    elevator.setDefaultCommand(
+        new ElevatorControlCommand(
+            elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
 
     configureButtonBindings();
     configureAutoCommands();

@@ -80,15 +80,15 @@ public class Elevator extends SubsystemBase {
     return (inputs.ElevatorAtLowerLimit);
   }
 
-  public void brakeOn(){
+  public void brakeOn() {
     io.brakeOn();
   }
 
-  public void brakeOff(){
+  public void brakeOff() {
     io.brakeOff();
   }
 
-  public void setWinchPercentOutput(double percent){
+  public void setWinchPercentOutput(double percent) {
     io.setPercent(percent);
   }
 
