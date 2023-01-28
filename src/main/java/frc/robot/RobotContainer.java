@@ -32,11 +32,15 @@ import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithSetRotation;
+import frc.robot.commands.ElevatorControlCommand;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorReal2022;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
@@ -52,7 +56,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
-
+  private final CommandXboxController operatorController = new CommandXboxController(1);
   /* Driver Buttons */
   // these triggers are now directly detected
   // zeroGyro is assigned to back
@@ -62,6 +66,7 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+  private Elevator elevator;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -127,6 +132,7 @@ public class RobotContainer {
             new Pneumatics(new PneumaticsIORev(false));
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
+            elevator = new Elevator(new ElevatorReal2022());
             break;
           }
         case ROBOT_SIMBOT:
@@ -154,6 +160,7 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
+            elevator = new Elevator(new ElevatorIO() {});
             break;
           }
         default:
@@ -174,6 +181,7 @@ public class RobotContainer {
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
       new Vision(new VisionIO() {});
+      new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
     }
@@ -200,6 +208,9 @@ public class RobotContainer {
             driverController::getLeftY,
             driverController::getLeftX,
             driverController::getRightX));
+
+    elevator.setDefaultCommand(new ElevatorControlCommand(elevator, operatorController,
+        Constants.ElevatorConstants.elevatorSpeedMultiplier));
 
     configureButtonBindings();
     configureAutoCommands();

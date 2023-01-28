@@ -24,6 +24,7 @@ public interface ElevatorIO {
       table.put("ElevatorHeightInches", ElevatorHeightInches);
       table.put("ElevatorTargetHeightInches", ElevatorTargetHeightInches);
       table.put("ElevatorAtLowerLimit", ElevatorAtLowerLimit);
+      table.put("ElevatorAtUpperLimit", ElevatorAtUpperLimit);
       table.put("ElevatorVelocityInchesPerSecond", ElevatorVelocityInchesPerSecond);
       table.put("ElevatorVelocityRPM", ElevatorVelocityRPM);
       table.put("ElevatorAppliedVolts", ElevatorAppliedVolts);

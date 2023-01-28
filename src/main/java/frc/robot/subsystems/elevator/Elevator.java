@@ -17,6 +17,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
   private double MAX_VOLTAGE = 10.0;
   public static double toleranceInches = 0.05;
+  private boolean zeroed;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -27,6 +28,17 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Elevator", inputs);
+
+    if (inputs.ElevatorAtLowerLimit) {
+      if (!zeroed) {
+        // only zero height once per time hitting limit switch
+        io.zeroHeight();
+        zeroed = true;
+      }
+    } else {
+      // not currently on limit switch, zero again next time we hit limit switch
+      zeroed = false;
+    }
   }
 
   /** Run the Elevator at the specified voltage */
@@ -66,6 +78,18 @@ public class Elevator extends SubsystemBase {
   /** atLowerLimit() returns true if the lower limit switch is triggered. */
   public boolean atLowerLimit() {
     return (inputs.ElevatorAtLowerLimit);
+  }
+
+  public void brakeOn(){
+    io.brakeOn();
+  }
+
+  public void brakeOff(){
+    io.brakeOff();
+  }
+
+  public void setWinchPercentOutput(double percent){
+    io.setPercent(percent);
   }
 
   // TODO: implement methods to get upper and lower limit switch status

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.elevator;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -53,9 +55,6 @@ public class ElevatorReal2022 implements ElevatorIO {
 
   private double m_currentHeight;
 
-  // the encoder increase as the elevator moves down, so invert sign of height vs ticks
-  private double sensor_invert = -1.0;
-
   private double targetHeightInches;
 
   public ElevatorReal2022() {
@@ -94,12 +93,14 @@ public class ElevatorReal2022 implements ElevatorIO {
     winch_follow_talon.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
-    winch_lead_talon.configForwardLimitSwitchSource(
+    winch_lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-
+    winch_lead_talon.configForwardLimitSwitchSource(
+      LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
+  
     winch_follow_talon.follow(winch_lead_talon);
-    winch_lead_talon.setInverted(false);
-    winch_follow_talon.setInverted(false);
+    winch_lead_talon.setInverted(true);
+    winch_follow_talon.setInverted(true);
 
     // JVN calculator predicts 41.2 A per motor under load
     // TODO: Check new JVN prediction
@@ -132,8 +133,8 @@ public class ElevatorReal2022 implements ElevatorIO {
     // winch_lead_talon.configForwardSoftLimitEnable(true);
 
     // set soft limit on reverse movement (Up)
-    winch_lead_talon.configReverseSoftLimitThreshold(heightToTicks(maxExtensionInches));
-    winch_lead_talon.configReverseSoftLimitEnable(true);
+    winch_lead_talon.configForwardSoftLimitThreshold(heightToTicks(maxExtensionInches));
+    winch_lead_talon.configForwardSoftLimitEnable(true);
   }
 
   /**
@@ -214,7 +215,11 @@ public class ElevatorReal2022 implements ElevatorIO {
   }
 
   private double heightToTicks(double heightInches) {
-    return sensor_invert * heightInches / ticks2distance;
+    return heightInches / ticks2distance;
+  }
+
+  private double ticksToHeight(double ticks) {
+    return ticks * ticks2distance;
   }
 
   /** hold() - hold the elevator at the current height with PID */
@@ -276,7 +281,7 @@ public class ElevatorReal2022 implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-    if(winch_lead_talon.isFwdLimitSwitchClosed()==1){
+    if(winch_lead_talon.isRevLimitSwitchClosed()==1){
       inputs.ElevatorAtLowerLimit = true;
     } else{
       inputs.ElevatorAtLowerLimit = false;
@@ -291,28 +296,24 @@ public class ElevatorReal2022 implements ElevatorIO {
     }
 
     inputs.ElevatorTargetHeightInches = targetHeightInches;
+    inputs.ElevatorHeightInches = ticksToHeight(winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
 
     inputs.ElevatorAppliedVolts = winch_lead_talon.getMotorOutputVoltage();
     inputs.ElevatorCurrentAmps = new double[] {winch_lead_talon.getSupplyCurrent()};
     inputs.ElevatorTempCelsius = new double[] {winch_lead_talon.getTemperature()};
     inputs.ElevatorVelocityInchesPerSecond = ticks2distance * 10.0 * winch_lead_talon.getSelectedSensorVelocity();
     inputs.ElevatorVelocityRPM = winch_lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotation;
+
+   Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimit", maxExtensionInches);
+   Logger.getInstance().recordOutput("elevator/ElevatorHeightTicks", winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
+   Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimitTicks", heightToTicks(maxExtensionInches));
     
   }
 
   // @Override
   public void periodic() {
 
-    if (winch_lead_talon.isFwdLimitSwitchClosed()==1) {
-      if (!zeroed) {
-        // only zero height once per time hitting limit switch
-        zeroHeight();
-        zeroed = true;
-      }
-    } else {
-      // not currently on limit switch, zero again next time we hit limit switch
-      zeroed = false;
-    }
+    
 
     // check if we triggered lower limit switch, and reset elevator to zero
     
