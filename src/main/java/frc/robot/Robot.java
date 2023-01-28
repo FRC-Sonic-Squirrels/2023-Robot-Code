@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -142,7 +143,11 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putNumber("AutoName", autoHashCode);
         if (currentAutoHashId != autoHashCode) {
           currentAutoHashId = autoHashCode;
-          Logger.getInstance().recordOutput("Odometry/trajectory", currentAuto.getTrajectory());
+          Trajectory trajectory = currentAuto.getTrajectory();
+          if (trajectory == null) {
+            trajectory = new Trajectory();
+          }
+          Logger.getInstance().recordOutput("Odometry/trajectory", trajectory);
           Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
           Logger.getInstance().recordOutput("Autonomous/ElementToString", currentAuto.toString());
         }

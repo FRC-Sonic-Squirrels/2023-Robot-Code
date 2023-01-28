@@ -84,14 +84,16 @@ public class AutoChooserElement {
 
   public Trajectory getTrajectory() {
     Trajectory fullTrajectory = trajectory;
-    if ((trajectory == null) && (next != null)) {
-      fullTrajectory = next.getTrajectory();
-    } else if ((trajectory != null) && (next != null)) {
-      fullTrajectory.concatenate(next.getTrajectory());
+    Trajectory nextTrajectory = null;
+
+    if (next != null) {
+      nextTrajectory = next.getTrajectory();
     }
 
-    if (fullTrajectory == null) {
-      return new Trajectory();
+    if (trajectory == null) {
+      fullTrajectory = nextTrajectory;
+    } else if (nextTrajectory != null) {
+      fullTrajectory.concatenate(nextTrajectory);
     }
 
     return fullTrajectory;
