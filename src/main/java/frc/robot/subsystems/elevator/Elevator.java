@@ -43,7 +43,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeight(double targetHeight) {
-    io.setHeight(targetHeight);
+    io.setHeightInches(targetHeight);
   }
 
   public double getHeight() {

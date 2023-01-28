@@ -183,7 +183,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   }
 
   @Override
-  public void setHeight(double targetHeightInches) {
+  public void setHeightInches(double targetHeightInches) {
     if (targetHeightInches < 0.0) {
       targetHeightInches = 0.0;
     }

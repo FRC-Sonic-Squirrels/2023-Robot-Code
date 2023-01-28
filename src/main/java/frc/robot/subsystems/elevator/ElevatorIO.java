@@ -48,7 +48,7 @@ public interface ElevatorIO {
 
   public default void setPercent(double percent) {}
 
-  public default void setHeight(double targetHeightInches) {}
+  public default void setHeightInches(double targetHeightInches) {}
 
   public default double getHeightInches() {
     // TODO: estimate height for simulation
