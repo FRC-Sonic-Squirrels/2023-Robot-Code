@@ -32,6 +32,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.ControllerRumbleInterval;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -62,6 +63,8 @@ public class RobotContainer {
       new JoystickButton(driverController, XboxController.Button.kA.value);
   private final JoystickButton intakeOut =
       new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  private final JoystickButton rumbleTest = 
+      new JoystickButton(driverController, XboxController.Button.kX.value);
 
   private Drivetrain drivetrain;
   private Intake intake;
@@ -241,6 +244,8 @@ public class RobotContainer {
     intakeOut.onFalse(
         Commands.runOnce(intake::retract, intake)
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    rumbleTest.onTrue(new ControllerRumbleInterval(driverController, 3, 2.0, 1.0, 0.5), null);
   }
 
   /** Use this method to define your commands for autonomous mode. */
