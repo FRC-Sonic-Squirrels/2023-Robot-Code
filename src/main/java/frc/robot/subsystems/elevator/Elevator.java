@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getHeight() {
-    return io.getHeight();
+    return io.getHeightInches();
   }
 
   // TODO: implement methods to get upper and lower limit switch status

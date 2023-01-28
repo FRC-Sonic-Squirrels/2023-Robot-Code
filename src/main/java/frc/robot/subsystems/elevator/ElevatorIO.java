@@ -46,12 +46,50 @@ public interface ElevatorIO {
   /** Run the Elevator open loop at the specified voltage. */
   public default void setElevatorVoltage(double volts) {}
 
-  public default void setPercent(double percent){}
+  public default void setPercent(double percent) {}
 
-  public default void setHeight(double targetHeight) {}
+  public default void setHeight(double targetHeightInches) {}
 
-  public default double getHeight() {
+  public default double getHeightInches() {
     // TODO: estimate height for simulation
+    return 0.0;
+  }
+
+  public default double getHeightTicks() {
+    return 0.0;
+  }
+
+  public default void zeroHeight() {}
+
+  public default void stop() {}
+
+  public default void brakeOff(){}
+
+  public default void brakeOn(){}
+
+  public default boolean atLowerLimit() {
+    return false;
+  }
+
+  public default void setMotionMagicSetPoint(double heightInches) {}
+
+  public default boolean isAtHeight(double heightInches) {
+    return false;
+  }
+
+  public default boolean isAtHeight() {
+    return false;
+  }
+
+  public default void hold() {}
+
+  public default void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed){}
+
+  public default double heightToTicks(double heightInches) {
+    return 0.0;
+  }
+
+  public default double ticksToHeight(double ticks) {
     return 0.0;
   }
 }

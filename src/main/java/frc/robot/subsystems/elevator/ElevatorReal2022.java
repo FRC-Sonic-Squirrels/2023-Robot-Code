@@ -16,7 +16,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.team2930.lib.util.MotorUtils;
+import frc.lib.team2930.lib.util.MotorUtils;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,7 +56,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   // the encoder increase as the elevator moves down, so invert sign of height vs ticks
   private double sensor_invert = -1.0;
   
-  public ElevatorSubsystem() {
+  public ElevatorReal2022() {
     winch_lead_talon.configFactoryDefault();
     winch_follow_talon.configFactoryDefault();
     
@@ -138,6 +138,7 @@ public class ElevatorReal2022 implements ElevatorIO {
    * @param acceleration accel in inches per second^2
    * @param cruiseVelocity max velocity in inches per second 
    */
+  @Override
   public void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed){
     //math adapted from howdybots jvn calculator equation
     double veloInTicks = cruiseVelocity * (12.15/winchCircumference) * 2048 / 10;
@@ -155,6 +156,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     SmartDashboard.putNumber("Elevator MM Constraint velo TICKS", veloInTicks);
   }
 
+  @Override
   public void setMotionMagicSetPoint(double heightInches) {
     // if (heightInches < 0.0) {
     //   heightInches = 0.0;
@@ -180,34 +182,37 @@ public class ElevatorReal2022 implements ElevatorIO {
     SmartDashboard.putNumber("Elevator MM Height SetPoint", heightInches);
   }
 
-  public void setElevatorHeight(double heightInches) {
-    if (heightInches < 0.0) {
-      heightInches = 0.0;
+  @Override
+  public void setHeight(double targetHeightInches) {
+    if (targetHeightInches < 0.0) {
+      targetHeightInches = 0.0;
     }
-    if (heightInches > maxExtensionInches) {
-      heightInches = maxExtensionInches;
+    if (targetHeightInches > maxExtensionInches) {
+      targetHeightInches = maxExtensionInches;
     }
 
-    if (heightInches <= heightSetpointInches) {
+    if (targetHeightInches <= heightSetpointInches) {
       // lifting up robot, use more feed forward
-      winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(heightInches),
+      winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(targetHeightInches),
           DemandType.ArbitraryFeedForward, feedForwardClimbing);
     } else {
       // lowering robot, use less feed forward
-      winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(heightInches),
+      winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(targetHeightInches),
           DemandType.ArbitraryFeedForward, feedForwardDescending);
     }
     // NOTE: this is how without arbitrary feed forward
     // winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(heightInches));
 
-    heightSetpointInches = heightInches;
+    heightSetpointInches = targetHeightInches;
   }
 
 
+  @Override
   public double heightToTicks(double heightInches) {
     return sensor_invert * heightInches / ticks2distance;
   }
 
+  @Override
   public double ticksToHeight(double ticks) {
     return sensor_invert * ticks * ticks2distance;
   }
@@ -215,6 +220,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   /**
    * hold() - hold the elevator at the current height with PID
    */
+  @Override
   public void hold() {
     winch_lead_talon.set(TalonFXControlMode.Position, winch_lead_talon.getSelectedSensorPosition(),
         DemandType.ArbitraryFeedForward, feedForwardClimbing);
@@ -223,6 +229,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   /**
    * @return true if withing tolerance of  target height
    */
+  @Override
   public boolean isAtHeight(double heightInches) {
     return (Math.abs(heightInches - getHeightInches()) < toleranceInches);
   }
@@ -232,6 +239,7 @@ public class ElevatorReal2022 implements ElevatorIO {
    * 
    * @return true if the elevator is at the height setpoint
    */
+  @Override
   public boolean isAtHeight() {
     return  isAtHeight(heightSetpointInches);
   }
@@ -241,10 +249,12 @@ public class ElevatorReal2022 implements ElevatorIO {
    * 
    * @return height of the elevator in inches
    */
+  @Override
   public double getHeightInches() {
     return  (getHeightTicks() * ticks2distance);
   }
 
+  @Override
   public double getHeightTicks() {
     return sensor_invert * winch_lead_talon.getSelectedSensorPosition();
   }
@@ -255,6 +265,7 @@ public class ElevatorReal2022 implements ElevatorIO {
    * This is called when the elevator triggers the lower limit switch. This needs to be done by a
    * command, that runs the elevator to the lower limit switch. VERY SLOWLY.
    */
+  @Override
   public void zeroHeight() {
     winch_lead_talon.getSensorCollection().setIntegratedSensorPosition(0, 0);
   }
@@ -262,21 +273,24 @@ public class ElevatorReal2022 implements ElevatorIO {
   /**
    * Manually run elevator motors. USE WITH CAUTION.
    */
-  public void setWinchPercentOutput(double percent) {
+  @Override
+  public void setPercent(double percent) {
     winch_lead_talon.set(ControlMode.PercentOutput, percent);
   }
 
   /**
    * stop() stops the elevator motors and sets the brake.
    */
+  @Override
   public void stop() {
-    setWinchPercentOutput(0.0);
+    setPercent(0.0);
     brakeOn();
   }
 
   /**
    * brakeOn() turns on the brake.
    */
+  @Override
   public void brakeOff(){
     frictionBrakeSolenoid.set(true);
   }
@@ -284,6 +298,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   /**
    * brakeOff() turns off the brake.
    */
+  @Override
   public void brakeOn(){
     frictionBrakeSolenoid.set(false);
   }
@@ -291,11 +306,17 @@ public class ElevatorReal2022 implements ElevatorIO {
   /**
    * atLowerLimit() returns true if the lower limit switch is triggered.
    */
+  @Override
   public boolean atLowerLimit() {
     return (1 == winch_lead_talon.isFwdLimitSwitchClosed());
   }
 
   @Override
+  public void setElevatorVoltage(double volts){
+      winch_lead_talon.setVoltage(volts);
+  }
+
+  // @Override
   public void periodic() {
     // check if we triggered lower limit switch, and reset elevator to zero
     if(atLowerLimit()) {
