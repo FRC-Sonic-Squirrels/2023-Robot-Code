@@ -244,21 +244,14 @@ public class RobotContainer {
         .onFalse(
             Commands.runOnce(intake::retract, intake)
                 .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-    // driverController
-    //     .x()
-    //     .onTrue(
-    //         new DriveWithSetRotation(drivetrain, () ->
-    // poseEstimator.getEstimatedPosition().getX(), () ->
-    // poseEstimator.getEstimatedPosition().getY(), pov,
-    // rotationRadians).until(()->Math.abs(driverController.getRightX())>0.7));
 
     driverController
         .povDown()
         .onTrue(
             new DriveWithSetRotation(
                     drivetrain,
-                    () -> driverController.getLeftX(),
                     () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
                     180)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.7));
 
@@ -267,8 +260,8 @@ public class RobotContainer {
         .onTrue(
             new DriveWithSetRotation(
                     drivetrain,
-                    () -> driverController.getLeftX(),
                     () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
   }
