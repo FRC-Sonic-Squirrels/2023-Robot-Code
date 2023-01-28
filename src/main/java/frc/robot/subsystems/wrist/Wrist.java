@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Wrist extends SubsystemBase {
 
   /** Creates a new Arm. */
-  Solenoid solenoid = null;
+  private Solenoid solenoid;
 
   public Wrist() {
 
