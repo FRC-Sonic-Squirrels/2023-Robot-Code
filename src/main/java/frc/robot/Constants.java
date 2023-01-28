@@ -75,4 +75,19 @@ public final class Constants {
     REPLAY,
     SIM
   }
+
+  public static final class CANIVOR_canId {
+
+    // CANIVOR can Ids
+    public static final String name = "CANivore";
+
+    // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
+    // create problems if you already have a device using CAN id 0 on the CAN bus.
+    public static final int DoNotUse_canId0 = 0;
+    public static final int CANID5_STINGER_TALON = 5;
+    public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
+    public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
+    public static final int CANID15_pigeon_imu = 15;
+
+  }
 }
