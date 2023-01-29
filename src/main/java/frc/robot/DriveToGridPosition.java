@@ -143,6 +143,10 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    // TODO: clean up this file
+    // TODO: skip first checkpoint if inside community
+    // TODO: just flip blue bay locations when making red bay locations
+    // TODO: if distance between start and first point is small then dont write logic of heading
     Alliance alliance = DriverStation.getAlliance();
 
     // FIXME: ADD THIS BACK
