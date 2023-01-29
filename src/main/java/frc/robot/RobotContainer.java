@@ -35,6 +35,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.TestPos;
 import frc.robot.GridPositionHandler.DeadzoneBox;
 import frc.robot.GridPositionHandler.EntranceCheckpoint;
+import frc.robot.commands.DriveAvoidBoxes;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -204,8 +205,15 @@ public class RobotContainer {
      * and the left joystick's x axis specifies the velocity in the y direction.
      */
 
+    // drivetrain.setDefaultCommand(
+    //     new TeleopSwerve(
+    //         drivetrain,
+    //         driverController::getLeftY,
+    //         driverController::getLeftX,
+    //         driverController::getRightX));
+
     drivetrain.setDefaultCommand(
-        new TeleopSwerve(
+        new DriveAvoidBoxes(
             drivetrain,
             driverController::getLeftY,
             driverController::getLeftX,
@@ -341,6 +349,15 @@ public class RobotContainer {
     driverController
         .povLeft()
         .onTrue(Commands.runOnce(() -> gridPositionHandler.decrementNextBay()));
+
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            new TeleopSwerve(
+                drivetrain,
+                driverController::getLeftY,
+                driverController::getLeftX,
+                driverController::getRightX));
 
     // PathPlannerTrajectory testAllianceFlipPath =
     //     PathPlanner.loadPath(
