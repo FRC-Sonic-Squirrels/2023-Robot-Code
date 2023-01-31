@@ -53,17 +53,13 @@ public interface ElevatorIO {
 
   public default void setHeightInches(double targetHeightInches) {}
 
-  public default void stop() {}
-
   public default void brakeOff() {}
 
   public default void brakeOn() {}
-
-  public default void setMotionMagicSetPoint(double heightInches) {}
-
-  public default void hold() {}
-
+  
   public default void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed) {}
+// reset sensor position
+  public default void resetSensorHeight(double heightInches) {}
 
-  public default void zeroHeight() {}
+  public default void setPIDConstraints(double kF, double kP, double kI, double kD) {}
 }

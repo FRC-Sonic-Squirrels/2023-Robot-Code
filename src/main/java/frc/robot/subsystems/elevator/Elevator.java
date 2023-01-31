@@ -6,6 +6,8 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.team6328.util.TunableNumber;
+import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,9 +21,18 @@ public class Elevator extends SubsystemBase {
   public static double toleranceInches = 0.05;
   private boolean zeroed;
 
+  public final TunableNumber Kf =
+      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+  public final TunableNumber Kp =
+      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+  public final TunableNumber Ki =
+      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
+  public final TunableNumber Kd =
+      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
+
   public Elevator(ElevatorIO io) {
     this.io = io;
-    io.zeroHeight();
+    io.resetSensorHeight(0.0);
   }
 
   @Override
@@ -32,23 +43,21 @@ public class Elevator extends SubsystemBase {
     if (inputs.ElevatorAtLowerLimit) {
       if (!zeroed) {
         // only zero height once per time hitting limit switch
-        io.zeroHeight();
+        io.resetSensorHeight(0.0);
         zeroed = true;
       }
     } else {
       // not currently on limit switch, zero again next time we hit limit switch
       zeroed = false;
     }
+
+    io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
   }
 
   /** Run the Elevator at the specified voltage */
   public void runElevatorVoltage(double voltage) {
     voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
     io.setElevatorVoltage(voltage * MAX_VOLTAGE);
-  }
-
-  public void stop() {
-    runElevatorVoltage(0.0);
   }
 
   public void setHeightInches(double targetHeightInches) {
@@ -90,6 +99,19 @@ public class Elevator extends SubsystemBase {
 
   public void setWinchPercentOutput(double percent) {
     io.setPercent(percent);
+  }
+
+  public void stop(){
+    io.setPercent(0.0);
+    io.brakeOn();
+  }
+
+  public void zeroHeight(){
+    io.resetSensorHeight(0);
+  }
+
+  public void setPIDConstraints(double kF, double kP, double kI, double kD){
+    io.setPIDConstraints(kF, kP, kI, kD);
   }
 
   // TODO: implement methods to get upper and lower limit switch status

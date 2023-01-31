@@ -44,13 +44,6 @@ public class ElevatorReal2023 implements ElevatorIO {
   // state of solenoids when active
   private boolean solenoidEnabled = false;
 
-  private final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
-  private final TunableNumber Ki =
-      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
-  private final TunableNumber Kd =
-      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
-
   public ElevatorReal2023() {
     winch_lead_talon.configFactoryDefault();
     winch_follow_talon.configFactoryDefault();
@@ -63,10 +56,6 @@ public class ElevatorReal2023 implements ElevatorIO {
     // Details on elevator motors, gearing and calculated kP and kFF are here
     // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
     // this also has suggest trapezoidal velocity profile constants.
-    leadConfig.slot0.kF = 0.054;
-    leadConfig.slot0.kP = Kp.get();
-    leadConfig.slot0.kI = Ki.get();
-    leadConfig.slot0.kD = Kd.get();
     leadConfig.slot0.integralZone = 0.0;
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
@@ -110,7 +99,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     winch_follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
     brakeOn();
-    zeroHeight();
+    resetSensorHeight(0.0);
 
     winch_lead_talon.configForwardSoftLimitThreshold(inchesToTicks(0.0));
     winch_lead_talon.configForwardSoftLimitEnable(true);
@@ -126,17 +115,6 @@ public class ElevatorReal2023 implements ElevatorIO {
     winch_lead_talon.configMotionCruiseVelocity(veloInTicks);
   }
 
-  @Override
-  public void setMotionMagicSetPoint(double heightInches) {
-    if (heightInches > maxExtensionInches) {
-      heightInches = maxExtensionInches;
-    }
-
-    winch_lead_talon.set(ControlMode.MotionMagic, inchesToTicks(heightInches));
-
-    heightSetpointInches = heightInches;
-  }
-
   private double inchesToTicks(double inches) {
     return inches / ticks2inches;
   }
@@ -146,28 +124,13 @@ public class ElevatorReal2023 implements ElevatorIO {
   }
 
   @Override
-  public void hold() {
-    winch_lead_talon.set(
-        TalonFXControlMode.Position,
-        winch_lead_talon.getSelectedSensorPosition(),
-        DemandType.ArbitraryFeedForward,
-        feedForward);
-  }
-
-  @Override
-  public void zeroHeight() {
-    winch_lead_talon.getSensorCollection().setIntegratedSensorPosition(0, 0);
+  public void resetSensorHeight(double heightInches) {
+    winch_lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches) , 0);
   }
 
   @Override
   public void setPercent(double percent) {
     winch_lead_talon.set(ControlMode.PercentOutput, percent);
-  }
-
-  @Override
-  public void stop() {
-    setPercent(0.0);
-    brakeOn();
   }
 
   @Override
@@ -178,6 +141,14 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void brakeOn() {
     frictionBrakeSolenoid.set(solenoidEnabled);
+  }
+
+  @Override
+  public void setPIDConstraints(double kF, double kP, double kI, double kD){
+    winch_lead_talon.config_kF(0, kF);
+    winch_lead_talon.config_kP(0, kP);
+    winch_lead_talon.config_kI(0, kI);
+    winch_lead_talon.config_kD(0, kD);
   }
 
   @Override
