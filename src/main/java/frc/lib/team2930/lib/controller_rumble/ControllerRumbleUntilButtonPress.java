@@ -1,34 +1,27 @@
-package frc.robot.commands;
+package frc.lib.team2930.lib.controller_rumble;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import java.util.function.BooleanSupplier;
 
-public class ControllerRumbleTime extends CommandBase {
+public class ControllerRumbleUntilButtonPress extends CommandBase {
   private CommandXboxController controller;
-  private double rumbleTime;
-  private double startTime;
   private double rumbleStrength;
+  private BooleanSupplier rumbleSupplier;
 
-  /**
-   * Rumble the controller until the specified time has passed
-   *
-   * @param rumbleTime Seconds
-   */
-  public ControllerRumbleTime(
-      CommandXboxController controller, double rumbleTime, double rumbleStrength) {
+  /** Rumble the controller until the specified button is pressed */
+  public ControllerRumbleUntilButtonPress(
+      CommandXboxController controller, BooleanSupplier rumbleSupplier, double rumbleStrength) {
     this.controller = controller;
-    this.rumbleTime = rumbleTime;
     this.rumbleStrength = rumbleStrength;
-
+    this.rumbleSupplier = rumbleSupplier;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     controller.getHID().setRumble(RumbleType.kBothRumble, rumbleStrength);
-    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,6 +37,6 @@ public class ControllerRumbleTime extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Timer.getFPGATimestamp() - startTime >= rumbleTime;
+    return rumbleSupplier.getAsBoolean();
   }
 }

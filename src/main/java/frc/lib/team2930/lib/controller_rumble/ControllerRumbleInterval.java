@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.lib.team2930.lib.controller_rumble;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
