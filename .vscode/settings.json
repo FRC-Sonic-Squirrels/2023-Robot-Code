@@ -60,5 +60,9 @@
     "Vandermonde",
     "WPILOG",
     "Xstance"
-  ]
+  ],
+  "C_Cpp.dimInactiveRegions": false,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }

@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.team2930.lib.util.StreamDeckController;
+import frc.lib.team2930.lib.util.StreamDeckHandler;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -50,6 +52,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  StreamDeckHandler streamDeckHandler = new StreamDeckHandler();
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
@@ -61,6 +64,7 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+  private StreamDeckController streamDeckController = new StreamDeckController();
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -243,6 +247,17 @@ public class RobotContainer {
         .onFalse(
             Commands.runOnce(intake::retract, intake)
                 .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+
+    streamDeckHandler.GetIsTargeting() // Activates when the targeting button is pressed
+            .onTrue(Commands.print("TARGETING ON TARGETING ON -- Started Targeting -- TARGETING ON TARGETING ON").andThen(Commands.print(streamDeckHandler.getTargetString())));
+
+
+    streamDeckController.GetButton1().and(streamDeckHandler.GetIsTargeting()) // Activates when the targeting button is pressed and the button 1 is pressed
+        .onTrue(Commands.print("1TargetOn"));
+
+    streamDeckController.GetButton2().and(streamDeckHandler.GetIsTargeting()) // Activates when the targeting button is pressed and the button 1 is pressed
+        .onTrue(Commands.print("2TargetOn"));
   }
 
   /** Use this method to define your commands for autonomous mode. */
