@@ -114,5 +114,8 @@ public final class Constants {
     public static final double P_CONTROLLER = 0.48;
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
+
+    public static final double CRUISE_VELOCITY = 0.5;
+    public static final double DESIRED_TIME_TO_SPEED = 0.5;
   }
 }

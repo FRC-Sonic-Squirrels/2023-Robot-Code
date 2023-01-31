@@ -223,7 +223,9 @@ public class ElevatorReal2022 implements ElevatorIO {
 
   @Override
   public void resetSensorHeight(double heightInches) {
-    winch_lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches) , 0);
+    winch_lead_talon
+        .getSensorCollection()
+        .setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   private double inchesToTicks(double heightInches) {

@@ -30,6 +30,12 @@ public class Elevator extends SubsystemBase {
   public final TunableNumber Kd =
       new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
 
+  public final TunableNumber cruiseVelocity =
+      new TunableNumber("elevator/cruiseVelocity", Constants.ElevatorConstants.CRUISE_VELOCITY);
+  public final TunableNumber desiredTimeToSpeed =
+      new TunableNumber(
+          "elevator/desiredTimeToSpeed", Constants.ElevatorConstants.DESIRED_TIME_TO_SPEED);
+
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
@@ -51,8 +57,11 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
-    if(Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
-    io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
+    if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
+      io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
+
+    if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
+      io.setMotionMagicConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
   }
 
   /** Run the Elevator at the specified voltage */
@@ -102,16 +111,16 @@ public class Elevator extends SubsystemBase {
     io.setPercent(percent);
   }
 
-  public void stop(){
+  public void stop() {
     io.setPercent(0.0);
     io.brakeOn();
   }
 
-  public void zeroHeight(){
+  public void zeroHeight() {
     io.resetSensorHeight(0);
   }
 
-  public void setPIDConstraints(double kF, double kP, double kI, double kD){
+  public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     io.setPIDConstraints(kF, kP, kI, kD);
   }
 

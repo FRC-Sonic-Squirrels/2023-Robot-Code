@@ -1,20 +1,17 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.lib.team2930.lib.util.MotorUtils;
-import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIVOR_canId;
 import org.littletonrobotics.junction.Logger;
@@ -125,7 +122,9 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void resetSensorHeight(double heightInches) {
-    winch_lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches) , 0);
+    winch_lead_talon
+        .getSensorCollection()
+        .setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   @Override
@@ -144,7 +143,7 @@ public class ElevatorReal2023 implements ElevatorIO {
   }
 
   @Override
-  public void setPIDConstraints(double kF, double kP, double kI, double kD){
+  public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     winch_lead_talon.config_kF(0, kF);
     winch_lead_talon.config_kP(0, kP);
     winch_lead_talon.config_kI(0, kI);
