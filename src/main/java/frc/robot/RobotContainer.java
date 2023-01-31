@@ -10,13 +10,12 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -32,6 +31,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.DriveWithSetRotation;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -51,17 +51,14 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverController = new XboxController(0);
+  private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  // these triggers are now directly detected
+  // zeroGyro is assigned to back
+  // robotCentric is assigned to b
+  // xStance is assigned to a
+  // intakeOut is assigned to right bumper
 
   private Drivetrain drivetrain;
   private Intake intake;
@@ -221,28 +218,53 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    robotCentric.toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+    driverController
+        .b()
+        .toggleOnTrue(
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
-    zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // x-stance
-    xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
     // intake
-    intakeOut.whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    intakeOut.onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-  }
+    driverController
+        .rightBumper()
+        .whileTrue(
+            Commands.runOnce(intake::extend, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    driverController
+        .rightBumper()
+        .onFalse(
+            Commands.runOnce(intake::retract, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
+    driverController
+        .povDown()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    180)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    driverController
+        .povUp()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    0)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+  }
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
     PathPlannerTrajectory testPath2mForward =
