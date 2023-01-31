@@ -102,7 +102,7 @@ public class ElevatorReal2022 implements ElevatorIO {
 
     // config hard limit switch for full down position
     winch_lead_talon.configReverseLimitSwitchSource(
-        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
     winch_lead_talon.configForwardLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
 
