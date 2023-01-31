@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
@@ -24,21 +22,19 @@ public class ElevatorControlCommand extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-    //negative because up on joystick y axis goes negative
+
+    // negative because up on joystick y axis goes negative
     double elevatorJoyStickValue = -controller.getLeftY();
 
-    if(Math.abs(elevatorJoyStickValue) > 0.1) {
+    if (Math.abs(elevatorJoyStickValue) > 0.1) {
       elevator.brakeOff();
       elevator.setWinchPercentOutput(elevatorJoyStickValue * gain);
-    }
-    else {
+    } else {
       elevator.setWinchPercentOutput(0.0);
       elevator.brakeOn();
     }

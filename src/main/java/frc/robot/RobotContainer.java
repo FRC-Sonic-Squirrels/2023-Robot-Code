@@ -32,7 +32,6 @@ import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithSetRotation;
-import frc.robot.commands.ElevatorControlCommand;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -209,8 +208,9 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    elevator.setDefaultCommand(new ElevatorControlCommand(elevator, operatorController,
-        Constants.ElevatorConstants.elevatorSpeedMultiplier));
+    // elevator.setDefaultCommand(
+    //     new ElevatorControlCommand(
+    //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
 
     configureButtonBindings();
     configureAutoCommands();

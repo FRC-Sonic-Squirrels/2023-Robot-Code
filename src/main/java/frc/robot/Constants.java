@@ -107,8 +107,8 @@ public final class Constants {
     public static final int channel_15_friction_brake = 15;
   }
 
-  //TODO: determine whether elevator deserves it's own constants file
-  public static class ElevatorConstants{
+  // TODO: determine whether elevator deserves it's own constants file
+  public static class ElevatorConstants {
     public static final double elevatorSpeedMultiplier = 1.0;
   }
 }
