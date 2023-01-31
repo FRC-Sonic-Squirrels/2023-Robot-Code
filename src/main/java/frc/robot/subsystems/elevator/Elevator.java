@@ -51,6 +51,7 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
+    if(Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
   }
 
