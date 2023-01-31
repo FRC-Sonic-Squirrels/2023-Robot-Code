@@ -42,7 +42,6 @@ public class StingerIOReal implements StingerIO{
     public double m_currentLength;
     public double targetLengthInches;
 
-
     public StingerIOReal() {
         winchTalon.configFactoryDefault();
 
@@ -54,12 +53,7 @@ public class StingerIOReal implements StingerIO{
         // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
         // this also has suggest trapezoidal velocity profile constants.
         //TODO: get the right PID values for the stinger
-        config.slot0.kP = 0.48; // 0.054836;
-        config.slot0.kF = 0.054;
-        config.slot0.kI = 0.0;
-        config.slot0.kD = 0.0;
-        config.slot0.integralZone = 0.0;
-        config.slot0.closedLoopPeakOutput = 1.0;
+        setPIDConstraints(0.054, 0.48, 0.0, 0.0);
 
         // do we need this if the command is updating the motion magic constraints?
         // maybe have a safe default?
@@ -90,35 +84,25 @@ public class StingerIOReal implements StingerIO{
 
         winchTalon.configOpenloopRamp(0.1);
 
-        zeroLength();
+        setSensorPosition(0.0);
 
         winchTalon.configReverseSoftLimitThreshold(lengthToTicks(maxExtensionInches));
         winchTalon.configReverseSoftLimitEnable(true);
     }
 
-    /**
-    * @param acceleration accel in inches per second^2
-    * @param cruiseVelocity max velocity in inches per second
-    */
-    @Override
-    public void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
-        // math adapted from howdybots jvn calculator equation
-        double veloInTicks = cruiseVelocity * (12.15 / winchCircumference) * 2048 / 10;
-        double accelInTicks = veloInTicks / desiredTimeToSpeed;
 
-        winchTalon.configMotionAcceleration(accelInTicks);
-        winchTalon.configMotionCruiseVelocity(veloInTicks);
-
-        // temporary for debugging
-        SmartDashboard.putNumber("Stinger MM Constraint desiredTimeToSpeed", desiredTimeToSpeed);
-        SmartDashboard.putNumber("Stinger MM Constraint velo INCHES", cruiseVelocity);
-
-        SmartDashboard.putNumber("Stinger MM Constraint accel TICKS", accelInTicks);
-        SmartDashboard.putNumber("Stinger MM Constraint velo TICKS", veloInTicks);
+    public void setStingerVoltage(double volts) {
+        winchTalon.setVoltage(volts);
     }
 
+
+    public void setPercent(double percent) {
+        winchTalon.set(ControlMode.PercentOutput, percent);
+    }
+
+
     @Override
-    public void setMotionMagicSetPoint(double heightInches) {
+    public void setExtensionInches(double heightInches) {
         // if (heightInches < 0.0) {
         //   heightInches = 0.0;
         // }
@@ -129,8 +113,52 @@ public class StingerIOReal implements StingerIO{
         winchTalon.set(ControlMode.MotionMagic, lengthToTicks(heightInches));
     }
 
-    //FIXME: write this method
-    public double lengthToTicks(double length) {
-        return -1;
+
+    /**
+    * @param acceleration accel in inches per second^2
+    * @param cruiseVelocity max velocity in inches per second
+    */
+    @Override
+    public void setMotionMagicConstraints(double cruiseVelocity, double acceleration) {
+        // math adapted from howdybots jvn calculator equation
+        //TODO: if speed and acceleration are strange during testing, check to see if these values are correct
+        double veloInTicks = cruiseVelocity * (12.15 / winchCircumference) * 2048 / 10;
+        double accelInTicks = acceleration * (12.15 / winchCircumference) * 2048 / 10;
+
+        winchTalon.configMotionAcceleration(accelInTicks);
+        winchTalon.configMotionCruiseVelocity(veloInTicks);
+
+        // temporary for debugging
+        SmartDashboard.putNumber("Stinger MM Constraint acceleration", acceleration);
+        SmartDashboard.putNumber("Stinger MM Constraint velo INCHES", cruiseVelocity);
+
+        SmartDashboard.putNumber("Stinger MM Constraint accel TICKS", accelInTicks);
+        SmartDashboard.putNumber("Stinger MM Constraint velo TICKS", veloInTicks);
     }
+
+
+    public void resetSensorPosition(double position) {
+        winchTalon.getSensorCollection().setIntegratedSensorPosition(position, 0);
+    }
+
+
+    public void setPIDConstraints(double feedForward, double kP, double kI, double kD) {
+        winchTalon.config_kP(0, kP);
+        winchTalon.config_kF(0, feedForward);
+        winchTalon.config_kI(0, kI);
+        winchTalon.config_kD(0, kD);
+        winchTalon.config_IntegralZone(0, 0);
+        winchTalon.configClosedLoopPeakOutput(0, 1);
+    }
+
+
+    public double lengthToTicks(double lengthInches) {
+        return lengthInches / ticks2distance;
+    }
+
+
+    public double ticksToLength(double ticks) {
+        return ticks * ticks2distance;
+    }
+
 }

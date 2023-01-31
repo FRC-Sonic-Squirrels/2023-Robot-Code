@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 
 public class Stinger extends SubsystemBase {
@@ -18,16 +18,34 @@ public class Stinger extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static double toleranceInches = 0.05;
 
+  private final TunableNumber kPtunable =
+      new TunableNumber("Stinger/kP", 0.48);
+  private final TunableNumber feedForwardTunable =
+      new TunableNumber("Stinger/FeedForward", 0.054);
+  private final TunableNumber kItunable =
+      new TunableNumber("Stinger/kI", 0.0);
+  private final TunableNumber kDtunable =
+      new TunableNumber("Stinger/kD", 0.0);
+
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {
     this.io = io;
-    io.zeroLength();
+
+    io.setSensorPosition(0.0);
+    io.setPIDConstraints(0.054, 0.48, 0.0, 0.0);
+    //io.setMotionMagicConstraints( FIXME:find velocity and acceleration of stinger );
+
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Stinger", inputs);
+
+    // update TunableNumbers and change PID accordingly
+    if (feedForwardTunable.hasChanged() || kPtunable.hasChanged() || kItunable.hasChanged() || kDtunable.hasChanged()) {
+      io.setPIDConstraints(feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kPtunable.get());
+    }
   }
 
   /** Run the Stinger at the specified voltage */
@@ -41,18 +59,18 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setLengthInches(double targetLengthInches) {
-    io.setLengthInches(targetLengthInches);
+    io.setExtensionInches(targetLengthInches);
   }
 
   public double getLengthInches() {
-    return inputs.StingerLengthInches;
+    return inputs.StingerExtensionInches;
   }
 
   /**
    * @return true if withing tolerance of target length
    */
   public boolean isAtLength(double LengthInches) {
-    return (Math.abs(LengthInches - inputs.StingerLengthInches) < toleranceInches);
+    return (Math.abs(LengthInches - inputs.StingerExtensionInches) < toleranceInches);
   }
 
   /**
@@ -61,14 +79,26 @@ public class Stinger extends SubsystemBase {
    * @return true if the Stinger is at the length setpoint
    */
   public boolean isAtLength() {
-    return isAtLength(inputs.StingerLengthInches);
+    return isAtLength(inputs.StingerExtensionInches);
   }
 
-  /** atLowerLimit() returns true if the lower limit switch is triggered. */
-  public boolean atLowerLimit() {
-    return (inputs.StingerAtLowerLimit);
+  /** atLowerLimit() returns true if the extended (lower) limit switch is triggered. */
+  public boolean atExtendedLimit() {
+    return (inputs.StingerAtExtendedLimit);
+  }
+  public boolean atRetractedLimit() {
+    return inputs.StingerAtRetractedLimit;
   }
 
-  // TODO: implement methods to get upper and lower limit switch status
-  // TODO: implement methods to get Stinger motor RPM, velocity in/s
+  public double getSpeedRPM() {
+    return inputs.StingerVelocityRPM;
+  }
+  public double getSpeedInchesPerSecond() {
+    return inputs.StingerVelocityInchesPerSecond;
+  }
+
+  public void zeroExtension() {
+    io.setSensorPosition(0.0);
+  }
+
 }
