@@ -17,7 +17,7 @@ public class WristIOSolenoid implements WristIO {
     solenoid.set(true);
   }
 
-  public void solenoidDown() {
+  public void wristDown() {
     solenoid.set(true);
   }
 }

@@ -6,14 +6,14 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface WristIO {
   public static class WristIOInputs implements LoggableInputs {
 
-    public boolean extended = false;
+    public boolean deployed = false;
 
     public void toLog(LogTable table) {
-      table.put("Extended", extended);
+      table.put("Deployed", deployed);
     }
 
     public void fromLog(LogTable table) {
-      extended = table.getBoolean("Extended", extended);
+      deployed = table.getBoolean("Deployed", deployed);
     }
   }
 
@@ -21,7 +21,9 @@ public interface WristIO {
   public default void updateInputs(WristIOInputs inputs) {}
 
   /** Set solenoid state. */
-  public default void setExtended(boolean extended) {}
+  public default void setDeployed(boolean Deployed) {}
 
   public default void wristUp() {}
+
+  public default void wristDown() {}
 }
