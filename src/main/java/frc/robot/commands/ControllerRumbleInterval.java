@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -18,7 +17,10 @@ public class ControllerRumbleInterval extends CommandBase {
   private boolean rumbling; // whether we are rumbling or not
   private int cycles = 0; // the number of times we rumbled and then stopped
 
-  /** Rumble the controller n intervals with specified delay, and rumble length */
+  /**
+   * Rumble the controller n intervals with specified delay, and rumble length Ideal Settings Number
+   * of Intervals: 2 Length of Rumble: 0.25 sec Space Between Rumble Intervals: 0.15 sec
+   */
   public ControllerRumbleInterval(
       CommandXboxController controller,
       int intervals,

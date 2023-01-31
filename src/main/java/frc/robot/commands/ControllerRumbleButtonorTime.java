@@ -32,7 +32,6 @@ public class ControllerRumbleButtonorTime extends CommandBase {
     this.rumbleTime = rumbleTime;
     this.rumbleStrength = rumbleStrength;
 
-    this.startTime = Timer.getFPGATimestamp();
     this.rumbleButtonPressed = rumbleButton;
   }
 
@@ -40,6 +39,7 @@ public class ControllerRumbleButtonorTime extends CommandBase {
   @Override
   public void initialize() {
     controller.getHID().setRumble(RumbleType.kBothRumble, rumbleStrength);
+    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
