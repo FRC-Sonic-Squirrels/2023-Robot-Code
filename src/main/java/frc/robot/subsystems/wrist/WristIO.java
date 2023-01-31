@@ -22,4 +22,6 @@ public interface WristIO {
 
   /** Set solenoid state. */
   public default void setExtended(boolean extended) {}
+
+  public default void wristUp() {}
 }

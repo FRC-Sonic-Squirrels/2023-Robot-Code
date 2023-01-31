@@ -40,6 +40,8 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -63,7 +65,6 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
   private Wrist wrist;
-  private Rollerclaw manipulator;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -226,10 +227,10 @@ public class RobotContainer {
     driverController
         .b()
         .toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
@@ -242,13 +243,13 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+            Commands.runOnce(intake::extend, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
     driverController
         .rightBumper()
         .onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+            Commands.runOnce(intake::retract, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
     driverController
         .povDown()

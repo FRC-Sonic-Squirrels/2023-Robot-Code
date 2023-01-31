@@ -13,7 +13,7 @@ public class WristIOSolenoid implements WristIO {
 
   // TODO: figure out a way to use the constants WRIST_SOLENOID_DEPLOY and WRIST_SOLENOID_RETRACT
 
-  public void solenoidUp() {
+  public void wristUp() {
     solenoid.set(true);
   }
 

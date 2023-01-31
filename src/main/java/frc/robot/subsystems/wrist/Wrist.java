@@ -12,10 +12,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Wrist extends SubsystemBase {
 
   /** Creates a new Arm. */
+  private WristIO io;
+
   private Solenoid solenoid;
 
-  public Wrist() {
-
+  public Wrist(WristIO io) {
+    this.io = io;
     solenoid = new Solenoid(PneumaticsModuleType.REVPH, 14);
   }
 
@@ -28,8 +30,8 @@ public class Wrist extends SubsystemBase {
     solenoid.set(true);
   }
 
-  public void stop() {
-    solenoid.set(true);
+  public void wristUp() {
+    io.wristUp();
   }
 
   @Override
