@@ -110,5 +110,9 @@ public final class Constants {
   // TODO: determine whether elevator deserves it's own constants file
   public static class ElevatorConstants {
     public static final double elevatorSpeedMultiplier = 1.0;
+
+    public static final double P_CONTROLLER = 0.48;
+    public static final double I_CONTROLLER = 0.0;
+    public static final double D_CONTROLLER = 0.0;
   }
 }

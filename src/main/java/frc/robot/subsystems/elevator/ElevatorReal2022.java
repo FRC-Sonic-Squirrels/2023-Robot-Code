@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.team2930.lib.util.MotorUtils;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIVOR_canId;
 import org.littletonrobotics.junction.Logger;
@@ -29,7 +30,6 @@ import org.littletonrobotics.junction.Logger;
 // https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/blob/master/Java%20Talon%20FX%20(Falcon%20500)/PositionClosedLoop_AuxFeedForward/src/main/java/frc/robot/Robot.java
 
 public class ElevatorReal2022 implements ElevatorIO {
-
   private WPI_TalonFX winch_lead_talon =
       new WPI_TalonFX(CANIVOR_canId.CANID9_ELEVATOR_LEAD_TALON, CANIVOR_canId.name);
   private WPI_TalonFX winch_follow_talon =
@@ -46,7 +46,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   private double feedForwardDescending = 0.0257; // 0.001;
   private final double ticks2distance = gearRatio * winchCircumference / 2048;
   // TODO make sure conversion is correct
-  private final double ticks2rotation = 1 / 4096;
+  private final double ticks2rotation = 1 / 2048;
   private boolean zeroed = false;
 
   public boolean m_atMaxheight;
@@ -54,6 +54,16 @@ public class ElevatorReal2022 implements ElevatorIO {
   private double m_currentHeight;
 
   private double targetHeightInches;
+
+  // state of solenoids when active
+  private boolean solenoidEnabled = false;
+
+  private final TunableNumber Kp =
+      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+  private final TunableNumber Ki =
+      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
+  private final TunableNumber Kd =
+      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
 
   public ElevatorReal2022() {
     winch_lead_talon.configFactoryDefault();
@@ -68,9 +78,9 @@ public class ElevatorReal2022 implements ElevatorIO {
     // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
     // this also has suggest trapezoidal velocity profile constants.
     leadConfig.slot0.kF = 0.054;
-    leadConfig.slot0.kP = 0.48; // 0.054836;
-    leadConfig.slot0.kI = 0.0;
-    leadConfig.slot0.kD = 0.0;
+    leadConfig.slot0.kP = Kp.get(); // 0.054836;
+    leadConfig.slot0.kI = Ki.get();
+    leadConfig.slot0.kD = Kd.get();
     leadConfig.slot0.integralZone = 0.0;
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
@@ -94,7 +104,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     winch_lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
     winch_lead_talon.configForwardLimitSwitchSource(
-        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
 
     winch_follow_talon.follow(winch_lead_talon);
     winch_lead_talon.setInverted(true);
@@ -263,13 +273,13 @@ public class ElevatorReal2022 implements ElevatorIO {
   /** brakeOn() turns on the brake. */
   @Override
   public void brakeOff() {
-    frictionBrakeSolenoid.set(true);
+    frictionBrakeSolenoid.set(!solenoidEnabled);
   }
 
   /** brakeOff() turns off the brake. */
   @Override
   public void brakeOn() {
-    frictionBrakeSolenoid.set(false);
+    frictionBrakeSolenoid.set(solenoidEnabled);
   }
 
   @Override
@@ -305,13 +315,13 @@ public class ElevatorReal2022 implements ElevatorIO {
     inputs.ElevatorVelocityRPM =
         winch_lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotation;
 
-    Logger.getInstance().recordOutput("elevator/ElevatorAtUpperSoftLimit", maxExtensionInches);
+    Logger.getInstance().recordOutput("elevator/ElevatorUpperSoftLimit", maxExtensionInches);
     Logger.getInstance()
         .recordOutput(
             "elevator/ElevatorHeightTicks",
             winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
     Logger.getInstance()
-        .recordOutput("elevator/ElevatorAtUpperSoftLimitTicks", heightToTicks(maxExtensionInches));
+        .recordOutput("elevator/ElevatorUpperSoftLimitTicks", heightToTicks(maxExtensionInches));
   }
 
   // @Override
