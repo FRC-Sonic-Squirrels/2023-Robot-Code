@@ -18,8 +18,10 @@ public class ControllerRumbleInterval extends CommandBase {
   private int cycles = 0; // the number of times we rumbled and then stopped
 
   /**
-   * Rumble the controller n intervals with specified delay, and rumble length Ideal Settings Number
-   * of Intervals: 2 Length of Rumble: 0.25 sec Space Between Rumble Intervals: 0.15 sec
+   * Rumble the controller n intervals with specified delay, and rumble length // * Ideal Settings
+   * for a short burst:
+   *
+   * <p>Number of Intervals: 2 Length of Rumble: 0.25 sec Space Between Rumble Intervals: 0.15 sec
    */
   public ControllerRumbleInterval(
       CommandXboxController controller,
