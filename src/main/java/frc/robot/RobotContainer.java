@@ -31,6 +31,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.AutoEngage;
 import frc.robot.commands.DriveWithSetRotation;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
@@ -232,6 +233,9 @@ public class RobotContainer {
     // x-stance
     driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
     driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+
+    // autoEngage
+    driverController.x().whileTrue(new AutoEngage(drivetrain, driverController::getRightY));
 
     // intake
     driverController
