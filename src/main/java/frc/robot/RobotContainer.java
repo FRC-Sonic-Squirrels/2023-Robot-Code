@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.lib.util.StreamDeckController;
 import frc.lib.team2930.lib.util.StreamDeckHandler;
@@ -43,6 +44,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -65,6 +67,10 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
   private StreamDeckController streamDeckController = new StreamDeckController();
+
+  int target = 0;
+
+  DoubleSupplier targetSupplier = () -> target;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -221,43 +227,64 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
+
+    // // reset gyro to 0 degrees
+    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+
+    // // x-stance
+    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+
+    // // intake
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.runOnce(intake::extend, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // driverController
+    //     .rightBumper()
+    //     .onFalse(
+    //         Commands.runOnce(intake::retract, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 180)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 0)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
     driverController
-        .b()
-        .toggleOnTrue(
-            Commands.either(
-                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-                drivetrain::getFieldRelative));
+        .a()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var t = targetSupplier.getAsDouble();
+                  new PrintCommand("hello world: " + t).schedule();
+                }));
 
-    // reset gyro to 0 degrees
-    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
-
-    // x-stance
-    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
-
-    // intake
-    driverController
-        .rightBumper()
-        .whileTrue(
-            Commands.runOnce(intake::extend, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    driverController
-        .rightBumper()
-        .onFalse(
-            Commands.runOnce(intake::retract, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-
-
-    streamDeckHandler.GetIsTargeting() // Activates when the targeting button is pressed
-            .onTrue(Commands.print("TARGETING ON TARGETING ON -- Started Targeting -- TARGETING ON TARGETING ON").andThen(Commands.print(streamDeckHandler.getTargetString())));
-
-
-    streamDeckController.GetButton1().and(streamDeckHandler.GetIsTargeting()) // Activates when the targeting button is pressed and the button 1 is pressed
-        .onTrue(Commands.print("1TargetOn"));
-
-    streamDeckController.GetButton2().and(streamDeckHandler.GetIsTargeting()) // Activates when the targeting button is pressed and the button 1 is pressed
-        .onTrue(Commands.print("2TargetOn"));
+    driverController.x().onTrue(Commands.runOnce(() -> target = 1).andThen(Commands.print("x")));
+    driverController.b().onTrue(Commands.runOnce(() -> target = 2).andThen(Commands.print("b")));
   }
 
   /** Use this method to define your commands for autonomous mode. */
