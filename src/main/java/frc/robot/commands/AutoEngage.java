@@ -1,6 +1,8 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
+// code based off RI3D's beam balance command:
+// https://github.com/GOFIRST-Robotics/Ri3D-2023/blob/6d79b376bde95481b32f0a98edbf424580653960/src/main/java/frc/robot/commands/BalanceOnBeamCommand.java
 
 package frc.robot.commands;
 
