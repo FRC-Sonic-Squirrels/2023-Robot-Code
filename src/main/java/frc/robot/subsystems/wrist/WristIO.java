@@ -21,7 +21,7 @@ public interface WristIO {
   public default void updateInputs(WristIOInputs inputs) {}
 
   /** Set solenoid state. */
-  public default void setDeployed(boolean Deployed) {}
+  public default void setDeployed(boolean deployed) {}
 
   public default void wristUp() {}
 
