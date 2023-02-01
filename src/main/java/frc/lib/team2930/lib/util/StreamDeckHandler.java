@@ -1,5 +1,6 @@
 package frc.lib.team2930.lib.util;
 
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class StreamDeckHandler {
@@ -10,18 +11,20 @@ public class StreamDeckHandler {
     return streamDeckController.GetButton0();
   }
 
-  public void SetTarget (int num) {
+  public void SetTarget(int num) {
     System.out.println("Updating");
     TargetNode = num;
   }
 
-  public int GetTarget(){
+  public int GetTarget() {
     return TargetNode;
   }
 
-  public String getTargetString(){
+  public String getTargetString() {
     return String.valueOf(TargetNode);
   }
 
-
+  public void print() {
+    new PrintCommand("TARGET NODE: " + TargetNode).schedule();
+  }
 }

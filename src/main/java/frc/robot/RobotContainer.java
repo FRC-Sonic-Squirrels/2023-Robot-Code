@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.lib.util.StreamDeckController;
 import frc.lib.team2930.lib.util.StreamDeckHandler;
@@ -274,17 +273,31 @@ public class RobotContainer {
     //                 0)
     //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
+    // driverController
+    //     .a()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var t = targetSupplier.getAsDouble();
+    //               new PrintCommand("hello world: " + t).schedule();
+    //             }));
+
     driverController
         .a()
         .onTrue(
-            new InstantCommand(
+            Commands.runOnce(
                 () -> {
-                  var t = targetSupplier.getAsDouble();
-                  new PrintCommand("hello world: " + t).schedule();
+                  streamDeckHandler.print();
                 }));
 
-    driverController.x().onTrue(Commands.runOnce(() -> target = 1).andThen(Commands.print("x")));
-    driverController.b().onTrue(Commands.runOnce(() -> target = 2).andThen(Commands.print("b")));
+    driverController
+        .x()
+        .onTrue(
+            Commands.runOnce(() -> streamDeckHandler.SetTarget(1)).andThen(Commands.print("x")));
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(() -> streamDeckHandler.SetTarget(2)).andThen(Commands.print("b")));
   }
 
   /** Use this method to define your commands for autonomous mode. */
