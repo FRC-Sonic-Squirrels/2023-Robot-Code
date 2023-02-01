@@ -308,4 +308,12 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
+
+  public double getDriverControllerLeftXAxis() {
+    return driverController.getLeftX();
+  }
+
+  public double getDriverControllerLeftYAxis() {
+    return driverController.getLeftY();
+  }
 }

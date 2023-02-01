@@ -608,4 +608,16 @@ public class Drivetrain extends SubsystemBase {
     X,
     CHARACTERIZATION
   }
+
+  public double getGyroYaw() {
+    return gyroInputs.yaw;
+  }
+
+  public double getGyroPitch() {
+    return gyroInputs.pitch;
+  }
+
+  public double getGyroRoll() {
+    return gyroInputs.roll;
+  }
 }
