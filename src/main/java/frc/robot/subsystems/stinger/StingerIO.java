@@ -16,17 +16,21 @@ public interface StingerIO {
         public double StingerExtensionInches = 0.0;
         public double StingerTargetExtensionInches = 0.0;
         public double StingerVelocityInchesPerSecond = 0.0;
-        public boolean StingerAtExtendedLimit = false;
-        public boolean StingerAtRetractedLimit = false;
         public double StingerVelocityRPM = 0.0;
         public double StingerAppliedVolts = 0.0;
         public double[] StingerCurrentAmps = new double[] {};
         public double[] StingerTempCelsius = new double[] {};
 
+        // is the stinger hitting the lower limit switch?
+        public boolean StingerAtRetractedLimit = false;
+
+        // is the stinger hitting the upper limit switch?
+        public boolean StingerAtExtendedLimit = false;
+
         public void toLog(LogTable table) {
             table.put("StingerExtensionInches", StingerExtensionInches);
             table.put("StingerTargetExtensionInches", StingerTargetExtensionInches);
-            table.put("StingerAtLowerLimit", StingerAtExtendedLimit);
+            table.put("StingerAtRetractedLimit", StingerAtRetractedLimit);
             table.put("StingerVelocityInchesPerSecond", StingerVelocityInchesPerSecond);
             table.put("StingerVelocityRPM", StingerVelocityRPM);
             table.put("StingerAppliedVolts", StingerAppliedVolts);
@@ -34,8 +38,8 @@ public interface StingerIO {
             table.put("StingerTempCelsius", StingerTempCelsius);
         }
         public void fromLog(LogTable table) {
-            StingerAtExtendedLimit = table.getBoolean("StingerAtLowerLimit", StingerAtExtendedLimit);
-            StingerAtRetractedLimit = table.getBoolean("StingerAtUpperLimit", StingerAtRetractedLimit);
+            StingerAtRetractedLimit = table.getBoolean("StingerAtRetractedLimit", StingerAtRetractedLimit);
+            StingerAtExtendedLimit = table.getBoolean("StingerAtExtendedLimit", StingerAtExtendedLimit);
             StingerVelocityInchesPerSecond = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
             StingerVelocityRPM = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
             StingerAppliedVolts = table.getDouble("StingerAppliedVolts", StingerAppliedVolts);

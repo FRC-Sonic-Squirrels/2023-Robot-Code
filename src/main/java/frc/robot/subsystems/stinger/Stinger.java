@@ -18,6 +18,7 @@ public class Stinger extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static double toleranceInches = 0.05;
 
+  //TODO: find better default PID values for the stinger
   private final TunableNumber kPtunable =
       new TunableNumber("Stinger/kP", 0.48);
   private final TunableNumber feedForwardTunable =
@@ -26,14 +27,20 @@ public class Stinger extends SubsystemBase {
       new TunableNumber("Stinger/kI", 0.0);
   private final TunableNumber kDtunable =
       new TunableNumber("Stinger/kD", 0.0);
+  
+  private final TunableNumber velocityInchesSecond =
+      new TunableNumber("Stinger/velocity inches per sec", 5);
+  private final TunableNumber desiredTime =
+      new TunableNumber("Stinger/desired time", 5);
+  
 
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {
     this.io = io;
 
     io.setSensorPosition(0.0);
-    io.setPIDConstraints(0.054, 0.48, 0.0, 0.0);
-    //io.setMotionMagicConstraints( FIXME:find velocity and acceleration of stinger );
+    io.setPIDConstraints(feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
+    io.setMotionMagicConstraints(velocityInchesSecond.get(), desiredTime.get());
 
   }
 
@@ -45,6 +52,9 @@ public class Stinger extends SubsystemBase {
     // update TunableNumbers and change PID accordingly
     if (feedForwardTunable.hasChanged() || kPtunable.hasChanged() || kItunable.hasChanged() || kDtunable.hasChanged()) {
       io.setPIDConstraints(feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kPtunable.get());
+    }
+    if (velocityInchesSecond.hasChanged() || desiredTime.hasChanged()) {
+      io.setMotionMagicConstraints(velocityInchesSecond.get(), desiredTime.get());
     }
   }
 
@@ -67,7 +77,7 @@ public class Stinger extends SubsystemBase {
   }
 
   /**
-   * @return true if withing tolerance of target length
+   * @return true if within tolerance of a target length
    */
   public boolean isAtLength(double LengthInches) {
     return (Math.abs(LengthInches - inputs.StingerExtensionInches) < toleranceInches);
@@ -82,12 +92,12 @@ public class Stinger extends SubsystemBase {
     return isAtLength(inputs.StingerExtensionInches);
   }
 
-  /** atLowerLimit() returns true if the extended (lower) limit switch is triggered. */
-  public boolean atExtendedLimit() {
-    return (inputs.StingerAtExtendedLimit);
-  }
+  /** atLowerLimit() returns true if the retracted (lower) limit switch is triggered. */
   public boolean atRetractedLimit() {
-    return inputs.StingerAtRetractedLimit;
+    return (inputs.StingerAtRetractedLimit);
+  }
+  public boolean atExtendedLimit() {
+    return inputs.StingerAtExtendedLimit;
   }
 
   public double getSpeedRPM() {
