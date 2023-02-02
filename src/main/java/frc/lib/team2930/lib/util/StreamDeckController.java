@@ -3,21 +3,14 @@ package frc.lib.team2930.lib.util;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import java.util.prefs.AbstractPreferences;
-
 public class StreamDeckController {
-  public void initAllButtons() {
-    // Initialize all buttons to false
-    // Adds all buttons to the SmartDashboard
-    float ButtonsOnStreamDeck = 15;
 
-    for (int i = 0; i < ButtonsOnStreamDeck; i++) {
+  public void initAllButtons() {
+    for (int i = 0; i < 15; i++) {
       String nameString = "/streamdeck/" + i;
+      String nameStringTarget = "/streamdeck/IsTargeting" + i;
       SmartDashboard.putBoolean(nameString, false);
-    }
-    for (int i = 0; i < ButtonsOnStreamDeck; i++) {
-      String nameString = "/streamdeck/IsTargeting" + i;
-      SmartDashboard.putBoolean(nameString, false);
+      SmartDashboard.putBoolean(nameStringTarget, false);
     }
   }
 
@@ -26,20 +19,16 @@ public class StreamDeckController {
   }
 
   private boolean GetButton(int id) {
-    // Get the value of a button
-    // id: The button id (0-14)
     String nameString = "/streamdeck/" + id;
     return SmartDashboard.getBoolean(nameString, false);
   }
 
-    public boolean GetIsTargeting(int id) {
-        // Get the value of a button
-        // id: The button id (0-14)
-        String nameString = "/streamdeck/IsTargeting" + id;
-        return SmartDashboard.getBoolean(nameString, false);
-    }
+  public boolean GetIsTargeting(int id) {
+    String nameString = "/streamdeck/IsTargeting" + id;
+    return SmartDashboard.getBoolean(nameString, false);
+  }
 
-  public Trigger GetButton0(){
+  public Trigger GetButton0() {
     return new Trigger(() -> GetButton(0));
   }
 
