@@ -32,7 +32,7 @@ public class AutoChooserElement {
   public String toString() {
     String s = "pose: ";
     if (initialPose != null) {
-      s += initialPose.toString();
+      s += initialPose.getTranslation().toString();
     } else {
       s += "NONE";
     }
@@ -40,7 +40,11 @@ public class AutoChooserElement {
     s += "trajectory: ";
     if (trajectory != null) {
       // s += trajectory.toString();
-      s += "YES";
+      // s += "time: " + trajectory.getTotalTimeSeconds();
+      s += "tStartPose:" + trajectory.getInitialPose().getTranslation();
+      s +=
+          "tEndPose:"
+              + trajectory.sample(trajectory.getTotalTimeSeconds()).poseMeters.getTranslation();
     } else {
       s += "NONE";
     }
@@ -90,10 +94,10 @@ public class AutoChooserElement {
       nextTrajectory = next.getTrajectory();
     }
 
-    if (trajectory == null) {
+    if ((fullTrajectory != null) && (nextTrajectory != null)) {
+      fullTrajectory = fullTrajectory.concatenate(nextTrajectory);
+    } else if (trajectory == null) {
       fullTrajectory = nextTrajectory;
-    } else if (nextTrajectory != null) {
-      fullTrajectory.concatenate(nextTrajectory);
     }
 
     return fullTrajectory;
