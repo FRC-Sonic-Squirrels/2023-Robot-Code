@@ -61,7 +61,7 @@ public class Elevator extends SubsystemBase {
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 
     if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
-      io.setMotionMagicConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+      io.setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
   }
 
   /** Run the Elevator at the specified voltage */
@@ -122,6 +122,10 @@ public class Elevator extends SubsystemBase {
 
   public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     io.setPIDConstraints(kF, kP, kI, kD);
+  }
+
+  public void setMotionProfileConstraints(double curiseVelocity, double desiredTime) {
+    io.setMotionProfileConstraints(curiseVelocity, desiredTime);
   }
 
   // TODO: implement methods to get upper and lower limit switch status

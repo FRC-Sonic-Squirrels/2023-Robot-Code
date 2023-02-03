@@ -103,7 +103,7 @@ public class ElevatorReal2023 implements ElevatorIO {
   }
 
   @Override
-  public void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
+  public void setMotionProfileConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
     // TODO: Use JVN calculator for exact numbers
     double veloInTicks = cruiseVelocity * (12.15 / winchCircumfrence) * 2048 / 10;
     double accelInTicks = veloInTicks / desiredTimeToSpeed;

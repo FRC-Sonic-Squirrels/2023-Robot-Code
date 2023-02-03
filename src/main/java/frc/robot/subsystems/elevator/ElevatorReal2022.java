@@ -150,7 +150,7 @@ public class ElevatorReal2022 implements ElevatorIO {
    * @param cruiseVelocity max velocity in inches per second
    */
   @Override
-  public void setMotionMagicConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
+  public void setMotionProfileConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
     // math adapted from howdybots jvn calculator equation
     double veloInTicks = cruiseVelocity * (12.15 / winchCircumference) * 2048 / 10;
     double accelInTicks = veloInTicks / desiredTimeToSpeed;
