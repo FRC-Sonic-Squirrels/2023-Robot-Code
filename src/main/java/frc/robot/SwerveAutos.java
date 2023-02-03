@@ -225,7 +225,7 @@ public class SwerveAutos {
                 () ->
                     new SequentialCommandGroup(
                         new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, true),
+                            new FollowPath(path, drivetrain, false),
                             path.getMarkers(),
                             getEventMap()))));
   }
@@ -244,7 +244,7 @@ public class SwerveAutos {
                 () ->
                     new SequentialCommandGroup(
                         new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, true),
+                            new FollowPath(path, drivetrain, false),
                             path.getMarkers(),
                             getEventMap()))));
   }
@@ -263,7 +263,7 @@ public class SwerveAutos {
                 () ->
                     new SequentialCommandGroup(
                         new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, true),
+                            new FollowPath(path, drivetrain, false),
                             path.getMarkers(),
                             getEventMap()))));
   }
@@ -282,7 +282,7 @@ public class SwerveAutos {
                 () ->
                     new SequentialCommandGroup(
                         new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, true),
+                            new FollowPath(path, drivetrain, false),
                             path.getMarkers(),
                             getEventMap()))));
   }
