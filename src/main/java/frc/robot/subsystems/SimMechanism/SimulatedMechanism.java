@@ -113,7 +113,7 @@ public class SimulatedMechanism extends SubsystemBase {
   private double stingerOutput;
   private double wristOutput = 0.0;
 
-  public SimulatedMechanism() {}
+  private SimulatedMechanism() {}
 
   public static SimulatedMechanism getInstance() {
     if (instance == null) {
@@ -126,15 +126,17 @@ public class SimulatedMechanism extends SubsystemBase {
   @Override
   public void periodic() {
     // elevatorSim.setInput(desiredOutput * RobotController.getBatteryVoltage());
-    elevatorSim.setInput(desiredOutput * 12);
+    elevatorSim.setInput(desiredOutput);
+
+    Logger.getInstance().recordOutput("elevator/simDesiredOutput", desiredOutput);
     // Next, we update it. The standard loop time is 20ms.
     elevatorSim.update(0.020);
 
-    stingerSim.setInput(stingerOutput * 12);
+    stingerSim.setInput(stingerOutput);
 
     stingerSim.update(0.020);
 
-    wristSim.setInput(wristOutput * 12);
+    wristSim.setInput(wristOutput);
 
     wristSim.update(0.020);
 
@@ -181,7 +183,14 @@ public class SimulatedMechanism extends SubsystemBase {
   }
 
   public double getElevatorPositionInches() {
-    return Units.metersToInches(elevatorSim.getPositionMeters());
+    Logger.getInstance()
+        .recordOutput(
+            "elevator/subtractedHeight",
+            Units.metersToInches(elevatorSim.getPositionMeters())
+                - Units.metersToInches(kMinElevatorHeight));
+
+    return (Units.metersToInches(elevatorSim.getPositionMeters())
+        - Units.metersToInches(kMinElevatorHeight));
   }
 
   public double getStingerPositionInches() {

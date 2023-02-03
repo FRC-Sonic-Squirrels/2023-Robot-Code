@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorControlCommand extends CommandBase {
   Elevator elevator;
@@ -38,6 +39,8 @@ public class ElevatorControlCommand extends CommandBase {
       elevator.setWinchPercentOutput(0.0);
       elevator.brakeOn();
     }
+
+    Logger.getInstance().recordOutput("elevator/joystick", elevatorJoyStickValue);
   }
 
   @Override

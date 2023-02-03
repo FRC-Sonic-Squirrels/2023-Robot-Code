@@ -8,13 +8,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class ElevatorSim implements ElevatorIO {
   SimulatedMechanism mechanism;
 
   ProfiledPIDController controller =
-      new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(0.0, 0.0));
+      new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(20, 40));
 
   private boolean closedLoop = false;
   private double targetHeightInches = 0.0;
@@ -29,6 +30,10 @@ public class ElevatorSim implements ElevatorIO {
       double controlEffort =
           controller.calculate(mechanism.getElevatorPositionInches(), targetHeightInches);
       setElevatorVoltage(controlEffort);
+
+      Logger.getInstance().recordOutput("elevator/controlEffort", controlEffort);
+      Logger.getInstance().recordOutput("elevator/kp", controller.getP());
+      // Logger.getInstance().recordOutput("elevator/kp", controller.);
     }
 
     inputs.ElevatorHeightInches = mechanism.getElevatorPositionInches();
@@ -43,7 +48,7 @@ public class ElevatorSim implements ElevatorIO {
   @Override
   public void setElevatorVoltage(double volts) {
     closedLoop = false;
-    var num = MathUtil.clamp(volts, 0, 12);
+    var num = MathUtil.clamp(volts, -12, 12);
     mechanism.setElevatorOutputVolts(num);
   }
 
@@ -56,8 +61,8 @@ public class ElevatorSim implements ElevatorIO {
   @Override
   public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     controller.setP(kP);
-    controller.setP(kI);
-    controller.setP(kD);
+    controller.setI(kI);
+    controller.setD(kD);
   }
 
   @Override

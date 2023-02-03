@@ -4,8 +4,28 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+import static frc.robot.Constants.CAMERA_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -31,6 +51,7 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.ElevatorControlCommand;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
@@ -212,6 +233,8 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    elevator.setDefaultCommand(new ElevatorControlCommand(elevator, driverController, 1));
+
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
     //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
@@ -280,9 +303,17 @@ public class RobotContainer {
     //                 0)
     //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    driverController.a().onTrue(new ElevatorSetHeight(elevator, 20).andThen(Commands.print("A")));
+    driverController
+        .a()
+        .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
 
-    driverController.b().onTrue(new ElevatorSetHeight(elevator, 0.0).andThen(Commands.print("B")));
+    driverController
+        .b()
+        .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    // driverController.a().onTrue((Commands.print("A")));
+
+    // driverController.b().onTrue((Commands.print("B")));
   }
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {

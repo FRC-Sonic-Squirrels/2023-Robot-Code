@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,7 +23,8 @@ public class Elevator extends SubsystemBase {
   private boolean zeroed;
 
   public final TunableNumber Kf =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      // FIXME: change this to kf
+      new TunableNumber("elevator/Kf", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Kp =
       new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Ki =
@@ -38,6 +40,9 @@ public class Elevator extends SubsystemBase {
 
   public Elevator(ElevatorIO io) {
     this.io = io;
+    if (Constants.getMode() == Mode.SIM) {
+      Kp.setDefault(1);
+    }
     io.resetSensorHeight(0.0);
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
     io.setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
@@ -93,6 +98,7 @@ public class Elevator extends SubsystemBase {
    * @return true if the elevator is at the height setpoint
    */
   public boolean isAtHeight() {
+    // TODO: this logic is broken
     return isAtHeight(inputs.ElevatorHeightInches);
   }
 

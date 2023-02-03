@@ -7,6 +7,7 @@ package frc.robot.commands.elevator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.elevator.Elevator;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorSetHeight extends CommandBase {
   /** Creates a new ElevatorSetHeight. */
@@ -55,12 +56,21 @@ public class ElevatorSetHeight extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    Logger.getInstance()
+        .recordOutput("elevator is height", elevator.isAtHeight(targetHeightInches));
+
+    Logger.getInstance().recordOutput("elevator/command targetHeight", targetHeightInches);
+    Logger.getInstance().recordOutput("elevator/command currentHeight", elevator.getHeightInches());
+
+    Logger.getInstance().recordOutput("ActiveCommands/ElevatorSetHeight", true);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     elevator.stop();
+    Logger.getInstance().recordOutput("ActiveCommands/ElevatorSetHeight", false);
   }
 
   // Returns true when the command should end.
