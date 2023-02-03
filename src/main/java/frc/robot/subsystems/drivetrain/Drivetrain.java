@@ -334,7 +334,7 @@ public class Drivetrain extends SubsystemBase {
     gyroIO.updateInputs(gyroInputs);
     Logger.getInstance().processInputs("Drive/Gyro", gyroInputs);
 
-    // update and log the swerve moudles inputs
+    // update and log the swerve modules inputs
     for (SwerveModule swerveModule : swerveModules) {
       swerveModule.updateAndProcessInputs();
     }
