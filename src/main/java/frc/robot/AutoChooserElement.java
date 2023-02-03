@@ -5,12 +5,16 @@
 package frc.robot;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.FollowPath;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -72,6 +76,12 @@ public class AutoChooserElement {
     return s;
   }
 
+  /**
+   * setNext() - append a new AutoChooserElement to a list of AutoChooserElements
+   *
+   * @param append the AutoChooserElement to append to the list
+   * @return AutoChooserElement
+   */
   public AutoChooserElement setNext(AutoChooserElement append) {
     if (this.next == null) {
       this.next = append;
@@ -79,6 +89,43 @@ public class AutoChooserElement {
       next.setNext(append);
     }
     return this;
+  }
+
+  /**
+   * setNext() - append a new path follow command using PathPlanner event markers to trigger
+   * commands.
+   *
+   * @param path
+   * @param initialPath set true if this is the first command the autonomous command will follow
+   * @param drivetrain drivetrain subsystem
+   * @param eventMap a HashMap of events to be triggered by event markers
+   * @return AutoChooserElement list with new command appended to the end
+   */
+  public AutoChooserElement setNext(
+      PathPlannerTrajectory path,
+      boolean initialPath,
+      Drivetrain drivetrain,
+      HashMap<String, Command> eventMap) {
+
+    return this.setNext(
+        new AutoChooserElement(
+            path,
+            () ->
+                new SequentialCommandGroup(
+                    new FollowPathWithEvents(
+                        new FollowPath(path, drivetrain, initialPath),
+                        path.getMarkers(),
+                        eventMap))));
+  }
+
+  /**
+   * setNext() - Add a command with no path follow.
+   *
+   * @param commandSupplier
+   * @return AutoChooserElement
+   */
+  public AutoChooserElement setNext(Supplier<SequentialCommandGroup> commandSupplier) {
+    return this.setNext(new AutoChooserElement(null, commandSupplier));
   }
 
   public Command getCommand() {

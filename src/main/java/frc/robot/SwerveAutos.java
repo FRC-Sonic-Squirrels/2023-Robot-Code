@@ -198,16 +198,7 @@ public class SwerveAutos {
             AUTO_MAX_SPEED_METERS_PER_SECOND,
             AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    return right1Ball()
-        .setNext(
-            new AutoChooserElement(
-                path,
-                () ->
-                    new SequentialCommandGroup(
-                        new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, true),
-                            path.getMarkers(),
-                            getEventMap()))));
+    return right1Ball().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right2Ball() {
