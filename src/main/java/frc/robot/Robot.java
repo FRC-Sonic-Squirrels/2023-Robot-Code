@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -188,6 +189,12 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    // clear autonomous path preview during teleop
+    currentAutoHashId = 0;
+    SmartDashboard.putNumber("AutoName", 0);
+    Logger.getInstance().recordOutput("Odometry/autonTrajectory", new Trajectory());
+    Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
   }
 
   /** This method is invoked at the start of the test period. */
