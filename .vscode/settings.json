@@ -32,8 +32,9 @@
   "source.fixAll.spotlessGradle": true
   },
   "cSpell.words": [
-    "APRILTAG",
     "algs",
+    "APRILTAG",
+    "auton",
     "Cancoder",
     "DEADBAND",
     "Feedforward",

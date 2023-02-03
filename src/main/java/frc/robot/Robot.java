@@ -147,9 +147,10 @@ public class Robot extends LoggedRobot {
           if (trajectory == null) {
             trajectory = new Trajectory();
           }
-          Logger.getInstance().recordOutput("Odometry/trajectory", trajectory);
+          Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
           Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
-          Logger.getInstance().recordOutput("Autonomous/ElementToString", currentAuto.toString());
+          // Logger.getInstance().recordOutput("Autonomous/ElementToString",
+          // currentAuto.toString());
         }
       }
     }
