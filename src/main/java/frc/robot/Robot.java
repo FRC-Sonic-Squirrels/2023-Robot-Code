@@ -155,8 +155,6 @@ public class Robot extends LoggedRobot {
 
           Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
           Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
-          // Logger.getInstance().recordOutput("Autonomous/ElementToString",
-          // currentAuto.toString());
         }
       }
     }
