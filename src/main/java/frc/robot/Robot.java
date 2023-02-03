@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -147,6 +148,11 @@ public class Robot extends LoggedRobot {
           if (trajectory == null) {
             trajectory = new Trajectory();
           }
+
+          PathPlannerState startState = new PathPlannerState();
+          startState.poseMeters = currentAuto.getPose2d();
+          robotContainer.getDrivetrain().resetOdometry(startState);
+
           Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
           Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
           // Logger.getInstance().recordOutput("Autonomous/ElementToString",

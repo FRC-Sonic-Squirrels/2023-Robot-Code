@@ -331,4 +331,8 @@ public class RobotContainer {
   public Command getTestAutonomousCommand() {
     return testautoChooser.get();
   }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
+  }
 }
