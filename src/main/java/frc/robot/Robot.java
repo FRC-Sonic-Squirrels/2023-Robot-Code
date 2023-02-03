@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
+import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -24,6 +26,10 @@ public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+
+  private SimulatedMechanism simMech = new SimulatedMechanism();
+
+  private XboxController testController = new XboxController(0);
 
   private final Alert logReceiverQueueAlert =
       new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
@@ -131,6 +137,49 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+
+    // FIXME: remove this after testing
+    double input = -testController.getLeftY();
+
+    double deadband = 0.3;
+    if (Math.abs(input) > deadband) {
+      if (input > 0.0) {
+        input = (input - deadband) / (1.0 - deadband);
+      } else {
+        input = (input + deadband) / (1.0 - deadband);
+      }
+    } else {
+      input = 0.0;
+    }
+
+    // System.out.println("input: " + input);
+    simMech.setOutput(input);
+
+    double stingerInput = testController.getRightX();
+    if (Math.abs(stingerInput) > deadband) {
+      if (stingerInput > 0.0) {
+        stingerInput = (stingerInput - deadband) / (1.0 - deadband);
+      } else {
+        stingerInput = (stingerInput + deadband) / (1.0 - deadband);
+      }
+    } else {
+      stingerInput = 0.0;
+    }
+
+    simMech.setStingerOutput(stingerInput);
+
+    double wristInput = -testController.getRightY();
+    if (Math.abs(wristInput) > deadband) {
+      if (wristInput > 0.0) {
+        wristInput = (wristInput - deadband) / (1.0 - deadband);
+      } else {
+        wristInput = (wristInput + deadband) / (1.0 - deadband);
+      }
+    } else {
+      wristInput = 0.0;
+    }
+
+    simMech.setWristOutput(wristInput);
   }
 
   /**
@@ -155,6 +204,7 @@ public class Robot extends LoggedRobot {
      * autonomous to continue until interrupted by another command, remove this line or comment it
      * out.
      */
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
