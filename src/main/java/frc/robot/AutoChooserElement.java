@@ -7,11 +7,20 @@ package frc.robot;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
-/** Add your docs here. */
+/**
+ * AutoChooserElement
+ *
+ * <p>This class holds a single SequentialCommandGroup and the associated trajectory and starting
+ * pose, if any. The AutoChooserElement is designed to create a linked list so that commands can be
+ * chained together.
+ */
 public class AutoChooserElement {
   private Pose2d initialPose;
   private Trajectory trajectory;
@@ -20,7 +29,11 @@ public class AutoChooserElement {
 
   AutoChooserElement(
       PathPlannerTrajectory trajectory, Supplier<SequentialCommandGroup> commandSupplier) {
-    this.trajectory = trajectory;
+
+    // Reduce the number of states in the trajectory. The trajectory is just for displaying
+    // on the dashboard and not following. Reducing the trajectory size makes computation and
+    // transmitting the data on NetworkTables faster.
+    this.trajectory = decimateTrajectory(trajectory, 10);
     this.initialPose = null;
     if (trajectory != null) {
       this.initialPose = trajectory.getInitialHolonomicPose();
@@ -101,5 +114,38 @@ public class AutoChooserElement {
     }
 
     return fullTrajectory;
+  }
+
+  /**
+   * Decimates a trajectory by only including every nth element, specified by the modulus. The first
+   * and last elements are always included to preserve the start and endpoints.
+   *
+   * @param detailed The trajectory to decimate.
+   * @param modulus The modulus of the decimate command
+   * @return The concatenated trajectory.
+   */
+  public static Trajectory decimateTrajectory(Trajectory detailed, int modulus) {
+
+    if (detailed == null) {
+      return detailed;
+    }
+
+    List<State> states = new ArrayList<State>();
+
+    for (int i = 0; i < detailed.getStates().size(); ++i) {
+      var s = detailed.getStates().get(i);
+
+      if (i == 0 || i == detailed.getStates().size() || (i % modulus == 0)) {
+        states.add(
+            new State(
+                s.timeSeconds,
+                s.velocityMetersPerSecond,
+                s.accelerationMetersPerSecondSq,
+                s.poseMeters,
+                s.curvatureRadPerMeter));
+      }
+    }
+
+    return new Trajectory(states);
   }
 }
