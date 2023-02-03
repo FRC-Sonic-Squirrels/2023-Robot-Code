@@ -31,15 +31,16 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.DriveWithSetRotation;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
+import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
@@ -159,7 +160,10 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
+
+            elevator = new Elevator(new ElevatorSim());
+
+            // TODO add stinger subsystem
             break;
           }
         default:
@@ -229,52 +233,56 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    driverController
-        .b()
-        .toggleOnTrue(
-            Commands.either(
-                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-                drivetrain::getFieldRelative));
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
 
-    // reset gyro to 0 degrees
-    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // // reset gyro to 0 degrees
+    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
-    // x-stance
-    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    // // x-stance
+    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
-    // intake
-    driverController
-        .rightBumper()
-        .whileTrue(
-            Commands.runOnce(intake::extend, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    driverController
-        .rightBumper()
-        .onFalse(
-            Commands.runOnce(intake::retract, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    // // intake
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.runOnce(intake::extend, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // driverController
+    //     .rightBumper()
+    //     .onFalse(
+    //         Commands.runOnce(intake::retract, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    driverController
-        .povDown()
-        .onTrue(
-            new DriveWithSetRotation(
-                    drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
-                    180)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 180)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
 
-    driverController
-        .povUp()
-        .onTrue(
-            new DriveWithSetRotation(
-                    drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
-                    0)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 0)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
+    driverController.a().onTrue(new ElevatorSetHeight(elevator, 20).andThen(Commands.print("A")));
+
+    driverController.b().onTrue(new ElevatorSetHeight(elevator, 0.0).andThen(Commands.print("B")));
   }
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {

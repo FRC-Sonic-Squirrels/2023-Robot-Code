@@ -39,6 +39,8 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
+    io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
+    io.setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
   }
 
   @Override

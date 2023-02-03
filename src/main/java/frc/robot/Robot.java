@@ -139,47 +139,47 @@ public class Robot extends LoggedRobot {
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
 
     // FIXME: remove this after testing
-    double input = -testController.getLeftY();
+    // double input = -testController.getLeftY();
 
-    double deadband = 0.3;
-    if (Math.abs(input) > deadband) {
-      if (input > 0.0) {
-        input = (input - deadband) / (1.0 - deadband);
-      } else {
-        input = (input + deadband) / (1.0 - deadband);
-      }
-    } else {
-      input = 0.0;
-    }
+    // double deadband = 0.3;
+    // if (Math.abs(input) > deadband) {
+    //   if (input > 0.0) {
+    //     input = (input - deadband) / (1.0 - deadband);
+    //   } else {
+    //     input = (input + deadband) / (1.0 - deadband);
+    //   }
+    // } else {
+    //   input = 0.0;
+    // }
 
-    // System.out.println("input: " + input);
-    simMech.setOutput(input);
+    // // System.out.println("input: " + input);
+    // simMech.setOutput(input);
 
-    double stingerInput = testController.getRightX();
-    if (Math.abs(stingerInput) > deadband) {
-      if (stingerInput > 0.0) {
-        stingerInput = (stingerInput - deadband) / (1.0 - deadband);
-      } else {
-        stingerInput = (stingerInput + deadband) / (1.0 - deadband);
-      }
-    } else {
-      stingerInput = 0.0;
-    }
+    // double stingerInput = testController.getRightX();
+    // if (Math.abs(stingerInput) > deadband) {
+    //   if (stingerInput > 0.0) {
+    //     stingerInput = (stingerInput - deadband) / (1.0 - deadband);
+    //   } else {
+    //     stingerInput = (stingerInput + deadband) / (1.0 - deadband);
+    //   }
+    // } else {
+    //   stingerInput = 0.0;
+    // }
 
-    simMech.setStingerOutput(stingerInput);
+    // simMech.setStingerOutput(stingerInput);
 
-    double wristInput = -testController.getRightY();
-    if (Math.abs(wristInput) > deadband) {
-      if (wristInput > 0.0) {
-        wristInput = (wristInput - deadband) / (1.0 - deadband);
-      } else {
-        wristInput = (wristInput + deadband) / (1.0 - deadband);
-      }
-    } else {
-      wristInput = 0.0;
-    }
+    // double wristInput = -testController.getRightY();
+    // if (Math.abs(wristInput) > deadband) {
+    //   if (wristInput > 0.0) {
+    //     wristInput = (wristInput - deadband) / (1.0 - deadband);
+    //   } else {
+    //     wristInput = (wristInput + deadband) / (1.0 - deadband);
+    //   }
+    // } else {
+    //   wristInput = 0.0;
+    // }
 
-    simMech.setWristOutput(wristInput);
+    // simMech.setWristOutput(wristInput);
   }
 
   /**

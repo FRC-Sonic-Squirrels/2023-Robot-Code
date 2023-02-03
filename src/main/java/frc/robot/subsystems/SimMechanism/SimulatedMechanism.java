@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class SimulatedMechanism extends SubsystemBase {
+  private static SimulatedMechanism instance;
+
   private static final double kElevatorKp = 5.0;
   private static final double kElevatorGearing = 10.0;
   private static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
@@ -113,16 +115,12 @@ public class SimulatedMechanism extends SubsystemBase {
 
   public SimulatedMechanism() {}
 
-  public void setOutput(double output) {
-    desiredOutput = output;
-  }
-
-  public void setStingerOutput(double output) {
-    stingerOutput = output;
-  }
-
-  public void setWristOutput(double output) {
-    wristOutput = output;
+  public static SimulatedMechanism getInstance() {
+    if (instance == null) {
+      return new SimulatedMechanism();
+    } else {
+      return instance;
+    }
   }
 
   @Override
@@ -168,5 +166,29 @@ public class SimulatedMechanism extends SubsystemBase {
     wristMech2d.setAngle(wristAngleDegrees);
 
     Logger.getInstance().recordOutput("SimMech", m_mech2d);
+  }
+
+  public void setElevatorOutputVolts(double output) {
+    desiredOutput = output;
+  }
+
+  public void setStingerOutputVolts(double output) {
+    stingerOutput = output;
+  }
+
+  public void setWristOutputVolts(double output) {
+    wristOutput = output;
+  }
+
+  public double getElevatorPositionInches() {
+    return Units.metersToInches(elevatorSim.getPositionMeters());
+  }
+
+  public double getStingerPositionInches() {
+    return Units.metersToInches(stingerSim.getPositionMeters());
+  }
+
+  public double getWristPositionRad() {
+    return wristSim.getAngleRads();
   }
 }

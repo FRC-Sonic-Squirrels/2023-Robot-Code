@@ -31,7 +31,7 @@ public final class Constants {
   // FIXME: specify the name of the camera used for detecting AprilTags
   public static final String CAMERA_NAME = "ov9268";
 
-  private static final RobotType ROBOT = RobotType.ROBOT_2023_PRESEASON;
+  private static final RobotType ROBOT = RobotType.ROBOT_SIMBOT;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -116,7 +116,7 @@ public final class Constants {
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
 
-    public static final double CRUISE_VELOCITY = 0.5;
+    public static final double CRUISE_VELOCITY = 20;
     public static final double DESIRED_TIME_TO_SPEED = 0.5;
   }
 }
