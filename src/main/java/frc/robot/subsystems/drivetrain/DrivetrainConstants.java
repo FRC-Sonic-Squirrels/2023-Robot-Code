@@ -120,4 +120,14 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
   public static final double DEADBAND = 0.1;
+
+  // Field Constants
+  // The coordinates in these translations are approximations based off:
+  // https://firstfrc.blob.core.windows.net/frc2023/FieldAssets/2023LayoutMarkingDiagram.pdf
+  // probably not accurate
+  public static final Translation2d BLUE_CHARGE_PAD_LOWER_LEFT_POINT_METERS =
+      new Translation2d(Units.inchesToMeters(100), Units.inchesToMeters(59.39));
+  public static final Translation2d BLUE_CHARGE_PAD_UPPER_RIGHT_POINT_METERS =
+      new Translation2d(Units.inchesToMeters(176.125), Units.inchesToMeters(156.64));
+  public static final double CHARGE_PAD_HEIGHT_METERS = Units.inchesToMeters(9.125);
 }

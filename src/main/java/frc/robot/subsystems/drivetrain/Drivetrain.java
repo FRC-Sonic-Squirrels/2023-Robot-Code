@@ -16,6 +16,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -225,6 +226,39 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
+   * Returns the 3d pose of the robot (e.g., x, y and z position of the robot on the field and the
+   * robot's roll, pitch, and yaw). The origin of the field to the lower left corner (i.e., the
+   * corner of the field to the driver's right). This function is currently used for visualization
+   * and should not be considered for any practical use, as most of the constants are
+   * approximations.
+   *
+   * @return the pose of the robot
+   */
+  public Pose3d get3dPose() {
+    double heightMeters;
+    if (poseEstimator.getEstimatedPosition().getX() > BLUE_CHARGE_PAD_LOWER_LEFT_POINT_METERS.getX()
+        && poseEstimator.getEstimatedPosition().getX()
+            < BLUE_CHARGE_PAD_UPPER_RIGHT_POINT_METERS.getX()
+        && poseEstimator.getEstimatedPosition().getY()
+            > BLUE_CHARGE_PAD_LOWER_LEFT_POINT_METERS.getY()
+        && poseEstimator.getEstimatedPosition().getY()
+            < BLUE_CHARGE_PAD_UPPER_RIGHT_POINT_METERS.getY()) {
+      heightMeters = CHARGE_PAD_HEIGHT_METERS;
+    } else {
+      heightMeters = 0;
+    }
+    // TODO: make sure I didn't mix up roll and pitch
+    return new Pose3d(
+        poseEstimator.getEstimatedPosition().getX(),
+        poseEstimator.getEstimatedPosition().getY(),
+        heightMeters,
+        new Rotation3d(
+            getGyroRoll(),
+            getGyroPitch(),
+            poseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+  }
+
+  /**
    * Sets the odometry of the robot to the specified PathPlanner state. This method should only be
    * invoked when the rotation of the robot is known (e.g., at the start of an autonomous path). The
    * origin of the field to the lower left corner (i.e., the corner of the field to the driver's
@@ -385,6 +419,7 @@ public class Drivetrain extends SubsystemBase {
     Pose2d poseEstimatorPose = poseEstimator.getEstimatedPosition();
     Logger.getInstance().recordOutput("Odometry/RobotNoGyro", estimatedPoseWithoutGyro);
     Logger.getInstance().recordOutput("Odometry/Robot", poseEstimatorPose);
+    Logger.getInstance().recordOutput("Odometry/Robot3D", get3dPose());
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
