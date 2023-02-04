@@ -51,11 +51,11 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.ElevatorControlCommand;
 import frc.robot.commands.auto.FollowPath;
 import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -239,7 +239,8 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    elevator.setDefaultCommand(new ElevatorControlCommand(elevator, driverController, 1));
+    elevator.setDefaultCommand(
+        new ElevatorManualControl(elevator, () -> -driverController.getLeftY()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
