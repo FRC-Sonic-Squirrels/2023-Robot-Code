@@ -6,7 +6,7 @@ package frc.robot.subsystems.wrist;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/** This subsystem represents the robot's arm system, which pnuematics to operate. */
+/** This subsystem represents the robot's arm system, which pneumatics to operate. */
 public class Wrist extends SubsystemBase {
 
   /** Creates a new Arm. */
