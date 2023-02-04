@@ -40,6 +40,9 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -62,6 +65,7 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
+  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -127,6 +131,7 @@ public class RobotContainer {
             new Pneumatics(new PneumaticsIORev(false));
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
+            wrist = new Wrist(new WristIOSolenoid());
             break;
           }
         case ROBOT_SIMBOT:
@@ -154,6 +159,7 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
+            wrist = new Wrist(new WristIO() {});
             break;
           }
         default:
@@ -176,10 +182,8 @@ public class RobotContainer {
       new Vision(new VisionIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
+      wrist = new Wrist(new WristIOSolenoid() {});
     }
-
-    // workaround warning about unused variable
-    // pneumatics.getPressure();
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
