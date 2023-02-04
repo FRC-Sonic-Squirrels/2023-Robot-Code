@@ -20,26 +20,14 @@ public class ElevatorSetHeight extends CommandBase {
 
   double debounceSeconds = 0.1;
 
+  Trigger isFinishedTrigger;
+
   public ElevatorSetHeight(Elevator elevator, double targetHeightInches) {
-    changeMotionProfile = false;
-
-    this.elevator = elevator;
-    this.targetHeightInches = targetHeightInches;
-
-    addRequirements(elevator);
-    // Use addRequirements() here to declare subsystem dependencies.
+    this(elevator, targetHeightInches, 0.1, false, 0.0, 0.0);
   }
 
   public ElevatorSetHeight(Elevator elevator, double targetHeightInches, double debounceSeconds) {
-    changeMotionProfile = false;
-
-    this.elevator = elevator;
-    this.targetHeightInches = targetHeightInches;
-
-    this.debounceSeconds = debounceSeconds;
-
-    addRequirements(elevator);
-    // Use addRequirements() here to declare subsystem dependencies.
+    this(elevator, targetHeightInches, debounceSeconds, false, 0.0, 0.0);
   }
 
   public ElevatorSetHeight(
@@ -48,14 +36,7 @@ public class ElevatorSetHeight extends CommandBase {
       double motionProfileVelocity,
       double motionProfileDesiredTime) {
 
-    changeMotionProfile = true;
-    this.motionProfileVelocity = motionProfileVelocity;
-    this.motionProfileDesiredTime = motionProfileDesiredTime;
-
-    this.elevator = elevator;
-    this.targetHeightInches = targetHeightInches;
-    addRequirements(elevator);
-    // Use addRequirements() here to declare subsystem dependencies.
+    this(elevator, targetHeightInches, 0.1, true, motionProfileVelocity, motionProfileDesiredTime);
   }
 
   public ElevatorSetHeight(
@@ -65,15 +46,35 @@ public class ElevatorSetHeight extends CommandBase {
       double motionProfileDesiredTime,
       double debounceSeconds) {
 
-    changeMotionProfile = true;
-    this.motionProfileVelocity = motionProfileVelocity;
-    this.motionProfileDesiredTime = motionProfileDesiredTime;
+    this(
+        elevator,
+        targetHeightInches,
+        debounceSeconds,
+        true,
+        motionProfileVelocity,
+        motionProfileDesiredTime);
+  }
+
+  private ElevatorSetHeight(
+      Elevator elevator,
+      double targetHeightInches,
+      double debounce,
+      boolean changeMotionProfile,
+      double motionProfileVelocity,
+      double motionProfileDesiredTime) {
 
     this.elevator = elevator;
     this.targetHeightInches = targetHeightInches;
-    this.debounceSeconds = debounceSeconds;
+    this.debounceSeconds = debounce;
+
+    this.changeMotionProfile = changeMotionProfile;
+    this.motionProfileVelocity = motionProfileVelocity;
+    this.motionProfileDesiredTime = motionProfileDesiredTime;
+
+    this.isFinishedTrigger =
+        new Trigger(() -> elevator.isAtHeight(targetHeightInches)).debounce(debounceSeconds);
+
     addRequirements(elevator);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -100,8 +101,6 @@ public class ElevatorSetHeight extends CommandBase {
   public boolean isFinished() {
     // elevator has to be at that height for 0.1 seconds
     // TODO: check if this is needed
-    return new Trigger(() -> elevator.isAtHeight(targetHeightInches))
-        .debounce(debounceSeconds)
-        .getAsBoolean();
+    return isFinishedTrigger.getAsBoolean();
   }
 }
