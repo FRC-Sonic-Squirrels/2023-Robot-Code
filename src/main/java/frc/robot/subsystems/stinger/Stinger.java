@@ -117,4 +117,8 @@ public class Stinger extends SubsystemBase {
     io.setMotionProfileConstraints(velocity, acceleration);
   }
 
+  public void setPercentOutput(double percent) {
+    io.setPercent(percent);
+  }
+
 }
