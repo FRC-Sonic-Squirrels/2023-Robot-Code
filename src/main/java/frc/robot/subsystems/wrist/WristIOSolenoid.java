@@ -11,8 +11,6 @@ public class WristIOSolenoid implements WristIO {
     solenoid = new Solenoid(PneumaticsModuleType.REVPH, 14);
   }
 
-  // TODO: figure out a way to use the constants WRIST_SOLENOID_DEPLOY and WRIST_SOLENOID_RETRACT
-
   public void wristUp() {
     solenoid.set(true);
   }
