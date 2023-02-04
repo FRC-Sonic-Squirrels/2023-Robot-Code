@@ -51,6 +51,22 @@ public class Streamdeck extends SubsystemBase {
     // command, that would get really repetitive and hard to maintain and debug. This seems like a
     // cleaner solution to me
 
+    // you can also have a 2d array for the current scored pieces, this will allow you to do logic
+    // for automatically determining for example
+
+    // if you dont want to deal with 2d arrays you can make your own custom data structure
+    // maybe something like StreamdeckMatrix which could have 3 variable arrays for each row
+    // the advantage of this would be isolating all the matrix logic for getting, setting, and
+    // working
+    // with a matrix across 2 different devices, as apposed to having a bunch of functions in this
+    // subsystem
+
+    // using a 2d array or a custom data structure (could be something different from the example I
+    // gave) are both valid solutions to this problem, pick what you wanna work with
+
+    // ofc these are just my ideas if you have thoughts on others way to tackle this issue share
+    // them
+
     // This method will be called once per scheduler run
   }
 
