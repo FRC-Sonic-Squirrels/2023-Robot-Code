@@ -6,7 +6,9 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
 import org.littletonrobotics.junction.Logger;
 
@@ -14,11 +16,40 @@ import org.littletonrobotics.junction.Logger;
 public class ElevatorSim implements ElevatorIO {
   SimulatedMechanism mechanism;
 
+  private static final double kElevatorKp = 5.0;
+
+  private static final double kElevatorGearing = 10.0;
+  private static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
+  private static final double kCarriageMass = 4.0; // kg
+
+  private static final double kMinElevatorHeight = Units.inchesToMeters(0.0);
+  private static final double kMaxElevatorHeight = Units.inchesToMeters(60);
+
+  // distance per pulse = (distance per revolution) / (pulses per revolution)
+  //  = (Pi * D) / ppr
+  private static final double kElevatorEncoderDistPerPulse =
+      2.0 * Math.PI * kElevatorDrumRadius / 4096;
+
+  private final DCMotor elevatorGearbox = DCMotor.getFalcon500(2);
+
+  edu.wpi.first.wpilibj.simulation.ElevatorSim simElevator =
+      new edu.wpi.first.wpilibj.simulation.ElevatorSim(
+          elevatorGearbox,
+          kElevatorGearing,
+          kCarriageMass,
+          kElevatorDrumRadius,
+          kMinElevatorHeight,
+          kMaxElevatorHeight,
+          false);
+
   ProfiledPIDController controller =
       new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(20, 40));
 
   private boolean closedLoop = false;
   private double targetHeightInches = 0.0;
+  private double desiredVoltsOpenLoop = 0.0;
+
+  private double currentHeightInches = 0.0;
 
   public ElevatorSim() {
     mechanism = SimulatedMechanism.getInstance();
@@ -26,17 +57,29 @@ public class ElevatorSim implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
+    double controlEffort = 0.0;
     if (closedLoop) {
-      double controlEffort =
-          controller.calculate(mechanism.getElevatorPositionInches(), targetHeightInches);
-      setElevatorVoltage(controlEffort);
+      controlEffort = controller.calculate(inputs.ElevatorHeightInches, targetHeightInches);
 
-      Logger.getInstance().recordOutput("elevator/controlEffort", controlEffort);
-      Logger.getInstance().recordOutput("elevator/kp", controller.getP());
-      // Logger.getInstance().recordOutput("elevator/kp", controller.);
+      simElevator.setInput(controlEffort);
+    } else {
+      controlEffort = desiredVoltsOpenLoop;
+      simElevator.setInput(controlEffort);
     }
 
-    inputs.ElevatorHeightInches = mechanism.getElevatorPositionInches();
+    simElevator.update(0.020);
+
+    mechanism.setElevatorLengthMeters(Units.metersToInches(simElevator.getPositionMeters()));
+
+    // this would have to communicate among all sim systems
+    // RoboRioSim.setVInVoltage(
+    //     BatterySim.calculateDefaultBatteryLoadedVoltage(simElevator.getCurrentDrawAmps()));
+
+    Logger.getInstance().recordOutput("elevator/controlEffort", controlEffort);
+    Logger.getInstance().recordOutput("elevator/actual controller kp", controller.getP());
+
+    inputs.ElevatorHeightInches = Units.metersToInches(simElevator.getPositionMeters());
+    currentHeightInches = Units.metersToInches(simElevator.getPositionMeters());
     inputs.ElevatorTargetHeightInches = targetHeightInches;
   }
 
@@ -49,12 +92,13 @@ public class ElevatorSim implements ElevatorIO {
   public void setElevatorVoltage(double volts) {
     closedLoop = false;
     var num = MathUtil.clamp(volts, -12, 12);
-    mechanism.setElevatorOutputVolts(num);
+    desiredVoltsOpenLoop = num;
   }
 
   @Override
   public void setHeightInches(double targetHeightInches) {
     closedLoop = true;
+    controller.reset(currentHeightInches);
     this.targetHeightInches = targetHeightInches;
   }
 
@@ -66,9 +110,9 @@ public class ElevatorSim implements ElevatorIO {
   }
 
   @Override
-  public void setMotionProfileConstraints(double cruiseVelocity, double desiredTimeToSpeed) {
-    double acceleration = cruiseVelocity / desiredTimeToSpeed;
-
-    controller.setConstraints(new Constraints(cruiseVelocity, acceleration));
+  public void setMotionProfileConstraints(
+      double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
+    controller.setConstraints(
+        new Constraints(cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared));
   }
 }
