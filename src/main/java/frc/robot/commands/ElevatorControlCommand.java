@@ -32,11 +32,9 @@ public class ElevatorControlCommand extends CommandBase {
     double elevatorJoyStickValue = -controller.getLeftY();
 
     if (Math.abs(elevatorJoyStickValue) > 0.1) {
-      elevator.brakeOff();
-      elevator.setWinchPercentOutput(elevatorJoyStickValue * gain);
+      elevator.setPercentOutput(elevatorJoyStickValue * gain);
     } else {
-      elevator.setWinchPercentOutput(0.0);
-      elevator.brakeOn();
+      elevator.setPercentOutput(0.0);
     }
   }
 

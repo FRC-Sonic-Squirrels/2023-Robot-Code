@@ -17,12 +17,14 @@ import org.littletonrobotics.junction.Logger;
 public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
+  // TODO: check whether this is 12 or not
   private double MAX_VOLTAGE = 10.0;
-  public static double toleranceInches = 0.05;
+  public static final double toleranceInches = 0.05;
   private boolean zeroed;
+  private boolean maxed;
 
   public final TunableNumber Kf =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.F_CONTROLLER);
   public final TunableNumber Kp =
       new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Ki =
@@ -39,6 +41,10 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
+    io.setMotionProfileConstraints(
+        Constants.ElevatorConstants.CRUISE_VELOCITY,
+        Constants.ElevatorConstants.DESIRED_TIME_TO_SPEED);
+    io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
   }
 
   @Override
@@ -46,6 +52,7 @@ public class Elevator extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Elevator", inputs);
 
+    // limit switch
     if (inputs.ElevatorAtLowerLimit) {
       if (!zeroed) {
         // only zero height once per time hitting limit switch
@@ -57,17 +64,29 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
+    if (inputs.ElevatorAtUpperLimit) {
+      if (!maxed) {
+        // only zero height once per time hitting limit switch
+        // TODO: add method to reset to max height in io
+        io.setSensorHeightToMax();
+        maxed = true;
+      }
+    } else {
+      // not currently on limit switch, zero again next time we hit limit switch
+      maxed = false;
+    }
+
     if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 
     if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
-      io.setMotionMagicConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+      io.setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
   }
 
   /** Run the Elevator at the specified voltage */
   public void runElevatorVoltage(double voltage) {
     voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
-    io.setElevatorVoltage(voltage * MAX_VOLTAGE);
+    io.setElevatorVoltage(voltage);
   }
 
   public void setHeightInches(double targetHeightInches) {
@@ -91,7 +110,7 @@ public class Elevator extends SubsystemBase {
    * @return true if the elevator is at the height setpoint
    */
   public boolean isAtHeight() {
-    return isAtHeight(inputs.ElevatorHeightInches);
+    return isAtHeight(inputs.ElevatorTargetHeightInches);
   }
 
   /** atLowerLimit() returns true if the lower limit switch is triggered. */
@@ -99,21 +118,18 @@ public class Elevator extends SubsystemBase {
     return (inputs.ElevatorAtLowerLimit);
   }
 
-  public void brakeOn() {
-    io.brakeOn();
+  /** atUpperLimit() returns true if the upper limit switch is triggered. */
+  public boolean atUpperLimit() {
+    return (inputs.ElevatorAtUpperLimit);
   }
 
-  public void brakeOff() {
-    io.brakeOff();
-  }
-
-  public void setWinchPercentOutput(double percent) {
+  public void setPercentOutput(double percent) {
+    percent = MathUtil.clamp(percent, -1, 1);
     io.setPercent(percent);
   }
 
   public void stop() {
     io.setPercent(0.0);
-    io.brakeOn();
   }
 
   public void zeroHeight() {
@@ -124,6 +140,13 @@ public class Elevator extends SubsystemBase {
     io.setPIDConstraints(kF, kP, kI, kD);
   }
 
-  // TODO: implement methods to get upper and lower limit switch status
-  // TODO: implement methods to get elevator motor RPM, velocity in/s
+  // TODO: change meters to inches
+  public void setMotionProfileConstraints(
+      double cruiseVelocityInchesPerSecond, double desiredTimeSeconds) {
+
+    double accelerationInchesPerSecondSquared = cruiseVelocityInchesPerSecond / desiredTimeSeconds;
+
+    io.setMotionProfileConstraints(
+        cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
+  }
 }
