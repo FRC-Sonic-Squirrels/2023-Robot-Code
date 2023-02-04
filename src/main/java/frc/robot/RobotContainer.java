@@ -41,6 +41,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -158,7 +159,7 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
-            wrist = new Wrist(new WristIOSolenoid() {});
+            wrist = new Wrist(new WristIO() {});
             break;
           }
         default:
@@ -183,9 +184,6 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
       wrist = new Wrist(new WristIOSolenoid() {});
     }
-
-    // workaround warning about unused variable
-    // pneumatics.getPressure();
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
