@@ -18,7 +18,7 @@ public class Stinger extends SubsystemBase {
   private final StingerIOInputs inputs = new StingerIOInputs();
   // TODO: see if we can change max voltage to 12
   private double MAX_VOLTAGE = 10.0;
-  public static double toleranceInches = 0.05;
+  public static double toleranceInches = 0.1;
 
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.STINGER_PID.STINGER_FEEDFORWARD);
@@ -69,28 +69,28 @@ public class Stinger extends SubsystemBase {
     runStingerVoltage(0.0);
   }
 
-  public void setLengthInches(double targetLengthInches) {
-    io.setExtensionInches(targetLengthInches);
+  public void setExtensionInches(double targetExtensionInches) {
+    io.setExtensionInches(targetExtensionInches);
   }
 
-  public double getLengthInches() {
+  public double getExtensionInches() {
     return inputs.StingerExtensionInches;
   }
 
   /**
-   * @return true if within tolerance of a target length
+   * @return true if within tolerance of a target extension
    */
-  public boolean isAtLength(double LengthInches) {
-    return (Math.abs(LengthInches - inputs.StingerExtensionInches) < toleranceInches);
+  public boolean isAtExtension(double extensionInches) {
+    return (Math.abs(extensionInches - inputs.StingerExtensionInches) < toleranceInches);
   }
 
   /**
-   * isAtLength() check if the Stinger is at the target length.
+   * isAtExtension() check if the Stinger is at the target extension.
    *
-   * @return true if the Stinger is at the length setpoint
+   * @return true if the Stinger is at the extension setpoint
    */
-  public boolean isAtLength() {
-    return isAtLength(inputs.StingerTargetExtensionInches);
+  public boolean isAtExtension() {
+    return isAtExtension(inputs.StingerTargetExtensionInches);
   }
 
   /** atLowerLimit() returns true if the retracted (lower) limit switch is triggered. */

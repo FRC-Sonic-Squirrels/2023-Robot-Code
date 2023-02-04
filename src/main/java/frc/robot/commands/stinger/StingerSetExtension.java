@@ -66,14 +66,14 @@ public class StingerSetExtension extends CommandBase {
   public void initialize() {
 
     // checks to see if stinger has met target extension for more than 0.1 seconds
-    atHeight = new Trigger(() -> stinger.isAtLength(extensionInches)).debounce(debounce);
+    atHeight = new Trigger(() -> stinger.isAtExtension(extensionInches)).debounce(debounce);
 
     if (changeConstraints) {
       stinger.setMotionProfileConstraintsTime(velocity, time);
     }
 
     // extends stinger
-    stinger.setLengthInches(extensionInches);
+    stinger.setExtensionInches(extensionInches);
 
   }
 
