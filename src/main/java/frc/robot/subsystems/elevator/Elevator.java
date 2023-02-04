@@ -19,6 +19,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
   // TODO: check whether this is 12 or not
   private double MAX_VOLTAGE = 10.0;
+  // TODO: add maxHeightInches
   public static final double toleranceInches = 0.05;
   private boolean zeroed;
   private boolean maxed;

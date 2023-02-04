@@ -8,13 +8,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
 
-public class ElevatorControlCommand extends CommandBase {
+public class ElevatorManualControl extends CommandBase {
   Elevator elevator;
   CommandXboxController controller;
   double gain = 1.0;
 
-  public ElevatorControlCommand(Elevator elevator, CommandXboxController controller, double gain) {
+  public ElevatorManualControl(Elevator elevator, CommandXboxController controller) {
     this.elevator = elevator;
+    // TODO: only use axis
     this.controller = controller;
     this.gain = gain;
     addRequirements(elevator);
