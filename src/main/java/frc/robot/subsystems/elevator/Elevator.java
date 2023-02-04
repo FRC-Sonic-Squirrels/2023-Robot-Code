@@ -26,7 +26,7 @@ public class Elevator extends SubsystemBase {
   private boolean maxed;
 
   public final TunableNumber Kf =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.F_CONTROLLER);
+      new TunableNumber("elevator/Kf", Constants.ElevatorConstants.F_CONTROLLER);
   public final TunableNumber Kp =
       new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Ki =
