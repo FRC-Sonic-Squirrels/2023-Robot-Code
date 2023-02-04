@@ -41,6 +41,9 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.streamdeck.Streamdeck;
+import frc.robot.subsystems.streamdeck.Streamdeck.StreamDeckLocation;
+import frc.robot.subsystems.streamdeck.StreamdeckReal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
@@ -66,6 +69,8 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
   private StreamDeckController streamDeckController = new StreamDeckController();
+
+  private Streamdeck streamdeckSubsystem;
 
   int target = 0;
 
@@ -135,6 +140,11 @@ public class RobotContainer {
             new Pneumatics(new PneumaticsIORev(false));
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
+
+            streamdeckSubsystem =
+                new Streamdeck(
+                    new StreamdeckReal(StreamDeckLocation.LEFT),
+                    new StreamdeckReal(StreamDeckLocation.RIGHT));
             break;
           }
         case ROBOT_SIMBOT:
@@ -162,6 +172,11 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
+
+            streamdeckSubsystem =
+                new Streamdeck(
+                    new StreamdeckReal(StreamDeckLocation.LEFT),
+                    new StreamdeckReal(StreamDeckLocation.RIGHT));
             break;
           }
         default:
