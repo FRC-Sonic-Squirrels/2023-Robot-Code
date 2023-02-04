@@ -81,6 +81,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     // TODO: determine whether we actually want to make this slow
     MotorUtils.setCtreStatusSlow(follow_talon);
 
+    // TODO make sure this doesnt slow down CAN to anything important
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
