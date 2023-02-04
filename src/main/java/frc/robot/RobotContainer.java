@@ -52,10 +52,10 @@ import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.ElevatorControlCommand;
-import frc.robot.commands.FeedForwardCharacterization;
-import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
-import frc.robot.commands.FollowPath;
-import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.auto.FollowPath;
+import frc.robot.commands.drive.FeedForwardCharacterization;
+import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
+import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -65,6 +65,9 @@ import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -88,6 +91,8 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
   private Elevator elevator;
+
+  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -154,6 +159,8 @@ public class RobotContainer {
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
             elevator = new Elevator(new ElevatorReal2022());
+
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
         case ROBOT_SIMBOT:
@@ -185,6 +192,7 @@ public class RobotContainer {
             elevator = new Elevator(new ElevatorSim());
 
             // TODO add stinger subsystem
+            wrist = new Wrist(new WristIO() {});
             break;
           }
         default:
@@ -208,10 +216,8 @@ public class RobotContainer {
       new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
+      wrist = new Wrist(new WristIOSolenoid() {});
     }
-
-    // workaround warning about unused variable
-    // pneumatics.getPressure();
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();

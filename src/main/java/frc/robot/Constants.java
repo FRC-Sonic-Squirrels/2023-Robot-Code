@@ -83,7 +83,6 @@ public final class Constants {
     // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
     // create problems if you already have a device using CAN id 0 on the CAN bus.
     public static final int DoNotUse_canId0 = 0;
-    public static final int CANID5_STINGER_TALON = 5;
     public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
     public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
     public static final int CANID15_pigeon_imu = 15;
@@ -110,8 +109,10 @@ public final class Constants {
 
   // TODO: determine whether elevator deserves it's own constants file
   public static class ElevatorConstants {
+    // TODO: check all values for new robot
     public static final double elevatorSpeedMultiplier = 1.0;
 
+    public static final double F_CONTROLLER = 1;
     public static final double P_CONTROLLER = 0.48;
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
