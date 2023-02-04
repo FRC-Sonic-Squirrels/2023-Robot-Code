@@ -75,4 +75,49 @@ public final class Constants {
     REPLAY,
     SIM
   }
+
+  public static final class CANIVOR_canId {
+    // CANIVOR Can Ids
+    public static final String name = "CANivore";
+
+    // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
+    // create problems if you already have a device using CAN id 0 on the CAN bus.
+    public static final int DoNotUse_canId0 = 0;
+    public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
+    public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
+    public static final int CANID15_pigeon_imu = 15;
+  }
+
+  public static final class pneumatics {
+    public static final int channel_0 = 0;
+    public static final int channel_1 = 1;
+    public static final int channel_2 = 2;
+    public static final int channel_3 = 3;
+    public static final int channel_4 = 4;
+    public static final int channel_5 = 5;
+    public static final int channel_6 = 6;
+    public static final int channel_7 = 7;
+    public static final int channel_8 = 8;
+    public static final int channel_9 = 9;
+    public static final int channel_10 = 10;
+    public static final int channel_11 = 11;
+    public static final int channel_12 = 12;
+    public static final int channel_13 = 13;
+    public static final int channel_14_intake = 14;
+    public static final int channel_15_friction_brake = 15;
+  }
+
+  // TODO: determine whether elevator deserves it's own constants file
+  public static class ElevatorConstants {
+    // TODO: check all values for new robot
+    public static final double elevatorSpeedMultiplier = 1.0;
+
+    public static final double F_CONTROLLER = 1;
+    public static final double P_CONTROLLER = 0.48;
+    public static final double I_CONTROLLER = 0.0;
+    public static final double D_CONTROLLER = 0.0;
+
+    public static final double CRUISE_VELOCITY = 0.5;
+    public static final double DESIRED_TIME_TO_SPEED = 0.5;
+  }
 }
