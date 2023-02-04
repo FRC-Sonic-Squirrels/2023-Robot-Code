@@ -43,9 +43,7 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
-    io.setMotionProfileConstraints(
-        Constants.ElevatorConstants.CRUISE_VELOCITY,
-        Constants.ElevatorConstants.DESIRED_TIME_TO_SPEED);
+    setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
   }
 
@@ -82,7 +80,7 @@ public class Elevator extends SubsystemBase {
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 
     if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
-      io.setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+      setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
   }
 
   /** Run the Elevator at the specified voltage */
