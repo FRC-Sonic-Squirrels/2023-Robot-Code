@@ -61,7 +61,7 @@ public interface StingerIO {
     public default void setExtensionInches(double targetExtensionInches) {}
 
     /** set MotionMagic constraints, using velocity and acceleration */
-    public default void setMotionMagicConstraints(double cruiseVelocity, double acceleration) {}
+    public default void setMotionProfileConstraints(double cruiseVelocity, double acceleration) {}
 
     public default void setSensorPosition(double position) {};
 

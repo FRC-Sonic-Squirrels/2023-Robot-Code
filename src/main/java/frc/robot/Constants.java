@@ -90,4 +90,14 @@ public final class Constants {
     public static final int CANID15_pigeon_imu = 15;
 
   }
+
+  public static final class STINGER_PID {
+
+    //TODO: find better default PID values for the stinger
+    public static final double STINGER_FEEDFORWARD = 0.054;
+    public static final double STINGER_KP = 0.48;
+    public static final double STINGER_KI = 0.0;
+    public static final double STINGER_KD = 0.0;
+
+  }
 }
