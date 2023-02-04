@@ -2,22 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
+import java.util.function.DoubleSupplier;
 
 public class ElevatorManualControl extends CommandBase {
   Elevator elevator;
-  CommandXboxController controller;
-  double gain = 1.0;
+  DoubleSupplier controllerAxis;
 
-  public ElevatorManualControl(Elevator elevator, CommandXboxController controller) {
+  // Flip if using y axis because y is flipped on Xbox controllers
+  public ElevatorManualControl(Elevator elevator, DoubleSupplier controllerAxis) {
     this.elevator = elevator;
-    // TODO: only use axis
-    this.controller = controller;
-    this.gain = gain;
+    this.controllerAxis = controllerAxis;
     addRequirements(elevator);
   }
 
@@ -30,10 +28,10 @@ public class ElevatorManualControl extends CommandBase {
   public void execute() {
 
     // negative because up on joystick y axis goes negative
-    double elevatorJoyStickValue = -controller.getLeftY();
+    double elevatorJoyStickValue = controllerAxis.getAsDouble();
 
     if (Math.abs(elevatorJoyStickValue) > 0.1) {
-      elevator.setPercentOutput(elevatorJoyStickValue * gain);
+      elevator.setPercentOutput(elevatorJoyStickValue);
     } else {
       elevator.setPercentOutput(0.0);
     }

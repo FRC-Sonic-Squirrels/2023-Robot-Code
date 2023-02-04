@@ -19,8 +19,9 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
   // TODO: check whether this is 12 or not
   private double MAX_VOLTAGE = 10.0;
-  // TODO: add maxHeightInches
   public static final double toleranceInches = 0.05;
+  // TODO: check real height
+  public static final double maxHeightInches = 26;
   private boolean zeroed;
   private boolean maxed;
 
@@ -69,7 +70,7 @@ public class Elevator extends SubsystemBase {
       if (!maxed) {
         // only zero height once per time hitting limit switch
         // TODO: add method to reset to max height in io
-        io.setSensorHeightToMax();
+        io.resetSensorHeight(maxHeightInches);
         maxed = true;
       }
     } else {

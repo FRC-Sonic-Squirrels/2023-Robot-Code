@@ -143,13 +143,6 @@ public class ElevatorReal2023 implements ElevatorIO {
   }
 
   @Override
-  public void setSensorHeightToMax() {
-    lead_talon
-        .getSensorCollection()
-        .setIntegratedSensorPosition(inchesToTicks(maxExtensionInches), 0);
-  }
-
-  @Override
   public void setPercent(double percent) {
     lead_talon.set(ControlMode.PercentOutput, percent);
   }

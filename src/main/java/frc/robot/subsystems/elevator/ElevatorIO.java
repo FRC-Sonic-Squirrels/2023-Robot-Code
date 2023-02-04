@@ -62,7 +62,5 @@ public interface ElevatorIO {
   // reset sensor position
   public default void resetSensorHeight(double heightInches) {}
 
-  public default void setSensorHeightToMax() {}
-
   public default void setPIDConstraints(double kF, double kP, double kI, double kD) {}
 }

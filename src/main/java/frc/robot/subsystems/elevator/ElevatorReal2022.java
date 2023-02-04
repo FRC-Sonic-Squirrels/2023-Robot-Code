@@ -226,13 +226,6 @@ public class ElevatorReal2022 implements ElevatorIO {
     lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
-  @Override
-  public void setSensorHeightToMax() {
-    lead_talon
-        .getSensorCollection()
-        .setIntegratedSensorPosition(inchesToTicks(maxExtensionInches), 0);
-  }
-
   private double inchesToTicks(double heightInches) {
     return heightInches / ticks2distance;
   }
