@@ -57,10 +57,10 @@ public class StingerIOReal implements StingerIO{
     private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
     // private double extensionSetpointInches = 0.0;
 
-    public boolean atMaxLength;
+    public boolean atMaxExtension;
 
-    public double currentLength;
-    public double targetLengthInches;
+    public double currentExtension;
+    public double targetExtensionInches;
 
     public StingerIOReal() {
         motor.configFactoryDefault();
@@ -107,7 +107,7 @@ public class StingerIOReal implements StingerIO{
         setSensorPosition(0.0);
 
         //TODO: see if we need this soft limit, since we already have a limit switch
-        motor.configForwardSoftLimitThreshold(lengthToTicks(maxExtensionInches));
+        motor.configForwardSoftLimitThreshold(extensionToTicks(maxExtensionInches));
         motor.configForwardSoftLimitEnable(true);
     }
 
@@ -131,7 +131,7 @@ public class StingerIOReal implements StingerIO{
         heightInches = maxExtensionInches;
         }
 
-        motor.set(ControlMode.MotionMagic, lengthToTicks(heightInches));
+        motor.set(ControlMode.MotionMagic, extensionToTicks(heightInches));
     }
 
 
@@ -174,8 +174,8 @@ public class StingerIOReal implements StingerIO{
     }
 
 
-    public double lengthToTicks(double lengthInches) {
-        return lengthInches / ticks2distanceInches;
+    public double extensionToTicks(double extensionInches) {
+        return extensionInches / ticks2distanceInches;
     }
 
 
