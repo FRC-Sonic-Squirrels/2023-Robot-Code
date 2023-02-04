@@ -5,6 +5,7 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -50,50 +51,60 @@ public class SwerveAutos {
 
   public Command testPath2mForward() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_TEST_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "2mForward",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command testPath2mForward180() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "2mForward180",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command testPath3mForward360() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "3mForward360",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command curve() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "curve",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "curve",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command rotateAroundPoint() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "rotateAroundPoint",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "rotateAroundPoint",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
@@ -101,10 +112,12 @@ public class SwerveAutos {
   public Command testPath2mForwardWithIntake() {
 
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "testPath2mForwardWithIntake",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "testPath2mForwardWithIntake",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         new FollowPathWithEvents(
@@ -129,10 +142,12 @@ public class SwerveAutos {
 
   public Command forwardLeft() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "forwardLeft",
-            AUTO_MAX_SPEED_METERS_PER_SECOND * 0.1,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "forwardLeft",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
@@ -143,10 +158,12 @@ public class SwerveAutos {
 
   public Command middle1BallEngage() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "middle1BallEngage",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "middle1BallEngage",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         middle1Ball(),
@@ -162,10 +179,12 @@ public class SwerveAutos {
 
   public Command right1BallTaxi() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "right1BallTaxi",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         right1Ball(),
@@ -178,10 +197,12 @@ public class SwerveAutos {
   public Command right2Ball() {
 
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "right2Ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         right1BallTaxi(),
@@ -193,10 +214,12 @@ public class SwerveAutos {
 
   public Command right2BallEngage() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right2BallEngage",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "right2ballEngage",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         right2Ball(),
@@ -208,10 +231,12 @@ public class SwerveAutos {
 
   public Command right3Ball() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right3Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "right3ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         right2Ball(),
@@ -223,10 +248,12 @@ public class SwerveAutos {
 
   public Command right4Ball() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right3Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "right4ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         right3Ball(),
@@ -242,10 +269,12 @@ public class SwerveAutos {
 
   public Command left1BallTaxi() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "left1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "left1BallTaxi",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         left1Ball(),
@@ -257,10 +286,12 @@ public class SwerveAutos {
 
   public Command left2Ball() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "left2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "left2Ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         left1BallTaxi(),
@@ -272,10 +303,12 @@ public class SwerveAutos {
 
   public Command left2BallEngage() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "left2BallEngage",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "left2BallEngage",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         left2Ball(),
@@ -287,10 +320,12 @@ public class SwerveAutos {
 
   public Command left3Ball() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "left3Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "left3Ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         left2Ball(),
@@ -302,10 +337,12 @@ public class SwerveAutos {
 
   public Command left4Ball() {
     PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "left4Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            PathPlanner.loadPath(
+                "left4Ball",
+                AUTO_MAX_SPEED_METERS_PER_SECOND,
+                AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED),
+            DriverStation.getAlliance());
 
     return new SequentialCommandGroup(
         left3Ball(),

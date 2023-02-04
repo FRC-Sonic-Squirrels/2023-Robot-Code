@@ -7,8 +7,6 @@ package frc.robot;
 import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,11 +27,9 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
-import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
@@ -151,8 +147,8 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
-            new Vision(
-                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.ROBOT_TO_CAMERA));
+            // new Vision(
+            //    new VisionIOSim(layout, drivetrain::getPose, VisionConstants.ROBOT_TO_CAMERA));
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
@@ -248,35 +244,19 @@ public class RobotContainer {
                 .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
 
-//   public Pose2d getSelectedInitialState(){
-    
-//   }
+  //   public Pose2d getSelectedInitialState(){
+
+  //   }
 
   /** Use this method to define your commands for autonomous mode. */
   private void configureAutoCommands() {
 
-    PathPlannerTrajectory testPath2mForward =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForward180 =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath3mForward360 =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
     autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
+    autoChooser.addOption("2m Forward", new SwerveAutos(drivetrain, intake).testPath2mForward());
     autoChooser.addOption(
-        "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
+        "2m Forward w/ 180", new SwerveAutos(drivetrain, intake).testPath2mForward180());
     autoChooser.addOption(
-        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
+        "3m Forward 2/ 360", new SwerveAutos(drivetrain, intake).testPath3mForward360());
     autoChooser.addOption(
         "testPath2mForwardWithIntake",
         new SwerveAutos(drivetrain, intake).testPath2mForwardWithIntake());
