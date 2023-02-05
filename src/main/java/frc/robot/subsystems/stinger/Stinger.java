@@ -29,8 +29,8 @@ public class Stinger extends SubsystemBase {
       new TunableNumber("Stinger/kD", Constants.STINGER_PID.STINGER_KD);
 
   private final TunableNumber velocityInchesSecond =
-      new TunableNumber("Stinger/velocity inches per sec", 5);
-  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 5);
+      new TunableNumber("Stinger/velocity inches per sec", 20);
+  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 0.5);
 
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {

@@ -6,6 +6,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
+import org.littletonrobotics.junction.Logger;
 
 public class StingerSim implements StingerIO {
 
@@ -56,6 +57,9 @@ public class StingerSim implements StingerIO {
     simStinger.update(0.020);
 
     mechanism.setStingerLengthInches(Units.metersToInches(simStinger.getPositionMeters()));
+
+    Logger.getInstance().recordOutput("stinger/controlEffort", controlEffort);
+    Logger.getInstance().recordOutput("stinger/actual controller kp", controller.getP());
 
     inputs.StingerExtensionInches = Units.metersToInches(simStinger.getPositionMeters());
     currentExtensionInches = Units.metersToInches(simStinger.getPositionMeters());
