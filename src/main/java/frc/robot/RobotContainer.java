@@ -68,7 +68,6 @@ import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -193,9 +192,6 @@ public class RobotContainer {
 
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
-
-            // TODO add stinger subsystem
-            wrist = new Wrist(new WristIO() {});
             break;
           }
         default:
