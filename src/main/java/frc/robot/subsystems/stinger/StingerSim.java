@@ -89,7 +89,7 @@ public class StingerSim implements StingerIO {
   }
 
   @Override
-  public void setMotionMagicConstraints(
+  public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
     controller.setConstraints(
         new Constraints(cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared));
