@@ -69,7 +69,7 @@ public class ElevatorSim implements ElevatorIO {
 
     simElevator.update(0.020);
 
-    mechanism.setElevatorLengthMeters(Units.metersToInches(simElevator.getPositionMeters()));
+    mechanism.setElevatorLengthInches(Units.metersToInches(simElevator.getPositionMeters()));
 
     // this would have to communicate among all sim systems
     // RoboRioSim.setVInVoltage(

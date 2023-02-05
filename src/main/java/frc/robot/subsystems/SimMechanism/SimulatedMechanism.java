@@ -14,16 +14,6 @@ import org.littletonrobotics.junction.Logger;
 public class SimulatedMechanism extends SubsystemBase {
   private static SimulatedMechanism instance;
 
-  // ElevatorSim stingerSim =
-  //     new ElevatorSim(
-  //         elevatorGearbox,
-  //         kElevatorGearing,
-  //         kCarriageMass,
-  //         kElevatorDrumRadius,
-  //         Units.inchesToMeters(10),
-  //         Units.inchesToMeters(30),
-  //         false);
-
   private static final double m_armReduction = 10;
   private static final double m_armMass = 8.0; // Kilograms
   private static final double m_armLength = Units.inchesToMeters(10);
@@ -57,6 +47,7 @@ public class SimulatedMechanism extends SubsystemBase {
   private double stingerMinLengthInches = 15;
 
   private double elevatorLength = elevatorMinLengthInches;
+  private double stingerlength = stingerMinLengthInches;
 
   private SimulatedMechanism() {}
 
@@ -68,10 +59,16 @@ public class SimulatedMechanism extends SubsystemBase {
     }
   }
 
-  public void setElevatorLengthMeters(double lengthInches) {
+  public void setElevatorLengthInches(double lengthInches) {
     Logger.getInstance()
         .recordOutput("elevator/lengthMeters set", elevatorMinLengthInches + lengthInches);
     elevatorLength = elevatorMinLengthInches + lengthInches;
+  }
+
+  public void setStingerLengthInches(double lengthInches) {
+    Logger.getInstance()
+        .recordOutput("elevator/stinger set", elevatorMinLengthInches + lengthInches);
+    stingerlength = stingerMinLengthInches + lengthInches;
   }
 
   @Override

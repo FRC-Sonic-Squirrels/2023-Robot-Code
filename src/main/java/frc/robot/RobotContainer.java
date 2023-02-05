@@ -65,6 +65,8 @@ import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
@@ -91,8 +93,8 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
   private Elevator elevator;
-
   private Wrist wrist;
+  private Stinger stinger;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -190,6 +192,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeIO() {});
 
             elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
 
             // TODO add stinger subsystem
             wrist = new Wrist(new WristIO() {});
