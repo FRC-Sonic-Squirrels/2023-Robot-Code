@@ -42,7 +42,7 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.intake.IntakeIO2022;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
@@ -71,7 +71,6 @@ public class RobotContainer {
 
   private Elevator elevator;
   private Wrist wrist;
-
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -136,10 +135,10 @@ public class RobotContainer {
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
-            intake = new Intake(new IntakeIOFalcon());
+            intake = new Intake(new IntakeIO2022());
             elevator = new Elevator(new ElevatorReal2022());
 
-            //wrist = new Wrist(new WristIOSolenoid());
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
         case ROBOT_SIMBOT:

@@ -10,13 +10,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 
-public class IntakeIOFalcon implements IntakeIO {
+public class IntakeIO2022 implements IntakeIO {
 
   private WPI_TalonFX intakeMotor;
 
   private final Solenoid solenoid;
 
-  public IntakeIOFalcon() {
+  public IntakeIO2022() {
 
     // FIXME: add solenoid channel to constants
     solenoid = new Solenoid(PneumaticsModuleType.REVPH, 14);
