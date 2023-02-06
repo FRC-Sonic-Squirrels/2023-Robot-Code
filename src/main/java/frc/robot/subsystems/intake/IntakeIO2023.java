@@ -2,17 +2,12 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 
-public class IntakeIO2023Pivot implements IntakeIO {
+public class IntakeIO2023 implements IntakeIO {
   // TODO make constant can ID
   WPI_TalonFX motor = new WPI_TalonFX(-1);
 
-  // TODO check channel and pdh type
-  Solenoid solenoid = new Solenoid(PneumaticsModuleType.REVPH, -1);
-
-  public IntakeIO2023Pivot() {
+  public IntakeIO2023() {
     // TalonFXConfiguration config = new TalonFXConfiguration();
     motor.configFactoryDefault();
     motor.setInverted(false);
@@ -21,8 +16,6 @@ public class IntakeIO2023Pivot implements IntakeIO {
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.solenoid = solenoid.get();
-
     // TODO check formula
     inputs.intakeVelocityRPM =
         motor.getSensorCollection().getIntegratedSensorVelocity() * 10 * 60 / 2048;
@@ -30,11 +23,6 @@ public class IntakeIO2023Pivot implements IntakeIO {
     inputs.intakeAppliedVolts = motor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {motor.getSupplyCurrent()};
     inputs.intakeTempCelsius = new double[] {motor.getTemperature()};
-  }
-
-  @Override
-  public void setExtended(boolean extended) {
-    solenoid.set(extended);
   }
 
   @Override

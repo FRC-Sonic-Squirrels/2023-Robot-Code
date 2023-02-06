@@ -33,7 +33,7 @@ public class IntakeIO2022 implements IntakeIO {
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.extended = solenoid.get();
+    inputs.solenoid = solenoid.get();
 
     inputs.intakeVelocityRPM =
         intakeMotor.getSensorCollection().getIntegratedSensorVelocity() * 600 / 2048;
