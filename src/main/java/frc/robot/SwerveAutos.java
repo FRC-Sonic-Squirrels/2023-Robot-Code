@@ -6,6 +6,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -53,93 +54,89 @@ public class SwerveAutos {
     return eventMap;
   }
 
-  private void setInitialTrajectory(int hashCode, Trajectory trajectory) {
-    trajectoryMap.put(hashCode, trajectory);
+  /**
+   * loadPath - Load a PathPlanner path file and create a PathPlannerTrajectory object.
+   *
+   * @param name name of the PathPlanner path to load the file
+   * @param maxVelocity max robot velocity in m/s
+   * @param maxAcceleration max robot acceleration in m/s^2
+   * @return path
+   */
+  public PathPlannerTrajectory loadPath(String name, double maxVelocity, double maxAcceleration) {
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxAcceleration);
+    PathPlannerTrajectory transformedTrajectory;
+
+    if (trajectory.fromGUI) {
+      transformedTrajectory =
+          PathPlannerTrajectory.transformTrajectoryForAlliance(
+              trajectory, DriverStation.getAlliance());
+    } else {
+      transformedTrajectory = trajectory;
+    }
+
+    return transformedTrajectory;
   }
 
-  public Trajectory getInitialTrajectory(int hashCode) {
-    return trajectoryMap.get(hashCode);
+  /**
+   * loadPath - Load a PathPlanner path file and create a PathPlannerTrajectory object. Uses the
+   * default autonomous velocity and acceleration.
+   *
+   * @param name name of the PathPlanner path to load the file
+   * @return path
+   */
+  public PathPlannerTrajectory loadPath(String name) {
+    return loadPath(
+        name,
+        AUTO_TEST_MAX_SPEED_METERS_PER_SECOND,
+        AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
   public AutoChooserElement testPath2mForward() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_TEST_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("2mForward");
 
     return new AutoChooserElement(
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public Command testPath2mForward180() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("2mForward180");
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public AutoChooserElement testPath3mForward360() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("3mForward360");
 
     return new AutoChooserElement(
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public Command curve() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "curve",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("curve");
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command rotateAroundPoint() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "rotateAroundPoint",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("rotateAroundPoint");
 
-    SequentialCommandGroup c = new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-    setInitialTrajectory(c.hashCode(), path);
-
-    return c;
+    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
   }
 
   public Command testPath2mForwardWithIntake() {
-
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "testPath2mForwardWithIntake",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("testPath2mForwardWithIntake");
 
     SequentialCommandGroup c =
         new SequentialCommandGroup(
             new FollowPathWithEvents(
                 new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-    setInitialTrajectory(c.hashCode(), path);
 
     return c;
   }
 
+  // FIXME: no support yet for loadPathGroup
   public Command testPathSquareGroup() {
+
     List<PathPlannerTrajectory> pathGroup1 =
         PathPlanner.loadPathGroup(
             "squarePathGroup",
@@ -154,11 +151,7 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement forwardLeft() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "forwardLeft",
-            AUTO_MAX_SPEED_METERS_PER_SECOND * 0.1,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("forwardLeft");
 
     return new AutoChooserElement(
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
@@ -169,19 +162,13 @@ public class SwerveAutos {
   }
 
   public Command middle1BallEngage() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "middle1BallEngage",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("middle1BallEngage");
 
     SequentialCommandGroup c =
         new SequentialCommandGroup(
             middle1Ball(),
             new FollowPathWithEvents(
                 new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-
-    setInitialTrajectory(c.hashCode(), path);
 
     return c;
   }
@@ -192,90 +179,33 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement right1BallTaxi() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right1BallTaxi",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("right1BallTaxi");
 
     return right1Ball().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right2Ball() {
+    PathPlannerTrajectory path = loadPath("right2Ball");
 
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right2Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    return right1BallTaxi()
-        .setNext(
-            new AutoChooserElement(
-                path,
-                () ->
-                    new SequentialCommandGroup(
-                        new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, false),
-                            path.getMarkers(),
-                            getEventMap()))));
+    return right1BallTaxi().setNext(path, false, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right2BallEngage() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right2BallEngage",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("right2BallEngage");
 
-    return right2Ball()
-        .setNext(
-            new AutoChooserElement(
-                path,
-                () ->
-                    new SequentialCommandGroup(
-                        new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, false),
-                            path.getMarkers(),
-                            getEventMap()))));
+    return right2Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right3Ball() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right3Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("right3Ball");
 
-    return right2Ball()
-        .setNext(
-            new AutoChooserElement(
-                path,
-                () ->
-                    new SequentialCommandGroup(
-                        new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, false),
-                            path.getMarkers(),
-                            getEventMap()))));
+    return right2Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right4Ball() {
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
-            "right4Ball",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+    PathPlannerTrajectory path = loadPath("right4Ball");
 
-    return right3Ball()
-        .setNext(
-            new AutoChooserElement(
-                path,
-                () ->
-                    new SequentialCommandGroup(
-                        new FollowPathWithEvents(
-                            new FollowPath(path, drivetrain, false),
-                            path.getMarkers(),
-                            getEventMap()))));
+    return right3Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
   public Command left1Ball() {
@@ -294,7 +224,6 @@ public class SwerveAutos {
             left1Ball(),
             new FollowPathWithEvents(
                 new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-    setInitialTrajectory(c.hashCode(), path);
 
     return c;
   }

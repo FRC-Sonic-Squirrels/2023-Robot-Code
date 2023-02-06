@@ -26,6 +26,8 @@ public class FollowPath extends PPSwerveControllerCommand {
   /**
    * Constructs a new FollowPath object.
    *
+   * <p>CAVEAT: This helper does not support useAllianceColor.
+   *
    * @param trajectory the specified trajectory created by PathPlanner
    * @param subsystem the drivetrain subsystem required by this command
    * @param initialPath true, if this trajectory is the first in a sequence of trajectories or the
@@ -43,6 +45,7 @@ public class FollowPath extends PPSwerveControllerCommand {
         subsystem.getAutoYController(),
         subsystem.getAutoThetaController(),
         subsystem::setSwerveModuleStates,
+        false,
         subsystem);
 
     this.drivetrain = subsystem;

@@ -61,5 +61,8 @@
     "Vandermonde",
     "WPILOG",
     "Xstance"
-  ]
+  ],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }

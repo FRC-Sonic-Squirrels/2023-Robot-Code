@@ -7,6 +7,8 @@ package frc.robot;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -28,8 +30,9 @@ public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
   private AutoChooserElement currentAuto = null;
-  private int currentAutoHashId = 0;
+  private String currentAutoHashId = "";
   private RobotContainer robotContainer;
+  Alliance alliance = Alliance.Invalid;
 
   private final Alert logReceiverQueueAlert =
       new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
@@ -38,6 +41,21 @@ public class Robot extends LoggedRobot {
   public Robot() {
     super(Constants.LOOP_PERIOD_SECS);
   }
+
+  void checkDSUpdate() {
+    Alliance currentAlliance = DriverStation.getAlliance();
+
+    // If we have data, and have a new alliance from last time
+    if (DriverStation.isDSAttached() && currentAlliance != alliance) {
+      // Do stuff here that needs to know the alliance
+      // TODO: change vision AprilTag map?
+
+      // re-configure autonomous commands to update trajectories
+      robotContainer.configureTestAutoCommands();
+      alliance = currentAlliance;
+    }
+  }
+
   /**
    * This method is executed when the code first starts running on the robot and should be used for
    * any initialization code.
@@ -138,11 +156,14 @@ public class Robot extends LoggedRobot {
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
 
+    checkDSUpdate();
+
     if (this.isDisabled()) {
       currentAuto = robotContainer.getSelectedAutonomous();
       if (currentAuto != null) {
-        int autoHashCode = currentAuto.hashCode();
-        SmartDashboard.putNumber("AutoName", autoHashCode);
+        String autoHashCode =
+            String.valueOf(currentAuto.hashCode()) + DriverStation.getAlliance().name();
+        SmartDashboard.putString("AutoName", autoHashCode);
         if (currentAutoHashId != autoHashCode) {
           currentAutoHashId = autoHashCode;
           Trajectory trajectory = currentAuto.getTrajectory();
@@ -152,7 +173,7 @@ public class Robot extends LoggedRobot {
 
           PathPlannerState startState = new PathPlannerState();
           startState.poseMeters = currentAuto.getPose2d();
-          robotContainer.getDrivetrain().resetOdometry(startState);
+          //          robotContainer.getDrivetrain().resetOdometry(startState);
 
           Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
           Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
@@ -167,9 +188,8 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    // TODO:remember to change this back to actual auto chooser
-    // autonomousCommand = robotContainer.getAutonomousCommand();
-
+    checkDSUpdate();
+    // FIXME: check to make sure we loaded the command from the chooser
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command
@@ -191,8 +211,8 @@ public class Robot extends LoggedRobot {
     }
 
     // clear autonomous path preview during teleop
-    currentAutoHashId = 0;
-    SmartDashboard.putNumber("AutoName", 0);
+    currentAutoHashId = "";
+    SmartDashboard.putString("AutoName", currentAutoHashId);
     Logger.getInstance().recordOutput("Odometry/autonTrajectory", new Trajectory());
     Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
   }

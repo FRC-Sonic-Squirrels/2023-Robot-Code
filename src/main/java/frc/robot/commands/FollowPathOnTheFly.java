@@ -19,7 +19,7 @@ public class FollowPathOnTheFly extends FollowPath {
    * @param drivetrain
    */
   public FollowPathOnTheFly(Pose2d targetPose, Drivetrain drivetrain) {
-    super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false, false);
+    super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false);
   }
 
   public enum CommonFieldPoses {
