@@ -7,8 +7,6 @@ package frc.robot;
 import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,7 +14,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -32,7 +29,6 @@ import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.FollowPath;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
@@ -67,9 +63,6 @@ public class RobotContainer {
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<AutoChooserElement> autoChooser;
-
-  private final LoggedDashboardChooser<Command> testautoChooser =
-      new LoggedDashboardChooser<>("test Auto routines");
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -254,43 +247,19 @@ public class RobotContainer {
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-    PathPlannerTrajectory testPath2mForward =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForward180 =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath3mForward360 =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
     autos = new SwerveAutos(drivetrain, intake);
 
-    autoChooser.addDefaultOption(
-        "Do Nothing", new AutoChooserElement(null, () -> new SequentialCommandGroup()));
-    // autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
-    // autoChooser.addOption(
-    //    "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
-    autoChooser.addOption(
-        "3m Forward 2/ 360",
-        new AutoChooserElement(
-            testPath3mForward360,
-            () ->
-                new SequentialCommandGroup(
-                    new FollowPath(testPath3mForward360, drivetrain, true))));
-
-    // autoChooser.addOption("testPath2mForwardWithIntake", autos.testPath2mForwardWithIntake());
-    autoChooser.addOption("forwardLeft", autos.forwardLeft());
-    // autoChooser.addOption("middle1Ball", autos.middle1Ball());
-    // autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
+    autoChooser.addDefaultOption("Do Nothing", autos.doNothing());
+    if (!DriverStation.isFMSAttached()) {
+      // only load testy paths when not connected to FMS
+      autoChooser.addOption("2m Forward", autos.testPath2mForward());
+      autoChooser.addOption("2m Forward w/ 180", autos.testPath2mForward180());
+      autoChooser.addOption("3m Forward 2/ 360", autos.testPath3mForward360());
+    }
     autoChooser.addOption("scoreCone", autos.scoreCone());
     autoChooser.addOption("scoreCone", autos.scoreCube());
+    autoChooser.addOption("forwardLeft", autos.forwardLeft());
+    autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
     autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
     autoChooser.addOption("right2Ball", autos.right2Ball());
     autoChooser.addOption("right2BallEngage", autos.right2BallEngage());

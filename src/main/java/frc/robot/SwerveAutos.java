@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.FollowPath;
-import frc.robot.commands.FollowPathWithEvents;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import java.util.HashMap;
@@ -85,6 +84,10 @@ public class SwerveAutos {
         name, AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
+  public AutoChooserElement doNothing() {
+    return new AutoChooserElement(null, () -> new SequentialCommandGroup());
+  }
+
   public AutoChooserElement testPath2mForward() {
     PathPlannerTrajectory path = loadPath("2mForward");
 
@@ -92,10 +95,11 @@ public class SwerveAutos {
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
-  public Command testPath2mForward180() {
+  public AutoChooserElement testPath2mForward180() {
     PathPlannerTrajectory path = loadPath("2mForward180");
 
-    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
+    return new AutoChooserElement(
+        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public AutoChooserElement testPath3mForward360() {
@@ -105,27 +109,11 @@ public class SwerveAutos {
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
-  public Command curve() {
+  public AutoChooserElement curve() {
     PathPlannerTrajectory path = loadPath("curve");
 
-    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-  }
-
-  public Command rotateAroundPoint() {
-    PathPlannerTrajectory path = loadPath("rotateAroundPoint");
-
-    return new SequentialCommandGroup(new FollowPath(path, drivetrain, true));
-  }
-
-  public Command testPath2mForwardWithIntake() {
-    PathPlannerTrajectory path = loadPath("testPath2mForwardWithIntake");
-
-    SequentialCommandGroup c =
-        new SequentialCommandGroup(
-            new FollowPathWithEvents(
-                new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-
-    return c;
+    return new AutoChooserElement(
+        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   // FIXME: no support yet for loadPathGroup
@@ -151,22 +139,6 @@ public class SwerveAutos {
         path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
-  public SequentialCommandGroup middle1Ball() {
-    return new SequentialCommandGroup(getEventMap().get("scoreCube"));
-  }
-
-  public Command middle1BallEngage() {
-    PathPlannerTrajectory path = loadPath("middle1BallEngage");
-
-    SequentialCommandGroup c =
-        new SequentialCommandGroup(
-            middle1Ball(),
-            new FollowPathWithEvents(
-                new FollowPath(path, drivetrain, true), path.getMarkers(), getEventMap()));
-
-    return c;
-  }
-
   public AutoChooserElement scoreCone() {
     return new AutoChooserElement(
         null, () -> new SequentialCommandGroup(getEventMap().get("scoreCone")));
@@ -175,6 +147,12 @@ public class SwerveAutos {
   public AutoChooserElement scoreCube() {
     return new AutoChooserElement(
         null, () -> new SequentialCommandGroup(getEventMap().get("scoreCube")));
+  }
+
+  public AutoChooserElement middle1BallEngage() {
+    PathPlannerTrajectory path = loadPath("middle1BallEngage");
+
+    return scoreCube().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right1BallTaxi() {
