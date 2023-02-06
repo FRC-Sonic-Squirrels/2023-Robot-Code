@@ -19,8 +19,7 @@ public class FollowPathOnTheFly extends FollowPath {
    * @param drivetrain
    */
   public FollowPathOnTheFly(Pose2d targetPose, Drivetrain drivetrain) {
-    super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false);
-    // Use addRequirements() here to declare subsystem dependencies.
+    super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false, false);
   }
 
   public enum CommonFieldPoses {
