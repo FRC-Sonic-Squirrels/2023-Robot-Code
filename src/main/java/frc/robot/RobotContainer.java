@@ -255,10 +255,10 @@ public class RobotContainer {
       autoChooser.addOption("2m Forward", autos.testPath2mForward());
       autoChooser.addOption("2m Forward w/ 180", autos.testPath2mForward180());
       autoChooser.addOption("3m Forward 2/ 360", autos.testPath3mForward360());
+      autoChooser.addOption("forwardLeft", autos.forwardLeft());
     }
     autoChooser.addOption("scoreCone", autos.scoreCone());
-    autoChooser.addOption("scoreCone", autos.scoreCube());
-    autoChooser.addOption("forwardLeft", autos.forwardLeft());
+    autoChooser.addOption("scoreCube", autos.scoreCube());
     autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
     autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
     autoChooser.addOption("right2Ball", autos.right2Ball());

@@ -65,6 +65,8 @@ public class SwerveAutos {
     PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxAcceleration);
     PathPlannerTrajectory transformedTrajectory;
 
+    // System.out.println("TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name());
+
     transformedTrajectory =
         PathPlannerTrajectory.transformTrajectoryForAlliance(
             trajectory, DriverStation.getAlliance());
