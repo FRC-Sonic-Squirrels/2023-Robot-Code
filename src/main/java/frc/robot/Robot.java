@@ -44,14 +44,17 @@ public class Robot extends LoggedRobot {
 
   void checkDSUpdate() {
     Alliance currentAlliance = DriverStation.getAlliance();
+    // System.out.println("CheckDSUpdate");
 
     // If we have data, and have a new alliance from last time
-    if (DriverStation.isDSAttached() && currentAlliance != alliance) {
+    if (DriverStation.isDSAttached() && (currentAlliance != alliance)) {
       // Do stuff here that needs to know the alliance
+      System.out.println("Alliance Color Changed to: " + DriverStation.getAlliance().name());
+
       // TODO: change vision AprilTag map?
 
       // re-configure autonomous commands to update trajectories
-      robotContainer.configureTestAutoCommands();
+      robotContainer.configureAutoCommands();
       alliance = currentAlliance;
     }
   }

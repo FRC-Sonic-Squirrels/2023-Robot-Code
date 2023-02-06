@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.lib.team3061.gyro.GyroIO;
@@ -67,8 +66,7 @@ public class RobotContainer {
   public SwerveAutos autos;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-  private final LoggedDashboardChooser<AutoChooserElement> autoChooser =
-      new LoggedDashboardChooser<>("Auto Routine");
+  private LoggedDashboardChooser<AutoChooserElement> autoChooser;
 
   private final LoggedDashboardChooser<Command> testautoChooser =
       new LoggedDashboardChooser<>("test Auto routines");
@@ -252,7 +250,9 @@ public class RobotContainer {
   //   }
 
   /** Use this method to define your commands for autonomous mode. */
-  private void configureAutoCommands() {
+  public void configureAutoCommands() {
+
+    autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
     PathPlannerTrajectory testPath2mForward =
         PathPlanner.loadPath(
@@ -289,18 +289,18 @@ public class RobotContainer {
     autoChooser.addOption("forwardLeft", autos.forwardLeft());
     // autoChooser.addOption("middle1Ball", autos.middle1Ball());
     // autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
-    autoChooser.addOption("right1Ball", autos.right1Ball());
+    autoChooser.addOption("scoreCone", autos.scoreCone());
+    autoChooser.addOption("scoreCone", autos.scoreCube());
     autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
     autoChooser.addOption("right2Ball", autos.right2Ball());
     autoChooser.addOption("right2BallEngage", autos.right2BallEngage());
     autoChooser.addOption("right3Ball", autos.right3Ball());
     autoChooser.addOption("right4Ball", autos.right4Ball());
-    // autoChooser.addOption("left1Ball", autos.left1Ball());
-    // autoChooser.addOption("left1BallTaxi", autos.left1BallTaxi());
-    // autoChooser.addOption("left2Ball", autos.left2Ball());
-    // autoChooser.addOption("left2BallEngage", autos.left2BallEngage());
-    // autoChooser.addOption("left3Ball", autos.left3Ball());
-    // autoChooser.addOption("left4Ball", autos.left4Ball());
+    autoChooser.addOption("left1BallTaxi", autos.left1BallTaxi());
+    autoChooser.addOption("left2Ball", autos.left2Ball());
+    autoChooser.addOption("left2BallEngage", autos.left2BallEngage());
+    autoChooser.addOption("left3Ball", autos.left3Ball());
+    autoChooser.addOption("left4Ball", autos.left4Ball());
     // autoChooser.addOption(
     //   "Drive Characterization",
     //    new FeedForwardCharacterization(
@@ -310,10 +310,6 @@ public class RobotContainer {
     //        drivetrain::runCharacterizationVolts,
     //        drivetrain::getCharacterizationVelocity));
     Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
-  }
-
-  public void configureTestAutoCommands() {
-    testautoChooser.addDefaultOption("do nothing", new InstantCommand());
   }
 
   /**
@@ -327,10 +323,6 @@ public class RobotContainer {
 
   public AutoChooserElement getSelectedAutonomous() {
     return autoChooser.get();
-  }
-
-  public Command getTestAutonomousCommand() {
-    return testautoChooser.get();
   }
 
   public Drivetrain getDrivetrain() {
