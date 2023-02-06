@@ -36,6 +36,8 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -62,7 +64,7 @@ public class RobotContainer {
   public SwerveAutos autos;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-  private LoggedDashboardChooser<AutoChooserElement> autoChooser;
+  private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -249,27 +251,20 @@ public class RobotContainer {
 
     autos = new SwerveAutos(drivetrain, intake);
 
-    autoChooser.addDefaultOption("Do Nothing", autos.doNothing());
-    if (!DriverStation.isFMSAttached()) {
-      // only load testy paths when not connected to FMS
-      autoChooser.addOption("2m Forward", autos.testPath2mForward());
-      autoChooser.addOption("2m Forward w/ 180", autos.testPath2mForward180());
-      autoChooser.addOption("3m Forward 2/ 360", autos.testPath3mForward360());
-      autoChooser.addOption("forwardLeft", autos.forwardLeft());
+    List<String> autoNames = autos.getAutonomousCommandNames();
+
+    for (int i = 0; i < autoNames.size(); i++) {
+      String name = autoNames.get(i);
+      System.out.println("configureAutoCommands: " + name);
+      if (i == 0) {
+        // Do nothing command must be first in list.
+        autoChooser.addDefaultOption(name, autos.getChooserElement(name));
+      } else {
+        autoChooser.addOption(name, autos.getChooserElement(name));
+      }
     }
-    autoChooser.addOption("scoreCone", autos.scoreCone());
-    autoChooser.addOption("scoreCube", autos.scoreCube());
-    autoChooser.addOption("middle1BallEngage", autos.middle1BallEngage());
-    autoChooser.addOption("right1BallTaxi", autos.right1BallTaxi());
-    autoChooser.addOption("right2Ball", autos.right2Ball());
-    autoChooser.addOption("right2BallEngage", autos.right2BallEngage());
-    autoChooser.addOption("right3Ball", autos.right3Ball());
-    autoChooser.addOption("right4Ball", autos.right4Ball());
-    autoChooser.addOption("left1BallTaxi", autos.left1BallTaxi());
-    autoChooser.addOption("left2Ball", autos.left2Ball());
-    autoChooser.addOption("left2BallEngage", autos.left2BallEngage());
-    autoChooser.addOption("left3Ball", autos.left3Ball());
-    autoChooser.addOption("left4Ball", autos.left4Ball());
+
+    // TODO: add drive characterization command? maybe not necessary?
     // autoChooser.addOption(
     //   "Drive Characterization",
     //    new FeedForwardCharacterization(
@@ -278,6 +273,7 @@ public class RobotContainer {
     //        new FeedForwardCharacterizationData("drive"),
     //        drivetrain::runCharacterizationVolts,
     //        drivetrain::getCharacterizationVelocity));
+
     Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
@@ -287,11 +283,24 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get().getCommand();
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
+    }
+
+    return autoChooser.get().get().getCommand();
   }
 
-  public AutoChooserElement getSelectedAutonomous() {
-    return autoChooser.get();
+  public String getAutonomousCommandName() {
+    return autoChooser.getSendableChooser().getSelected();
+  }
+
+  public Supplier<AutoChooserElement> getSelectedAutonomous() {
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
+    }
+    return chooserElement;
   }
 
   public Drivetrain getDrivetrain() {

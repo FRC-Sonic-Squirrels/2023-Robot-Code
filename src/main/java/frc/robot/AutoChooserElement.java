@@ -16,7 +16,6 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * AutoChooserElement
@@ -28,11 +27,10 @@ import java.util.function.Supplier;
 public class AutoChooserElement {
   private Pose2d initialPose;
   private Trajectory trajectory;
-  private Supplier<SequentialCommandGroup> commandSupplier;
+  private SequentialCommandGroup command;
   private AutoChooserElement next;
 
-  AutoChooserElement(
-      PathPlannerTrajectory trajectory, Supplier<SequentialCommandGroup> commandSupplier) {
+  AutoChooserElement(PathPlannerTrajectory trajectory, SequentialCommandGroup command) {
 
     // Reduce the number of states in the trajectory. The trajectory is just for displaying
     // on the dashboard and not following. Reducing the trajectory size makes computation and
@@ -42,7 +40,7 @@ public class AutoChooserElement {
     if (trajectory != null) {
       this.initialPose = trajectory.getInitialHolonomicPose();
     }
-    this.commandSupplier = commandSupplier;
+    this.command = command;
     this.next = null;
   }
 
@@ -110,26 +108,22 @@ public class AutoChooserElement {
     return this.setNext(
         new AutoChooserElement(
             path,
-            () ->
-                new SequentialCommandGroup(
-                    new FollowPathWithEvents(
-                        new FollowPath(path, drivetrain, initialPath),
-                        path.getMarkers(),
-                        eventMap))));
+            new SequentialCommandGroup(
+                new FollowPathWithEvents(
+                    new FollowPath(path, drivetrain, initialPath), path.getMarkers(), eventMap))));
   }
 
   /**
    * setNext() - Add a command with no path follow.
    *
-   * @param commandSupplier
+   * @param command
    * @return AutoChooserElement
    */
-  public AutoChooserElement setNext(Supplier<SequentialCommandGroup> commandSupplier) {
-    return this.setNext(new AutoChooserElement(null, commandSupplier));
+  public AutoChooserElement setNext(SequentialCommandGroup command) {
+    return this.setNext(new AutoChooserElement(null, command));
   }
 
   public Command getCommand() {
-    SequentialCommandGroup command = commandSupplier.get();
     if (next != null) {
       return new SequentialCommandGroup(command, next.getCommand());
     }

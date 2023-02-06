@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -29,7 +30,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
-  private AutoChooserElement currentAuto = null;
+  private Supplier<AutoChooserElement> currentAutoSupplier = null;
   private String currentAutoHashId = "";
   private RobotContainer robotContainer;
   Alliance alliance = Alliance.Invalid;
@@ -162,13 +163,18 @@ public class Robot extends LoggedRobot {
     checkDSUpdate();
 
     if (this.isDisabled()) {
-      currentAuto = robotContainer.getSelectedAutonomous();
-      if (currentAuto != null) {
+      // FIXME: this call repeatedly triggers path generation.
+      currentAutoSupplier = robotContainer.getSelectedAutonomous();
+
+      if (currentAutoSupplier != null) {
         String autoHashCode =
-            String.valueOf(currentAuto.hashCode()) + DriverStation.getAlliance().name();
+            robotContainer.getAutonomousCommandName() + DriverStation.getAlliance().name();
         SmartDashboard.putString("AutoName", autoHashCode);
-        if (currentAutoHashId != autoHashCode) {
+        if (!currentAutoHashId.equals(autoHashCode)) {
+
           currentAutoHashId = autoHashCode;
+
+          AutoChooserElement currentAuto = currentAutoSupplier.get();
           Trajectory trajectory = currentAuto.getTrajectory();
           if (trajectory == null) {
             trajectory = new Trajectory();

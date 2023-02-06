@@ -5,7 +5,6 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,19 +13,75 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.FollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SwerveAutos {
+  private HashMap<String, Supplier<AutoChooserElement>> autonomousCommands = new HashMap<>();
+  private List<String> names = new ArrayList<>();
   private Drivetrain drivetrain;
   private Intake intake;
-  HashMap<Integer, Trajectory> trajectoryMap = new HashMap<>();
 
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
+    // FIXME: List of all required subsystems: elevator, stinger, intake, LED
     this.drivetrain = drivetrain;
     this.intake = intake;
+
+    //
+    // Add named commands here.
+    //
+    // FIXME: make sure doNothing command is always the default in chooser
+    addCommand("Do Nothing", () -> doNothing());
+    if (!DriverStation.isFMSAttached()) {
+      // only add test paths when not connected to FMS
+      addCommand("2m Forward", () -> testPath2mForward());
+      addCommand("2m Forward w/ 180", () -> testPath2mForward180());
+      addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
+      addCommand("forwardLeft", () -> forwardLeft());
+    }
+    addCommand("scoreCone", () -> scoreCone());
+    addCommand("scoreCube", () -> scoreCube());
+    addCommand("middle1BallEngage", () -> middle1BallEngage());
+    addCommand("right1BallTaxi", () -> right1BallTaxi());
+    addCommand("right2Ball", () -> right2Ball());
+    addCommand("right2BallEngage", () -> right2BallEngage());
+    addCommand("right3Ball", () -> right3Ball());
+    addCommand("right4Ball", () -> right4Ball());
+    addCommand("left1BallTaxi", () -> left1BallTaxi());
+    addCommand("left2Ball", () -> left2Ball());
+    addCommand("left2BallEngage", () -> left2BallEngage());
+    addCommand("left3Ball", () -> left3Ball());
+    addCommand("left4Ball", () -> left4Ball());
   }
 
+  private void addCommand(String name, Supplier<AutoChooserElement> command) {
+    autonomousCommands.put(name, command);
+    // create a list of names to preserver the order
+    names.add(name);
+  }
+
+  public List<String> getAutonomousCommandNames() {
+    return names;
+  }
+
+  public Supplier<AutoChooserElement> getChooserElement(String name) {
+    if (autonomousCommands.containsKey(name)) {
+      return autonomousCommands.get(name);
+    }
+
+    // else the key doesn't exist, throw an error
+    System.out.println("ERROR: no such autonomous [" + name + "]");
+
+    return (() -> doNothing());
+  }
+
+  /**
+   * eventMap() - generate a fresh PathPlanner EventMap
+   *
+   * @return EventMap
+   */
   private HashMap<String, Command> getEventMap() {
     HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -65,7 +120,8 @@ public class SwerveAutos {
     PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxAcceleration);
     PathPlannerTrajectory transformedTrajectory;
 
-    // System.out.println("TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name());
+    System.out.println(
+        "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " + name);
 
     transformedTrajectory =
         PathPlannerTrajectory.transformTrajectoryForAlliance(
@@ -86,36 +142,38 @@ public class SwerveAutos {
         name, AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
+  // ========================= TEST Autonomous Routines ========================
+
   public AutoChooserElement doNothing() {
-    return new AutoChooserElement(null, () -> new SequentialCommandGroup());
+    return new AutoChooserElement(null, new SequentialCommandGroup());
   }
 
   public AutoChooserElement testPath2mForward() {
     PathPlannerTrajectory path = loadPath("2mForward");
 
     return new AutoChooserElement(
-        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public AutoChooserElement testPath2mForward180() {
     PathPlannerTrajectory path = loadPath("2mForward180");
 
     return new AutoChooserElement(
-        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public AutoChooserElement testPath3mForward360() {
     PathPlannerTrajectory path = loadPath("3mForward360");
 
     return new AutoChooserElement(
-        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   public AutoChooserElement curve() {
     PathPlannerTrajectory path = loadPath("curve");
 
     return new AutoChooserElement(
-        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
   // FIXME: no support yet for loadPathGroup
@@ -138,17 +196,17 @@ public class SwerveAutos {
     PathPlannerTrajectory path = loadPath("forwardLeft");
 
     return new AutoChooserElement(
-        path, () -> new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
+  // ======================= COMPETITION Autonomous Routines ========================
+
   public AutoChooserElement scoreCone() {
-    return new AutoChooserElement(
-        null, () -> new SequentialCommandGroup(getEventMap().get("scoreCone")));
+    return new AutoChooserElement(null, new SequentialCommandGroup(getEventMap().get("scoreCone")));
   }
 
   public AutoChooserElement scoreCube() {
-    return new AutoChooserElement(
-        null, () -> new SequentialCommandGroup(getEventMap().get("scoreCube")));
+    return new AutoChooserElement(null, new SequentialCommandGroup(getEventMap().get("scoreCube")));
   }
 
   public AutoChooserElement middle1BallEngage() {
