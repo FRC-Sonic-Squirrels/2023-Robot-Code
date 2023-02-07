@@ -4,8 +4,28 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+import static frc.robot.Constants.CAMERA_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -19,10 +39,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.team2930.driverassist.DeadzoneBox;
 import frc.lib.team2930.driverassist.GridPositionHandler;
-import frc.lib.team2930.driverassist.GridPositionHandler.DeadzoneBox;
-import frc.lib.team2930.driverassist.GridPositionHandler.EntranceCheckpoint;
-import frc.lib.team2930.driverassist.GridPositionHandler.LogicalGridLocation;
+import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -45,7 +64,6 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -235,7 +253,7 @@ public class RobotContainer {
   }
 
   public void testBox() {
-    DeadzoneBox.BLUE_SKIP_CHECKPOINT.Log();
+    // DeadzoneBox.BLUE_SKIP_CHECKPOINT.Log();
 
     for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaBlue) {
       box.Log();
@@ -245,19 +263,19 @@ public class RobotContainer {
       box.Log();
     }
 
-    GridPositionHandler.DeadzoneBox.TEST_DEADZONE.Log();
+    // GridPositionHandler.DeadzoneBox.TEST_DEADZONE.Log();
 
-    var inside =
-        GridPositionHandler.DeadzoneBox.RED_COMMUNITY.insideBox(
-            drivetrain.getPose().getTranslation());
+    // var inside =
+    //     GridPositionHandler.DeadzoneBox.RED_COMMUNITY.insideBox(
+    //         drivetrain.getPose().getTranslation());
 
-    Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
+    // Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
 
-    EntranceCheckpoint.BLUE_WALL.log();
-    EntranceCheckpoint.BLUE_HUMAN_PLAYER.log();
+    // EntranceCheckpoint.BLUE_WALL.log();
+    // EntranceCheckpoint.BLUE_HUMAN_PLAYER.log();
 
-    EntranceCheckpoint.RED_WALL.log();
-    EntranceCheckpoint.RED_HUMAN_PLAYER.log();
+    // EntranceCheckpoint.RED_WALL.log();
+    // EntranceCheckpoint.RED_HUMAN_PLAYER.log();
 
     for (LogicalGridLocation logicGrid : GridPositionHandler.logicalGridOrder) {
       logicGrid.bluePhysical.log();

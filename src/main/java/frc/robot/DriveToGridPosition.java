@@ -16,11 +16,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.team2930.driverassist.EntranceCheckpoints;
 import frc.lib.team2930.driverassist.GridPositionHandler;
-import frc.lib.team2930.driverassist.GridPositionHandler.EntranceCheckpoint;
-import frc.lib.team2930.driverassist.GridPositionHandler.LogicalGridLocation;
-import frc.lib.team2930.driverassist.GridPositionHandler.PhysicalGridLocation;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
+import frc.lib.team2930.driverassist.LogicalGridLocation;
+import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.robot.commands.GenerateAndFollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
@@ -48,10 +48,6 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
-    // TODO: clean up this file
-    // TODO: skip first checkpoint if inside community
-    // TODO: just flip blue bay locations when making red bay locations
-    // TODO: if distance between start and first point is small then dont write logic of heading
     Alliance alliance = DriverStation.getAlliance();
 
     // FIXME: ADD THIS BACK
@@ -71,39 +67,31 @@ public class DriveToGridPosition {
 
     ArrayList<PathPoint> points = new ArrayList<PathPoint>();
 
-    EntranceCheckpoint entranceCheckpoint =
+    EntranceCheckpoints entranceCheckpoints =
         GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
 
-    if (entranceCheckpoint == EntranceCheckpoint.ERROR) {
+    if (entranceCheckpoints == EntranceCheckpoints.ERROR) {
       return errorRumbleControllerCommand();
     }
 
     Pose2d currentPose = drivetrain.getPose();
 
-    // if (!(currentPose.getX() < entranceCheckpoint.location.pose.getX())) {
-    //   points.add(
-    //       new PathPoint(
-    //           entranceCheckpoint.location.pose.getTranslation(),
-    //           entranceCheckpoint.location.heading,
-    //           entranceCheckpoint.location.pose.getRotation()));
-    // }
-
-    // points.add(
-    //     new PathPoint(
-    //         entranceCheckpoint.location.pose.getTranslation(),
-    //         entranceCheckpoint.location.heading,
-    //         entranceCheckpoint.location.pose.getRotation()));
-
+    // used to optimize heading of the first state
     Pose2d firstPose = null;
 
+    // used to optimize heading of the lineup position state
     Pose2d poseBeforeLineup = null;
 
     var AllianceCommunityBox = GridPositionHandler.getSkipCheckpointBoxForAlliance(alliance);
 
+    // if its inside the alliance community ignore the checkpoints
     if (!AllianceCommunityBox.insideBox(currentPose.getTranslation())) {
-      for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {
+
+      for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
+        // this adds the checkpoints to the list of points if their position comes in between the
+        // current position and the target
         if (currentPose.getX() > checkPoint.pose.getX()) {
-          points.add(EntranceCheckpoint.toPathPoint(checkPoint));
+          points.add(EntranceCheckpoints.toPathPoint(checkPoint));
           if (firstPose == null) {
             firstPose = checkPoint.pose;
           }
