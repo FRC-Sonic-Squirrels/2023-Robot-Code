@@ -33,7 +33,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team3061.gyro.GyroIO;
@@ -51,12 +50,13 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.MechanismPositions;
 import frc.robot.commands.auto.FollowPath;
 import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
-import frc.robot.commands.elevator.ElevatorSetHeight;
+import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -241,6 +241,9 @@ public class RobotContainer {
     elevator.setDefaultCommand(
         new ElevatorManualControl(elevator, () -> -driverController.getLeftY()));
 
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, () -> driverController.getRightX()));
+
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
     //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
@@ -309,13 +312,24 @@ public class RobotContainer {
     //                 0)
     //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    driverController
-        .a()
-        .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
+    // driverController
+    //     .a()
+    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
 
-    driverController
-        .b()
-        .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+    // driverController
+    //     .b()
+    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    // driverController
+    //     .x()
+    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
+
+    // driverController
+    //     .y()
+    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
+
+    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
     // driverController.a().onTrue((Commands.print("A")));
 
