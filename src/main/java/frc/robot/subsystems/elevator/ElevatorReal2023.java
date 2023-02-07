@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -154,5 +155,22 @@ public class ElevatorReal2023 implements ElevatorIO {
     lead_talon.config_kP(0, kP);
     lead_talon.config_kI(0, kI);
     lead_talon.config_kD(0, kD);
+  }
+
+  @Override
+  public void setHeightInches(double targetHeightInches) {
+    if (targetHeightInches < 0.0) {
+      targetHeightInches = 0.0;
+    }
+    if (targetHeightInches > maxExtensionInches) {
+      targetHeightInches = maxExtensionInches;
+    }
+
+    lead_talon.set(TalonFXControlMode.Position, inchesToTicks(targetHeightInches));
+  }
+
+  @Override
+  public void setElevatorVoltage(double volts) {
+    lead_talon.setVoltage(volts);
   }
 }
