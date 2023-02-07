@@ -15,7 +15,7 @@ public class GridPositionHandler {
   public static final String ROOT_TABLE = "DriverAssist/GridPosition";
   private static final double FIELD_WIDTH_METERS = 8.02;
 
-  private static final LogicalGridLocation[] logicalGridOrder = {
+  public static final LogicalGridLocation[] logicalGridOrder = {
     LogicalGridLocation.LOGICAL_BAY_1,
     LogicalGridLocation.LOGICAL_BAY_2,
     LogicalGridLocation.LOGICAL_BAY_3,
@@ -199,59 +199,16 @@ public class GridPositionHandler {
             new Pose2d(1.8, 0.52, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
 
     // ----------------------------RED BAYS--------------------------------------
-    RED_PHYSICAL_BAY_1(
-        new PoseAndHeading(
-            new Pose2d(2.0, 7.5, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 7.5, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
 
-    RED_PHYSICAL_BAY_2(
-        new PoseAndHeading(
-            new Pose2d(2.0, 6.95, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 6.95, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_3(
-        new PoseAndHeading(
-            new Pose2d(2.0, 6.4, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 6.4, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_4(
-        new PoseAndHeading(
-            new Pose2d(2.0, 5.84, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 5.84, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_5(
-        new PoseAndHeading(
-            new Pose2d(2.0, 5.27, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 5.27, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_6(
-        new PoseAndHeading(
-            new Pose2d(2.0, 4.73, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 4.73, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_7(
-        new PoseAndHeading(
-            new Pose2d(2.0, 4.17, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 4.17, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_8(
-        new PoseAndHeading(
-            new Pose2d(2.0, 3.6, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 3.6, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
-
-    RED_PHYSICAL_BAY_9(
-        new PoseAndHeading(
-            new Pose2d(2.0, 3.07, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180)),
-        new PoseAndHeading(
-            new Pose2d(1.8, 3.07, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(180))),
+    RED_PHYSICAL_BAY_1(BLUE_PHYSICAL_BAY_9),
+    RED_PHYSICAL_BAY_2(BLUE_PHYSICAL_BAY_8),
+    RED_PHYSICAL_BAY_3(BLUE_PHYSICAL_BAY_7),
+    RED_PHYSICAL_BAY_4(BLUE_PHYSICAL_BAY_6),
+    RED_PHYSICAL_BAY_5(BLUE_PHYSICAL_BAY_5),
+    RED_PHYSICAL_BAY_6(BLUE_PHYSICAL_BAY_4),
+    RED_PHYSICAL_BAY_7(BLUE_PHYSICAL_BAY_3),
+    RED_PHYSICAL_BAY_8(BLUE_PHYSICAL_BAY_2),
+    RED_PHYSICAL_BAY_9(BLUE_PHYSICAL_BAY_1),
 
     ERROR_0_0(
         new PoseAndHeading(
@@ -265,6 +222,35 @@ public class GridPositionHandler {
     private PhysicalGridLocation(PoseAndHeading lineup, PoseAndHeading score) {
       this.lineup = lineup;
       this.score = score;
+    }
+
+    private PhysicalGridLocation(PhysicalGridLocation blueToFlip) {
+      var blueLineup = blueToFlip.lineup;
+
+      this.lineup =
+          new PoseAndHeading(
+              new Pose2d(
+                  blueLineup.pose.getX(),
+                  FIELD_WIDTH_METERS - blueLineup.pose.getY(),
+                  blueLineup.pose.getRotation()),
+              blueLineup.heading);
+
+      var blueScore = blueToFlip.score;
+
+      this.score =
+          new PoseAndHeading(
+              new Pose2d(
+                  blueScore.pose.getX(),
+                  FIELD_WIDTH_METERS - blueScore.pose.getY(),
+                  blueScore.pose.getRotation()),
+              blueScore.heading);
+    }
+
+    public void log() {
+      Logger.getInstance()
+          .recordOutput(ROOT_TABLE + "/PHYSICAL_BAY/" + this.name() + "/lineup", this.lineup.pose);
+      Logger.getInstance()
+          .recordOutput(ROOT_TABLE + "/PHYSICAL_BAY/" + this.name() + "/score", this.score.pose);
     }
   }
 

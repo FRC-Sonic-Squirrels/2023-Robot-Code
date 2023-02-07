@@ -35,6 +35,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.DriveToGridPosition.TestPos;
 import frc.robot.GridPositionHandler.DeadzoneBox;
 import frc.robot.GridPositionHandler.EntranceCheckpoint;
+import frc.robot.GridPositionHandler.LogicalGridLocation;
 import frc.robot.commands.DriveAvoidBoxes;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
@@ -255,6 +256,11 @@ public class RobotContainer {
 
     EntranceCheckpoint.RED_WALL.log();
     EntranceCheckpoint.RED_HUMAN_PLAYER.log();
+
+    for (LogicalGridLocation logicGrid : GridPositionHandler.logicalGridOrder) {
+      logicGrid.bluePhysical.log();
+      logicGrid.redPhysical.log();
+    }
   }
 
   /** Use this method to define your button->command mappings. */
