@@ -37,8 +37,8 @@ public class DriveToGridPosition {
 
   private static PathConstraints constraints =
       new PathConstraints(
-          DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND,
-          DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+          DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
+          DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.75);
 
   public DriveToGridPosition(
       Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
@@ -98,7 +98,7 @@ public class DriveToGridPosition {
 
     Pose2d poseBeforeLineup = null;
 
-    var AllianceCommunityBox = GridPositionHandler.getCommunityBoxForAlliance(alliance);
+    var AllianceCommunityBox = GridPositionHandler.getSkipCheckpointBoxForAlliance(alliance);
 
     if (!AllianceCommunityBox.insideBox(currentPose.getTranslation())) {
       for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {

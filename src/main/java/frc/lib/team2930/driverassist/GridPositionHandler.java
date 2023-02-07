@@ -122,11 +122,11 @@ public class GridPositionHandler {
     return false;
   }
 
-  public static DeadzoneBox getCommunityBoxForAlliance(Alliance alliance) {
+  public static DeadzoneBox getSkipCheckpointBoxForAlliance(Alliance alliance) {
     if (alliance == Alliance.Red) {
-      return DeadzoneBox.RED_COMMUNITY;
+      return DeadzoneBox.RED_SKIP_CHECKPOINT;
     } else if (alliance == Alliance.Blue) {
-      return DeadzoneBox.BLUE_COMMUNITY;
+      return DeadzoneBox.BLUE_SKIP_CHECKPOINT;
     } else {
       return null;
     }
@@ -431,6 +431,8 @@ public class GridPositionHandler {
 
     BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0)),
 
+    BLUE_SKIP_CHECKPOINT(new Translation2d(1.4, 5.3), new Translation2d(2.9, 0.0)),
+
     // ----------------------RED----------------------------'
 
     RED_COMMUNITY(BLUE_COMMUNITY),
@@ -438,7 +440,9 @@ public class GridPositionHandler {
     RED_ENTRANCE_WALL_SIDE(BLUE_ENTRANCE_WALL_SIDE),
     RED_ENTRANCE_HUMAN_PLAYER_SIDE(BLUE_ENTRANCE_HUMAN_PLAYER_SIDE),
 
-    RED_IN_FRONT_PAD(BLUE_IN_FRONT_PAD);
+    RED_IN_FRONT_PAD(BLUE_IN_FRONT_PAD),
+
+    RED_SKIP_CHECKPOINT(BLUE_SKIP_CHECKPOINT);
 
     private Translation2d topL;
     private Translation2d topR;

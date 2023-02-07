@@ -235,6 +235,8 @@ public class RobotContainer {
   }
 
   public void testBox() {
+    DeadzoneBox.BLUE_SKIP_CHECKPOINT.Log();
+
     for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaBlue) {
       box.Log();
     }
