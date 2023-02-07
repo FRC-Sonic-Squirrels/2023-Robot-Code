@@ -71,7 +71,7 @@ public class RobotContainer {
   private Intake intake;
 
   private DriveToGridPosition autoDriveToGrid;
-  public final GridPositionHandler gridPositionHandler = new GridPositionHandler();
+  public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =

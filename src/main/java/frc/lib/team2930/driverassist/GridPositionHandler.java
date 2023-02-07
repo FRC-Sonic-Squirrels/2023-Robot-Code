@@ -11,6 +11,16 @@ import java.util.ArrayList;
 import org.littletonrobotics.junction.Logger;
 
 public class GridPositionHandler {
+  private static GridPositionHandler instance;
+
+  public static GridPositionHandler getInstance() {
+    if (instance == null) {
+      instance = new GridPositionHandler();
+    }
+    return instance;
+  }
+
+  private GridPositionHandler() {}
 
   public static final String ROOT_TABLE = "DriverAssist/GridPosition";
   private static final double FIELD_WIDTH_METERS = 8.02;
