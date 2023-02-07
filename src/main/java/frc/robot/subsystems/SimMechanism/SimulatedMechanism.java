@@ -2,9 +2,6 @@ package frc.robot.subsystems.SimMechanism;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -16,58 +13,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class SimulatedMechanism extends SubsystemBase {
   private static SimulatedMechanism instance;
-
-  private static final double kElevatorKp = 5.0;
-  private static final double kElevatorGearing = 10.0;
-  private static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
-  private static final double kCarriageMass = 4.0; // kg
-
-  private static final double kMinElevatorHeight = Units.inchesToMeters(20);
-  private static final double kMaxElevatorHeight = Units.inchesToMeters(60);
-
-  // distance per pulse = (distance per revolution) / (pulses per revolution)
-  //  = (Pi * D) / ppr
-  private static final double kElevatorEncoderDistPerPulse =
-      2.0 * Math.PI * kElevatorDrumRadius / 4096;
-
-  private final DCMotor elevatorGearbox = DCMotor.getFalcon500(2);
-
-  // ElevatorSim elevatorSim =
-  //     new ElevatorSim(
-  //         elevatorGearbox,
-  //         kElevatorGearing,
-  //         kCarriageMass,
-  //         kElevatorDrumRadius,
-  //         kMinElevatorHeight,
-  //         kMaxElevatorHeight,
-  //         // true,
-  //         false,
-  //         VecBuilder.fill(0.01));
-
-  ElevatorSim elevatorSim =
-      new ElevatorSim(
-          elevatorGearbox,
-          kElevatorGearing,
-          kCarriageMass,
-          kElevatorDrumRadius,
-          kMinElevatorHeight,
-          kMaxElevatorHeight,
-          // true,
-          false);
-
-  // LinearSystem<N2, N1, N1> plant;
-
-  // LinearSystemSim<N2, N1, N1> stingerSim = new LinearSystemSim<N2, N1, N1>(plant);
-
-  ElevatorSim stingerSim =
-      new ElevatorSim(
-          elevatorGearbox,
-          kElevatorGearing,
-          kCarriageMass,
-          kElevatorDrumRadius,
-          Units.inchesToMeters(10),
-          Units.inchesToMeters(30),
-          false);
 
   private static final double m_armReduction = 10;
   private static final double m_armMass = 8.0; // Kilograms
@@ -84,120 +29,154 @@ public class SimulatedMechanism extends SubsystemBase {
           m_armMass,
           false);
 
-  private final Mechanism2d m_mech2d = new Mechanism2d(100, 100);
-  private final MechanismRoot2d m_mech2dRoot = m_mech2d.getRoot("Elevator Root", 10, 0);
+  private static final double FACING_UP = 90;
+  private static final double FACING_RIGHT = 0;
+  private static final double FACING_LEFT = 180;
+  private static final double FACING_DOWN = 270;
+
+  private static final double MECHANISM_WIDTH = 100;
+  private static final double MECHANISM_HEIGHT = 100;
+
+  private static final double ALLIANCE_WALL_TO_HIGH_POLE = 14.5669;
+  private static final double ALLIANCE_WALL_TO_MID_POLE = 31.5;
+
+  private static final double GRID_LENGTH = 54.25;
+  private static final double ALLIANCE_WALL_TO_PRETRUSION_START = GRID_LENGTH - 16;
+  private static final double PROTRUSION_LENGTH = 16;
+
+  private static final double MID_POLE_HEIGHT = 34;
+  private static final double HIGH_POLE_HEIGHT = 46;
+
+  private static final double BUMPER_WIDTH = 1.25;
+  private static final double ROBOT_WIDTH = 28 + BUMPER_WIDTH * 2;
+
+  private static final double ELEVATOR_OFF_GROUND_HEIGHT = 4;
+  private static final double ROBOT_TO_ELEVATOR_X = 3;
+
+  private static final double ROBOT_LEFT_ROOT_X = MECHANISM_WIDTH - GRID_LENGTH - ROBOT_WIDTH;
+  private static final double ELEVATOR_ROOT_X = ROBOT_LEFT_ROOT_X + ROBOT_TO_ELEVATOR_X;
+
+  private static final double ELEVATOR_ANGLE = 60;
+
+  private final Mechanism2d m_mech2d = new Mechanism2d(MECHANISM_WIDTH, MECHANISM_HEIGHT);
+  private final MechanismRoot2d m_mech2dRoot =
+      m_mech2d.getRoot("Elevator Root", ELEVATOR_ROOT_X, ELEVATOR_OFF_GROUND_HEIGHT);
   private final MechanismLigament2d elevatorMech2d =
       m_mech2dRoot.append(
-          new MechanismLigament2d(
-              "Elevator",
-              Units.metersToInches(elevatorSim.getPositionMeters()),
-              45,
-              10,
-              new Color8Bit(Color.kBlue)));
+          new MechanismLigament2d("Elevator", 1, ELEVATOR_ANGLE, 10, new Color8Bit(Color.kBlue)));
 
   private final MechanismLigament2d stingerMech2d =
       elevatorMech2d.append(
           new MechanismLigament2d(
               "Stinger",
-              Units.metersToInches(stingerSim.getPositionMeters()),
-              -45,
+              Units.metersToInches(1),
+              -ELEVATOR_ANGLE,
               10,
               new Color8Bit(Color.kYellow)));
 
   private final MechanismLigament2d wristMech2d =
-      stingerMech2d.append(
-          new MechanismLigament2d(
-              "Wrist", Units.metersToInches(m_armLength), 0, 10, new Color8Bit(Color.kRed)));
+      stingerMech2d.append(new MechanismLigament2d("Wrist", 1, 0, 10, new Color8Bit(Color.kRed)));
 
-  private double desiredOutput;
-  private double stingerOutput;
-  private double wristOutput = 0.0;
+  private final MechanismRoot2d gridRoot = m_mech2d.getRoot("grid root", MECHANISM_WIDTH, 0);
+  private final MechanismLigament2d gridFloor =
+      gridRoot.append(
+          new MechanismLigament2d(
+              "grid floor", GRID_LENGTH, FACING_LEFT, 10, new Color8Bit(Color.kBlack)));
+
+  private final MechanismRoot2d gridHighPoleRoot =
+      m_mech2d.getRoot("grid high pole root", MECHANISM_WIDTH - ALLIANCE_WALL_TO_HIGH_POLE, 0);
+  private final MechanismLigament2d gridHighPole =
+      gridHighPoleRoot.append(
+          new MechanismLigament2d(
+              "grid high pole", HIGH_POLE_HEIGHT, FACING_UP, 10, new Color8Bit(Color.kGreen)));
+
+  private final MechanismRoot2d gridMidPoleRoot =
+      m_mech2d.getRoot("grid mid pole root", MECHANISM_WIDTH - ALLIANCE_WALL_TO_MID_POLE, 0);
+  private final MechanismLigament2d gridMidPole =
+      gridMidPoleRoot.append(
+          new MechanismLigament2d(
+              "grid mid pole", MID_POLE_HEIGHT, FACING_UP, 10, new Color8Bit(Color.kGreen)));
+
+  private final MechanismRoot2d gridProtrusionStartRoot =
+      m_mech2d.getRoot(
+          "grid start of protrusion root",
+          MECHANISM_WIDTH - ALLIANCE_WALL_TO_PRETRUSION_START,
+          1.25);
+  private final MechanismLigament2d gridProtrusion =
+      gridProtrusionStartRoot.append(
+          new MechanismLigament2d(
+              "protrusion length",
+              PROTRUSION_LENGTH,
+              FACING_LEFT,
+              15,
+              new Color8Bit(Color.kDarkRed)));
+
+  private final MechanismRoot2d robotLeftRoot =
+      m_mech2d.getRoot("robot left", ROBOT_LEFT_ROOT_X, 0);
+
+  private final MechanismLigament2d robotBed =
+      robotLeftRoot.append(
+          new MechanismLigament2d(
+              "robot bed", ROBOT_WIDTH, FACING_RIGHT, 30, new Color8Bit(Color.kOrange)));
+
+  private double elevatorMinLengthInches = 10;
+  private double stingerMinLengthInches = 15;
+
+  // private double elevatorLength = elevatorMinLengthInches;
+  // private double stingerlength = stingerMinLengthInches;
+
+  private double elevatorLength;
+  private double stingerlength;
 
   private SimulatedMechanism() {}
 
   public static SimulatedMechanism getInstance() {
     if (instance == null) {
-      return new SimulatedMechanism();
+      instance = new SimulatedMechanism();
+      return instance;
     } else {
       return instance;
     }
   }
 
+  public void setElevatorLengthInches(double lengthInches) {
+    Logger.getInstance()
+        .recordOutput("elevator/lengthMeters set", elevatorMinLengthInches + lengthInches);
+    elevatorLength = elevatorMinLengthInches + lengthInches;
+    Logger.getInstance().recordOutput("elevator/lengthMeters set after math", elevatorLength);
+  }
+
+  public void setStingerLengthInches(double lengthInches) {
+    Logger.getInstance()
+        .recordOutput("elevator/stinger set", stingerMinLengthInches + lengthInches);
+    stingerlength = stingerMinLengthInches + lengthInches;
+  }
+
   @Override
   public void periodic() {
-    // elevatorSim.setInput(desiredOutput * RobotController.getBatteryVoltage());
-    elevatorSim.setInput(desiredOutput);
-
-    Logger.getInstance().recordOutput("elevator/simDesiredOutput", desiredOutput);
-    // Next, we update it. The standard loop time is 20ms.
-    elevatorSim.update(0.020);
-
-    stingerSim.setInput(stingerOutput);
-
-    stingerSim.update(0.020);
-
-    wristSim.setInput(wristOutput);
-
-    wristSim.update(0.020);
-
-    // stingerSim.update(0.0200);
 
     // Finally, we set our simulated encoder's readings and simulated battery voltage
     // encoderSim.setDistance(elevatorSim.getPositionMeters());
     // SimBattery estimates loaded battery voltages
-    RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(elevatorSim.getCurrentDrawAmps()));
 
     // Update elevator visualization with simulated position
-    elevatorMech2d.setLength(Units.metersToInches(elevatorSim.getPositionMeters()));
-    var stingerLength = stingerSim.getPositionMeters();
-    var stingerInches = Units.metersToInches(stingerLength);
+    Logger.getInstance().recordOutput("elevator/periodic mech length", elevatorLength);
+    elevatorMech2d.setLength(elevatorLength);
 
-    stingerMech2d.setLength(stingerInches);
-    // stingerMech2d.setAngle(new Rotation2d());
+    stingerMech2d.setLength(stingerlength);
 
-    // stingerMech2d.setLength(10);
+    // var stingerLength = stingerSim.getPositionMeters();
+    // var stingerInches = Units.metersToInches(stingerLength);
 
-    // wristOutput += 1
+    // stingerMech2d.setLength(stingerInches);
 
-    double wristAngleRad = wristSim.getAngleRads();
-    double wristAngleDegrees = Units.radiansToDegrees(wristAngleRad);
+    // double wristAngleRad = wristSim.getAngleRads();
+    // double wristAngleDegrees = Units.radiansToDegrees(wristAngleRad);
 
-    double speed = wristOutput;
+    // double speed = wristOutput;
 
-    wristMech2d.setAngle(wristAngleDegrees);
+    // wristMech2d.setAngle(wristAngleDegrees);
 
     Logger.getInstance().recordOutput("SimMech", m_mech2d);
-  }
-
-  public void setElevatorOutputVolts(double output) {
-    desiredOutput = output;
-  }
-
-  public void setStingerOutputVolts(double output) {
-    stingerOutput = output;
-  }
-
-  public void setWristOutputVolts(double output) {
-    wristOutput = output;
-  }
-
-  public double getElevatorPositionInches() {
-    Logger.getInstance()
-        .recordOutput(
-            "elevator/subtractedHeight",
-            Units.metersToInches(elevatorSim.getPositionMeters())
-                - Units.metersToInches(kMinElevatorHeight));
-
-    return (Units.metersToInches(elevatorSim.getPositionMeters())
-        - Units.metersToInches(kMinElevatorHeight));
-  }
-
-  public double getStingerPositionInches() {
-    return Units.metersToInches(stingerSim.getPositionMeters());
-  }
-
-  public double getWristPositionRad() {
-    return wristSim.getAngleRads();
   }
 }
