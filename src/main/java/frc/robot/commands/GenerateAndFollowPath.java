@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -183,9 +185,6 @@ public class GenerateAndFollowPath extends CommandBase {
     //         drivetrain.getPose().getRotation(),
     //         linearVel));
 
-    this.timer.reset();
-    this.timer.start();
-
     Pose2d currentPose = drivetrain.getPose();
 
     // FIXME: this is okay for if the robot is still but if its in motion use the chassis speeds for
@@ -194,14 +193,20 @@ public class GenerateAndFollowPath extends CommandBase {
     // oriented
     // FIXME: if the different in the x/y is small enough just use default heading, causes weird
     // jerk when super close to checkpoint
-    double heading;
-    if (this.firstPathPose != null) {
-      heading =
-          Math.atan2(
-              firstPathPose.getY() - currentPose.getY(),
-              firstPathPose.getX() - firstPathPose.getX());
-    } else {
-      heading = Math.toRadians(180);
+    double heading = Math.toRadians(180);
+
+    if (linearVel > 1) {
+      heading = Math.atan2(currentSpeeds.vyMetersPerSecond, currentSpeeds.vxMetersPerSecond);
+    } else if (this.firstPathPose != null) {
+      var distance = currentPose.relativeTo(firstPathPose);
+      Logger.getInstance().recordOutput("DriverAssist/Distance x", Math.abs(distance.getX()));
+      Logger.getInstance().recordOutput("DriverAssist/Distance y", Math.abs(distance.getY()));
+      if (Math.abs(distance.getY()) > 0.25) {
+        heading =
+            Math.atan2(
+                firstPathPose.getY() - currentPose.getY(),
+                firstPathPose.getX() - firstPathPose.getX());
+      }
     }
 
     pathPoints.add(
@@ -226,16 +231,23 @@ public class GenerateAndFollowPath extends CommandBase {
 
     this.trajectory = PathPlanner.generatePath(this.pathConstraints, pathPoints);
 
-    Logger.getInstance()
-        .recordOutput(
-            "Odometry/initial heading?", trajectory.getInitialState().curvatureRadPerMeter);
+    // Logger.getInstance()
+    //     .recordOutput(
+    //         "Odometry/initial heading?", trajectory.getInitialState().curvatureRadPerMeter);
 
     SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
-    this.field.getObject("traj").setTrajectory(this.trajectory);
+
+    // TODO FIXME
+    Trajectory displayTrajectory = decimateTrajectory(trajectory, 20);
+
+    this.field.getObject("traj").setTrajectory(displayTrajectory);
 
     PathPlannerServer.sendActivePath(this.trajectory.getStates());
 
-    Logger.getInstance().recordOutput("Odometry/generatedPath", this.trajectory);
+    Logger.getInstance().recordOutput("Odometry/generatedPath", displayTrajectory);
+
+    this.timer.reset();
+    this.timer.start();
   }
 
   @Override
@@ -307,5 +319,30 @@ public class GenerateAndFollowPath extends CommandBase {
   @Override
   public boolean isFinished() {
     return this.timer.hasElapsed(this.trajectory.getTotalTimeSeconds());
+  }
+
+  public static Trajectory decimateTrajectory(Trajectory detailed, int modulus) {
+
+    if (detailed == null) {
+      return detailed;
+    }
+
+    List<State> states = new ArrayList<State>();
+
+    for (int i = 0; i < detailed.getStates().size(); ++i) {
+      var s = detailed.getStates().get(i);
+
+      if (i == 0 || i == detailed.getStates().size() || (i % modulus == 0)) {
+        states.add(
+            new State(
+                s.timeSeconds,
+                s.velocityMetersPerSecond,
+                s.accelerationMetersPerSecondSq,
+                s.poseMeters,
+                s.curvatureRadPerMeter));
+      }
+    }
+
+    return new Trajectory(states);
   }
 }
