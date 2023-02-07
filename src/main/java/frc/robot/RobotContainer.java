@@ -19,6 +19,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.GridPositionHandler.DeadzoneBox;
+import frc.lib.team2930.driverassist.GridPositionHandler.EntranceCheckpoint;
+import frc.lib.team2930.driverassist.GridPositionHandler.LogicalGridLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -32,10 +36,6 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
-import frc.robot.DriveToGridPosition.TestPos;
-import frc.robot.GridPositionHandler.DeadzoneBox;
-import frc.robot.GridPositionHandler.EntranceCheckpoint;
-import frc.robot.GridPositionHandler.LogicalGridLocation;
 import frc.robot.commands.DriveAvoidBoxes;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
@@ -306,39 +306,22 @@ public class RobotContainer {
         .a()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var cmd =
-                      autoDriveToGrid.testLogicalBay(
-                          gridPositionHandler.getDesiredBay()); // some command
+                    () -> {
+                      var cmd =
+                          autoDriveToGrid.testLogicalBay(
+                              gridPositionHandler.getDesiredBay()); // some command
 
-                  Command currentCmd = drivetrain.getCurrentCommand();
+                      Command currentCmd = drivetrain.getCurrentCommand();
 
-                  if (currentCmd instanceof OverrideDrivetrainStop) {
-                    ((OverrideDrivetrainStop) currentCmd).overideStop();
-                  }
+                      if (currentCmd instanceof OverrideDrivetrainStop) {
+                        ((OverrideDrivetrainStop) currentCmd).overideStop();
+                      }
 
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                  cmd.schedule();
-                }));
-
-    driverController
-        .x()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var cmd = autoDriveToGrid.testAllianceFlip(TestPos.GRID_8); // some command
-
-                  Command currentCmd = drivetrain.getCurrentCommand();
-
-                  if (currentCmd instanceof OverrideDrivetrainStop) {
-                    ((OverrideDrivetrainStop) currentCmd).overideStop();
-                  }
-
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                  cmd.schedule();
-                }));
+                      // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                      // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                      cmd.schedule();
+                    })
+                .beforeStarting(Commands.print("A")));
 
     driverController
         .b()
