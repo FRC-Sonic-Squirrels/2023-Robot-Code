@@ -21,7 +21,6 @@ public class ElevatorReal2023 implements ElevatorIO {
       new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
   // TODO: Put in values of new robot
   private static final double gearRatio = 0.08229;
-  private static final double maxExtensionInches = 26;
   private static final double winchDiameter_inches = 1.43;
   private static final double winchCircumfrence = Math.PI * winchDiameter_inches;
   private static final double ticks2inches = gearRatio * winchCircumfrence / 2048;
@@ -159,13 +158,6 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void setHeightInches(double targetHeightInches) {
-    if (targetHeightInches < 0.0) {
-      targetHeightInches = 0.0;
-    }
-    if (targetHeightInches > maxExtensionInches) {
-      targetHeightInches = maxExtensionInches;
-    }
-
     lead_talon.set(TalonFXControlMode.Position, inchesToTicks(targetHeightInches));
   }
 
