@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -95,11 +96,20 @@ public class DriveToGridPosition {
 
     Pose2d firstPose = null;
 
-    for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {
-      if (currentPose.getX() > checkPoint.pose.getX()) {
-        points.add(EntranceCheckpoint.toPathPoint(checkPoint));
-        if (firstPose == null) {
-          firstPose = checkPoint.pose;
+    Pose2d poseBeforeLineup = null;
+
+    var AllianceCommunityBox = GridPositionHandler.getCommunityBoxForAlliance(alliance);
+
+    if (!AllianceCommunityBox.insideBox(currentPose.getTranslation())) {
+      for (PoseAndHeading checkPoint : entranceCheckpoint.getOrderOutsideIn()) {
+        if (currentPose.getX() > checkPoint.pose.getX()) {
+          points.add(EntranceCheckpoint.toPathPoint(checkPoint));
+          if (firstPose == null) {
+            firstPose = checkPoint.pose;
+          }
+          if (poseBeforeLineup == null) {
+            poseBeforeLineup = checkPoint.pose;
+          }
         }
       }
     }
@@ -108,10 +118,19 @@ public class DriveToGridPosition {
       firstPose = physicalBay.lineup.pose;
     }
 
+    if (poseBeforeLineup == null) {
+      poseBeforeLineup = currentPose;
+    }
+
+    var lineupHeading =
+        Math.atan2(
+            physicalBay.lineup.pose.getY() - poseBeforeLineup.getY(),
+            physicalBay.lineup.pose.getX() - poseBeforeLineup.getX());
+
     points.add(
         new PathPoint(
             physicalBay.lineup.pose.getTranslation(),
-            physicalBay.lineup.heading,
+            new Rotation2d(lineupHeading),
             physicalBay.lineup.pose.getRotation()));
 
     points.add(

@@ -122,6 +122,16 @@ public class GridPositionHandler {
     return false;
   }
 
+  public static DeadzoneBox getCommunityBoxForAlliance(Alliance alliance) {
+    if (alliance == Alliance.Red) {
+      return DeadzoneBox.RED_COMMUNITY;
+    } else if (alliance == Alliance.Blue) {
+      return DeadzoneBox.BLUE_COMMUNITY;
+    } else {
+      return null;
+    }
+  }
+
   public void log() {
     Logger logger = Logger.getInstance();
     logger.recordOutput("DriverAssist/GridPosition/bay_index", bayIndex);
