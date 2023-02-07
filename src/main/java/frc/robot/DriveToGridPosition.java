@@ -48,6 +48,9 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    // TODO optimize to allow paths from in front of charging pad (just add more checkpoints i
+    // think)
+    // TODO define all the bounding boxes for where auto is allowed to start from
     Alliance alliance = DriverStation.getAlliance();
 
     // FIXME: ADD THIS BACK
