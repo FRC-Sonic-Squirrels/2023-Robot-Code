@@ -28,7 +28,8 @@ public class Vision extends SubsystemBase {
   private AprilTagFieldLayout layout;
   private DriverStation.Alliance lastAlliance = DriverStation.Alliance.Invalid;
 
-  private double lastTimestamp;
+  private double lastTimestampLeft;
+  private double lastTimestampRight;
   private SwerveDrivePoseEstimator poseEstimator;
 
   private Alert noAprilTagLayoutAlert =
@@ -97,9 +98,11 @@ public class Vision extends SubsystemBase {
       }
     }
 
-    if (lastTimestamp < getLatestTimestamp()) {
-      lastTimestamp = getLatestTimestamp();
-
+    if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
+      lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
+    }
+    if (lastTimestampRight < getLatestTimestamp(Camera.RIGHT)) {
+      lastTimestampRight = getLatestTimestamp(Camera.RIGHT);
     }
   }
 
