@@ -20,6 +20,8 @@ public class Stinger extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static double toleranceInches = 0.1;
 
+  private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
+
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.STINGER_PID.STINGER_FEEDFORWARD);
   private final TunableNumber kPtunable =
@@ -69,8 +71,10 @@ public class Stinger extends SubsystemBase {
     runStingerVoltage(0.0);
   }
 
-  public void setExtensionInches(double targetExtensionInches) {
-    io.setExtensionInches(targetExtensionInches);
+  public void setExtensionInches(double heightInches) {
+    double targetInches = MathUtil.clamp(heightInches, 0.0, maxExtensionInches);
+    
+    io.setExtensionInches(targetInches);
   }
 
   public double getExtensionInches() {

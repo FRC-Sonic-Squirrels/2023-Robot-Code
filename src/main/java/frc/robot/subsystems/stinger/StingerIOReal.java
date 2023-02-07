@@ -124,13 +124,6 @@ public class StingerIOReal implements StingerIO{
 
     @Override
     public void setExtensionInches(double heightInches) {
-        // if (heightInches < 0.0) {
-        //   heightInches = 0.0;
-        // }
-        if (heightInches > maxExtensionInches) {
-        heightInches = maxExtensionInches;
-        }
-
         motor.set(ControlMode.MotionMagic, extensionToTicks(heightInches));
     }
 
