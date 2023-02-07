@@ -1,11 +1,13 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -18,9 +20,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorReal2023 implements ElevatorIO {
 
-  private WPI_TalonFX winch_lead_talon =
+  private WPI_TalonFX lead_talon =
       new WPI_TalonFX(CANIVOR_canId.CANID9_ELEVATOR_LEAD_TALON, CANIVOR_canId.name);
-  private WPI_TalonFX winch_follow_talon =
+  private WPI_TalonFX follow_talon =
       new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
   private Solenoid frictionBrakeSolenoid =
       new Solenoid(PneumaticsModuleType.REVPH, Constants.pneumatics.channel_15_friction_brake);
@@ -42,8 +44,8 @@ public class ElevatorReal2023 implements ElevatorIO {
   private boolean solenoidEnabled = false;
 
   public ElevatorReal2023() {
-    winch_lead_talon.configFactoryDefault();
-    winch_follow_talon.configFactoryDefault();
+    lead_talon.configFactoryDefault();
+    follow_talon.configFactoryDefault();
 
     TalonFXConfiguration leadConfig = new TalonFXConfiguration();
 
@@ -63,43 +65,43 @@ public class ElevatorReal2023 implements ElevatorIO {
     leadConfig.slot0.allowableClosedloopError = Elevator.toleranceInches / ticks2inches;
 
     // set config
-    winch_lead_talon.configAllSettings(leadConfig);
+    lead_talon.configAllSettings(leadConfig);
 
     // use pid from slot 0 for motion magic
-    winch_lead_talon.selectProfileSlot(0, 0);
+    lead_talon.selectProfileSlot(0, 0);
 
-    winch_lead_talon.setNeutralMode(NeutralMode.Brake);
-    winch_follow_talon.setNeutralMode(NeutralMode.Brake);
+    lead_talon.setNeutralMode(NeutralMode.Brake);
+    follow_talon.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
-    winch_lead_talon.configReverseLimitSwitchSource(
+    lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-    winch_lead_talon.configForwardLimitSwitchSource(
+    lead_talon.configForwardLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
 
-    winch_follow_talon.follow(winch_lead_talon);
-    winch_lead_talon.setInverted(true);
-    winch_follow_talon.setInverted(true);
+    follow_talon.follow(lead_talon);
+    lead_talon.setInverted(true);
+    follow_talon.setInverted(true);
 
     // TODO: Check JVN calculator for current limit
     SupplyCurrentLimitConfiguration currentLimit =
         new SupplyCurrentLimitConfiguration(true, 10, 25, 0.1);
-    winch_lead_talon.configSupplyCurrentLimit(currentLimit);
-    winch_follow_talon.configSupplyCurrentLimit(currentLimit);
+    lead_talon.configSupplyCurrentLimit(currentLimit);
+    follow_talon.configSupplyCurrentLimit(currentLimit);
 
-    winch_lead_talon.configOpenloopRamp(0.1);
+    lead_talon.configOpenloopRamp(0.1);
 
     // TODO: determine whether we actually want to make this slow
-    MotorUtils.setCtreStatusSlow(winch_follow_talon);
+    MotorUtils.setCtreStatusSlow(follow_talon);
 
-    winch_follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
-    winch_follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
+    follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
+    follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
     brakeOn();
     resetSensorHeight(0.0);
 
-    winch_lead_talon.configForwardSoftLimitThreshold(inchesToTicks(0.0));
-    winch_lead_talon.configForwardSoftLimitEnable(true);
+    lead_talon.configForwardSoftLimitThreshold(inchesToTicks(0.0));
+    lead_talon.configForwardSoftLimitEnable(true);
   }
 
   @Override
@@ -108,8 +110,13 @@ public class ElevatorReal2023 implements ElevatorIO {
     double veloInTicks = cruiseVelocity * (12.15 / winchCircumfrence) * 2048 / 10;
     double accelInTicks = veloInTicks / desiredTimeToSpeed;
 
-    winch_lead_talon.configMotionAcceleration(accelInTicks);
-    winch_lead_talon.configMotionCruiseVelocity(veloInTicks);
+    lead_talon.configMotionAcceleration(accelInTicks);
+    lead_talon.configMotionCruiseVelocity(veloInTicks);
+  }
+
+  @Override
+  public void setElevatorVoltage(double volts) {
+    lead_talon.setVoltage(volts);
   }
 
   private double inchesToTicks(double inches) {
@@ -122,14 +129,12 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void resetSensorHeight(double heightInches) {
-    winch_lead_talon
-        .getSensorCollection()
-        .setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
+    lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   @Override
   public void setPercent(double percent) {
-    winch_lead_talon.set(ControlMode.PercentOutput, percent);
+    lead_talon.set(ControlMode.PercentOutput, percent);
   }
 
   @Override
@@ -144,15 +149,35 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void setPIDConstraints(double kF, double kP, double kI, double kD) {
-    winch_lead_talon.config_kF(0, kF);
-    winch_lead_talon.config_kP(0, kP);
-    winch_lead_talon.config_kI(0, kI);
-    winch_lead_talon.config_kD(0, kD);
+    lead_talon.config_kF(0, kF);
+    lead_talon.config_kP(0, kP);
+    lead_talon.config_kI(0, kI);
+    lead_talon.config_kD(0, kD);
+  }
+
+  @Override
+  public void setHeightInches(double targetHeightInches) {
+    if (targetHeightInches < 0.0) {
+      targetHeightInches = 0.0;
+    }
+    if (targetHeightInches > maxExtensionInches) {
+      targetHeightInches = maxExtensionInches;
+    }
+
+    lead_talon.set(
+        TalonFXControlMode.Position,
+        inchesToTicks(targetHeightInches),
+        DemandType.ArbitraryFeedForward,
+        feedForward);
+    // NOTE: this is how without arbitrary feed forward
+    // winch_lead_talon.set(TalonFXControlMode.Position, heightToTicks(heightInches));
+
+    heightSetpointInches = targetHeightInches;
   }
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-    if (winch_lead_talon.isRevLimitSwitchClosed() == 1) {
+    if (lead_talon.isRevLimitSwitchClosed() == 1) {
       inputs.ElevatorAtLowerLimit = true;
     } else {
       inputs.ElevatorAtLowerLimit = false;
@@ -168,20 +193,19 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     inputs.ElevatorTargetHeightInches = targetHeightInches;
     inputs.ElevatorHeightInches =
-        ticksToInches(winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
-    inputs.ElevatorAppliedVolts = winch_lead_talon.getMotorOutputVoltage();
-    inputs.ElevatorCurrentAmps = new double[] {winch_lead_talon.getSupplyCurrent()};
-    inputs.ElevatorTempCelsius = new double[] {winch_lead_talon.getTemperature()};
+        ticksToInches(lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    inputs.ElevatorAppliedVolts = lead_talon.getMotorOutputVoltage();
+    inputs.ElevatorCurrentAmps = new double[] {lead_talon.getSupplyCurrent()};
+    inputs.ElevatorTempCelsius = new double[] {lead_talon.getTemperature()};
     inputs.ElevatorVelocityInchesPerSecond =
-        ticks2inches * 10.0 * winch_lead_talon.getSelectedSensorVelocity();
-    inputs.ElevatorVelocityRPM =
-        winch_lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotations;
+        ticks2inches * 10.0 * lead_talon.getSelectedSensorVelocity();
+    inputs.ElevatorVelocityRPM = lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotations;
 
     Logger.getInstance().recordOutput("elevator/ElevatorUpperSoftLimit", maxExtensionInches);
     Logger.getInstance()
         .recordOutput(
             "elevator/ElevatorHeightTicks",
-            winch_lead_talon.getSensorCollection().getIntegratedSensorPosition());
+            lead_talon.getSensorCollection().getIntegratedSensorPosition());
     Logger.getInstance()
         .recordOutput("elevator/ElevatorUpperSoftLimitTicks", inchesToTicks(maxExtensionInches));
   }
