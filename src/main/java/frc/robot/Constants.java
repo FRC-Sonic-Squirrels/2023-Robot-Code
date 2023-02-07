@@ -134,5 +134,20 @@ public final class Constants {
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
   }
+  // the depth and height of field nodes compared to a robot right in front of them
+  public static final class NODE_DISTANCES {
+
+    // all these measurements are in INCHES
+    public static final double EXTENSION_LOW  = 8; // half the depth of the hybrid node
+    public static final double EXTENSION_MID  = 22.75;
+    public static final double EXTENSION_HIGH = 39.75;
+
+    // these measurements are 2 inches higher than the actual node heights so the items can make it over
+    public static final double HEIGHT_LOW = 7;
+    public static final double HEIGHT_MID_CUBE = 25.5;
+    public static final double HEIGHT_MID_CONE = 36;
+    public static final double HEIGHT_HIGH_CUBE = 37.5;
+    public static final double HEIGHT_HIGH_CONE = 48;
+  }
   
 }

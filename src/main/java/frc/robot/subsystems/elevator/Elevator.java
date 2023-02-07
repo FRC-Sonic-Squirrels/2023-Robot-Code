@@ -90,6 +90,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeightInches(double targetHeightInches) {
+    MathUtil.clamp(targetHeightInches, 0, maxHeightInches);
+
     io.setHeightInches(targetHeightInches);
   }
 
