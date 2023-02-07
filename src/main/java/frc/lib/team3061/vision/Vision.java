@@ -100,13 +100,15 @@ public class Vision extends SubsystemBase {
 
     if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
       lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
+      updatePose(Camera.LEFT);
     }
     if (lastTimestampRight < getLatestTimestamp(Camera.RIGHT)) {
       lastTimestampRight = getLatestTimestamp(Camera.RIGHT);
+      updatePose(Camera.RIGHT);
     }
   }
 
-  private void func(Camera camera) {
+  private void updatePose(Camera camera) {
     for (PhotonTrackedTarget target : getLatestResult(camera).getTargets()) {
       if (isValidTarget(target)) {
         // photon camera to target
@@ -125,16 +127,23 @@ public class Vision extends SubsystemBase {
           switch (camera) {
             case LEFT:
               robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
+              poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+
+              Logger.getInstance().recordOutput("Vision/Left TagPose", tagPose);
+              Logger.getInstance().recordOutput("Vision/Left CameraPose", cameraPose);
+              Logger.getInstance().recordOutput("Vision/Left RobotPose", robotPose.toPose2d());
+
             case RIGHT:
               robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
+              poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+
+              Logger.getInstance().recordOutput("Vision/Right TagPose", tagPose);
+              Logger.getInstance().recordOutput("Vision/Right CameraPose", cameraPose);
+              Logger.getInstance().recordOutput("Vision/Right RobotPose", robotPose.toPose2d());
             default:
               robotPose = null;
           }
-          poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
-          Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
-          Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
-          Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
         }
       }
     }
@@ -214,11 +223,11 @@ public class Vision extends SubsystemBase {
         && layout.getTagPose(target.getFiducialId()).isPresent();
   }
 
-  public Camera latestCamera() {
-    if (ioLeft.lastTimestamp > ioRight.lastTimestamp) {
-      return Camera.LEFT;
-    } else {
-      return Camera.RIGHT;
-    }
-  }
+  // public Camera latestCamera() {
+  //   if (ioLeft.lastTimestamp > ioRight.lastTimestamp) {
+  //     return Camera.LEFT;
+  //   } else {
+  //     return Camera.RIGHT;
+  //   }
+  // }
 }
