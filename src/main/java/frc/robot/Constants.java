@@ -56,6 +56,9 @@ public final class Constants {
       case ROBOT_2023_PRESEASON:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
+      case ROBOT_2023_COMPBOT:
+        return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+
       case ROBOT_SIMBOT:
         return Mode.SIM;
 
