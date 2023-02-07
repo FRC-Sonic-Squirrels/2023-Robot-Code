@@ -40,9 +40,12 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
+import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
@@ -68,10 +71,9 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
-
+  private Stinger stinger;
   private Elevator elevator;
   private Wrist wrist;
-
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private final LoggedDashboardChooser<Command> autoChooser =
@@ -139,9 +141,66 @@ public class RobotContainer {
             intake = new Intake(new IntakeIOFalcon());
             elevator = new Elevator(new ElevatorReal2022());
 
-            //wrist = new Wrist(new WristIOSolenoid());
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
+        case ROBOT_2023_COMPBOT:
+          {
+            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
+
+            SwerveModule flModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        0,
+                        FRONT_LEFT_MODULE_DRIVE_MOTOR,
+                        FRONT_LEFT_MODULE_STEER_MOTOR,
+                        FRONT_LEFT_MODULE_STEER_ENCODER,
+                        FRONT_LEFT_MODULE_STEER_OFFSET),
+                    0,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule frModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        1,
+                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_ENCODER,
+                        FRONT_RIGHT_MODULE_STEER_OFFSET),
+                    1,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule blModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        2,
+                        BACK_LEFT_MODULE_DRIVE_MOTOR,
+                        BACK_LEFT_MODULE_STEER_MOTOR,
+                        BACK_LEFT_MODULE_STEER_ENCODER,
+                        BACK_LEFT_MODULE_STEER_OFFSET),
+                    2,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule brModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        3,
+                        BACK_RIGHT_MODULE_DRIVE_MOTOR,
+                        BACK_RIGHT_MODULE_STEER_MOTOR,
+                        BACK_RIGHT_MODULE_STEER_ENCODER,
+                        BACK_RIGHT_MODULE_STEER_OFFSET),
+                    3,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
+            new Pneumatics(new PneumaticsIORev(false));
+            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // TODO: add intake when intake is done
+            elevator = new Elevator(new ElevatorReal2023());
+            stinger = new Stinger(new StingerIOReal());
+            break;
+          }
+
         case ROBOT_SIMBOT:
           {
             SwerveModule flModule =
