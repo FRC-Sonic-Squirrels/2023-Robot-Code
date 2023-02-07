@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
   private Supplier<AutoChooserElement> currentAutoSupplier = null;
-  private String currentAutoHashId = "";
+  private String currentAutoName = "";
   private RobotContainer robotContainer;
   Alliance alliance = Alliance.Invalid;
 
@@ -43,9 +43,9 @@ public class Robot extends LoggedRobot {
     super(Constants.LOOP_PERIOD_SECS);
   }
 
-  void checkDSUpdate() {
+  /** checkDSUpdate() - check for changes to the current Alliance Selection */
+  private void checkDSUpdate() {
     Alliance currentAlliance = DriverStation.getAlliance();
-    // System.out.println("CheckDSUpdate");
 
     // If we have data, and have a new alliance from last time
     if (DriverStation.isDSAttached() && (currentAlliance != alliance)) {
@@ -57,6 +57,46 @@ public class Robot extends LoggedRobot {
       // re-configure autonomous commands to update trajectories
       robotContainer.configureAutoCommands();
       alliance = currentAlliance;
+    }
+  }
+
+  /**
+   * checkForUpdatedAutonomous() - check to see if the selected autonomous changed
+   *
+   * <p>When a new autonomous is selected in the dashboard chooser, or the alliance color changes,
+   * update the current autonomous command. This involves mirroring all the auto trajectories for
+   * the changed alliance.
+   */
+  private void checkForUpdatedAutonomous() {
+    currentAutoSupplier = robotContainer.getSelectedAutonomous();
+
+    // only run if something has been selected
+    if (currentAutoSupplier != null) {
+
+      String autoName =
+          robotContainer.getAutonomousCommandName() + DriverStation.getAlliance().name();
+
+      SmartDashboard.putString("AutoName", autoName);
+
+      if (!currentAutoName.equals(autoName)) {
+        // The name of the auto changed, either the selected auto OR the alliance color
+        currentAutoName = autoName;
+
+        AutoChooserElement currentAuto = currentAutoSupplier.get();
+        Trajectory trajectory = currentAuto.getTrajectory();
+        if (trajectory == null) {
+          trajectory = new Trajectory();
+        }
+
+        PathPlannerState startState = new PathPlannerState();
+        startState.poseMeters = currentAuto.getPose2d();
+
+        // TODO: do we want to set the robot's start pose?
+        // robotContainer.getDrivetrain().resetOdometry(startState);
+
+        Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
+        Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
+      }
     }
   }
 
@@ -163,31 +203,7 @@ public class Robot extends LoggedRobot {
     checkDSUpdate();
 
     if (this.isDisabled()) {
-      // FIXME: this call repeatedly triggers path generation.
-      currentAutoSupplier = robotContainer.getSelectedAutonomous();
-
-      if (currentAutoSupplier != null) {
-        String autoHashCode =
-            robotContainer.getAutonomousCommandName() + DriverStation.getAlliance().name();
-        SmartDashboard.putString("AutoName", autoHashCode);
-        if (!currentAutoHashId.equals(autoHashCode)) {
-
-          currentAutoHashId = autoHashCode;
-
-          AutoChooserElement currentAuto = currentAutoSupplier.get();
-          Trajectory trajectory = currentAuto.getTrajectory();
-          if (trajectory == null) {
-            trajectory = new Trajectory();
-          }
-
-          PathPlannerState startState = new PathPlannerState();
-          startState.poseMeters = currentAuto.getPose2d();
-          //          robotContainer.getDrivetrain().resetOdometry(startState);
-
-          Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
-          Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
-        }
-      }
+      checkForUpdatedAutonomous();
     }
   }
 
@@ -198,7 +214,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     checkDSUpdate();
-    // FIXME: check to make sure we loaded the command from the chooser
+    checkForUpdatedAutonomous();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command
@@ -220,8 +236,8 @@ public class Robot extends LoggedRobot {
     }
 
     // clear autonomous path preview during teleop
-    currentAutoHashId = "";
-    SmartDashboard.putString("AutoName", currentAutoHashId);
+    currentAutoName = "";
+    SmartDashboard.putString("AutoName", currentAutoName);
     Logger.getInstance().recordOutput("Odometry/autonTrajectory", new Trajectory());
     Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
   }
