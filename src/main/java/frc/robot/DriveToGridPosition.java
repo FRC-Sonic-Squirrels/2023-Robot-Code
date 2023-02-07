@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.driverassist.EntranceCheckpoints;
 import frc.lib.team2930.driverassist.GridPositionHandler;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
+import frc.lib.team2930.driverassist.HumanLoadingStation.LoadingStationLocation;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.robot.commands.GenerateAndFollowPath;
@@ -135,6 +136,18 @@ public class DriveToGridPosition {
 
     return new SequentialCommandGroup(
         new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false));
+  }
+
+  public Command humanPlayerStation(LoadingStationLocation location) {
+    Alliance alliance = DriverStation.getAlliance();
+
+    // get checkpoint sequence
+
+    // find checkpoints we care about
+
+    // then go to final score position
+
+    return new SequentialCommandGroup();
   }
 
   // replace with better implementation of controller rumble
