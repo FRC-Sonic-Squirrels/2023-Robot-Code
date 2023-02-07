@@ -21,8 +21,10 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
-  private VisionIO visionIO;
-  private final VisionIOInputs io = new VisionIOInputs();
+  private VisionIO R_VisionIO;
+  private VisionIO L_VisionIO;
+  private final VisionIOInputs ioLeft = new VisionIOInputs();
+  private final VisionIOInputs ioRight = new VisionIOInputs();
   private AprilTagFieldLayout layout;
   private DriverStation.Alliance lastAlliance = DriverStation.Alliance.Invalid;
 
@@ -34,8 +36,9 @@ public class Vision extends SubsystemBase {
           "No AprilTag layout file found. Update APRILTAG_FIELD_LAYOUT_PATH in VisionConstants.java",
           AlertType.WARNING);
 
-  public Vision(VisionIO visionIO) {
-    this.visionIO = visionIO;
+  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO) {
+    this.L_VisionIO = L_VisionIO;
+    this.R_VisionIO = R_VisionIO;
     this.poseEstimator = RobotOdometry.getInstance().getPoseEstimator();
 
     try {
@@ -51,19 +54,39 @@ public class Vision extends SubsystemBase {
     }
   }
 
-  public double getLatestTimestamp() {
-    return io.lastTimestamp;
+  public enum Camera {
+    LEFT,
+    RIGHT;
   }
 
-  public PhotonPipelineResult getLatestResult() {
-    return io.lastResult;
+  public double getLatestTimestamp(Camera camera) {
+    switch(camera) {
+      case LEFT:
+        return ioLeft.lastTimestamp;
+      case RIGHT:
+        return ioRight.lastTimestamp;
+      default:
+        return 0;
+    }
+  }
+
+  public PhotonPipelineResult getLatestResult(Camera camera) {
+    switch(camera) {
+      case LEFT:
+        return ioLeft.lastResult;
+      case RIGHT:
+        return ioRight.lastResult;
+    }
+    return null;
   }
 
   @Override
   public void periodic() {
 
-    visionIO.updateInputs(io);
-    Logger.getInstance().processInputs("Vision", io);
+    L_VisionIO.updateInputs(ioLeft);
+    R_VisionIO.updateInputs(ioRight);
+    Logger.getInstance().processInputs("Left Vision", ioLeft);
+    Logger.getInstance().processInputs("Right Vision", ioRight);
 
     if (DriverStation.getAlliance() != lastAlliance) {
       lastAlliance = DriverStation.getAlliance();
@@ -76,34 +99,46 @@ public class Vision extends SubsystemBase {
 
     if (lastTimestamp < getLatestTimestamp()) {
       lastTimestamp = getLatestTimestamp();
-      for (PhotonTrackedTarget target : getLatestResult().getTargets()) {
-        if (isValidTarget(target)) {
-          // photon camera to target
-          Transform3d cameraToTarget = target.getBestCameraToTarget();
-          // the raw json position of target
-          // probably optional to avoid crashes from io errors
-          Optional<Pose3d> tagPoseOptional = layout.getTagPose(target.getFiducialId());
-          if (tagPoseOptional.isPresent()) {
-            // tag pose from json
-            Pose3d tagPose = tagPoseOptional.get();
-            // the camera position, transforms the json tag
-            // by the inverse of photons cameraToTarget. CameraToTarget inverse is TargetToCamera
-            Pose3d cameraPose = tagPose.transformBy(cameraToTarget.inverse());
-            // camera might not be in the center of the robot
-            Pose3d robotPose = cameraPose.transformBy(VisionConstants.ROBOT_TO_CAMERA.inverse());
-            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp());
 
-            Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
-            Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
-            Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
+    }
+  }
+
+  private void func(Camera camera) {
+    for (PhotonTrackedTarget target : getLatestResult(camera).getTargets()) {
+      if (isValidTarget(target)) {
+        // photon camera to target
+        Transform3d cameraToTarget = target.getBestCameraToTarget();
+        // the raw json position of target
+        // probably optional to avoid crashes from io errors
+        Optional<Pose3d> tagPoseOptional = layout.getTagPose(target.getFiducialId());
+        if (tagPoseOptional.isPresent()) {
+          // tag pose from json
+          Pose3d tagPose = tagPoseOptional.get();
+          // the camera position, transforms the json tag
+          // by the inverse of photons cameraToTarget. CameraToTarget inverse is TargetToCamera
+          Pose3d cameraPose = tagPose.transformBy(cameraToTarget.inverse());
+          // camera might not be in the center of the robot
+          Pose3d robotPose;
+          switch (camera) {
+            case LEFT:
+              robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
+            case RIGHT:
+              robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
+            default:
+              robotPose = null;
           }
+          poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+
+          Logger.getInstance().recordOutput("Vision/TagPose", tagPose);
+          Logger.getInstance().recordOutput("Vision/CameraPose", cameraPose);
+          Logger.getInstance().recordOutput("Vision/RobotPose", robotPose.toPose2d());
         }
       }
     }
   }
 
-  public boolean tagVisible(int id) {
-    PhotonPipelineResult result = getLatestResult();
+  public boolean tagVisible(int id, Camera camera) {
+    PhotonPipelineResult result = getLatestResult(camera);
     for (PhotonTrackedTarget target : result.getTargets()) {
       if (target.getFiducialId() == id && isValidTarget(target)) {
         return true;
@@ -119,11 +154,34 @@ public class Vision extends SubsystemBase {
    * @return the Transform3d or null if there isn't
    */
   public Transform3d getTransform3dToTag(int id) {
-    PhotonPipelineResult result = getLatestResult();
-    for (PhotonTrackedTarget target : result.getTargets()) {
-      if (target.getFiducialId() == id && isValidTarget(target)) {
-        return VisionConstants.ROBOT_TO_CAMERA.plus(target.getBestCameraToTarget());
+    Transform3d bestLeftTransform3d = null;
+    Transform3d bestRightTransform3d = null;
+
+    PhotonPipelineResult resultLeft = getLatestResult(Camera.LEFT);
+    PhotonPipelineResult resultRight = getLatestResult(Camera.RIGHT);
+
+    for (PhotonTrackedTarget targetLeft : resultLeft.getTargets()) {
+      if (targetLeft.getFiducialId() == id && isValidTarget(targetLeft)) {
+
+        bestLeftTransform3d = VisionConstants.LEFT_ROBOT_TO_CAMERA.plus(targetLeft.getBestCameraToTarget());
       }
+    }
+    
+    for (PhotonTrackedTarget targetRight : resultRight.getTargets()) {
+      if (targetRight.getFiducialId() == id && isValidTarget(targetRight)) {
+
+        bestRightTransform3d = VisionConstants.RIGHT_ROBOT_TO_CAMERA.plus(targetRight.getBestCameraToTarget());
+      }
+    }
+    
+    if (bestLeftTransform3d != null && bestRightTransform3d != null) {
+      return (bestLeftTransform3d.plus(bestRightTransform3d).div(2));
+    }
+    if (bestLeftTransform3d != null) {
+      return bestLeftTransform3d;
+    }
+    if (bestRightTransform3d != null) {
+      return bestRightTransform3d;
     }
     return null;
   }
@@ -151,5 +209,13 @@ public class Vision extends SubsystemBase {
         && target.getPoseAmbiguity() != -1
         && target.getPoseAmbiguity() < VisionConstants.MAXIMUM_AMBIGUITY
         && layout.getTagPose(target.getFiducialId()).isPresent();
+  }
+
+  public Camera latestCamera() {
+    if (ioLeft.lastTimestamp > ioRight.lastTimestamp) {
+      return Camera.LEFT;
+    } else {
+      return Camera.RIGHT;
+    }
   }
 }
