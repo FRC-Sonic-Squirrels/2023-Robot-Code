@@ -67,6 +67,7 @@ public final class Constants {
   // FIXME: update for various robots
   public enum RobotType {
     ROBOT_2023_PRESEASON,
+    ROBOT_2023_COMPBOT,
     ROBOT_SIMBOT
   }
 
@@ -83,7 +84,7 @@ public final class Constants {
     // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
     // create problems if you already have a device using CAN id 0 on the CAN bus.
     public static final int DoNotUse_canId0 = 0;
-    
+
     public static final int CANID5_STINGER_TALON = 5;
     public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
     public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
@@ -111,7 +112,7 @@ public final class Constants {
 
   // TODO: determine whether elevator deserves it's own constants file
   public static class ElevatorConstants {
-  
+
     // TODO: check all values for new robot
     public static final double elevatorSpeedMultiplier = 1.0;
 
@@ -123,14 +124,13 @@ public final class Constants {
     public static final double CRUISE_VELOCITY = 0.5;
     public static final double DESIRED_TIME_TO_SPEED = 0.5;
   }
-  
+
   public static final class STINGER_PID {
 
-    //TODO: find better default PID values for the stinger
+    // TODO: find better default PID values for the stinger
     public static final double STINGER_FEEDFORWARD = 0.054;
     public static final double STINGER_KP = 0.48;
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
   }
-  
 }
