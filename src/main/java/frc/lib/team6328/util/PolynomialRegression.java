@@ -178,7 +178,7 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
       else s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
       j--;
     }
-    s = s.append("  (R^2 = " + String.format("%.3f", R2()) + ")");
+    s = s.append("  (R^2 = ").append(String.format("%.3f", R2())).append(")");
 
     // replace "+ -2n" with "- 2n"
     return s.toString().replace("+ -", "- ");

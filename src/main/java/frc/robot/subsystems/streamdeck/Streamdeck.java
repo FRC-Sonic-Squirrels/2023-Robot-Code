@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.streamdeck;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.streamdeck.StreamdeckIO.StreamdeckInputs;
 
@@ -16,13 +18,119 @@ public class Streamdeck extends SubsystemBase {
   StreamdeckInputs leftInputs = new StreamdeckInputs();
   StreamdeckInputs rightInputs = new StreamdeckInputs();
 
+  public enum TargetingMode {
+    TARGET, GREYING, DE_GREY, NONE
+  }
+
+  public boolean[] targetingButtonsHeld = {false, false, false};
+
+  TargetingMode targetingMode  = TargetingMode.NONE;
+
   public Streamdeck(StreamdeckIO leftIO, StreamdeckIO rightIO) {
     this.leftIO = leftIO;
     this.rightIO = rightIO;
   }
 
+  public boolean[] getAllTargetable() {
+    String[] buttons = {"0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4", "1_5", "1_6", "1_7", "1_8", "1_9",
+             "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8", "2_9"};
+
+    int buttonAmount = buttons.length;
+    boolean[] buttonsHeld = new boolean[buttonAmount];
+    for (int i = 0; i < buttonAmount; i++) {
+      buttonsHeld[i] = leftIO.getButton(buttons[i]).getAsBoolean();
+    }
+    return buttonsHeld;
+  }
+
+  public boolean[] getTargetingButtonsHeld() {
+    String[] buttons = {"0_0", "1_0", "2_0"};
+    int buttonAmount = buttons.length;
+    boolean[] buttonsHeld = new boolean[buttonAmount];
+    for (int i = 0; i < buttonAmount; i++) {
+      buttonsHeld[i] = leftIO.getButton(buttons[i]).getAsBoolean();
+    }
+    return buttonsHeld;
+  }
+
+  public boolean isTargetingValid(boolean[] listOfButtons) {
+    // If only one button is pressed, then return true
+    int trueCount = 0;
+    for (boolean listOfButton : listOfButtons) {
+      if (listOfButton) {
+        trueCount++;
+      }
+    }
+    return trueCount == 1;
+  }
+
+  public String findButtonPressed() {
+    String[] buttons = {"0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4", "1_5", "1_6", "1_7", "1_8", "1_9",
+             "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8", "2_9"};
+
+    int buttonAmount = buttons.length;
+    boolean[] buttonsHeld = new boolean[buttonAmount];
+    for (int i = 0; i < buttonAmount; i++) {
+      buttonsHeld[i] = leftIO.getButton(buttons[i]).getAsBoolean();
+      if (buttonsHeld[i]) {
+        return buttons[i];
+      }
+    }
+    return "NONE";
+  }
+
   @Override
   public void periodic() {
+    targetingButtonsHeld[0] = leftIO.getButton("0_0").getAsBoolean();
+    targetingButtonsHeld[1] = leftIO.getButton("1_0").getAsBoolean();
+    targetingButtonsHeld[2] = leftIO.getButton("2_0").getAsBoolean();
+
+    if (isTargetingValid(targetingButtonsHeld)) {
+      if (targetingButtonsHeld[0]) {
+        if (targetingMode == TargetingMode.NONE) {
+          targetingMode = TargetingMode.TARGET;
+          Commands.print("TargetingButton").schedule();
+        }
+      } else if (targetingButtonsHeld[1]) {
+        if (targetingMode == TargetingMode.NONE) {
+          targetingMode = TargetingMode.GREYING;
+          Commands.print("GreyingButton").schedule();
+        }
+      } else if (targetingButtonsHeld[2]) {
+        if (targetingMode == TargetingMode.NONE) {
+          targetingMode = TargetingMode.DE_GREY;
+          Commands.print("De-greyingButton").schedule();
+        }
+      }
+    } else {
+      if (targetingMode != TargetingMode.NONE) {
+        targetingMode = TargetingMode.NONE;
+        Commands.print("NONE").schedule();
+      }
+    }
+
+    if (targetingMode == TargetingMode.TARGET) {
+      if (isTargetingValid(getAllTargetable())) {
+        // Do targeting stuff
+        String buttonPressed = findButtonPressed();
+        Commands.print("TargetingAction" + buttonPressed).schedule();
+        SmartDashboard.putString("/streamdeck/TargetingSet", buttonPressed);
+      }
+    } else if (targetingMode == TargetingMode.GREYING) {
+      if (isTargetingValid(getAllTargetable())) {
+        // Do grey stuff
+        String buttonPressed = findButtonPressed();
+        Commands.print("GreyingAction" + buttonPressed).schedule();
+      }
+    } else if (targetingMode == TargetingMode.DE_GREY) {
+      if (isTargetingValid(getAllTargetable())) {
+        // Do de greying stuff
+        String buttonPressed = findButtonPressed();
+        Commands.print("De-greyingAction" + buttonPressed).schedule();
+      }
+    }
+
+
     // Idea:
     // One array will store the values of the first colum of buttons, these are "action buttons" as
     // they decide the behavior of all the other buttons.
@@ -72,6 +180,6 @@ public class Streamdeck extends SubsystemBase {
 
   public enum StreamDeckLocation {
     LEFT,
-    RIGHT;
+    RIGHT
   }
 }

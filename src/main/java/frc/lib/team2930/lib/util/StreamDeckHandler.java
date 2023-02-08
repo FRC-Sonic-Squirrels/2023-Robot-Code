@@ -4,27 +4,27 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class StreamDeckHandler {
-  StreamDeckController streamDeckController = new StreamDeckController();
-  public int TargetNode = 0;
+    StreamDeckController streamDeckController = new StreamDeckController();
+    public int targetNode; // Base is 0
 
-  public Trigger GetIsTargeting() { // Returns if Button 0 is pressed (Targeting Button)
-    return streamDeckController.GetButton0();
-  }
+    public Trigger getIsTargeting() { // Returns if Button 0 is pressed (Targeting Button)
+        return streamDeckController.getButton0();
+    }
 
-  public void SetTarget(int num) {
-    System.out.println("Updating");
-    TargetNode = num;
-  }
+    public void setTarget(int num) {
+        System.out.println("Updating");
+        targetNode = num;
+    }
 
-  public int GetTarget() {
-    return TargetNode;
-  }
+    public int getTarget() {
+        return targetNode;
+    }
 
-  public String getTargetString() {
-    return String.valueOf(TargetNode);
-  }
+    public String getTargetString() {
+        return String.valueOf(targetNode);
+    }
 
-  public void print() {
-    new PrintCommand("TARGET NODE: " + TargetNode).schedule();
-  }
+    public void print() {
+        new PrintCommand("TARGET NODE: " + targetNode).schedule();
+    }
 }

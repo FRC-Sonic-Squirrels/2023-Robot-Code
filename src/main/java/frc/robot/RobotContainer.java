@@ -301,18 +301,16 @@ public class RobotContainer {
         .a()
         .onTrue(
             Commands.runOnce(
-                () -> {
-                  streamDeckHandler.print();
-                }));
+                () -> streamDeckHandler.print()));
 
     driverController
         .x()
         .onTrue(
-            Commands.runOnce(() -> streamDeckHandler.SetTarget(1)).andThen(Commands.print("x")));
+            Commands.runOnce(() -> streamDeckHandler.setTarget(1)).andThen(Commands.print("x")));
     driverController
         .b()
         .onTrue(
-            Commands.runOnce(() -> streamDeckHandler.SetTarget(2)).andThen(Commands.print("b")));
+            Commands.runOnce(() -> streamDeckHandler.setTarget(2)).andThen(Commands.print("b")));
   }
 
   /** Use this method to define your commands for autonomous mode. */

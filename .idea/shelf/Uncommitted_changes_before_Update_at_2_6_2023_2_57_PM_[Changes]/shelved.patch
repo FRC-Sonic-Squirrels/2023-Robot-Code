@@ -1,0 +1,1908 @@
+Index: src/main/java/frc/robot/RobotContainer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright (c) FIRST and other WPILib contributors.\r\n// Open Source Software; you can modify and/or share it under the terms of\r\n// the WPILib BSD license file in the root directory of this project.\r\n\r\npackage frc.robot;\r\n\r\nimport static frc.robot.Constants.*;\r\nimport static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;\r\n\r\nimport com.pathplanner.lib.PathPlanner;\r\nimport com.pathplanner.lib.PathPlannerTrajectory;\r\nimport edu.wpi.first.apriltag.AprilTagFieldLayout;\r\nimport edu.wpi.first.wpilibj.livewindow.LiveWindow;\r\nimport edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;\r\nimport edu.wpi.first.wpilibj2.command.Command;\r\nimport edu.wpi.first.wpilibj2.command.Commands;\r\nimport edu.wpi.first.wpilibj2.command.InstantCommand;\r\nimport edu.wpi.first.wpilibj2.command.button.CommandXboxController;\r\nimport frc.lib.team2930.lib.util.StreamDeckController;\r\nimport frc.lib.team2930.lib.util.StreamDeckHandler;\r\nimport frc.lib.team3061.gyro.GyroIO;\r\nimport frc.lib.team3061.gyro.GyroIOPigeon2;\r\nimport frc.lib.team3061.pneumatics.Pneumatics;\r\nimport frc.lib.team3061.pneumatics.PneumaticsIO;\r\nimport frc.lib.team3061.pneumatics.PneumaticsIORev;\r\nimport frc.lib.team3061.swerve.SwerveModule;\r\nimport frc.lib.team3061.swerve.SwerveModuleIO;\r\nimport frc.lib.team3061.swerve.SwerveModuleIOSim;\r\nimport frc.lib.team3061.swerve.SwerveModuleIOTalonFX;\r\nimport frc.lib.team3061.vision.Vision;\r\nimport frc.lib.team3061.vision.VisionConstants;\r\nimport frc.lib.team3061.vision.VisionIO;\r\nimport frc.lib.team3061.vision.VisionIOPhotonVision;\r\nimport frc.lib.team3061.vision.VisionIOSim;\r\nimport frc.robot.Constants.Mode;\r\nimport frc.robot.commands.FeedForwardCharacterization;\r\nimport frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;\r\nimport frc.robot.commands.FollowPath;\r\nimport frc.robot.commands.TeleopSwerve;\r\nimport frc.robot.subsystems.drivetrain.Drivetrain;\r\nimport frc.robot.subsystems.intake.Intake;\r\nimport frc.robot.subsystems.intake.IntakeIO;\r\nimport frc.robot.subsystems.intake.IntakeIOFalcon;\r\nimport java.io.IOException;\r\nimport java.util.ArrayList;\r\nimport java.util.function.DoubleSupplier;\r\nimport org.littletonrobotics.junction.networktables.LoggedDashboardChooser;\r\n\r\n/**\r\n * This class is where the bulk of the robot should be declared. Since Command-based is a\r\n * \"declarative\" paradigm, very little robot logic should actually be handled in the {@link Robot}\r\n * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including\r\n * subsystems, commands, and button mappings) should be declared here.\r\n */\r\npublic class RobotContainer {\r\n  StreamDeckHandler streamDeckHandler = new StreamDeckHandler();\r\n  private final CommandXboxController driverController = new CommandXboxController(0);\r\n\r\n  /* Driver Buttons */\r\n  // these triggers are now directly detected\r\n  // zeroGyro is assigned to back\r\n  // robotCentric is assigned to b\r\n  // xStance is assigned to a\r\n  // intakeOut is assigned to right bumper\r\n\r\n  private Drivetrain drivetrain;\r\n  private Intake intake;\r\n  private StreamDeckController streamDeckController = new StreamDeckController();\r\n\r\n  int target = 0;\r\n\r\n  DoubleSupplier targetSupplier = () -> target;\r\n\r\n  // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging\r\n  private final LoggedDashboardChooser<Command> autoChooser =\r\n      new LoggedDashboardChooser<>(\"Auto Routine\");\r\n\r\n  // RobotContainer singleton\r\n  private static RobotContainer robotContainer = new RobotContainer();\r\n\r\n  /** Create the container for the robot. Contains subsystems, OI devices, and commands. */\r\n  public RobotContainer() {\r\n    // create real, simulated, or replay subsystems based on the mode and robot specified\r\n    if (Constants.getMode() != Mode.REPLAY) {\r\n      switch (Constants.getRobot()) {\r\n        case ROBOT_2023_PRESEASON:\r\n          {\r\n            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);\r\n\r\n            SwerveModule flModule =\r\n                new SwerveModule(\r\n                    new SwerveModuleIOTalonFX(\r\n                        0,\r\n                        FRONT_LEFT_MODULE_DRIVE_MOTOR,\r\n                        FRONT_LEFT_MODULE_STEER_MOTOR,\r\n                        FRONT_LEFT_MODULE_STEER_ENCODER,\r\n                        FRONT_LEFT_MODULE_STEER_OFFSET),\r\n                    0,\r\n                    MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule frModule =\r\n                new SwerveModule(\r\n                    new SwerveModuleIOTalonFX(\r\n                        1,\r\n                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,\r\n                        FRONT_RIGHT_MODULE_STEER_MOTOR,\r\n                        FRONT_RIGHT_MODULE_STEER_ENCODER,\r\n                        FRONT_RIGHT_MODULE_STEER_OFFSET),\r\n                    1,\r\n                    MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule blModule =\r\n                new SwerveModule(\r\n                    new SwerveModuleIOTalonFX(\r\n                        2,\r\n                        BACK_LEFT_MODULE_DRIVE_MOTOR,\r\n                        BACK_LEFT_MODULE_STEER_MOTOR,\r\n                        BACK_LEFT_MODULE_STEER_ENCODER,\r\n                        BACK_LEFT_MODULE_STEER_OFFSET),\r\n                    2,\r\n                    MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule brModule =\r\n                new SwerveModule(\r\n                    new SwerveModuleIOTalonFX(\r\n                        3,\r\n                        BACK_RIGHT_MODULE_DRIVE_MOTOR,\r\n                        BACK_RIGHT_MODULE_STEER_MOTOR,\r\n                        BACK_RIGHT_MODULE_STEER_ENCODER,\r\n                        BACK_RIGHT_MODULE_STEER_OFFSET),\r\n                    3,\r\n                    MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);\r\n            new Pneumatics(new PneumaticsIORev(false));\r\n            new Vision(new VisionIOPhotonVision(CAMERA_NAME));\r\n            intake = new Intake(new IntakeIOFalcon());\r\n            break;\r\n          }\r\n        case ROBOT_SIMBOT:\r\n          {\r\n            SwerveModule flModule =\r\n                new SwerveModule(new SwerveModuleIOSim(), 0, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule frModule =\r\n                new SwerveModule(new SwerveModuleIOSim(), 1, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule blModule =\r\n                new SwerveModule(new SwerveModuleIOSim(), 2, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n            SwerveModule brModule =\r\n                new SwerveModule(new SwerveModuleIOSim(), 3, MAX_VELOCITY_METERS_PER_SECOND);\r\n            drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);\r\n            AprilTagFieldLayout layout;\r\n            try {\r\n              layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);\r\n            } catch (IOException e) {\r\n              layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);\r\n            }\r\n            new Vision(\r\n                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.ROBOT_TO_CAMERA));\r\n\r\n            new Pneumatics(new PneumaticsIO() {});\r\n            intake = new Intake(new IntakeIO() {});\r\n            break;\r\n          }\r\n        default:\r\n          break;\r\n      }\r\n\r\n    } else {\r\n      SwerveModule flModule =\r\n          new SwerveModule(new SwerveModuleIO() {}, 0, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n      SwerveModule frModule =\r\n          new SwerveModule(new SwerveModuleIO() {}, 1, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n      SwerveModule blModule =\r\n          new SwerveModule(new SwerveModuleIO() {}, 2, MAX_VELOCITY_METERS_PER_SECOND);\r\n\r\n      SwerveModule brModule =\r\n          new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);\r\n      drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);\r\n      new Vision(new VisionIO() {});\r\n      new Pneumatics(new PneumaticsIO() {});\r\n      intake = new Intake(new IntakeIO() {});\r\n    }\r\n\r\n    // workaround warning about unused variable\r\n    // pneumatics.getPressure();\r\n\r\n    // disable all telemetry in the LiveWindow to reduce the processing during each iteration\r\n    LiveWindow.disableAllTelemetry();\r\n\r\n    /*\r\n     * Set up the default command for the drivetrain. The joysticks' values map to percentage of the\r\n     * maximum velocities. The velocities may be specified from either the robot's frame of\r\n     * reference or the field's frame of reference. In the robot's frame of reference, the positive\r\n     * x direction is forward; the positive y direction, left; position rotation, CCW. In the field\r\n     * frame of reference, the origin of the field to the lower left corner (i.e., the corner of the\r\n     * field to the driver's right). Zero degrees is away from the driver and increases in the CCW\r\n     * direction. This is why the left joystick's y axis specifies the velocity in the x direction\r\n     * and the left joystick's x axis specifies the velocity in the y direction.\r\n     */\r\n    drivetrain.setDefaultCommand(\r\n        new TeleopSwerve(\r\n            drivetrain,\r\n            driverController::getLeftY,\r\n            driverController::getLeftX,\r\n            driverController::getRightX));\r\n\r\n    configureButtonBindings();\r\n    configureAutoCommands();\r\n  }\r\n\r\n  /**\r\n   * Factory method to create the singleton robot container object.\r\n   *\r\n   * @return the singleton robot container object\r\n   */\r\n  public static RobotContainer getInstance() {\r\n    return robotContainer;\r\n  }\r\n\r\n  /** Use this method to define your button->command mappings. */\r\n  private void configureButtonBindings() {\r\n    // field-relative toggle\r\n\r\n    // driverController\r\n    //     .b()\r\n    //     .toggleOnTrue(\r\n    //         Commands.either(\r\n    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),\r\n    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),\r\n    //             drivetrain::getFieldRelative));\r\n\r\n    // // reset gyro to 0 degrees\r\n    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));\r\n\r\n    // // x-stance\r\n    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));\r\n    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));\r\n\r\n    // // intake\r\n    // driverController\r\n    //     .rightBumper()\r\n    //     .whileTrue(\r\n    //         Commands.runOnce(intake::extend, intake)\r\n    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));\r\n    // driverController\r\n    //     .rightBumper()\r\n    //     .onFalse(\r\n    //         Commands.runOnce(intake::retract, intake)\r\n    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));\r\n\r\n    // driverController\r\n    //     .povDown()\r\n    //     .onTrue(\r\n    //         new DriveWithSetRotation(\r\n    //                 drivetrain,\r\n    //                 () -> driverController.getLeftY(),\r\n    //                 () -> driverController.getLeftX(),\r\n    //                 180)\r\n    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));\r\n\r\n    // driverController\r\n    //     .povUp()\r\n    //     .onTrue(\r\n    //         new DriveWithSetRotation(\r\n    //                 drivetrain,\r\n    //                 () -> driverController.getLeftY(),\r\n    //                 () -> driverController.getLeftX(),\r\n    //                 0)\r\n    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));\r\n\r\n    // driverController\r\n    //     .a()\r\n    //     .onTrue(\r\n    //         new InstantCommand(\r\n    //             () -> {\r\n    //               var t = targetSupplier.getAsDouble();\r\n    //               new PrintCommand(\"hello world: \" + t).schedule();\r\n    //             }));\r\n\r\n    driverController\r\n        .a()\r\n        .onTrue(\r\n            Commands.runOnce(\r\n                () -> {\r\n                  streamDeckHandler.print();\r\n                }));\r\n\r\n    driverController\r\n        .x()\r\n        .onTrue(\r\n            Commands.runOnce(() -> streamDeckHandler.SetTarget(1)).andThen(Commands.print(\"x\")));\r\n    driverController\r\n        .b()\r\n        .onTrue(\r\n            Commands.runOnce(() -> streamDeckHandler.SetTarget(2)).andThen(Commands.print(\"b\")));\r\n  }\r\n\r\n  /** Use this method to define your commands for autonomous mode. */\r\n  private void configureAutoCommands() {\r\n    PathPlannerTrajectory testPath2mForward =\r\n        PathPlanner.loadPath(\r\n            \"2mForward\",\r\n            AUTO_MAX_SPEED_METERS_PER_SECOND,\r\n            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);\r\n    PathPlannerTrajectory testPath2mForward180 =\r\n        PathPlanner.loadPath(\r\n            \"2mForward180\",\r\n            AUTO_MAX_SPEED_METERS_PER_SECOND,\r\n            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);\r\n    PathPlannerTrajectory testPath3mForward360 =\r\n        PathPlanner.loadPath(\r\n            \"3mForward360\",\r\n            AUTO_MAX_SPEED_METERS_PER_SECOND,\r\n            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);\r\n\r\n    autoChooser.addDefaultOption(\"Do Nothing\", new InstantCommand());\r\n    autoChooser.addOption(\"2m Forward\", new FollowPath(testPath2mForward, drivetrain, true));\r\n    autoChooser.addOption(\r\n        \"2m Forward w/ 180\", new FollowPath(testPath2mForward180, drivetrain, true));\r\n    autoChooser.addOption(\r\n        \"3m Forward 2/ 360\", new FollowPath(testPath3mForward360, drivetrain, true));\r\n    autoChooser.addOption(\r\n        \"Drive Characterization\",\r\n        new FeedForwardCharacterization(\r\n            drivetrain,\r\n            true,\r\n            new FeedForwardCharacterizationData(\"drive\"),\r\n            drivetrain::runCharacterizationVolts,\r\n            drivetrain::getCharacterizationVelocity));\r\n    Shuffleboard.getTab(\"MAIN\").add(autoChooser.getSendableChooser());\r\n  }\r\n\r\n  /**\r\n   * Use this to pass the autonomous command to the main {@link Robot} class.\r\n   *\r\n   * @return the command to run in autonomous\r\n   */\r\n  public Command getAutonomousCommand() {\r\n    return autoChooser.get();\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/robot/RobotContainer.java b/src/main/java/frc/robot/RobotContainer.java
+--- a/src/main/java/frc/robot/RobotContainer.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/robot/RobotContainer.java	(date 1675452871615)
+@@ -286,18 +286,16 @@
+         .a()
+         .onTrue(
+             Commands.runOnce(
+-                () -> {
+-                  streamDeckHandler.print();
+-                }));
++                () -> streamDeckHandler.print()));
+ 
+     driverController
+         .x()
+         .onTrue(
+-            Commands.runOnce(() -> streamDeckHandler.SetTarget(1)).andThen(Commands.print("x")));
++            Commands.runOnce(() -> streamDeckHandler.setTarget(1)).andThen(Commands.print("x")));
+     driverController
+         .b()
+         .onTrue(
+-            Commands.runOnce(() -> streamDeckHandler.SetTarget(2)).andThen(Commands.print("b")));
++            Commands.runOnce(() -> streamDeckHandler.setTarget(2)).andThen(Commands.print("b")));
+   }
+ 
+   /** Use this method to define your commands for autonomous mode. */
+Index: src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*----------------------------------------------------------------------------*/\r\n/* Copyright (c) 2018-2020 FIRST. All Rights Reserved.                        */\r\n/* Open Source Software - may be modified and shared by FRC teams. The code   */\r\n/* must be accompanied by the FIRST BSD license file in the root directory of */\r\n/* the project.                                                               */\r\n/*----------------------------------------------------------------------------*/\r\n\r\npackage frc.lib.team2930.lib.util;\r\n\r\nimport java.util.Arrays;\r\n\r\n/**\r\n * linearInterpolator - given a table of x and y values, will interpolate values of y between known\r\n * values of x using linear interpolation.\r\n *\r\n * <p>Usage: private double[][] data = { {1.0, 10.0}, {3.0, 31.0}, {10,100} }; private\r\n * linearInterpolator lt = new linearInterpolator(data);\r\n *\r\n * <p>double y = lt.getInterpolatedValue(1.5); // returns 15.25\r\n */\r\npublic class linearInterpolator {\r\n\r\n  // https://therevisionist.org/software-engineering/java/tutorials/passing-2d-arrays/\r\n  private double[][] table;\r\n  private boolean initialized = false;\r\n\r\n  /**\r\n   * create linearInterpolator class\r\n   *\r\n   * @param data, a table of x -> y mappings to be interpolated\r\n   */\r\n  public linearInterpolator(double[][] data) {\r\n    build_table(data);\r\n  }\r\n\r\n  public boolean isInitialized() {\r\n    return initialized;\r\n  }\r\n\r\n  /**\r\n   * Build the internal representation of the table data.\r\n   *\r\n   * @param data a table of data to be interpolated\r\n   */\r\n  private void build_table(double[][] data) {\r\n    int rows = data.length;\r\n    if (rows < 1) {\r\n      System.out.println(\"ERROR: linearInterpolator needs at least one data point.\");\r\n      return;\r\n    }\r\n    int cols = data[0].length;\r\n    if (cols != 2) {\r\n      System.out.println(\"ERROR: linearInterpolator number of columns should be 2\");\r\n      return;\r\n    }\r\n\r\n    table = new double[rows][cols];\r\n    for (int x = 0; x < data.length; x++) {\r\n      for (int y = 0; y < data[x].length; y++) {\r\n        table[x][y] = data[x][y];\r\n      }\r\n    }\r\n    Arrays.sort(table, (a, b) -> Double.compare(a[0], b[0]));\r\n    initialized = true;\r\n  }\r\n\r\n  /**\r\n   * getInterpolatedValue() - return the interpolated value of y given x.\r\n   *\r\n   * <p>If the value of x is in the table, that value is returned.\r\n   *\r\n   * <p>If the value of x is not in the table, the closest two values of x are chosen and the value\r\n   * of y returned is interpolated between the corresponding y values.\r\n   *\r\n   * <p>If the value of x is greater than max x value, the corresponding value of y for max x is\r\n   * returned. If the value of x is less than the min x value, the corresponding value of y for the\r\n   * min x is returned.\r\n   *\r\n   * @param x, the value of x to get an interpolated y value for\r\n   * @return the linear interpolated value y\r\n   */\r\n  public double getInterpolatedValue(double x) {\r\n\r\n    if (!initialized) {\r\n      System.out.println(\"ERROR: linearInterpolator not initialized\");\r\n      return 0.0;\r\n    }\r\n\r\n    // NOTE: this uses linear search, for larger tables (>5), binary search would be\r\n    // faster\r\n    int index = 0;\r\n    for (index = 0; index < table.length; index++) {\r\n      if (table[index][0] >= x) {\r\n        break;\r\n      }\r\n    }\r\n\r\n    if (index >= table.length) {\r\n      return table[table.length - 1][1];\r\n    }\r\n\r\n    double high_y = table[index][1];\r\n    double high_x = table[index][0];\r\n    if ((high_x == x) || (index == 0)) {\r\n      return high_y;\r\n    }\r\n    double low_y = table[index - 1][1];\r\n    double low_x = table[index - 1][0];\r\n\r\n    return (low_y + (x - low_x) * (high_y - low_y) / (high_x - low_x));\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java b/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java
+--- a/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java	(date 1675449783911)
+@@ -8,6 +8,7 @@
+ package frc.lib.team2930.lib.util;
+ 
+ import java.util.Arrays;
++import java.util.Comparator;
+ 
+ /**
+  * linearInterpolator - given a table of x and y values, will interpolate values of y between known
+@@ -20,93 +21,91 @@
+  */
+ public class linearInterpolator {
+ 
+-  // https://therevisionist.org/software-engineering/java/tutorials/passing-2d-arrays/
+-  private double[][] table;
+-  private boolean initialized = false;
++    // https://therevisionist.org/software-engineering/java/tutorials/passing-2d-arrays/
++    private double[][] table;
++    private boolean initialized = false;
+ 
+-  /**
+-   * create linearInterpolator class
+-   *
+-   * @param data, a table of x -> y mappings to be interpolated
+-   */
+-  public linearInterpolator(double[][] data) {
+-    build_table(data);
+-  }
++    /**
++     * create linearInterpolator class
++     *
++     * @param data, a table of x -> y mappings to be interpolated
++     */
++    public linearInterpolator(double[][] data) {
++        build_table(data);
++    }
+ 
+-  public boolean isInitialized() {
+-    return initialized;
+-  }
++    public boolean isInitialized() {
++        return initialized;
++    }
+ 
+-  /**
+-   * Build the internal representation of the table data.
+-   *
+-   * @param data a table of data to be interpolated
+-   */
+-  private void build_table(double[][] data) {
+-    int rows = data.length;
+-    if (rows < 1) {
+-      System.out.println("ERROR: linearInterpolator needs at least one data point.");
+-      return;
+-    }
+-    int cols = data[0].length;
+-    if (cols != 2) {
+-      System.out.println("ERROR: linearInterpolator number of columns should be 2");
+-      return;
+-    }
++    /**
++     * Build the internal representation of the table data.
++     *
++     * @param data a table of data to be interpolated
++     */
++    private void build_table(double[][] data) {
++        int rows = data.length;
++        if (rows < 1) {
++            System.out.println("ERROR: linearInterpolator needs at least one data point.");
++            return;
++        }
++        int cols = data[0].length;
++        if (cols != 2) {
++            System.out.println("ERROR: linearInterpolator number of columns should be 2");
++            return;
++        }
+ 
+-    table = new double[rows][cols];
+-    for (int x = 0; x < data.length; x++) {
+-      for (int y = 0; y < data[x].length; y++) {
+-        table[x][y] = data[x][y];
+-      }
+-    }
+-    Arrays.sort(table, (a, b) -> Double.compare(a[0], b[0]));
+-    initialized = true;
+-  }
++        table = new double[rows][cols];
++        for (int x = 0; x < data.length; x++) {
++            System.arraycopy(data[x], 0, table[x], 0, data[x].length);
++        }
++        Arrays.sort(table, Comparator.comparingDouble(a -> a[0]));
++        initialized = true;
++    }
+ 
+-  /**
+-   * getInterpolatedValue() - return the interpolated value of y given x.
+-   *
+-   * <p>If the value of x is in the table, that value is returned.
+-   *
+-   * <p>If the value of x is not in the table, the closest two values of x are chosen and the value
+-   * of y returned is interpolated between the corresponding y values.
+-   *
+-   * <p>If the value of x is greater than max x value, the corresponding value of y for max x is
+-   * returned. If the value of x is less than the min x value, the corresponding value of y for the
+-   * min x is returned.
+-   *
+-   * @param x, the value of x to get an interpolated y value for
+-   * @return the linear interpolated value y
+-   */
+-  public double getInterpolatedValue(double x) {
++    /**
++     * getInterpolatedValue() - return the interpolated value of y given x.
++     *
++     * <p>If the value of x is in the table, that value is returned.
++     *
++     * <p>If the value of x is not in the table, the closest two values of x are chosen and the value
++     * of y returned is interpolated between the corresponding y values.
++     *
++     * <p>If the value of x is greater than max x value, the corresponding value of y for max x is
++     * returned. If the value of x is less than the min x value, the corresponding value of y for the
++     * min x is returned.
++     *
++     * @param x, the value of x to get an interpolated y value for
++     * @return the linear interpolated value y
++     */
++    public double getInterpolatedValue(double x) {
+ 
+-    if (!initialized) {
+-      System.out.println("ERROR: linearInterpolator not initialized");
+-      return 0.0;
+-    }
++        if (!initialized) {
++            System.out.println("ERROR: linearInterpolator not initialized");
++            return 0.0;
++        }
+ 
+-    // NOTE: this uses linear search, for larger tables (>5), binary search would be
+-    // faster
+-    int index = 0;
+-    for (index = 0; index < table.length; index++) {
+-      if (table[index][0] >= x) {
+-        break;
+-      }
+-    }
++        // NOTE: this uses linear search, for larger tables (>5), binary search would be
++        // faster
++        int index = 0;
++        for (index = 0; index < table.length; index++) {
++            if (table[index][0] >= x) {
++                break;
++            }
++        }
+ 
+-    if (index >= table.length) {
+-      return table[table.length - 1][1];
+-    }
++        if (index >= table.length) {
++            return table[table.length - 1][1];
++        }
+ 
+-    double high_y = table[index][1];
+-    double high_x = table[index][0];
+-    if ((high_x == x) || (index == 0)) {
+-      return high_y;
+-    }
+-    double low_y = table[index - 1][1];
+-    double low_x = table[index - 1][0];
++        double high_y = table[index][1];
++        double high_x = table[index][0];
++        if ((high_x == x) || (index == 0)) {
++            return high_y;
++        }
++        double low_y = table[index - 1][1];
++        double low_x = table[index - 1][0];
+ 
+-    return (low_y + (x - low_x) * (high_y - low_y) / (high_x - low_x));
+-  }
++        return (low_y + (x - low_x) * (high_y - low_y) / (high_x - low_x));
++    }
+ }
+Index: src/main/java/frc/lib/team2930/lib/util/MotorUtils.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright (c) FIRST and other WPILib contributors.\r\n// Open Source Software; you can modify and/or share it under the terms of\r\n// the WPILib BSD license file in the root directory of this project.\r\n\r\npackage frc.lib.team2930.lib.util;\r\n\r\nimport com.ctre.phoenix.motorcontrol.StatusFrame;\r\nimport com.ctre.phoenix.motorcontrol.can.BaseMotorController;\r\nimport com.revrobotics.CANSparkMax;\r\nimport com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;\r\n\r\n/**\r\n * Utilities for lowering (or raising) CAN update rates to reduce CAN traffic. To be used on motor\r\n * controllers that are follow motors, or do not do any velocity or positional control.\r\n *\r\n * <p>Thanks to:\r\n * https://github.com/4512OtterChaos/frc2020/blob/119f72d0c05b82cc3073ff0d15ac819d76450d67/src/main/java/frc/robot/common/OCConfig.java#L185-L205\r\n *\r\n * <p>Info: https://www.hi-im.kim/canbus\r\n *\r\n * <p>CTRE docs: https://docs.ctre-phoenix.com/en/latest/ch18_CommonAPI.html\r\n *\r\n * <p>REV docs:\r\n * https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces#periodic-status-frames\r\n */\r\npublic class MotorUtils {\r\n\r\n  /**\r\n   * setCtreStatusSlow() - reduce the update rate for the CTRE motor controllers to reduce CAN\r\n   * traffic\r\n   *\r\n   * <p>Use this for follow motors and motors that do not need to report velocity or position.\r\n   *\r\n   * @param motors This can be any of the CTRE motor classes like WPI_TalonFX, etc\r\n   */\r\n  public static void setCtreStatusSlow(BaseMotorController... motors) {\r\n    for (BaseMotorController motor : motors) {\r\n      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 400 + (int) (Math.random() * 100));\r\n      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 400 + (int) (Math.random() * 100));\r\n    }\r\n  }\r\n\r\n  public static void setFalconStatusFast(BaseMotorController... motors) {\r\n    for (BaseMotorController motor : motors) {\r\n      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 5);\r\n      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);\r\n    }\r\n  }\r\n\r\n  public static void setCtreStatusNormal(BaseMotorController... motors) {\r\n    for (BaseMotorController motor : motors) {\r\n      // not sure what the normal defaults are\r\n      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 10);\r\n      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);\r\n    }\r\n  }\r\n  /**\r\n   * setSparkMaxStatusSlow() - reduce the update rate for the REV motor controllers to reduce CAN\r\n   * traffic\r\n   *\r\n   * <p>Use this for follow motors and motors that do not need to report velocity or position.\r\n   *\r\n   * @param motors This can be any of the REV motor classes like CANSparkMax, etc\r\n   */\r\n  public static void setSparkMaxStatusSlow(CANSparkMax... motors) {\r\n    for (CANSparkMax motor : motors) {\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50 + (int) (Math.random() * 50));\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 400 + (int) (Math.random() * 100));\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 400 + (int) (Math.random() * 100));\r\n    }\r\n  }\r\n\r\n  public static void setSparkMaxStatusFast(CANSparkMax... motors) {\r\n    for (CANSparkMax motor : motors) {\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);\r\n    }\r\n  }\r\n\r\n  public static void setSparkMaxStatusNormal(CANSparkMax... motors) {\r\n    for (CANSparkMax motor : motors) {\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);\r\n      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);\r\n    }\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java b/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java
+--- a/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java	(date 1675449783961)
+@@ -25,64 +25,65 @@
+  */
+ public class MotorUtils {
+ 
+-  /**
+-   * setCtreStatusSlow() - reduce the update rate for the CTRE motor controllers to reduce CAN
+-   * traffic
+-   *
+-   * <p>Use this for follow motors and motors that do not need to report velocity or position.
+-   *
+-   * @param motors This can be any of the CTRE motor classes like WPI_TalonFX, etc
+-   */
+-  public static void setCtreStatusSlow(BaseMotorController... motors) {
+-    for (BaseMotorController motor : motors) {
+-      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 400 + (int) (Math.random() * 100));
+-      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 400 + (int) (Math.random() * 100));
+-    }
+-  }
++    /**
++     * setCtreStatusSlow() - reduce the update rate for the CTRE motor controllers to reduce CAN
++     * traffic
++     *
++     * <p>Use this for follow motors and motors that do not need to report velocity or position.
++     *
++     * @param motors This can be any of the CTRE motor classes like WPI_TalonFX, etc
++     */
++    public static void setCtreStatusSlow(BaseMotorController... motors) {
++        for (BaseMotorController motor : motors) {
++            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 400 + (int) (Math.random() * 100));
++            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 400 + (int) (Math.random() * 100));
++        }
++    }
+ 
+-  public static void setFalconStatusFast(BaseMotorController... motors) {
+-    for (BaseMotorController motor : motors) {
+-      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 5);
+-      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
+-    }
+-  }
++    public static void setFalconStatusFast(BaseMotorController... motors) {
++        for (BaseMotorController motor : motors) {
++            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 5);
++            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
++        }
++    }
+ 
+-  public static void setCtreStatusNormal(BaseMotorController... motors) {
+-    for (BaseMotorController motor : motors) {
+-      // not sure what the normal defaults are
+-      motor.setStatusFramePeriod(StatusFrame.Status_1_General, 10);
+-      motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+-    }
+-  }
+-  /**
+-   * setSparkMaxStatusSlow() - reduce the update rate for the REV motor controllers to reduce CAN
+-   * traffic
+-   *
+-   * <p>Use this for follow motors and motors that do not need to report velocity or position.
+-   *
+-   * @param motors This can be any of the REV motor classes like CANSparkMax, etc
+-   */
+-  public static void setSparkMaxStatusSlow(CANSparkMax... motors) {
+-    for (CANSparkMax motor : motors) {
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50 + (int) (Math.random() * 50));
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 400 + (int) (Math.random() * 100));
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 400 + (int) (Math.random() * 100));
+-    }
+-  }
++    public static void setCtreStatusNormal(BaseMotorController... motors) {
++        for (BaseMotorController motor : motors) {
++            // not sure what the normal defaults are
++            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 10);
++            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
++        }
++    }
++
++    /**
++     * setSparkMaxStatusSlow() - reduce the update rate for the REV motor controllers to reduce CAN
++     * traffic
++     *
++     * <p>Use this for follow motors and motors that do not need to report velocity or position.
++     *
++     * @param motors This can be any of the REV motor classes like CANSparkMax, etc
++     */
++    public static void setSparkMaxStatusSlow(CANSparkMax... motors) {
++        for (CANSparkMax motor : motors) {
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50 + (int) (Math.random() * 50));
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 400 + (int) (Math.random() * 100));
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 400 + (int) (Math.random() * 100));
++        }
++    }
+ 
+-  public static void setSparkMaxStatusFast(CANSparkMax... motors) {
+-    for (CANSparkMax motor : motors) {
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
+-    }
+-  }
++    public static void setSparkMaxStatusFast(CANSparkMax... motors) {
++        for (CANSparkMax motor : motors) {
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
++        }
++    }
+ 
+-  public static void setSparkMaxStatusNormal(CANSparkMax... motors) {
+-    for (CANSparkMax motor : motors) {
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);
+-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
+-    }
+-  }
++    public static void setSparkMaxStatusNormal(CANSparkMax... motors) {
++        for (CANSparkMax motor : motors) {
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);
++            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
++        }
++    }
+ }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AnalysisUIOptions\">\r\n    <option name=\"ANALYZE_INJECTED_CODE\" value=\"false\" />\r\n  </component>\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"45f7111e-5525-49b8-a176-ada9bd0aa102\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/src/main/java/frc/robot/commands/TargetButton.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.vscode/settings.json\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.vscode/settings.json\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/robot/Robot.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/robot/Robot.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/frc/robot/RobotContainer.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/frc/robot/RobotContainer.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"ExternalProjectsManager\">\r\n    <system id=\"GRADLE\">\r\n      <state>\r\n        <task path=\"$PROJECT_DIR$\">\r\n          <activation />\r\n        </task>\r\n        <projects_view>\r\n          <tree_state>\r\n            <expand>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"2023-Robot-Code\" type=\"f1a62948:ProjectNode\" />\r\n              </path>\r\n            </expand>\r\n            <select />\r\n          </tree_state>\r\n        </projects_view>\r\n      </state>\r\n    </system>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"FRC v2 Subsystem\" />\r\n        <option value=\"FRC v2 Trigger\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2KW0jnMuvKxpJWQbO4UhPm9dDwn\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"ASKED_ADD_EXTERNAL_FILES\": \"true\",\r\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"Git.Branch.Popup.ShowAllRemotes\": \"true\",\r\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"WebServerToolWindowFactoryState\": \"false\",\r\n    \"last_opened_file_path\": \"C:/FRC/streamDeckFRC\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"run.code.analysis.last.selected.profile\": \"pProject Default\",\r\n    \"settings.editor.selected.configurable\": \"preferences.JavaFX\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"45f7111e-5525-49b8-a176-ada9bd0aa102\" name=\"Changes\" comment=\"\" />\r\n      <created>1674075177964</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1674075177964</updated>\r\n      <workItem from=\"1674075179258\" duration=\"46000\" />\r\n      <workItem from=\"1674075366821\" duration=\"71000\" />\r\n      <workItem from=\"1674075442066\" duration=\"172000\" />\r\n      <workItem from=\"1674160458717\" duration=\"831000\" />\r\n      <workItem from=\"1674161315036\" duration=\"462000\" />\r\n      <workItem from=\"1674498191306\" duration=\"933000\" />\r\n      <workItem from=\"1674499143487\" duration=\"315000\" />\r\n      <workItem from=\"1674499743694\" duration=\"376000\" />\r\n      <workItem from=\"1674500875674\" duration=\"136000\" />\r\n      <workItem from=\"1674531980462\" duration=\"551000\" />\r\n      <workItem from=\"1674586418706\" duration=\"19000\" />\r\n      <workItem from=\"1674670226947\" duration=\"52000\" />\r\n      <workItem from=\"1674864711119\" duration=\"1174000\" />\r\n      <workItem from=\"1675134044216\" duration=\"549000\" />\r\n      <workItem from=\"1675191369607\" duration=\"1768000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"origin/main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\r\n  </component>\r\n  <component name=\"WpiLibVersionService\">\r\n    <option name=\"lastChecked\" value=\"20230131105614\" />\r\n  </component>\r\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\r\n    <expand />\r\n    <select />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/.idea/workspace.xml	(date 1675724248609)
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="AnalysisUIOptions">
++    <option name="GROUP_BY_SEVERITY" value="true" />
+     <option name="ANALYZE_INJECTED_CODE" value="false" />
+   </component>
+   <component name="AutoImportSettings">
+@@ -8,17 +9,25 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="45f7111e-5525-49b8-a176-ada9bd0aa102" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/src/main/java/frc/robot/commands/TargetButton.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/MotorUtils.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team2930/lib/util/linearInterpolator.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/frc/lib/team6328/util/PolynomialRegression.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/lib/team6328/util/PolynomialRegression.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/robot/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/robot/Robot.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/frc/robot/RobotContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/robot/RobotContainer.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/frc/robot/commands/FeedForwardCharacterization.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/frc/robot/commands/FeedForwardCharacterization.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -43,6 +52,16 @@
+                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                 <item name="2023-Robot-Code" type="f1a62948:ProjectNode" />
+               </path>
++              <path>
++                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
++                <item name="2023-Robot-Code" type="f1a62948:ProjectNode" />
++                <item name="Tasks" type="e4a08cd1:TasksNode" />
++              </path>
++              <path>
++                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
++                <item name="2023-Robot-Code" type="f1a62948:ProjectNode" />
++                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
++              </path>
+             </expand>
+             <select />
+           </tree_state>
+@@ -81,25 +100,31 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "ASKED_ADD_EXTERNAL_FILES": "true",
+-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "Git.Branch.Popup.ShowAllRemotes": "true",
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "WebServerToolWindowFactoryState": "false",
+-    "last_opened_file_path": "C:/FRC/streamDeckFRC",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "run.code.analysis.last.selected.profile": "pProject Default",
+-    "settings.editor.selected.configurable": "preferences.JavaFX",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
++    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
++    &quot;last_opened_file_path&quot;: &quot;C:/Users/jimdi/Desktop/GantSign.xml&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;com.chriscarini.jetbrains.autopowersaver.settings.SettingsConfigurable&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
++  <component name="RecentsManager">
++    <key name="IntroduceConstantDialog.RECENTS_KEY">
++      <recent name="frc.lib.team2930.lib.util.StreamDeckController" />
++    </key>
++  </component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+@@ -123,6 +148,7 @@
+       <workItem from="1674864711119" duration="1174000" />
+       <workItem from="1675134044216" duration="549000" />
+       <workItem from="1675191369607" duration="1768000" />
++      <workItem from="1675724211633" duration="37000" />
+     </task>
+     <servers />
+   </component>
+@@ -156,7 +182,7 @@
+     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+   </component>
+   <component name="WpiLibVersionService">
+-    <option name="lastChecked" value="20230131105614" />
++    <option name="lastChecked" value="20230206145653" />
+   </component>
+   <component name="XSLT-Support.FileAssociations.UIState">
+     <expand />
+Index: src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright (c) FIRST and other WPILib contributors.\r\n// Open Source Software; you can modify and/or share it under the terms of\r\n// the WPILib BSD license file in the root directory of this project.\r\n\r\npackage frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.math.geometry.Pose2d;\r\nimport edu.wpi.first.math.geometry.Rotation2d;\r\nimport edu.wpi.first.math.geometry.Transform2d;\r\nimport edu.wpi.first.math.geometry.Translation2d;\r\nimport edu.wpi.first.math.kinematics.SwerveDriveKinematics;\r\nimport edu.wpi.first.math.trajectory.Trajectory;\r\nimport edu.wpi.first.math.trajectory.TrajectoryConfig;\r\nimport edu.wpi.first.math.trajectory.TrajectoryGenerator;\r\nimport edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;\r\nimport java.util.List;\r\n\r\n/**\r\n * This class is for generating trajectories. It includes several trajectories for calibrating\r\n * trajectory following.\r\n */\r\npublic class SwerveTestTrajectories {\r\n\r\n  private boolean isSwerve = true;\r\n\r\n  // These are very tame velocity and acceleration values. Relatively safe for testing.\r\n  private double maxVelocity = 1.0;\r\n  private double maxAcceleration = 0.75;\r\n  private SwerveDriveKinematics swerveKinematics = null;\r\n  private double maxCornerVelocity = 1.0;\r\n\r\n  /**\r\n   * Constructor for Test Trajectory factory.\r\n   *\r\n   * @param maxVelocity - maximum velocity to limit trajectories to\r\n   * @param maxAcceleration - maximum acceleration to limit trajectories to\r\n   * @param maxCornerVelocity - max velocity of a single swerve module\r\n   * @param swerveKinematics - kinematics for the swerve drive\r\n   */\r\n  public SwerveTestTrajectories(\r\n      double maxVelocity,\r\n      double maxAcceleration,\r\n      double maxCornerVelocity,\r\n      SwerveDriveKinematics swerveKinematics) {\r\n    this.maxVelocity = maxVelocity;\r\n    this.maxAcceleration = maxAcceleration;\r\n    this.swerveKinematics = swerveKinematics;\r\n    this.maxCornerVelocity = maxCornerVelocity;\r\n  }\r\n\r\n  public TrajectoryConfig getTrajectoryConfig() {\r\n    TrajectoryConfig config =\r\n        new TrajectoryConfig(maxVelocity, maxAcceleration)\r\n            // Add kinematics to ensure max speed is actually obeyed\r\n            .setKinematics(swerveKinematics);\r\n\r\n    // Limits the velocity of the robot around turns such that no wheel of a swerve-drive robot\r\n    // goes over a specified maximum velocity.\r\n    SwerveDriveKinematicsConstraint swerveConstraint =\r\n        new SwerveDriveKinematicsConstraint(swerveKinematics, maxCornerVelocity);\r\n    config.addConstraint(swerveConstraint);\r\n\r\n    return config;\r\n  }\r\n\r\n  /**\r\n   * Straight trajectory\r\n   *\r\n   * <p>Return a trajectory that drives straight for a given distance in meters.\r\n   *\r\n   * @param distanceInMeters\r\n   * @return trajectory\r\n   */\r\n  public Trajectory straightForward(double distanceInMeters) {\r\n\r\n    // setReversed(true) if we are traveling backwards\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n        List.of(),\r\n        new Pose2d(distanceInMeters, 0.0, new Rotation2d(0)),\r\n        getTrajectoryConfig().setReversed(distanceInMeters < 0.0));\r\n  }\r\n\r\n  /**\r\n   * Sideways trajectory\r\n   *\r\n   * <p>Return a trajectory that drives sideways for a given distance in meters.\r\n   *\r\n   * <p>This will only work for holonomic drivetrains, like swerve.\r\n   *\r\n   * @param distanceInMeters\r\n   * @return trajectory\r\n   */\r\n  public Trajectory strafeSideways(double distanceInMeters) {\r\n\r\n    if (isSwerve) {\r\n      return TrajectoryGenerator.generateTrajectory(\r\n          new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n          List.of(),\r\n          new Pose2d(0.0, distanceInMeters, new Rotation2d(0)),\r\n          getTrajectoryConfig());\r\n    } else {\r\n      // instead we return a do nothing trajectory (0,0) -> (0,0)\r\n      System.out.println(\"WARNING: non holonomic drive can't drive sideways!\");\r\n      return TrajectoryGenerator.generateTrajectory(\r\n          new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n          List.of(),\r\n          new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n          getTrajectoryConfig());\r\n    }\r\n  }\r\n\r\n  /**\r\n   * Return a trajectory that drives forward and to the left/right for a given distances in meters.\r\n   *\r\n   * @param forwardInMeters\r\n   * @param leftInMeters\r\n   * @return trajectory\r\n   */\r\n  public Trajectory simpleCurve(double forwardInMeters, double leftInMeters) {\r\n\r\n    double rotation = Math.PI / 2;\r\n\r\n    if (leftInMeters == 0) {\r\n      rotation = 0;\r\n    } else if (leftInMeters < 0) {\r\n      // turning to the right (\"the other left\")\r\n      rotation = -1.0 * Math.PI / 2.0;\r\n    }\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n        List.of(),\r\n        new Pose2d(forwardInMeters, leftInMeters, new Rotation2d(rotation)),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  /**\r\n   * easily create a trajectory between two positions, makes auton commands easier to read. YOU\r\n   * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!\r\n   *\r\n   * @param currentPos\r\n   * @param targetPos\r\n   * @return trajectory between two poses\r\n   */\r\n  public Trajectory driveToPose(Pose2d currentPos, Pose2d targetPos) {\r\n    var translation = new Transform2d(currentPos, targetPos);\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d()),\r\n        List.of(),\r\n        new Pose2d(translation.getTranslation(), targetPos.getRotation()),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  /**\r\n   * easily create a trajectory between two translations, makes auton commands easier to read. YOU\r\n   * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!\r\n   *\r\n   * @param currentPos\r\n   * @param targetPos\r\n   * @return trajectory between two translations\r\n   */\r\n  public Trajectory driveToPose(Translation2d currentPos, Translation2d targetPos) {\r\n    Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());\r\n    Pose2d pos2 = new Pose2d(targetPos, new Rotation2d());\r\n\r\n    var translation = new Transform2d(pos1, pos2);\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d()),\r\n        List.of(),\r\n        new Pose2d(translation.getTranslation(), new Rotation2d()),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  /**\r\n   * easily create a trajectory from a translation to a pose, makes auton commands easier to read.\r\n   * YOU STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!\r\n   *\r\n   * @param currentPos\r\n   * @param targetPos\r\n   * @return trajectory from a translation to a pose\r\n   */\r\n  public Trajectory driveToPose(Translation2d currentPos, Pose2d targetPos) {\r\n    Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());\r\n\r\n    var translation = new Transform2d(pos1, targetPos);\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d()),\r\n        List.of(),\r\n        new Pose2d(translation.getTranslation(), targetPos.getRotation()),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  /**\r\n   * Return a trajectory that drives a figure eight pattern. Define the radius of curves in meters.\r\n   *\r\n   * @param radiusInMeters\r\n   * @return trajectory\r\n   */\r\n  public Trajectory figureEight(double radius) {\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        List.of(\r\n            new Translation2d(radius, -radius),\r\n            new Translation2d(2.0 * radius, -2.0 * radius),\r\n            new Translation2d(3.0 * radius, -radius),\r\n            new Translation2d(2.0 * radius, 0.0),\r\n            new Translation2d(radius, -radius),\r\n            new Translation2d(0.0, -2.0 * radius),\r\n            new Translation2d(-radius, -radius)),\r\n        new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  //\r\n  // These three triangle trajectories were just practice and are not used in the robot\r\n  //\r\n  // TODO: test the below trajectories\r\n  //\r\n  public Trajectory isoscelesTriangle(double movement) {\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        List.of(\r\n            new Translation2d(movement, 0),\r\n            new Translation2d(-movement / 2, movement),\r\n            new Translation2d(-movement / 2, -movement)),\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  public Trajectory rightTriangle(double movement) {\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        List.of(\r\n            new Translation2d(movement, 0),\r\n            new Translation2d(0, movement),\r\n            new Translation2d(-movement, -movement)),\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  public Trajectory equilateralTriangle(double movement) {\r\n\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        List.of(\r\n            new Translation2d(movement, 0),\r\n            new Translation2d(-movement / 2, Math.sin(Math.PI / 3) * movement),\r\n            new Translation2d(-movement / 2, -Math.sin(Math.PI / 3) * movement)),\r\n        new Pose2d(0, 0, new Rotation2d()),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  public Trajectory straightUp(double distance) {\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0.0, 0.0, new Rotation2d(0)),\r\n        List.of(),\r\n        new Pose2d(distance, 0.0, new Rotation2d(0)),\r\n        getTrajectoryConfig());\r\n  }\r\n\r\n  public Trajectory drawSquare(double length) {\r\n    return TrajectoryGenerator.generateTrajectory(\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        List.of(\r\n            new Translation2d(length, 0),\r\n            new Translation2d(0, length),\r\n            new Translation2d(-length, 0)),\r\n        new Pose2d(0, 0, new Rotation2d(0)),\r\n        getTrajectoryConfig());\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java b/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java
+--- a/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/SwerveTestTrajectories.java	(date 1675449783937)
+@@ -21,259 +21,259 @@
+  */
+ public class SwerveTestTrajectories {
+ 
+-  private boolean isSwerve = true;
++    private boolean isSwerve = true;
+ 
+-  // These are very tame velocity and acceleration values. Relatively safe for testing.
+-  private double maxVelocity = 1.0;
+-  private double maxAcceleration = 0.75;
+-  private SwerveDriveKinematics swerveKinematics = null;
+-  private double maxCornerVelocity = 1.0;
++    // These are very tame velocity and acceleration values. Relatively safe for testing.
++    private double maxVelocity = 1.0;
++    private double maxAcceleration = 0.75;
++    private SwerveDriveKinematics swerveKinematics = null;
++    private double maxCornerVelocity = 1.0;
+ 
+-  /**
+-   * Constructor for Test Trajectory factory.
+-   *
+-   * @param maxVelocity - maximum velocity to limit trajectories to
+-   * @param maxAcceleration - maximum acceleration to limit trajectories to
+-   * @param maxCornerVelocity - max velocity of a single swerve module
+-   * @param swerveKinematics - kinematics for the swerve drive
+-   */
+-  public SwerveTestTrajectories(
+-      double maxVelocity,
+-      double maxAcceleration,
+-      double maxCornerVelocity,
+-      SwerveDriveKinematics swerveKinematics) {
+-    this.maxVelocity = maxVelocity;
+-    this.maxAcceleration = maxAcceleration;
+-    this.swerveKinematics = swerveKinematics;
+-    this.maxCornerVelocity = maxCornerVelocity;
+-  }
++    /**
++     * Constructor for Test Trajectory factory.
++     *
++     * @param maxVelocity - maximum velocity to limit trajectories to
++     * @param maxAcceleration - maximum acceleration to limit trajectories to
++     * @param maxCornerVelocity - max velocity of a single swerve module
++     * @param swerveKinematics - kinematics for the swerve drive
++     */
++    public SwerveTestTrajectories(
++            double maxVelocity,
++            double maxAcceleration,
++            double maxCornerVelocity,
++            SwerveDriveKinematics swerveKinematics) {
++        this.maxVelocity = maxVelocity;
++        this.maxAcceleration = maxAcceleration;
++        this.swerveKinematics = swerveKinematics;
++        this.maxCornerVelocity = maxCornerVelocity;
++    }
+ 
+-  public TrajectoryConfig getTrajectoryConfig() {
+-    TrajectoryConfig config =
+-        new TrajectoryConfig(maxVelocity, maxAcceleration)
+-            // Add kinematics to ensure max speed is actually obeyed
+-            .setKinematics(swerveKinematics);
++    public TrajectoryConfig getTrajectoryConfig() {
++        TrajectoryConfig config =
++                new TrajectoryConfig(maxVelocity, maxAcceleration)
++                        // Add kinematics to ensure max speed is actually obeyed
++                        .setKinematics(swerveKinematics);
+ 
+-    // Limits the velocity of the robot around turns such that no wheel of a swerve-drive robot
+-    // goes over a specified maximum velocity.
+-    SwerveDriveKinematicsConstraint swerveConstraint =
+-        new SwerveDriveKinematicsConstraint(swerveKinematics, maxCornerVelocity);
+-    config.addConstraint(swerveConstraint);
++        // Limits the velocity of the robot around turns such that no wheel of a swerve-drive robot
++        // goes over a specified maximum velocity.
++        SwerveDriveKinematicsConstraint swerveConstraint =
++                new SwerveDriveKinematicsConstraint(swerveKinematics, maxCornerVelocity);
++        config.addConstraint(swerveConstraint);
+ 
+-    return config;
+-  }
++        return config;
++    }
+ 
+-  /**
+-   * Straight trajectory
+-   *
+-   * <p>Return a trajectory that drives straight for a given distance in meters.
+-   *
+-   * @param distanceInMeters
+-   * @return trajectory
+-   */
+-  public Trajectory straightForward(double distanceInMeters) {
++    /**
++     * Straight trajectory
++     *
++     * <p>Return a trajectory that drives straight for a given distance in meters.
++     *
++     * @param distanceInMeters
++     * @return trajectory
++     */
++    public Trajectory straightForward(double distanceInMeters) {
+ 
+-    // setReversed(true) if we are traveling backwards
++        // setReversed(true) if we are traveling backwards
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-        List.of(),
+-        new Pose2d(distanceInMeters, 0.0, new Rotation2d(0)),
+-        getTrajectoryConfig().setReversed(distanceInMeters < 0.0));
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                List.of(),
++                new Pose2d(distanceInMeters, 0.0, new Rotation2d(0)),
++                getTrajectoryConfig().setReversed(distanceInMeters < 0.0));
++    }
+ 
+-  /**
+-   * Sideways trajectory
+-   *
+-   * <p>Return a trajectory that drives sideways for a given distance in meters.
+-   *
+-   * <p>This will only work for holonomic drivetrains, like swerve.
+-   *
+-   * @param distanceInMeters
+-   * @return trajectory
+-   */
+-  public Trajectory strafeSideways(double distanceInMeters) {
++    /**
++     * Sideways trajectory
++     *
++     * <p>Return a trajectory that drives sideways for a given distance in meters.
++     *
++     * <p>This will only work for holonomic drivetrains, like swerve.
++     *
++     * @param distanceInMeters
++     * @return trajectory
++     */
++    public Trajectory strafeSideways(double distanceInMeters) {
+ 
+-    if (isSwerve) {
+-      return TrajectoryGenerator.generateTrajectory(
+-          new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-          List.of(),
+-          new Pose2d(0.0, distanceInMeters, new Rotation2d(0)),
+-          getTrajectoryConfig());
+-    } else {
+-      // instead we return a do nothing trajectory (0,0) -> (0,0)
+-      System.out.println("WARNING: non holonomic drive can't drive sideways!");
+-      return TrajectoryGenerator.generateTrajectory(
+-          new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-          List.of(),
+-          new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-          getTrajectoryConfig());
+-    }
+-  }
++        if (isSwerve) {
++            return TrajectoryGenerator.generateTrajectory(
++                    new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                    List.of(),
++                    new Pose2d(0.0, distanceInMeters, new Rotation2d(0)),
++                    getTrajectoryConfig());
++        } else {
++            // instead we return a do nothing trajectory (0,0) -> (0,0)
++            System.out.println("WARNING: non holonomic drive can't drive sideways!");
++            return TrajectoryGenerator.generateTrajectory(
++                    new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                    List.of(),
++                    new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                    getTrajectoryConfig());
++        }
++    }
+ 
+-  /**
+-   * Return a trajectory that drives forward and to the left/right for a given distances in meters.
+-   *
+-   * @param forwardInMeters
+-   * @param leftInMeters
+-   * @return trajectory
+-   */
+-  public Trajectory simpleCurve(double forwardInMeters, double leftInMeters) {
++    /**
++     * Return a trajectory that drives forward and to the left/right for a given distances in meters.
++     *
++     * @param forwardInMeters
++     * @param leftInMeters
++     * @return trajectory
++     */
++    public Trajectory simpleCurve(double forwardInMeters, double leftInMeters) {
+ 
+-    double rotation = Math.PI / 2;
++        double rotation = Math.PI / 2;
+ 
+-    if (leftInMeters == 0) {
+-      rotation = 0;
+-    } else if (leftInMeters < 0) {
+-      // turning to the right ("the other left")
+-      rotation = -1.0 * Math.PI / 2.0;
+-    }
++        if (leftInMeters == 0) {
++            rotation = 0;
++        } else if (leftInMeters < 0) {
++            // turning to the right ("the other left")
++            rotation = -1.0 * Math.PI / 2.0;
++        }
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-        List.of(),
+-        new Pose2d(forwardInMeters, leftInMeters, new Rotation2d(rotation)),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                List.of(),
++                new Pose2d(forwardInMeters, leftInMeters, new Rotation2d(rotation)),
++                getTrajectoryConfig());
++    }
+ 
+-  /**
+-   * easily create a trajectory between two positions, makes auton commands easier to read. YOU
+-   * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
+-   *
+-   * @param currentPos
+-   * @param targetPos
+-   * @return trajectory between two poses
+-   */
+-  public Trajectory driveToPose(Pose2d currentPos, Pose2d targetPos) {
+-    var translation = new Transform2d(currentPos, targetPos);
++    /**
++     * easily create a trajectory between two positions, makes auton commands easier to read. YOU
++     * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
++     *
++     * @param currentPos
++     * @param targetPos
++     * @return trajectory between two poses
++     */
++    public Trajectory driveToPose(Pose2d currentPos, Pose2d targetPos) {
++        var translation = new Transform2d(currentPos, targetPos);
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d()),
+-        List.of(),
+-        new Pose2d(translation.getTranslation(), targetPos.getRotation()),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d()),
++                List.of(),
++                new Pose2d(translation.getTranslation(), targetPos.getRotation()),
++                getTrajectoryConfig());
++    }
+ 
+-  /**
+-   * easily create a trajectory between two translations, makes auton commands easier to read. YOU
+-   * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
+-   *
+-   * @param currentPos
+-   * @param targetPos
+-   * @return trajectory between two translations
+-   */
+-  public Trajectory driveToPose(Translation2d currentPos, Translation2d targetPos) {
+-    Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());
+-    Pose2d pos2 = new Pose2d(targetPos, new Rotation2d());
++    /**
++     * easily create a trajectory between two translations, makes auton commands easier to read. YOU
++     * STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
++     *
++     * @param currentPos
++     * @param targetPos
++     * @return trajectory between two translations
++     */
++    public Trajectory driveToPose(Translation2d currentPos, Translation2d targetPos) {
++        Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());
++        Pose2d pos2 = new Pose2d(targetPos, new Rotation2d());
+ 
+-    var translation = new Transform2d(pos1, pos2);
++        var translation = new Transform2d(pos1, pos2);
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d()),
+-        List.of(),
+-        new Pose2d(translation.getTranslation(), new Rotation2d()),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d()),
++                List.of(),
++                new Pose2d(translation.getTranslation(), new Rotation2d()),
++                getTrajectoryConfig());
++    }
+ 
+-  /**
+-   * easily create a trajectory from a translation to a pose, makes auton commands easier to read.
+-   * YOU STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
+-   *
+-   * @param currentPos
+-   * @param targetPos
+-   * @return trajectory from a translation to a pose
+-   */
+-  public Trajectory driveToPose(Translation2d currentPos, Pose2d targetPos) {
+-    Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());
++    /**
++     * easily create a trajectory from a translation to a pose, makes auton commands easier to read.
++     * YOU STILL HAVE TO TRANSFORM THE TRAJECTORY TO MAKE IT FIELD CENTRIC!
++     *
++     * @param currentPos
++     * @param targetPos
++     * @return trajectory from a translation to a pose
++     */
++    public Trajectory driveToPose(Translation2d currentPos, Pose2d targetPos) {
++        Pose2d pos1 = new Pose2d(currentPos, new Rotation2d());
+ 
+-    var translation = new Transform2d(pos1, targetPos);
++        var translation = new Transform2d(pos1, targetPos);
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d()),
+-        List.of(),
+-        new Pose2d(translation.getTranslation(), targetPos.getRotation()),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d()),
++                List.of(),
++                new Pose2d(translation.getTranslation(), targetPos.getRotation()),
++                getTrajectoryConfig());
++    }
+ 
+-  /**
+-   * Return a trajectory that drives a figure eight pattern. Define the radius of curves in meters.
+-   *
+-   * @param radiusInMeters
+-   * @return trajectory
+-   */
+-  public Trajectory figureEight(double radius) {
++    /**
++     * Return a trajectory that drives a figure eight pattern. Define the radius of curves in meters.
++     *
++     * @param radiusInMeters
++     * @return trajectory
++     */
++    public Trajectory figureEight(double radius) {
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        List.of(
+-            new Translation2d(radius, -radius),
+-            new Translation2d(2.0 * radius, -2.0 * radius),
+-            new Translation2d(3.0 * radius, -radius),
+-            new Translation2d(2.0 * radius, 0.0),
+-            new Translation2d(radius, -radius),
+-            new Translation2d(0.0, -2.0 * radius),
+-            new Translation2d(-radius, -radius)),
+-        new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0, 0, new Rotation2d(0)),
++                List.of(
++                        new Translation2d(radius, -radius),
++                        new Translation2d(2.0 * radius, -2.0 * radius),
++                        new Translation2d(3.0 * radius, -radius),
++                        new Translation2d(2.0 * radius, 0.0),
++                        new Translation2d(radius, -radius),
++                        new Translation2d(0.0, -2.0 * radius),
++                        new Translation2d(-radius, -radius)),
++                new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                getTrajectoryConfig());
++    }
+ 
+-  //
+-  // These three triangle trajectories were just practice and are not used in the robot
+-  //
+-  // TODO: test the below trajectories
+-  //
+-  public Trajectory isoscelesTriangle(double movement) {
++    //
++    // These three triangle trajectories were just practice and are not used in the robot
++    //
++    // TODO: test the below trajectories
++    //
++    public Trajectory isoscelesTriangle(double movement) {
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        List.of(
+-            new Translation2d(movement, 0),
+-            new Translation2d(-movement / 2, movement),
+-            new Translation2d(-movement / 2, -movement)),
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0, 0, new Rotation2d(0)),
++                List.of(
++                        new Translation2d(movement, 0),
++                        new Translation2d(-movement / 2, movement),
++                        new Translation2d(-movement / 2, -movement)),
++                new Pose2d(0, 0, new Rotation2d(0)),
++                getTrajectoryConfig());
++    }
+ 
+-  public Trajectory rightTriangle(double movement) {
++    public Trajectory rightTriangle(double movement) {
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        List.of(
+-            new Translation2d(movement, 0),
+-            new Translation2d(0, movement),
+-            new Translation2d(-movement, -movement)),
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0, 0, new Rotation2d(0)),
++                List.of(
++                        new Translation2d(movement, 0),
++                        new Translation2d(0, movement),
++                        new Translation2d(-movement, -movement)),
++                new Pose2d(0, 0, new Rotation2d(0)),
++                getTrajectoryConfig());
++    }
+ 
+-  public Trajectory equilateralTriangle(double movement) {
++    public Trajectory equilateralTriangle(double movement) {
+ 
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        List.of(
+-            new Translation2d(movement, 0),
+-            new Translation2d(-movement / 2, Math.sin(Math.PI / 3) * movement),
+-            new Translation2d(-movement / 2, -Math.sin(Math.PI / 3) * movement)),
+-        new Pose2d(0, 0, new Rotation2d()),
+-        getTrajectoryConfig());
+-  }
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0, 0, new Rotation2d(0)),
++                List.of(
++                        new Translation2d(movement, 0),
++                        new Translation2d(-movement / 2, Math.sin(Math.PI / 3) * movement),
++                        new Translation2d(-movement / 2, -Math.sin(Math.PI / 3) * movement)),
++                new Pose2d(0, 0, new Rotation2d()),
++                getTrajectoryConfig());
++    }
+ 
+-  public Trajectory straightUp(double distance) {
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0.0, 0.0, new Rotation2d(0)),
+-        List.of(),
+-        new Pose2d(distance, 0.0, new Rotation2d(0)),
+-        getTrajectoryConfig());
+-  }
++    public Trajectory straightUp(double distance) {
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0.0, 0.0, new Rotation2d(0)),
++                List.of(),
++                new Pose2d(distance, 0.0, new Rotation2d(0)),
++                getTrajectoryConfig());
++    }
+ 
+-  public Trajectory drawSquare(double length) {
+-    return TrajectoryGenerator.generateTrajectory(
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        List.of(
+-            new Translation2d(length, 0),
+-            new Translation2d(0, length),
+-            new Translation2d(-length, 0)),
+-        new Pose2d(0, 0, new Rotation2d(0)),
+-        getTrajectoryConfig());
+-  }
++    public Trajectory drawSquare(double length) {
++        return TrajectoryGenerator.generateTrajectory(
++                new Pose2d(0, 0, new Rotation2d(0)),
++                List.of(
++                        new Translation2d(length, 0),
++                        new Translation2d(0, length),
++                        new Translation2d(-length, 0)),
++                new Pose2d(0, 0, new Rotation2d(0)),
++                getTrajectoryConfig());
++    }
+ }
+Index: src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.math.geometry.Pose2d;\r\nimport edu.wpi.first.math.geometry.Rotation2d;\r\nimport edu.wpi.first.math.geometry.Translation2d;\r\n\r\n// MIGHT NOT WORK, vector2d has been deprecated, I replaced it with translation2d\r\npublic class SwerveUtils {\r\n\r\n  /**\r\n   * headingToPoint - return the heading to a point from the robot\r\n   *\r\n   * @param robotPose\r\n   * @param point\r\n   * @param robotOffset - add this angle\r\n   * @return targetHeading\r\n   */\r\n  public static Rotation2d headingToPoint(\r\n      Pose2d robotPose, Translation2d point, Rotation2d robotOffset) {\r\n\r\n    // vector from robot to point\r\n    Translation2d robotVector =\r\n        new Translation2d(point.getX() - robotPose.getX(), point.getY() - robotPose.getY());\r\n\r\n    Rotation2d targetHeading = getTargetHeading(robotVector, new Translation2d(1, 0));\r\n\r\n    // add this angle to the target heading, useful if you want to aim the back of the robot at the\r\n    // target\r\n    targetHeading.plus(robotOffset);\r\n\r\n    // to make it work on left side of circle\r\n    targetHeading.times(Math.signum(point.getY() - robotPose.getY()));\r\n\r\n    // double distance = Math.sqrt(Math.pow(point.getX()- point.getX(), 2) + Math.pow(point.getY() -\r\n    // robotPose.getY(), 2));\r\n\r\n    return targetHeading;\r\n  }\r\n\r\n  /**\r\n   * getTargetHeading - calculate the angle from the robot to a point using the dot product\r\n   *\r\n   * @param robotLocation\r\n   * @param point\r\n   * @return\r\n   */\r\n  public static Rotation2d getTargetHeading(Translation2d robotLocation, Translation2d point) {\r\n    double product = Vector2dClassToTranslation2d.dot(robotLocation, point);\r\n    double magnitudes =\r\n        Vector2dClassToTranslation2d.magnitude(robotLocation)\r\n            * Vector2dClassToTranslation2d.magnitude(point);\r\n    double angle_rad = Math.acos(product / magnitudes);\r\n\r\n    return new Rotation2d(angle_rad);\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java b/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java
+--- a/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/SwerveUtils.java	(date 1675449783973)
+@@ -7,50 +7,50 @@
+ // MIGHT NOT WORK, vector2d has been deprecated, I replaced it with translation2d
+ public class SwerveUtils {
+ 
+-  /**
+-   * headingToPoint - return the heading to a point from the robot
+-   *
+-   * @param robotPose
+-   * @param point
+-   * @param robotOffset - add this angle
+-   * @return targetHeading
+-   */
+-  public static Rotation2d headingToPoint(
+-      Pose2d robotPose, Translation2d point, Rotation2d robotOffset) {
++    /**
++     * headingToPoint - return the heading to a point from the robot
++     *
++     * @param robotPose
++     * @param point
++     * @param robotOffset - add this angle
++     * @return targetHeading
++     */
++    public static Rotation2d headingToPoint(
++            Pose2d robotPose, Translation2d point, Rotation2d robotOffset) {
+ 
+-    // vector from robot to point
+-    Translation2d robotVector =
+-        new Translation2d(point.getX() - robotPose.getX(), point.getY() - robotPose.getY());
++        // vector from robot to point
++        Translation2d robotVector =
++                new Translation2d(point.getX() - robotPose.getX(), point.getY() - robotPose.getY());
+ 
+-    Rotation2d targetHeading = getTargetHeading(robotVector, new Translation2d(1, 0));
++        Rotation2d targetHeading = getTargetHeading(robotVector, new Translation2d(1, 0));
+ 
+-    // add this angle to the target heading, useful if you want to aim the back of the robot at the
+-    // target
+-    targetHeading.plus(robotOffset);
++        // add this angle to the target heading, useful if you want to aim the back of the robot at the
++        // target
++        targetHeading.plus(robotOffset);
+ 
+-    // to make it work on left side of circle
+-    targetHeading.times(Math.signum(point.getY() - robotPose.getY()));
++        // to make it work on left side of circle
++        targetHeading.times(Math.signum(point.getY() - robotPose.getY()));
+ 
+-    // double distance = Math.sqrt(Math.pow(point.getX()- point.getX(), 2) + Math.pow(point.getY() -
+-    // robotPose.getY(), 2));
++        // double distance = Math.sqrt(Math.pow(point.getX()- point.getX(), 2) + Math.pow(point.getY() -
++        // robotPose.getY(), 2));
+ 
+-    return targetHeading;
+-  }
++        return targetHeading;
++    }
+ 
+-  /**
+-   * getTargetHeading - calculate the angle from the robot to a point using the dot product
+-   *
+-   * @param robotLocation
+-   * @param point
+-   * @return
+-   */
+-  public static Rotation2d getTargetHeading(Translation2d robotLocation, Translation2d point) {
+-    double product = Vector2dClassToTranslation2d.dot(robotLocation, point);
+-    double magnitudes =
+-        Vector2dClassToTranslation2d.magnitude(robotLocation)
+-            * Vector2dClassToTranslation2d.magnitude(point);
+-    double angle_rad = Math.acos(product / magnitudes);
++    /**
++     * getTargetHeading - calculate the angle from the robot to a point using the dot product
++     *
++     * @param robotLocation
++     * @param point
++     * @return
++     */
++    public static Rotation2d getTargetHeading(Translation2d robotLocation, Translation2d point) {
++        double product = Vector2dClassToTranslation2d.dot(robotLocation, point);
++        double magnitudes =
++                Vector2dClassToTranslation2d.magnitude(robotLocation)
++                        * Vector2dClassToTranslation2d.magnitude(point);
++        double angle_rad = Math.acos(product / magnitudes);
+ 
+-    return new Rotation2d(angle_rad);
+-  }
++        return new Rotation2d(angle_rad);
++    }
+ }
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\"\r\n    enabled=\"true\" />\r\n  <component name=\"FrameworkDetectionExcludesConfiguration\">\r\n    <file type=\"web\" url=\"file://$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\"\r\n    languageLevel=\"JDK_11\" project-jdk-name=\"18\"\r\n    project-jdk-type=\"JavaSDK\" />\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/.idea/misc.xml	(date 1675453468704)
+@@ -1,11 +1,12 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ExternalStorageConfigurationManager"
+-    enabled="true" />
++  <component name="ExternalStorageConfigurationManager" enabled="true" />
+   <component name="FrameworkDetectionExcludesConfiguration">
+     <file type="web" url="file://$PROJECT_DIR$" />
+   </component>
+-  <component name="ProjectRootManager" version="2"
+-    languageLevel="JDK_11" project-jdk-name="18"
+-    project-jdk-type="JavaSDK" />
+-</project>
++  <component name="PWA">
++    <option name="enabled" value="true" />
++    <option name="wasEnabledAtLeastOnce" value="true" />
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="18" project-jdk-type="JavaSDK" />
++</project>
+\ No newline at end of file
+Index: src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.math.geometry.Pose2d;\r\nimport edu.wpi.first.math.geometry.Rotation2d;\r\nimport edu.wpi.first.math.geometry.Translation2d;\r\n\r\n/** Utilities for manipulating Trajectories, Pose2d, Rotation2d, and Vector2d. */\r\n\r\n// MIGHT NOT WORK, vector2d has been deprecated, I replaced it with translation2d\r\npublic class TrajectoryUtils {\r\n\r\n  // private method that changes the rotation of a Pose2d (because that isn't already included in\r\n  // the class for some reason)\r\n  public static Pose2d setRotation(Pose2d pose, Rotation2d rotation) {\r\n    return new Pose2d(pose.getX(), pose.getY(), rotation);\r\n  }\r\n\r\n  // private method that gets the angle between two Translation2ds\r\n  public static Rotation2d getTranslationsAngle(Translation2d pose1, Translation2d pose2) {\r\n    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());\r\n    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());\r\n    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);\r\n    double magnitude =\r\n        Vector2dClassToTranslation2d.magnitude(vector1)\r\n            * Vector2dClassToTranslation2d.magnitude(vector2);\r\n\r\n    return new Rotation2d(Math.acos(dotProduct / magnitude));\r\n  }\r\n\r\n  // private method that gets the angle between two Translation2ds\r\n  public static double getTranslationsAngleDouble(Translation2d pose1, Translation2d pose2) {\r\n    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());\r\n    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());\r\n    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);\r\n    double magnitude =\r\n        Vector2dClassToTranslation2d.magnitude(vector1)\r\n            * Vector2dClassToTranslation2d.magnitude(vector2);\r\n\r\n    return Math.acos(dotProduct / magnitude);\r\n  }\r\n\r\n  // private method that gets a midPos between two poses\r\n  public static Translation2d midPosFinder(Translation2d start, Translation2d target) {\r\n    // double hypotenuse = Math.hypot( (target.getX() - start.getX()), (target.getY() -\r\n    // start.getY()) );\r\n    double xDist = (target.getX() - start.getX()) * 0.75;\r\n    double yDist = (target.getY() - start.getY()) * 0.75;\r\n    Translation2d midPos = new Translation2d(start.getX() + xDist, start.getY() + yDist);\r\n\r\n    return midPos;\r\n  }\r\n\r\n  public static Translation2d poseToTranslation(Pose2d pose) {\r\n    return new Translation2d(pose.getX(), pose.getY());\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java b/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java
+--- a/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/TrajectoryUtils.java	(date 1675449783924)
+@@ -9,48 +9,48 @@
+ // MIGHT NOT WORK, vector2d has been deprecated, I replaced it with translation2d
+ public class TrajectoryUtils {
+ 
+-  // private method that changes the rotation of a Pose2d (because that isn't already included in
+-  // the class for some reason)
+-  public static Pose2d setRotation(Pose2d pose, Rotation2d rotation) {
+-    return new Pose2d(pose.getX(), pose.getY(), rotation);
+-  }
++    // private method that changes the rotation of a Pose2d (because that isn't already included in
++    // the class for some reason)
++    public static Pose2d setRotation(Pose2d pose, Rotation2d rotation) {
++        return new Pose2d(pose.getX(), pose.getY(), rotation);
++    }
+ 
+-  // private method that gets the angle between two Translation2ds
+-  public static Rotation2d getTranslationsAngle(Translation2d pose1, Translation2d pose2) {
+-    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
+-    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
+-    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
+-    double magnitude =
+-        Vector2dClassToTranslation2d.magnitude(vector1)
+-            * Vector2dClassToTranslation2d.magnitude(vector2);
++    // private method that gets the angle between two Translation2ds
++    public static Rotation2d getTranslationsAngle(Translation2d pose1, Translation2d pose2) {
++        Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
++        Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
++        double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
++        double magnitude =
++                Vector2dClassToTranslation2d.magnitude(vector1)
++                        * Vector2dClassToTranslation2d.magnitude(vector2);
+ 
+-    return new Rotation2d(Math.acos(dotProduct / magnitude));
+-  }
++        return new Rotation2d(Math.acos(dotProduct / magnitude));
++    }
+ 
+-  // private method that gets the angle between two Translation2ds
+-  public static double getTranslationsAngleDouble(Translation2d pose1, Translation2d pose2) {
+-    Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
+-    Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
+-    double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
+-    double magnitude =
+-        Vector2dClassToTranslation2d.magnitude(vector1)
+-            * Vector2dClassToTranslation2d.magnitude(vector2);
++    // private method that gets the angle between two Translation2ds
++    public static double getTranslationsAngleDouble(Translation2d pose1, Translation2d pose2) {
++        Translation2d vector1 = new Translation2d(pose1.getX(), pose1.getY());
++        Translation2d vector2 = new Translation2d(pose2.getX(), pose2.getY());
++        double dotProduct = Vector2dClassToTranslation2d.dot(vector1, vector2);
++        double magnitude =
++                Vector2dClassToTranslation2d.magnitude(vector1)
++                        * Vector2dClassToTranslation2d.magnitude(vector2);
+ 
+-    return Math.acos(dotProduct / magnitude);
+-  }
++        return Math.acos(dotProduct / magnitude);
++    }
+ 
+-  // private method that gets a midPos between two poses
+-  public static Translation2d midPosFinder(Translation2d start, Translation2d target) {
+-    // double hypotenuse = Math.hypot( (target.getX() - start.getX()), (target.getY() -
+-    // start.getY()) );
+-    double xDist = (target.getX() - start.getX()) * 0.75;
+-    double yDist = (target.getY() - start.getY()) * 0.75;
+-    Translation2d midPos = new Translation2d(start.getX() + xDist, start.getY() + yDist);
++    // private method that gets a midPos between two poses
++    public static Translation2d midPosFinder(Translation2d start, Translation2d target) {
++        // double hypotenuse = Math.hypot( (target.getX() - start.getX()), (target.getY() -
++        // start.getY()) );
++        double xDist = (target.getX() - start.getX()) * 0.75;
++        double yDist = (target.getY() - start.getY()) * 0.75;
++        Translation2d midPos = new Translation2d(start.getX() + xDist, start.getY() + yDist);
+ 
+-    return midPos;
+-  }
++        return midPos;
++    }
+ 
+-  public static Translation2d poseToTranslation(Pose2d pose) {
+-    return new Translation2d(pose.getX(), pose.getY());
+-  }
++    public static Translation2d poseToTranslation(Pose2d pose) {
++        return new Translation2d(pose.getX(), pose.getY());
++    }
+ }
+Index: src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright (c) FIRST and other WPILib contributors.\r\n// Open Source Software; you can modify and/or share it under the terms of\r\n// the WPILib BSD license file in the root directory of this project.\r\n\r\npackage frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.math.geometry.Translation2d;\r\n\r\n/** This is a 2D vector struct that supports basic vector operations. */\r\npublic class Vector2dClassToTranslation2d {\r\n  /**\r\n   * Rotate a vector in Cartesian space.\r\n   *\r\n   * @param angle angle in degrees by which to rotate vector counter-clockwise.\r\n   */\r\n  public Translation2d rotate(Translation2d vec, double angle) {\r\n    double cosA = Math.cos(angle * (Math.PI / 180.0));\r\n    double sinA = Math.sin(angle * (Math.PI / 180.0));\r\n    double[] out = new double[2];\r\n    out[0] = vec.getX() * cosA - vec.getY() * sinA;\r\n    out[1] = vec.getX() * sinA + vec.getY() * cosA;\r\n    return new Translation2d(out[0], out[1]);\r\n  }\r\n\r\n  /**\r\n   * Returns dot product of this vector with argument.\r\n   *\r\n   * @param vec Vector with which to perform dot product.\r\n   * @return Dot product of this vector with argument.\r\n   */\r\n  public static double dot(Translation2d vec1, Translation2d vec2) {\r\n    return vec1.getX() * vec2.getX() + vec2.getY() * vec2.getY();\r\n  }\r\n\r\n  /**\r\n   * Returns magnitude of vector.\r\n   *\r\n   * @return Magnitude of vector.\r\n   */\r\n  public static double magnitude(Translation2d vec) {\r\n    return Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());\r\n  }\r\n\r\n  /**\r\n   * Returns scalar projection of this vector onto argument.\r\n   *\r\n   * @param vec Vector onto which to project this vector.\r\n   * @return scalar projection of this vector onto argument.\r\n   */\r\n  public double scalarProject(Translation2d vec1, Translation2d vec2) {\r\n    return dot(vec1, vec2) / magnitude(vec1);\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java b/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java
+--- a/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/Vector2dClassToTranslation2d.java	(date 1675449783898)
+@@ -8,46 +8,46 @@
+ 
+ /** This is a 2D vector struct that supports basic vector operations. */
+ public class Vector2dClassToTranslation2d {
+-  /**
+-   * Rotate a vector in Cartesian space.
+-   *
+-   * @param angle angle in degrees by which to rotate vector counter-clockwise.
+-   */
+-  public Translation2d rotate(Translation2d vec, double angle) {
+-    double cosA = Math.cos(angle * (Math.PI / 180.0));
+-    double sinA = Math.sin(angle * (Math.PI / 180.0));
+-    double[] out = new double[2];
+-    out[0] = vec.getX() * cosA - vec.getY() * sinA;
+-    out[1] = vec.getX() * sinA + vec.getY() * cosA;
+-    return new Translation2d(out[0], out[1]);
+-  }
++    /**
++     * Rotate a vector in Cartesian space.
++     *
++     * @param angle angle in degrees by which to rotate vector counter-clockwise.
++     */
++    public Translation2d rotate(Translation2d vec, double angle) {
++        double cosA = Math.cos(angle * (Math.PI / 180.0));
++        double sinA = Math.sin(angle * (Math.PI / 180.0));
++        double[] out = new double[2];
++        out[0] = vec.getX() * cosA - vec.getY() * sinA;
++        out[1] = vec.getX() * sinA + vec.getY() * cosA;
++        return new Translation2d(out[0], out[1]);
++    }
+ 
+-  /**
+-   * Returns dot product of this vector with argument.
+-   *
+-   * @param vec Vector with which to perform dot product.
+-   * @return Dot product of this vector with argument.
+-   */
+-  public static double dot(Translation2d vec1, Translation2d vec2) {
+-    return vec1.getX() * vec2.getX() + vec2.getY() * vec2.getY();
+-  }
++    /**
++     * Returns dot product of this vector with argument.
++     *
++     * @param vec Vector with which to perform dot product.
++     * @return Dot product of this vector with argument.
++     */
++    public static double dot(Translation2d vec1, Translation2d vec2) {
++        return vec1.getX() * vec2.getX() + vec2.getY() * vec2.getY();
++    }
+ 
+-  /**
+-   * Returns magnitude of vector.
+-   *
+-   * @return Magnitude of vector.
+-   */
+-  public static double magnitude(Translation2d vec) {
+-    return Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
+-  }
++    /**
++     * Returns magnitude of vector.
++     *
++     * @return Magnitude of vector.
++     */
++    public static double magnitude(Translation2d vec) {
++        return Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY());
++    }
+ 
+-  /**
+-   * Returns scalar projection of this vector onto argument.
+-   *
+-   * @param vec Vector onto which to project this vector.
+-   * @return scalar projection of this vector onto argument.
+-   */
+-  public double scalarProject(Translation2d vec1, Translation2d vec2) {
+-    return dot(vec1, vec2) / magnitude(vec1);
+-  }
++    /**
++     * Returns scalar projection of this vector onto argument.
++     *
++     * @param vec Vector onto which to project this vector.
++     * @return scalar projection of this vector onto argument.
++     */
++    public double scalarProject(Translation2d vec1, Translation2d vec2) {
++        return dot(vec1, vec2) / magnitude(vec1);
++    }
+ }
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module\r\n        fileurl=\"file://$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml\"\r\n        filepath=\"$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/.idea/modules.xml	(date 1675449247262)
+@@ -2,9 +2,7 @@
+ <project version="4">
+   <component name="ProjectModuleManager">
+     <modules>
+-      <module
+-        fileurl="file://$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml"
+-        filepath="$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml" filepath="$PROJECT_DIR$/.idea/modules/2023-Robot-Code.main.iml" />
+     </modules>
+   </component>
+-</project>
++</project>
+\ No newline at end of file
+Index: .idea/codeStyles/Project.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/codeStyles/Project.xml b/.idea/codeStyles/Project.xml
+new file mode 100644
+--- /dev/null	(date 1675451023620)
++++ b/.idea/codeStyles/Project.xml	(date 1675451023620)
+@@ -0,0 +1,13 @@
++<component name="ProjectCodeStyleConfiguration">
++  <code_scheme name="Project" version="173">
++    <option name="LINE_SEPARATOR" value="&#10;" />
++    <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="true" />
++    <codeStyleSettings language="JAVA">
++      <indentOptions>
++        <option name="TAB_SIZE" value="2" />
++        <option name="USE_TAB_CHARACTER" value="true" />
++        <option name="SMART_TABS" value="true" />
++      </indentOptions>
++    </codeStyleSettings>
++  </code_scheme>
++</component>
+\ No newline at end of file
+Index: .idea/codeStyles/codeStyleConfig.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/codeStyles/codeStyleConfig.xml b/.idea/codeStyles/codeStyleConfig.xml
+new file mode 100644
+--- /dev/null	(date 1675451023644)
++++ b/.idea/codeStyles/codeStyleConfig.xml	(date 1675451023644)
+@@ -0,0 +1,5 @@
++<component name="ProjectCodeStyleConfiguration">
++  <state>
++    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
++  </state>
++</component>
+\ No newline at end of file
+Index: src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;\r\nimport edu.wpi.first.wpilibj2.command.button.Trigger;\r\n\r\npublic class StreamDeckController {\r\n\r\n  public void initAllButtons() {\r\n    for (int i = 0; i < 15; i++) {\r\n      String nameString = \"/streamdeck/\" + i;\r\n      String nameStringTarget = \"/streamdeck/IsTargeting\" + i;\r\n      SmartDashboard.putBoolean(nameString, false);\r\n      SmartDashboard.putBoolean(nameStringTarget, false);\r\n    }\r\n  }\r\n\r\n  public StreamDeckController() {\r\n    initAllButtons();\r\n  }\r\n\r\n  private boolean GetButton(int id) {\r\n    String nameString = \"/streamdeck/\" + id;\r\n    return SmartDashboard.getBoolean(nameString, false);\r\n  }\r\n\r\n  public boolean GetIsTargeting(int id) {\r\n    String nameString = \"/streamdeck/IsTargeting\" + id;\r\n    return SmartDashboard.getBoolean(nameString, false);\r\n  }\r\n\r\n  public Trigger GetButton0() {\r\n    return new Trigger(() -> GetButton(0));\r\n  }\r\n\r\n  public Trigger GetButton1() {\r\n    return new Trigger(() -> GetButton(1));\r\n  }\r\n\r\n  public Trigger GetButton2() {\r\n    return new Trigger(() -> GetButton(2));\r\n  }\r\n\r\n  public Trigger GetButton3() {\r\n    return new Trigger(() -> GetButton(3));\r\n  }\r\n\r\n  public Trigger GetButton4() {\r\n    return new Trigger(() -> GetButton(4));\r\n  }\r\n\r\n  public Trigger GetButton5() {\r\n    return new Trigger(() -> GetButton(5));\r\n  }\r\n\r\n  public Trigger GetButton6() {\r\n    return new Trigger(() -> GetButton(6));\r\n  }\r\n\r\n  public Trigger GetButton7() {\r\n    return new Trigger(() -> GetButton(7));\r\n  }\r\n\r\n  public Trigger GetButton8() {\r\n    return new Trigger(() -> GetButton(8));\r\n  }\r\n\r\n  public Trigger GetButton9() {\r\n    return new Trigger(() -> GetButton(9));\r\n  }\r\n\r\n  public Trigger GetButton10() {\r\n    return new Trigger(() -> GetButton(10));\r\n  }\r\n\r\n  public Trigger GetButton11() {\r\n    return new Trigger(() -> GetButton(11));\r\n  }\r\n\r\n  public Trigger GetButton12() {\r\n    return new Trigger(() -> GetButton(12));\r\n  }\r\n\r\n  public Trigger GetButton13() {\r\n    return new Trigger(() -> GetButton(13));\r\n  }\r\n\r\n  public Trigger GetButton14() {\r\n    return new Trigger(() -> GetButton(14));\r\n  }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java b/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java
+--- a/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/StreamDeckController.java	(date 1675453044211)
+@@ -5,87 +5,35 @@
+ 
+ public class StreamDeckController {
+ 
+-  public void initAllButtons() {
+-    for (int i = 0; i < 15; i++) {
+-      String nameString = "/streamdeck/" + i;
+-      String nameStringTarget = "/streamdeck/IsTargeting" + i;
+-      SmartDashboard.putBoolean(nameString, false);
+-      SmartDashboard.putBoolean(nameStringTarget, false);
+-    }
+-  }
++    static final int BUTTONS_PER_STREAM_DECK = 15;
++
++    public void initAllButtons() {
++        for (int i = 0; BUTTONS_PER_STREAM_DECK > i; i++) {
++            String nameString = "/streamdeck/" + i;
++            String nameStringTarget = "/streamdeck/IsTargeting" + i;
++            SmartDashboard.putBoolean(nameString, false);
++            SmartDashboard.putBoolean(nameStringTarget, false);
++        }
++    }
+ 
+-  public StreamDeckController() {
+-    initAllButtons();
+-  }
++    public StreamDeckController() {
++        initAllButtons();
++    }
+ 
+-  private boolean GetButton(int id) {
+-    String nameString = "/streamdeck/" + id;
+-    return SmartDashboard.getBoolean(nameString, false);
+-  }
++    private boolean getButton(int id) {
++        String nameString = "/streamdeck/" + id;
++        return SmartDashboard.getBoolean(nameString, false);
++    }
+ 
+-  public boolean GetIsTargeting(int id) {
+-    String nameString = "/streamdeck/IsTargeting" + id;
+-    return SmartDashboard.getBoolean(nameString, false);
+-  }
++    public boolean getIsTargeting(int id) {
++        String nameString = "/streamdeck/IsTargeting" + id;
++        return SmartDashboard.getBoolean(nameString, false);
++    }
+ 
+-  public Trigger GetButton0() {
+-    return new Trigger(() -> GetButton(0));
+-  }
+-
+-  public Trigger GetButton1() {
+-    return new Trigger(() -> GetButton(1));
+-  }
+-
+-  public Trigger GetButton2() {
+-    return new Trigger(() -> GetButton(2));
+-  }
+-
+-  public Trigger GetButton3() {
+-    return new Trigger(() -> GetButton(3));
+-  }
+-
+-  public Trigger GetButton4() {
+-    return new Trigger(() -> GetButton(4));
+-  }
+-
+-  public Trigger GetButton5() {
+-    return new Trigger(() -> GetButton(5));
+-  }
+-
+-  public Trigger GetButton6() {
+-    return new Trigger(() -> GetButton(6));
+-  }
+-
+-  public Trigger GetButton7() {
+-    return new Trigger(() -> GetButton(7));
+-  }
+-
+-  public Trigger GetButton8() {
+-    return new Trigger(() -> GetButton(8));
+-  }
++    public Trigger getButton0() {
++        return new Trigger(() -> getButton(0));
++    }
+ 
+-  public Trigger GetButton9() {
+-    return new Trigger(() -> GetButton(9));
+-  }
++}
+ 
+-  public Trigger GetButton10() {
+-    return new Trigger(() -> GetButton(10));
+-  }
+-
+-  public Trigger GetButton11() {
+-    return new Trigger(() -> GetButton(11));
+-  }
+-
+-  public Trigger GetButton12() {
+-    return new Trigger(() -> GetButton(12));
+-  }
+-
+-  public Trigger GetButton13() {
+-    return new Trigger(() -> GetButton(13));
+-  }
+-
+-  public Trigger GetButton14() {
+-    return new Trigger(() -> GetButton(14));
+-  }
+-}
+ 
+Index: src/main/java/frc/lib/team6328/util/PolynomialRegression.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// NOTE: This file is available at\r\n// http://algs4.cs.princeton.edu/14analysis/PolynomialRegression.java.html\r\n\r\n/******************************************************************************\r\n * Compilation: javac -cp .:jama.jar PolynomialRegression.java Execution: java -cp .:jama.jar\r\n * PolynomialRegression Dependencies: jama.jar\r\n *\r\n * % java -cp .:jama.jar PolynomialRegression 0.01 n^3 + -1.64 n^2 + 168.92 n + -2113.73 (R^2 =\r\n * 0.997)\r\n *\r\n ******************************************************************************/\r\n\r\npackage frc.lib.team6328.util;\r\n\r\nimport Jama.Matrix;\r\nimport Jama.QRDecomposition;\r\n\r\n@java.lang.SuppressWarnings({\"java:S106\", \"java:S100\", \"java:S1210\"})\r\n\r\n/**\r\n * The {@code PolynomialRegression} class performs a polynomial regression on an set of <em>N</em>\r\n * data points (<em>y<sub>i</sub></em>, <em>x<sub>i</sub></em>). That is, it fits a polynomial\r\n * <em>y</em> = &beta;<sub>0</sub> + &beta;<sub>1</sub> <em>x</em> + &beta;<sub>2</sub>\r\n * <em>x</em><sup>2</sup> + ... + &beta;<sub><em>d</em></sub> <em>x</em><sup><em>d</em></sup> (where\r\n * <em>y</em> is the response variable, <em>x</em> is the predictor variable, and the\r\n * &beta;<sub><em>i</em></sub> are the regression coefficients) that minimizes the sum of squared\r\n * residuals of the multiple regression model. It also computes associated the coefficient of\r\n * determination <em>R</em><sup>2</sup>.\r\n *\r\n * <p>This implementation performs a QR-decomposition of the underlying Vandermonde matrix, so it is\r\n * neither the fastest nor the most numerically stable way to perform the polynomial regression.\r\n *\r\n * @author Robert Sedgewick\r\n * @author Kevin Wayne\r\n */\r\npublic class PolynomialRegression implements Comparable<PolynomialRegression> {\r\n  private final String variableName; // name of the predictor variable\r\n  private int degree; // degree of the polynomial regression\r\n  private Matrix beta; // the polynomial regression coefficients\r\n  private double sse; // sum of squares due to error\r\n  private double sst; // total sum of squares\r\n\r\n  /**\r\n   * Performs a polynomial regression on the data points {@code (y[i], x[i])}. Uses n as the name of\r\n   * the predictor variable.\r\n   *\r\n   * @param x the values of the predictor variable\r\n   * @param y the corresponding values of the response variable\r\n   * @param degree the degree of the polynomial to fit\r\n   * @throws IllegalArgumentException if the lengths of the two arrays are not equal\r\n   */\r\n  public PolynomialRegression(double[] x, double[] y, int degree) {\r\n    this(x, y, degree, \"n\");\r\n  }\r\n\r\n  /**\r\n   * Performs a polynomial regression on the data points {@code (y[i], x[i])}.\r\n   *\r\n   * @param x the values of the predictor variable\r\n   * @param y the corresponding values of the response variable\r\n   * @param degree the degree of the polynomial to fit\r\n   * @param variableName the name of the predictor variable\r\n   * @throws IllegalArgumentException if the lengths of the two arrays are not equal\r\n   */\r\n  public PolynomialRegression(double[] x, double[] y, int degree, String variableName) {\r\n    this.degree = degree;\r\n    this.variableName = variableName;\r\n\r\n    int n = x.length;\r\n    QRDecomposition qr = null;\r\n    Matrix matrixX = null;\r\n\r\n    // in case Vandermonde matrix does not have full rank, reduce degree until it\r\n    // does\r\n    while (true) {\r\n\r\n      // build Vandermonde matrix\r\n      double[][] vandermonde = new double[n][this.degree + 1];\r\n      for (int i = 0; i < n; i++) {\r\n        for (int j = 0; j <= this.degree; j++) {\r\n          vandermonde[i][j] = Math.pow(x[i], j);\r\n        }\r\n      }\r\n      matrixX = new Matrix(vandermonde);\r\n\r\n      // find least squares solution\r\n      qr = new QRDecomposition(matrixX);\r\n      if (qr.isFullRank()) break;\r\n\r\n      // decrease degree and try again\r\n      this.degree--;\r\n    }\r\n\r\n    // create matrix from vector\r\n    Matrix matrixY = new Matrix(y, n);\r\n\r\n    // linear regression coefficients\r\n    beta = qr.solve(matrixY);\r\n\r\n    // mean of y[] values\r\n    double sum = 0.0;\r\n    for (int i = 0; i < n; i++) sum += y[i];\r\n    double mean = sum / n;\r\n\r\n    // total variation to be accounted for\r\n    for (int i = 0; i < n; i++) {\r\n      double dev = y[i] - mean;\r\n      sst += dev * dev;\r\n    }\r\n\r\n    // variation not accounted for\r\n    Matrix residuals = matrixX.times(beta).minus(matrixY);\r\n    sse = residuals.norm2() * residuals.norm2();\r\n  }\r\n\r\n  /**\r\n   * Returns the {@code j}th regression coefficient.\r\n   *\r\n   * @param j the index\r\n   * @return the {@code j}th regression coefficient\r\n   */\r\n  public double beta(int j) {\r\n    // to make -0.0 print as 0.0\r\n    if (Math.abs(beta.get(j, 0)) < 1E-4) return 0.0;\r\n    return beta.get(j, 0);\r\n  }\r\n\r\n  /**\r\n   * Returns the degree of the polynomial to fit.\r\n   *\r\n   * @return the degree of the polynomial to fit\r\n   */\r\n  public int degree() {\r\n    return degree;\r\n  }\r\n\r\n  /**\r\n   * Returns the coefficient of determination <em>R</em><sup>2</sup>.\r\n   *\r\n   * @return the coefficient of determination <em>R</em><sup>2</sup>, which is a real number between\r\n   *     0 and 1\r\n   */\r\n  public double R2() {\r\n    if (sst == 0.0) return 1.0; // constant function\r\n    return 1.0 - sse / sst;\r\n  }\r\n\r\n  /**\r\n   * Returns the expected response {@code y} given the value of the predictor variable {@code x}.\r\n   *\r\n   * @param x the value of the predictor variable\r\n   * @return the expected response {@code y} given the value of the predictor variable {@code x}\r\n   */\r\n  public double predict(double x) {\r\n    // horner's method\r\n    double y = 0.0;\r\n    for (int j = degree; j >= 0; j--) y = beta(j) + (x * y);\r\n    return y;\r\n  }\r\n\r\n  /**\r\n   * Returns a string representation of the polynomial regression model.\r\n   *\r\n   * @return a string representation of the polynomial regression model, including the best-fit\r\n   *     polynomial and the coefficient of determination <em>R</em><sup>2</sup>\r\n   */\r\n  public String toString() {\r\n    StringBuilder s = new StringBuilder();\r\n    int j = degree;\r\n\r\n    // ignoring leading zero coefficients\r\n    while (j >= 0 && Math.abs(beta(j)) < 1E-5) j--;\r\n\r\n    // create remaining terms\r\n    while (j >= 0) {\r\n      if (j == 0) s.append(String.format(\"%.10f \", beta(j)));\r\n      else if (j == 1) s.append(String.format(\"%.10f %s + \", beta(j), variableName));\r\n      else s.append(String.format(\"%.10f %s^%d + \", beta(j), variableName, j));\r\n      j--;\r\n    }\r\n    s = s.append(\"  (R^2 = \" + String.format(\"%.3f\", R2()) + \")\");\r\n\r\n    // replace \"+ -2n\" with \"- 2n\"\r\n    return s.toString().replace(\"+ -\", \"- \");\r\n  }\r\n\r\n  /** Compare lexicographically. */\r\n  public int compareTo(PolynomialRegression that) {\r\n    final double EPSILON = 1E-5;\r\n    int maxDegree = Math.max(this.degree(), that.degree());\r\n    for (int j = maxDegree; j >= 0; j--) {\r\n      double term1 = 0.0;\r\n      double term2 = 0.0;\r\n      if (this.degree() >= j) term1 = this.beta(j);\r\n      if (that.degree() >= j) term2 = that.beta(j);\r\n      if (Math.abs(term1) < EPSILON) term1 = 0.0;\r\n      if (Math.abs(term2) < EPSILON) term2 = 0.0;\r\n      if (term1 < term2) return -1;\r\n      else if (term1 > term2) return +1;\r\n    }\r\n    return 0;\r\n  }\r\n\r\n  /**\r\n   * Unit tests the {@code PolynomialRegression} data type.\r\n   *\r\n   * @param args the command-line arguments\r\n   */\r\n  public static void main(String[] args) {\r\n    double[] x = {10, 20, 40, 80, 160, 200};\r\n    double[] y = {100, 350, 1500, 6700, 20160, 40000};\r\n    PolynomialRegression regression = new PolynomialRegression(x, y, 3);\r\n\r\n    // Use System.out.println() so that it works with either stdlib.jar or algs4.jar\r\n    // version\r\n    System.out.println(regression);\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team6328/util/PolynomialRegression.java b/src/main/java/frc/lib/team6328/util/PolynomialRegression.java
+--- a/src/main/java/frc/lib/team6328/util/PolynomialRegression.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team6328/util/PolynomialRegression.java	(date 1675449526072)
+@@ -178,7 +178,7 @@
+       else s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
+       j--;
+     }
+-    s = s.append("  (R^2 = " + String.format("%.3f", R2()) + ")");
++    s = s.append("  (R^2 = ").append(String.format("%.3f", R2())).append(")");
+ 
+     // replace "+ -2n" with "- 2n"
+     return s.toString().replace("+ -", "- ");
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id \"java\"\r\n    id \"edu.wpi.first.GradleRIO\" version \"2023.2.1\"\r\n    id 'com.diffplug.spotless' version '6.11.0'\r\n    id \"com.peterabeles.gversion\" version \"1.10\"\r\n}\r\n\r\nsourceCompatibility = JavaVersion.VERSION_11\r\ntargetCompatibility = JavaVersion.VERSION_11\r\n\r\ndef ROBOT_MAIN_CLASS = \"frc.robot.Main\"\r\n\r\n// Define my targets (RoboRIO) and artifacts (deployable files)\r\n// This is added by GradleRIO's backing project DeployUtils.\r\ndeploy {\r\n    targets {\r\n        roborio(getTargetTypeClass('RoboRIO')) {\r\n            // Team number is loaded either from the .wpilib/wpilib_preferences.json\r\n            // or from command line. If not found an exception will be thrown.\r\n            // You can use getTeamOrDefault(team) instead of getTeamNumber if you\r\n            // want to store a team number in this file.\r\n            team = project.frc.getTeamNumber()\r\n            debug = project.frc.getDebugOrDefault(false)\r\n\r\n            artifacts {\r\n                // First part is artifact name, 2nd is artifact type\r\n                // getTargetTypeClass is a shortcut to get the class type using a string\r\n\r\n                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {\r\n                }\r\n\r\n                // Static files artifact\r\n                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {\r\n                    files = project.fileTree('src/main/deploy')\r\n                    directory = '/home/lvuser/deploy'\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\ndef deployArtifact = deploy.targets.roborio.artifacts.frcJava\r\n\r\n// Set to true to use debug for JNI.\r\nwpi.java.debugJni = false\r\n\r\n// Set this to true to enable desktop support.\r\ndef includeDesktopSupport = true\r\n\r\n// Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.\r\n// Also defines JUnit 5.\r\ndependencies {\r\n    implementation wpi.java.deps.wpilib()\r\n    implementation wpi.java.vendor.java()\r\n\r\n    roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)\r\n    roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)\r\n\r\n    roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)\r\n    roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)\r\n\r\n    nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)\r\n    nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)\r\n    simulationDebug wpi.sim.enableDebug()\r\n\r\n    nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)\r\n    nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)\r\n    simulationRelease wpi.sim.enableRelease()\r\n\r\n    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'\r\n    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'\r\n    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'\r\n\r\n    annotationProcessor \"org.littletonrobotics.akit.junction:junction-autolog:2.0.0-beta-2\"\r\n\r\n    implementation \"gov.nist.math:jama:1.0.3\"\r\n}\r\n\r\ntest {\r\n    useJUnitPlatform()\r\n    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'\r\n}\r\n\r\n// Simulation configuration (e.g. environment variables).\r\nwpi.sim.addGui().defaultEnabled = true\r\nwpi.sim.addDriverstation()\r\n\r\n// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')\r\n// in order to make them all available at runtime. Also adding the manifest so WPILib\r\n// knows where to look for our Robot Class.\r\njar {\r\n    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }\r\n    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)\r\n    duplicatesStrategy = DuplicatesStrategy.INCLUDE\r\n}\r\n\r\n// Configure jar and deploy tasks\r\ndeployArtifact.jarTask = jar\r\nwpi.java.configureExecutableTasks(jar)\r\nwpi.java.configureTestTasks(test)\r\n\r\n// Configure string concat to always inline compile\r\ntasks.withType(JavaCompile) {\r\n    options.compilerArgs.add '-XDstringConcat=inline'\r\n}\r\n\r\nspotless {\r\n    java {\r\n        target fileTree('.') {\r\n            include '**/*.java'\r\n            exclude '**/build/**', '**/build-*/**', '**/BuildConstants.java', '**/generated-sources/**'\r\n        }\r\n        toggleOffOn()\r\n        googleJavaFormat()\r\n        removeUnusedImports()\r\n        trimTrailingWhitespace()\r\n        endWithNewline()\r\n    }\r\n    groovyGradle {\r\n        target fileTree('.') {\r\n            include '**/*.gradle'\r\n            exclude '**/build/**', '**/build-*/**', '**/BuildConstants.java', '**/generated-sources/**'\r\n        }\r\n        greclipse()\r\n        indentWithSpaces(4)\r\n        trimTrailingWhitespace()\r\n        endWithNewline()\r\n    }\r\n    format 'xml', {\r\n        target fileTree('.') {\r\n            include '**/*.xml'\r\n            exclude '**/build/**', '**/build-*/**', '**/generated-sources/**'\r\n        }\r\n        eclipseWtp('xml')\r\n        trimTrailingWhitespace()\r\n        indentWithSpaces(2)\r\n        endWithNewline()\r\n    }\r\n    format 'misc', {\r\n        target fileTree('.') {\r\n            include '**/*.md', '**/.gitignore'\r\n            exclude '**/build/**', '**/build-*/**', '**/generated-sources/**'\r\n        }\r\n        trimTrailingWhitespace()\r\n        indentWithSpaces(2)\r\n        endWithNewline()\r\n    }\r\n}\r\n\r\nrepositories {\r\n    maven {\r\n        url = uri(\"https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit\")\r\n        credentials {\r\n            username = \"Mechanical-Advantage-Bot\"\r\n            password = \"\\u0067\\u0068\\u0070\\u005f\\u006e\\u0056\\u0051\\u006a\\u0055\\u004f\\u004c\\u0061\\u0079\\u0066\\u006e\\u0078\\u006e\\u0037\\u0051\\u0049\\u0054\\u0042\\u0032\\u004c\\u004a\\u006d\\u0055\\u0070\\u0073\\u0031\\u006d\\u0037\\u004c\\u005a\\u0030\\u0076\\u0062\\u0070\\u0063\\u0051\"\r\n        }\r\n    }\r\n}\r\n\r\nconfigurations.all {\r\n    exclude group: \"edu.wpi.first.wpilibj\"\r\n}\r\n\r\n// from https://github.com/lessthanoptimal/gversion-plugin\r\ngversion {\r\n    srcDir       = \"src/main/java/\"           // path is relative to the sub-project by default\r\n    // Gradle variables can also be used\r\n    // E.g. \"${project.rootDir}/module/src/main/java\"\r\n    classPackage = \"frc.robot\"\r\n    className    = \"BuildConstants\"\r\n    dateFormat   = \"yyyy-MM-dd HH:mm:ss z\"\r\n    timeZone     = \"America/Chicago\" // Use preferred time zone\r\n    indent       = \"  \"\r\n}\r\n\r\nproject.compileJava.dependsOn(createVersionFile)\r\n\r\n\r\nbuild.dependsOn spotlessApply\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/build.gradle	(date 1675724227738)
+@@ -1,6 +1,6 @@
+ plugins {
+     id "java"
+-    id "edu.wpi.first.GradleRIO" version "2023.2.1"
++    id "edu.wpi.first.GradleRIO" version "2023.3.2"
+     id 'com.diffplug.spotless' version '6.11.0'
+     id "com.peterabeles.gversion" version "1.10"
+ }
+@@ -52,6 +52,7 @@
+ dependencies {
+     implementation wpi.java.deps.wpilib()
+     implementation wpi.java.vendor.java()
++    implementation 'org.jetbrains:annotations:23.0.0'
+ 
+     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
+     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
+Index: src/main/java/frc/robot/Robot.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\r\n * Initially from https://github.com/Mechanical-Advantage/RobotCode2022\r\n */\r\n\r\npackage frc.robot;\r\n\r\nimport edu.wpi.first.wpilibj2.command.Command;\r\nimport edu.wpi.first.wpilibj2.command.CommandScheduler;\r\nimport frc.lib.team2930.lib.util.StreamDeckHandler;\r\nimport frc.lib.team6328.util.Alert;\r\nimport frc.lib.team6328.util.Alert.AlertType;\r\nimport org.littletonrobotics.junction.LogFileUtil;\r\nimport org.littletonrobotics.junction.LoggedRobot;\r\nimport org.littletonrobotics.junction.Logger;\r\nimport org.littletonrobotics.junction.inputs.LoggedPowerDistribution;\r\nimport org.littletonrobotics.junction.networktables.NT4Publisher;\r\nimport org.littletonrobotics.junction.wpilog.WPILOGReader;\r\nimport org.littletonrobotics.junction.wpilog.WPILOGWriter;\r\n\r\n/**\r\n * This class models the entire Robot. It extends from LoggedRobot instead of TimedRobot as required\r\n * to leverage AdvantageKit's logging features.\r\n */\r\npublic class Robot extends LoggedRobot {\r\n\r\n  private Command autonomousCommand;\r\n  private StreamDeckHandler streamDeckHandler;\r\n  private RobotContainer robotContainer;\r\n\r\n  private final Alert logReceiverQueueAlert =\r\n      new Alert(\"Logging queue exceeded capacity, data will NOT be logged.\", AlertType.ERROR);\r\n\r\n  /** Create a new Robot. */\r\n  public Robot() {\r\n    super(Constants.LOOP_PERIOD_SECS);\r\n  }\r\n  /**\r\n   * This method is executed when the code first starts running on the robot and should be used for\r\n   * any initialization code.\r\n   */\r\n  @Override\r\n  public void robotInit() {\r\n    final String GIT_DIRTY = \"GitDirty\";\r\n\r\n    // from AdvantageKit Robot Configuration docs\r\n    // (https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/START-LOGGING.md#robot-configuration)\r\n\r\n    Logger logger = Logger.getInstance();\r\n\r\n    // Set a metadata value\r\n    logger.recordMetadata(\"RuntimeType\", getRuntimeType().toString());\r\n    logger.recordMetadata(\"ProjectName\", BuildConstants.MAVEN_NAME);\r\n    logger.recordMetadata(\"BuildDate\", BuildConstants.BUILD_DATE);\r\n    logger.recordMetadata(\"GitSHA\", BuildConstants.GIT_SHA);\r\n    logger.recordMetadata(\"GitDate\", BuildConstants.GIT_DATE);\r\n    logger.recordMetadata(\"GitBranch\", BuildConstants.GIT_BRANCH);\r\n    switch (BuildConstants.DIRTY) {\r\n      case 0:\r\n        logger.recordMetadata(GIT_DIRTY, \"All changes committed\");\r\n        break;\r\n      case 1:\r\n        logger.recordMetadata(GIT_DIRTY, \"Uncommitted changes\");\r\n        break;\r\n      default:\r\n        logger.recordMetadata(GIT_DIRTY, \"Unknown\");\r\n        break;\r\n    }\r\n\r\n    switch (Constants.getMode()) {\r\n      case REAL:\r\n        // FIXME: this requires a USB stick to be inserted into the ROBOrio\r\n        logger.addDataReceiver(new WPILOGWriter(\"/media/sda1\"));\r\n\r\n        // Provide log data over the network, viewable in Advantage Scope.\r\n        logger.addDataReceiver(new NT4Publisher());\r\n\r\n        LoggedPowerDistribution.getInstance();\r\n        break;\r\n\r\n      case SIM:\r\n        logger.addDataReceiver(new WPILOGWriter(\"\"));\r\n        logger.addDataReceiver(new NT4Publisher());\r\n        break;\r\n\r\n      case REPLAY:\r\n        // Run as fast as possible during replay\r\n        setUseTiming(false);\r\n\r\n        // Prompt the user for a file path on the command line (if not open in AdvantageScope)\r\n        String path = LogFileUtil.findReplayLog();\r\n\r\n        // Read log file for replay\r\n        logger.setReplaySource(new WPILOGReader(path));\r\n\r\n        // Save replay results to a new log with the \"_sim\" suffix\r\n        logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, \"_sim\")));\r\n        break;\r\n    }\r\n\r\n    // Start logging! No more data receivers, replay sources, or metadata values may be added.\r\n    logger.start();\r\n\r\n    // Alternative logging of scheduled commands\r\n    CommandScheduler.getInstance()\r\n        .onCommandInitialize(\r\n            command -> Logger.getInstance().recordOutput(\"Command initialized\", command.getName()));\r\n    CommandScheduler.getInstance()\r\n        .onCommandInterrupt(\r\n            command -> Logger.getInstance().recordOutput(\"Command interrupted\", command.getName()));\r\n    CommandScheduler.getInstance()\r\n        .onCommandFinish(\r\n            command -> Logger.getInstance().recordOutput(\"Command finished\", command.getName()));\r\n\r\n    // Invoke the factory method to create the RobotContainer singleton.\r\n    robotContainer = RobotContainer.getInstance();\r\n  }\r\n\r\n  /**\r\n   * This method is called every robot packet, no matter the mode. Use this for items like\r\n   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.\r\n   *\r\n   * <p>This runs after the mode specific periodic methods, but before LiveWindow and SmartDashboard\r\n   * integrated updating.\r\n   */\r\n  @Override\r\n  public void robotPeriodic() {\r\n    /*\r\n     * Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,\r\n     * running already-scheduled commands, removing finished or interrupted commands, and running\r\n     * subsystem periodic() methods. This must be called from the robot's periodic block in order\r\n     * for anything in the Command-based framework to work.\r\n     */\r\n    CommandScheduler.getInstance().run();\r\n\r\n    logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());\r\n  }\r\n\r\n  /**\r\n   * This method is invoked at the start of the autonomous period. It schedules the autonomous\r\n   * command selected by your {@link RobotContainer} class.\r\n   */\r\n  @Override\r\n  public void autonomousInit() {\r\n    autonomousCommand = robotContainer.getAutonomousCommand();\r\n\r\n    // schedule the autonomous command\r\n    if (autonomousCommand != null) {\r\n      autonomousCommand.schedule();\r\n    }\r\n  }\r\n\r\n  /** This method is invoked at the start of the teleoperated period. */\r\n  @Override\r\n  public void teleopInit() {\r\n    /*\r\n     * This makes sure that the autonomous stops running when teleop starts running. If you want the\r\n     * autonomous to continue until interrupted by another command, remove this line or comment it\r\n     * out.\r\n     */\r\n    if (autonomousCommand != null) {\r\n      autonomousCommand.cancel();\r\n    }\r\n  }\r\n\r\n  /** This method is invoked at the start of the test period. */\r\n  @Override\r\n  public void testInit() {\r\n    // Cancels all running commands at the start of test mode.\r\n    CommandScheduler.getInstance().cancelAll();\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/robot/Robot.java b/src/main/java/frc/robot/Robot.java
+--- a/src/main/java/frc/robot/Robot.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/robot/Robot.java	(date 1675451025956)
+@@ -23,6 +23,7 @@
+  */
+ public class Robot extends LoggedRobot {
+ 
++
+   private Command autonomousCommand;
+   private StreamDeckHandler streamDeckHandler;
+   private RobotContainer robotContainer;
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"CompilerConfiguration\">\r\n    <annotationProcessing>\r\n      <profile name=\"Gradle Imported\" enabled=\"true\">\r\n        <outputRelativeToContentRoot\r\n          value=\"true\" />\r\n        <processorPath useClasspath=\"false\">\r\n          <entry\r\n            name=\"$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.littletonrobotics.akit.junction/junction-autolog/2.0.0-beta-2/49b4dcc98676e1e18d08cfa3a3cfa5f1f6e52190/junction-autolog-2.0.0-beta-2.jar\" />\r\n          <entry\r\n            name=\"$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.13.0/d6562d385049f35eb50403fa86bb11cce76b866a/javapoet-1.13.0.jar\" />\r\n        </processorPath>\r\n        <module name=\"2023-Robot-Code.main\" />\r\n      </profile>\r\n    </annotationProcessing>\r\n    <bytecodeTargetLevel target=\"11\" />\r\n  </component>\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+--- a/.idea/compiler.xml	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/.idea/compiler.xml	(date 1675449229375)
+@@ -3,17 +3,14 @@
+   <component name="CompilerConfiguration">
+     <annotationProcessing>
+       <profile name="Gradle Imported" enabled="true">
+-        <outputRelativeToContentRoot
+-          value="true" />
++        <outputRelativeToContentRoot value="true" />
+         <processorPath useClasspath="false">
+-          <entry
+-            name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.littletonrobotics.akit.junction/junction-autolog/2.0.0-beta-2/49b4dcc98676e1e18d08cfa3a3cfa5f1f6e52190/junction-autolog-2.0.0-beta-2.jar" />
+-          <entry
+-            name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.13.0/d6562d385049f35eb50403fa86bb11cce76b866a/javapoet-1.13.0.jar" />
++          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.littletonrobotics.akit.junction/junction-autolog/2.0.0-beta-2/49b4dcc98676e1e18d08cfa3a3cfa5f1f6e52190/junction-autolog-2.0.0-beta-2.jar" />
++          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.13.0/d6562d385049f35eb50403fa86bb11cce76b866a/javapoet-1.13.0.jar" />
+         </processorPath>
+         <module name="2023-Robot-Code.main" />
+       </profile>
+     </annotationProcessing>
+     <bytecodeTargetLevel target="11" />
+   </component>
+-</project>
++</project>
+\ No newline at end of file
+Index: src/main/java/frc/robot/commands/FeedForwardCharacterization.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright (c) FIRST and other WPILib contributors.\r\n// Open Source Software; you can modify and/or share it under the terms of\r\n// the WPILib BSD license file in the root directory of this project.\r\n\r\n/*\r\n * Initially from https://github.com/Mechanical-Advantage/SwerveDevelopment\r\n */\r\n\r\npackage frc.robot.commands;\r\n\r\nimport edu.wpi.first.wpilibj.Timer;\r\nimport edu.wpi.first.wpilibj2.command.CommandBase;\r\nimport edu.wpi.first.wpilibj2.command.Subsystem;\r\nimport frc.lib.team6328.util.PolynomialRegression;\r\nimport java.util.LinkedList;\r\nimport java.util.List;\r\nimport java.util.function.BiConsumer;\r\nimport java.util.function.Consumer;\r\nimport java.util.function.Supplier;\r\n\r\n@java.lang.SuppressWarnings({\"java:S106\"})\r\npublic class FeedForwardCharacterization extends CommandBase {\r\n  private static final double START_DELAY_SECS = 2.0;\r\n  private static final double RAMP_RATE_VOLTS_PER_SECOND = 0.05;\r\n\r\n  private final boolean forwards;\r\n  private final boolean isDrive;\r\n\r\n  private final FeedForwardCharacterizationData dataPrimary;\r\n  private final FeedForwardCharacterizationData dataSecondary;\r\n  private final Consumer<Double> voltageConsumerSimple;\r\n  private final BiConsumer<Double, Double> voltageConsumerDrive;\r\n  private final Supplier<Double> velocitySupplierPrimary;\r\n  private final Supplier<Double> velocitySupplierSecondary;\r\n\r\n  private final Timer timer = new Timer();\r\n\r\n  /** Creates a new FeedForwardCharacterization for a drive. */\r\n  public FeedForwardCharacterization(\r\n      Subsystem drive,\r\n      boolean forwards,\r\n      FeedForwardCharacterizationData leftData,\r\n      FeedForwardCharacterizationData rightData,\r\n      BiConsumer<Double, Double> voltageConsumer,\r\n      Supplier<Double> leftVelocitySupplier,\r\n      Supplier<Double> rightVelocitySupplier) {\r\n    addRequirements(drive);\r\n    this.forwards = forwards;\r\n    this.isDrive = true;\r\n    this.dataPrimary = leftData;\r\n    this.dataSecondary = rightData;\r\n    this.voltageConsumerSimple = null;\r\n    this.voltageConsumerDrive = voltageConsumer;\r\n    this.velocitySupplierPrimary = leftVelocitySupplier;\r\n    this.velocitySupplierSecondary = rightVelocitySupplier;\r\n  }\r\n\r\n  /** Creates a new FeedForwardCharacterization for a simple subsystem. */\r\n  public FeedForwardCharacterization(\r\n      Subsystem subsystem,\r\n      boolean forwards,\r\n      FeedForwardCharacterizationData data,\r\n      Consumer<Double> voltageConsumer,\r\n      Supplier<Double> velocitySupplier) {\r\n    addRequirements(subsystem);\r\n    this.forwards = forwards;\r\n    this.isDrive = false;\r\n    this.dataPrimary = data;\r\n    this.dataSecondary = null;\r\n    this.voltageConsumerSimple = voltageConsumer;\r\n    this.voltageConsumerDrive = null;\r\n    this.velocitySupplierPrimary = velocitySupplier;\r\n    this.velocitySupplierSecondary = null;\r\n  }\r\n\r\n  // Called when the command is initially scheduled.\r\n  @Override\r\n  public void initialize() {\r\n    timer.reset();\r\n    timer.start();\r\n  }\r\n\r\n  // Called every time the scheduler runs while the command is scheduled.\r\n  @Override\r\n  public void execute() {\r\n    if (timer.get() < START_DELAY_SECS) {\r\n      if (isDrive) {\r\n        voltageConsumerDrive.accept(0.0, 0.0);\r\n      } else {\r\n        voltageConsumerSimple.accept(0.0);\r\n      }\r\n    } else {\r\n      double voltage =\r\n          (timer.get() - START_DELAY_SECS) * RAMP_RATE_VOLTS_PER_SECOND * (forwards ? 1 : -1);\r\n      if (isDrive) {\r\n        voltageConsumerDrive.accept(voltage, voltage);\r\n      } else {\r\n        voltageConsumerSimple.accept(voltage);\r\n      }\r\n      dataPrimary.add(velocitySupplierPrimary.get(), voltage);\r\n      if (isDrive) {\r\n        dataSecondary.add(velocitySupplierSecondary.get(), voltage);\r\n      }\r\n    }\r\n  }\r\n\r\n  // Called once the command ends or is interrupted.\r\n  @Override\r\n  public void end(boolean interrupted) {\r\n    if (isDrive) {\r\n      voltageConsumerDrive.accept(0.0, 0.0);\r\n    } else {\r\n      voltageConsumerSimple.accept(0.0);\r\n    }\r\n    timer.stop();\r\n    dataPrimary.print();\r\n    if (isDrive) {\r\n      dataSecondary.print();\r\n    }\r\n  }\r\n\r\n  // Returns true when the command should end.\r\n  @Override\r\n  public boolean isFinished() {\r\n    return false;\r\n  }\r\n\r\n  public static class FeedForwardCharacterizationData {\r\n    private final String name;\r\n    private final List<Double> velocityData = new LinkedList<>();\r\n    private final List<Double> voltageData = new LinkedList<>();\r\n\r\n    public FeedForwardCharacterizationData(String name) {\r\n      this.name = name;\r\n    }\r\n\r\n    public void add(double velocity, double voltage) {\r\n      if (Math.abs(velocity) > 1E-4) {\r\n        velocityData.add(Math.abs(velocity));\r\n        voltageData.add(Math.abs(voltage));\r\n      }\r\n    }\r\n\r\n    public void print() {\r\n      PolynomialRegression regression =\r\n          new PolynomialRegression(\r\n              velocityData.stream().mapToDouble(Double::doubleValue).toArray(),\r\n              voltageData.stream().mapToDouble(Double::doubleValue).toArray(),\r\n              1);\r\n\r\n      System.out.println(\"FF Characterization Results (\" + name + \"):\");\r\n      System.out.println(\"\\tCount=\" + Integer.toString(velocityData.size()) + \"\");\r\n      System.out.println(String.format(\"\\tR2=%.5f\", regression.R2()));\r\n      System.out.println(String.format(\"\\tkS=%.5f\", regression.beta(0)));\r\n      System.out.println(String.format(\"\\tkV=%.5f\", regression.beta(1)));\r\n    }\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/robot/commands/FeedForwardCharacterization.java b/src/main/java/frc/robot/commands/FeedForwardCharacterization.java
+--- a/src/main/java/frc/robot/commands/FeedForwardCharacterization.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/robot/commands/FeedForwardCharacterization.java	(date 1675449755287)
+@@ -20,139 +20,139 @@
+ 
+ @java.lang.SuppressWarnings({"java:S106"})
+ public class FeedForwardCharacterization extends CommandBase {
+-  private static final double START_DELAY_SECS = 2.0;
+-  private static final double RAMP_RATE_VOLTS_PER_SECOND = 0.05;
++    private static final double START_DELAY_SECS = 2.0;
++    private static final double RAMP_RATE_VOLTS_PER_SECOND = 0.05;
+ 
+-  private final boolean forwards;
+-  private final boolean isDrive;
++    private final boolean forwards;
++    private final boolean isDrive;
+ 
+-  private final FeedForwardCharacterizationData dataPrimary;
+-  private final FeedForwardCharacterizationData dataSecondary;
+-  private final Consumer<Double> voltageConsumerSimple;
+-  private final BiConsumer<Double, Double> voltageConsumerDrive;
+-  private final Supplier<Double> velocitySupplierPrimary;
+-  private final Supplier<Double> velocitySupplierSecondary;
++    private final FeedForwardCharacterizationData dataPrimary;
++    private final FeedForwardCharacterizationData dataSecondary;
++    private final Consumer<Double> voltageConsumerSimple;
++    private final BiConsumer<Double, Double> voltageConsumerDrive;
++    private final Supplier<Double> velocitySupplierPrimary;
++    private final Supplier<Double> velocitySupplierSecondary;
+ 
+-  private final Timer timer = new Timer();
++    private final Timer timer = new Timer();
+ 
+-  /** Creates a new FeedForwardCharacterization for a drive. */
+-  public FeedForwardCharacterization(
+-      Subsystem drive,
+-      boolean forwards,
+-      FeedForwardCharacterizationData leftData,
+-      FeedForwardCharacterizationData rightData,
+-      BiConsumer<Double, Double> voltageConsumer,
+-      Supplier<Double> leftVelocitySupplier,
+-      Supplier<Double> rightVelocitySupplier) {
+-    addRequirements(drive);
+-    this.forwards = forwards;
+-    this.isDrive = true;
+-    this.dataPrimary = leftData;
+-    this.dataSecondary = rightData;
+-    this.voltageConsumerSimple = null;
+-    this.voltageConsumerDrive = voltageConsumer;
+-    this.velocitySupplierPrimary = leftVelocitySupplier;
+-    this.velocitySupplierSecondary = rightVelocitySupplier;
+-  }
++    /** Creates a new FeedForwardCharacterization for a drive. */
++    public FeedForwardCharacterization(
++            Subsystem drive,
++            boolean forwards,
++            FeedForwardCharacterizationData leftData,
++            FeedForwardCharacterizationData rightData,
++            BiConsumer<Double, Double> voltageConsumer,
++            Supplier<Double> leftVelocitySupplier,
++            Supplier<Double> rightVelocitySupplier) {
++        addRequirements(drive);
++        this.forwards = forwards;
++        this.isDrive = true;
++        this.dataPrimary = leftData;
++        this.dataSecondary = rightData;
++        this.voltageConsumerSimple = null;
++        this.voltageConsumerDrive = voltageConsumer;
++        this.velocitySupplierPrimary = leftVelocitySupplier;
++        this.velocitySupplierSecondary = rightVelocitySupplier;
++    }
+ 
+-  /** Creates a new FeedForwardCharacterization for a simple subsystem. */
+-  public FeedForwardCharacterization(
+-      Subsystem subsystem,
+-      boolean forwards,
+-      FeedForwardCharacterizationData data,
+-      Consumer<Double> voltageConsumer,
+-      Supplier<Double> velocitySupplier) {
+-    addRequirements(subsystem);
+-    this.forwards = forwards;
+-    this.isDrive = false;
+-    this.dataPrimary = data;
+-    this.dataSecondary = null;
+-    this.voltageConsumerSimple = voltageConsumer;
+-    this.voltageConsumerDrive = null;
+-    this.velocitySupplierPrimary = velocitySupplier;
+-    this.velocitySupplierSecondary = null;
+-  }
++    /** Creates a new FeedForwardCharacterization for a simple subsystem. */
++    public FeedForwardCharacterization(
++            Subsystem subsystem,
++            boolean forwards,
++            FeedForwardCharacterizationData data,
++            Consumer<Double> voltageConsumer,
++            Supplier<Double> velocitySupplier) {
++        addRequirements(subsystem);
++        this.forwards = forwards;
++        this.isDrive = false;
++        this.dataPrimary = data;
++        this.dataSecondary = null;
++        this.voltageConsumerSimple = voltageConsumer;
++        this.voltageConsumerDrive = null;
++        this.velocitySupplierPrimary = velocitySupplier;
++        this.velocitySupplierSecondary = null;
++    }
+ 
+-  // Called when the command is initially scheduled.
+-  @Override
+-  public void initialize() {
+-    timer.reset();
+-    timer.start();
+-  }
++    // Called when the command is initially scheduled.
++    @Override
++    public void initialize() {
++        timer.reset();
++        timer.start();
++    }
+ 
+-  // Called every time the scheduler runs while the command is scheduled.
+-  @Override
+-  public void execute() {
+-    if (timer.get() < START_DELAY_SECS) {
+-      if (isDrive) {
+-        voltageConsumerDrive.accept(0.0, 0.0);
+-      } else {
+-        voltageConsumerSimple.accept(0.0);
+-      }
+-    } else {
+-      double voltage =
+-          (timer.get() - START_DELAY_SECS) * RAMP_RATE_VOLTS_PER_SECOND * (forwards ? 1 : -1);
+-      if (isDrive) {
+-        voltageConsumerDrive.accept(voltage, voltage);
+-      } else {
+-        voltageConsumerSimple.accept(voltage);
+-      }
+-      dataPrimary.add(velocitySupplierPrimary.get(), voltage);
+-      if (isDrive) {
+-        dataSecondary.add(velocitySupplierSecondary.get(), voltage);
+-      }
+-    }
+-  }
++    // Called every time the scheduler runs while the command is scheduled.
++    @Override
++    public void execute() {
++        if (timer.get() < START_DELAY_SECS) {
++            if (isDrive) {
++                voltageConsumerDrive.accept(0.0, 0.0);
++            } else {
++                voltageConsumerSimple.accept(0.0);
++            }
++        } else {
++            double voltage =
++                    (timer.get() - START_DELAY_SECS) * RAMP_RATE_VOLTS_PER_SECOND * (forwards ? 1 : -1);
++            if (isDrive) {
++                voltageConsumerDrive.accept(voltage, voltage);
++            } else {
++                voltageConsumerSimple.accept(voltage);
++            }
++            dataPrimary.add(velocitySupplierPrimary.get(), voltage);
++            if (isDrive) {
++                dataSecondary.add(velocitySupplierSecondary.get(), voltage);
++            }
++        }
++    }
+ 
+-  // Called once the command ends or is interrupted.
+-  @Override
+-  public void end(boolean interrupted) {
+-    if (isDrive) {
+-      voltageConsumerDrive.accept(0.0, 0.0);
+-    } else {
+-      voltageConsumerSimple.accept(0.0);
+-    }
+-    timer.stop();
+-    dataPrimary.print();
+-    if (isDrive) {
+-      dataSecondary.print();
+-    }
+-  }
++    // Called once the command ends or is interrupted.
++    @Override
++    public void end(boolean interrupted) {
++        if (isDrive) {
++            voltageConsumerDrive.accept(0.0, 0.0);
++        } else {
++            voltageConsumerSimple.accept(0.0);
++        }
++        timer.stop();
++        dataPrimary.print();
++        if (isDrive) {
++            dataSecondary.print();
++        }
++    }
+ 
+-  // Returns true when the command should end.
+-  @Override
+-  public boolean isFinished() {
+-    return false;
+-  }
++    // Returns true when the command should end.
++    @Override
++    public boolean isFinished() {
++        return false;
++    }
+ 
+-  public static class FeedForwardCharacterizationData {
+-    private final String name;
+-    private final List<Double> velocityData = new LinkedList<>();
+-    private final List<Double> voltageData = new LinkedList<>();
++    public static class FeedForwardCharacterizationData {
++        private final String name;
++        private final List<Double> velocityData = new LinkedList<>();
++        private final List<Double> voltageData = new LinkedList<>();
+ 
+-    public FeedForwardCharacterizationData(String name) {
+-      this.name = name;
+-    }
++        public FeedForwardCharacterizationData(String name) {
++            this.name = name;
++        }
+ 
+-    public void add(double velocity, double voltage) {
+-      if (Math.abs(velocity) > 1E-4) {
+-        velocityData.add(Math.abs(velocity));
+-        voltageData.add(Math.abs(voltage));
+-      }
+-    }
++        public void add(double velocity, double voltage) {
++            if (Math.abs(velocity) > 1E-4) {
++                velocityData.add(Math.abs(velocity));
++                voltageData.add(Math.abs(voltage));
++            }
++        }
+ 
+-    public void print() {
+-      PolynomialRegression regression =
+-          new PolynomialRegression(
+-              velocityData.stream().mapToDouble(Double::doubleValue).toArray(),
+-              voltageData.stream().mapToDouble(Double::doubleValue).toArray(),
+-              1);
++        public void print() {
++            PolynomialRegression regression =
++                    new PolynomialRegression(
++                            velocityData.stream().mapToDouble(Double::doubleValue).toArray(),
++                            voltageData.stream().mapToDouble(Double::doubleValue).toArray(),
++                            1);
+ 
+-      System.out.println("FF Characterization Results (" + name + "):");
+-      System.out.println("\tCount=" + Integer.toString(velocityData.size()) + "");
+-      System.out.println(String.format("\tR2=%.5f", regression.R2()));
+-      System.out.println(String.format("\tkS=%.5f", regression.beta(0)));
+-      System.out.println(String.format("\tkV=%.5f", regression.beta(1)));
+-    }
+-  }
++            System.out.println("FF Characterization Results (" + name + "):");
++            System.out.println("\tCount=" + Integer.toString(velocityData.size()) + "");
++            System.out.printf("\tR2=%.5f%n", regression.R2());
++            System.out.printf("\tkS=%.5f%n", regression.beta(0));
++            System.out.printf("\tkV=%.5f%n", regression.beta(1));
++        }
++    }
+ }
+Index: src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package frc.lib.team2930.lib.util;\r\n\r\nimport edu.wpi.first.wpilibj2.command.PrintCommand;\r\nimport edu.wpi.first.wpilibj2.command.button.Trigger;\r\n\r\npublic class StreamDeckHandler {\r\n  StreamDeckController streamDeckController = new StreamDeckController();\r\n  public int TargetNode = 0;\r\n\r\n  public Trigger GetIsTargeting() { // Returns if Button 0 is pressed (Targeting Button)\r\n    return streamDeckController.GetButton0();\r\n  }\r\n\r\n  public void SetTarget(int num) {\r\n    System.out.println(\"Updating\");\r\n    TargetNode = num;\r\n  }\r\n\r\n  public int GetTarget() {\r\n    return TargetNode;\r\n  }\r\n\r\n  public String getTargetString() {\r\n    return String.valueOf(TargetNode);\r\n  }\r\n\r\n  public void print() {\r\n    new PrintCommand(\"TARGET NODE: \" + TargetNode).schedule();\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java b/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java
+--- a/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java	(revision 18caf4e5ab2ebacdea1fbdc871f73b7c525059b8)
++++ b/src/main/java/frc/lib/team2930/lib/util/StreamDeckHandler.java	(date 1675452943502)
+@@ -4,27 +4,27 @@
+ import edu.wpi.first.wpilibj2.command.button.Trigger;
+ 
+ public class StreamDeckHandler {
+-  StreamDeckController streamDeckController = new StreamDeckController();
+-  public int TargetNode = 0;
++    StreamDeckController streamDeckController = new StreamDeckController();
++    public int targetNode; // Base is 0
+ 
+-  public Trigger GetIsTargeting() { // Returns if Button 0 is pressed (Targeting Button)
+-    return streamDeckController.GetButton0();
+-  }
++    public Trigger getIsTargeting() { // Returns if Button 0 is pressed (Targeting Button)
++        return streamDeckController.getButton0();
++    }
+ 
+-  public void SetTarget(int num) {
+-    System.out.println("Updating");
+-    TargetNode = num;
+-  }
++    public void setTarget(int num) {
++        System.out.println("Updating");
++        targetNode = num;
++    }
+ 
+-  public int GetTarget() {
+-    return TargetNode;
+-  }
++    public int getTarget() {
++        return targetNode;
++    }
+ 
+-  public String getTargetString() {
+-    return String.valueOf(TargetNode);
+-  }
++    public String getTargetString() {
++        return String.valueOf(targetNode);
++    }
+ 
+-  public void print() {
+-    new PrintCommand("TARGET NODE: " + TargetNode).schedule();
+-  }
++    public void print() {
++        new PrintCommand("TARGET NODE: " + targetNode).schedule();
++    }
+ }

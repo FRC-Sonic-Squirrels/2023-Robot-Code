@@ -1,5 +1,6 @@
 package frc.robot.subsystems.streamdeck;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -20,8 +21,8 @@ public interface StreamdeckIO {
     }
   }
 
-  public default Trigger getButton(int buttonNumber) {
-    return new Trigger(() -> false);
+  default Trigger getButton(String buttonNumber) {
+    return new Trigger(() -> SmartDashboard.getBoolean( "/streamdeck/" + buttonNumber, false));
   }
 
   public default void setButtonSprite(int buttonNumber) {}

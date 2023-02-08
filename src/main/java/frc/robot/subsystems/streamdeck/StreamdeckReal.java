@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.streamdeck;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.streamdeck.Streamdeck.StreamDeckLocation;
 
@@ -19,13 +20,7 @@ public class StreamdeckReal implements StreamdeckIO {
   }
 
   @Override
-  public Trigger getButton(int buttonNumber) {
-    // TODO
-    return null;
-  }
-
-  @Override
-  public void setButtonSprite(int buttonNumber) {
-    // TODO
+  public Trigger getButton(String buttonNumber) {
+    return new Trigger(() -> SmartDashboard.getBoolean( "/streamdeck/" + buttonNumber, false));
   }
 }

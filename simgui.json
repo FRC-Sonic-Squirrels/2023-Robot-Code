@@ -18,5 +18,21 @@
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d"
     }
+  },
+  "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    },
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
+    }
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }
