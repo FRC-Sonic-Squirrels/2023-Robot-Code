@@ -98,7 +98,7 @@ public class ElevatorSim implements ElevatorIO {
   @Override
   public void setHeightInches(double targetHeightInches) {
     closedLoop = true;
-    controller.reset(currentHeightInches);
+    // controller.reset(currentHeightInches);
     this.targetHeightInches = targetHeightInches;
   }
 
