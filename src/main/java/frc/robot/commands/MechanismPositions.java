@@ -14,7 +14,7 @@ import frc.robot.subsystems.stinger.Stinger;
 // We'll need: low, mid, high, portal pickup, ground pickup
 public class MechanismPositions {
 
-  //TODO: find the proper stow and pickup positions based off robot measurements
+  // TODO: find the proper stow and pickup positions based off robot measurements
   static final double stowHeight = 10;
   static final double stowExtension = 0;
   static final double groundPickupHeight = 1;
@@ -29,7 +29,8 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_LOW),
             new SequentialCommandGroup(
-                Commands.waitUntil(() -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_LOW / 2)),
+                Commands.waitUntil(
+                    () -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_LOW / 2)),
                 new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_LOW))));
   }
 
@@ -38,7 +39,10 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_MID_CUBE),
             new SequentialCommandGroup(
-                Commands.waitUntil(() -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_MID_CUBE / 2)),
+                Commands.waitUntil(
+                    () ->
+                        (elevator.getHeightInches()
+                            >= Constants.NODE_DISTANCES.HEIGHT_MID_CUBE / 2)),
                 new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_MID))));
   }
 
@@ -47,7 +51,10 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_MID_CONE),
             new SequentialCommandGroup(
-                Commands.waitUntil(() -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_MID_CONE / 2)),
+                Commands.waitUntil(
+                    () ->
+                        (elevator.getHeightInches()
+                            >= Constants.NODE_DISTANCES.HEIGHT_MID_CONE / 2)),
                 new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_MID))));
   }
 
@@ -56,7 +63,10 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE),
             new SequentialCommandGroup(
-                Commands.waitUntil(() -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE / 2)),
+                Commands.waitUntil(
+                    () ->
+                        (elevator.getHeightInches()
+                            >= Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE / 2)),
                 new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_HIGH))));
   }
 
@@ -65,7 +75,10 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE),
             new SequentialCommandGroup(
-                Commands.waitUntil(() -> (elevator.getHeightInches() >= Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE / 2)),
+                Commands.waitUntil(
+                    () ->
+                        (elevator.getHeightInches()
+                            >= Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE / 2)),
                 new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_HIGH))));
   }
 

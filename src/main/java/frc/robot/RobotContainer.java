@@ -57,7 +57,7 @@ import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacter
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.elevator.ElevatorSetHeight;
-import frc.robot.commands.stinger.StingerManualControl;
+import frc.robot.commands.stinger.StingerFollowCurve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -242,8 +242,8 @@ public class RobotContainer {
     elevator.setDefaultCommand(
         new ElevatorManualControl(elevator, () -> -driverController.getLeftY()));
 
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, () -> -driverController.getLeftX()));
+    // stinger.setDefaultCommand(new StingerManualControl(stinger, () ->
+    // driverController.getLeftX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
@@ -320,6 +320,8 @@ public class RobotContainer {
     driverController
         .b()
         .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    driverController.x().whileTrue(new StingerFollowCurve(elevator, stinger));
 
     // driverController.a().onTrue((Commands.print("A")));
 

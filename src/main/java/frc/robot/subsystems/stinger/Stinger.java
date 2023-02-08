@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,6 +18,7 @@ public class Stinger extends SubsystemBase {
   private final StingerIOInputs inputs = new StingerIOInputs();
   // TODO: see if we can change max voltage to 12
   private double MAX_VOLTAGE = 10.0;
+
   public static double toleranceInches = 0.1;
 
   private final TunableNumber feedForwardTunable =

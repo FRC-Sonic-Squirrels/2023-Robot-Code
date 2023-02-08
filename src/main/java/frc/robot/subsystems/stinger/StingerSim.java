@@ -81,7 +81,7 @@ public class StingerSim implements StingerIO {
   @Override
   public void setExtensionInches(double targetHeightInches) {
     closedLoop = true;
-    controller.reset(currentExtensionInches);
+    // controller.reset(currentExtensionInches);
     this.targetHeightInches = targetHeightInches;
   }
 
