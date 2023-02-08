@@ -4,6 +4,7 @@
 
 package frc.robot.commands.stinger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.stinger.Stinger;
@@ -27,7 +28,8 @@ public class StingerFollowCurve extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    stingerExtension = -(7 * (Math.sqrt(-elevator.getHeightInches() + 50) - 6));
+    stingerExtension =
+        MathUtil.clamp(-(7 * (Math.sqrt(-elevator.getHeightInches() + 50) - 6)), 0, 30);
     Logger.getInstance().recordOutput("ActiveCommands/stingerFollowCurve", true);
     Logger.getInstance().recordOutput("StingerCurve/Extension", stingerExtension);
     Logger.getInstance().recordOutput("StingerCurve/Elevator", elevator.getHeightInches());
