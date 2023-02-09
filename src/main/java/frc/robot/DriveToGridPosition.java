@@ -19,7 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.driverassist.EntranceCheckpoints;
 import frc.lib.team2930.driverassist.GridPositionHandler;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
-import frc.lib.team2930.driverassist.HumanLoadingStation.LoadingStationLocation;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.robot.commands.GenerateAndFollowPath;
@@ -141,13 +142,53 @@ public class DriveToGridPosition {
   public Command humanPlayerStation(LoadingStationLocation location) {
     Alliance alliance = DriverStation.getAlliance();
 
+    var currentPose = drivetrain.getPose().getTranslation();
+
+    ArrayList<PathPoint> pointsToFollow = new ArrayList<>();
+
+    Pose2d firstPose = null;
+
     // get checkpoint sequence
+    var rawSequence =
+        HumanLoadingStationHandler.getCheckpointSequenceForAlliance(location, alliance);
 
     // find checkpoints we care about
 
+    var checkpointsToFollow =
+        HumanLoadingStationHandler.checkpointsToFollow(currentPose, rawSequence);
+
+    if (!(checkpointsToFollow.length == 0)) {
+      for (PoseAndHeading poseAndHeading : checkpointsToFollow) {
+        pointsToFollow.add(
+            new PathPoint(
+                poseAndHeading.pose.getTranslation(),
+                poseAndHeading.heading,
+                poseAndHeading.pose.getRotation()));
+
+        if (firstPose == null) {
+          firstPose = poseAndHeading.pose;
+        }
+      }
+    }
+
+    var finalPose =
+        HumanLoadingStationHandler.getFinalPoseForLocationAndAlliance(location, alliance);
+
+    ArrayList<PathPoint> secondPathPoints = new ArrayList<>();
+    secondPathPoints.add(
+        new PathPoint(
+            finalPose.pose.getTranslation(), finalPose.heading, finalPose.pose.getRotation()));
+
     // then go to final score position
 
-    return new SequentialCommandGroup();
+    return new SequentialCommandGroup(
+        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
+        // extend elevator
+        // might be better to parrellel a slow path with a extension
+        // rather than a fast path that stops and then extends
+        Commands.waitSeconds(2),
+        new GenerateAndFollowPath(
+            drivetrain, secondPathPoints, constraints, finalPose.pose, false));
   }
 
   // replace with better implementation of controller rumble

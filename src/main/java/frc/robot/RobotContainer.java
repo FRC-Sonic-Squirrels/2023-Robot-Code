@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.driverassist.DeadzoneBox;
 import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -342,6 +343,25 @@ public class RobotContainer {
                       cmd.schedule();
                     })
                 .beforeStarting(Commands.print("A")));
+
+    driverController
+        .x()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
+
+                      Command currentCmd = drivetrain.getCurrentCommand();
+
+                      if (currentCmd instanceof OverrideDrivetrainStop) {
+                        ((OverrideDrivetrainStop) currentCmd).overideStop();
+                      }
+
+                      // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                      // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                      cmd.schedule();
+                    })
+                .beforeStarting(Commands.print("X")));
 
     driverController
         .b()
