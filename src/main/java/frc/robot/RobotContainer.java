@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib.team2930.lib.util.StreamDeckController;
-import frc.lib.team2930.lib.util.StreamDeckHandler;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -56,7 +54,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  StreamDeckHandler streamDeckHandler = new StreamDeckHandler();
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   /* Driver Buttons */
@@ -68,7 +65,6 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
-  private StreamDeckController streamDeckController = new StreamDeckController();
 
   private Streamdeck streamdeckSubsystem;
 
@@ -296,21 +292,6 @@ public class RobotContainer {
     //               var t = targetSupplier.getAsDouble();
     //               new PrintCommand("hello world: " + t).schedule();
     //             }));
-
-    driverController
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () -> streamDeckHandler.print()));
-
-    driverController
-        .x()
-        .onTrue(
-            Commands.runOnce(() -> streamDeckHandler.setTarget(1)).andThen(Commands.print("x")));
-    driverController
-        .b()
-        .onTrue(
-            Commands.runOnce(() -> streamDeckHandler.setTarget(2)).andThen(Commands.print("b")));
   }
 
   /** Use this method to define your commands for autonomous mode. */

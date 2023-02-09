@@ -12,13 +12,9 @@ public class StreamdeckData {
         public boolean Targeted = false;
         public boolean Greyed = false;
         
-        public Button(int x, int y) {
-            this.set_buttonName(x + "_" + y);
-            this.update_buttonName("push");
-            this.update_buttonImage("push");
-            this.update_pressedState("push");
-            this.update_targetedState("push");
-            this.update_greyedState("push");
+        public Button(int x, int y, String buttonName) {
+            this.set_buttonName("/streamdeck/" + buttonName);
+            this.push_buttonStartup();
         }
 
         // Getters 
@@ -63,62 +59,11 @@ public class StreamdeckData {
             ButtonImage = buttonImage;
         }
 
-
-        // Updater
-        public void update_pressedState(String mode) {
-            if (mode == "push"){
-                SmartDashboard.putBoolean("Button" + ButtonName + "_Pressed", Pressed);
-            }
-            else if (mode == "pull"){
-                Pressed = SmartDashboard.getBoolean("Button" + ButtonName + "_Pressed", false);
-            }
-        }
-        
-        public void update_targetedState(String mode) {
-            if (mode == "push"){
-                SmartDashboard.putBoolean("Button" + ButtonName + "_Targeted", Targeted);
-            }
-            else if (mode == "pull"){
-                Targeted = SmartDashboard.getBoolean("Button" + ButtonName + "_Targeted", false);
-            }
-        }
-
-        public void update_greyedState(String mode) {
-            if (mode == "push"){
-                SmartDashboard.putBoolean("Button" + ButtonName + "_Greyed", Greyed);
-            }
-            else if (mode == "pull"){
-                Greyed = SmartDashboard.getBoolean("Button" + ButtonName + "_Greyed", false);
-            }
-        }
-
-        public void update_buttonName(String mode) {
-            if (mode == "push"){
-                SmartDashboard.putString("Button" + ButtonName + "_Name", ButtonName);
-            }
-            else if (mode == "pull"){
-                ButtonName = SmartDashboard.getString("Button" + ButtonName + "_Name", "Button");
-            }
-        }
-
-        public void update_buttonImage(String mode) {
-            if (mode == "push"){
-                SmartDashboard.putString("Button" + ButtonName + "_Image", ButtonImage);
-            }
-            else if (mode == "pull"){
-                ButtonImage = SmartDashboard.getString("Button" + ButtonName + "_Image", "ButtonImage");
-            }
-        }
-
-        // Other
-        public void pushloop() {
-            update_targetedState("push");
-            update_greyedState("push");
-            update_buttonImage("push");
-        }
-
-        public void pullloop() {
-            update_pressedState("pull");
+        public void push_buttonStartup() {
+            SmartDashboard.putBoolean(ButtonName, Pressed);
+            SmartDashboard.putBoolean(ButtonName + "Targeted", Targeted);
+            SmartDashboard.putBoolean(ButtonName + "Greyed", Greyed);
+            SmartDashboard.putString(ButtonName + "Image", ButtonImage);
         }
     }
 
@@ -127,25 +72,7 @@ public class StreamdeckData {
     public StreamdeckData() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 10; j++) {
-                buttons[i][j] = new Button(i, j);
-            }
-        }
-    }
-
-    public void pushloop() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 10; j++) {
-                Button button = getButton(i, j);
-                button.pushloop();
-            }
-        }
-    }
-
-    public void pullloop() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 10; j++) {
-                Button button = getButton(i, j);
-                button.pullloop();
+                buttons[i][j] = new Button(i, j, String .valueOf(i) + "_" + String.valueOf(j));
             }
         }
     }

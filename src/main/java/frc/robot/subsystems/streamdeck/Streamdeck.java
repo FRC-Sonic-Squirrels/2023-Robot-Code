@@ -11,6 +11,7 @@ import frc.robot.subsystems.streamdeck.StreamdeckIO.StreamdeckInputs;
 
 public class Streamdeck extends SubsystemBase {
   /** Creates a new Streamdeck. */
+  StreamdeckData data = new StreamdeckData();
   StreamdeckIO leftIO;
 
   StreamdeckIO rightIO;
