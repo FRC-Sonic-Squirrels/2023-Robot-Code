@@ -32,8 +32,10 @@ public class SwerveAutos {
     //
     // Add named commands here.
     //
-    // FIXME: make sure doNothing command is always the default in chooser
+
+    // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
+
     if (!DriverStation.isFMSAttached()) {
       // only add test paths when not connected to FMS
       addCommand("2m Forward", () -> testPath2mForward());
@@ -56,16 +58,36 @@ public class SwerveAutos {
     addCommand("left4Ball", () -> left4Ball());
   }
 
+  /**
+   * addCommand() - add a new autonomous command for the chooser
+   *
+   * @param name the name of the autonomous command displayed in the chooser
+   * @param command autonomous command
+   */
   private void addCommand(String name, Supplier<AutoChooserElement> command) {
     autonomousCommands.put(name, command);
     // create a list of names to preserver the order
     names.add(name);
   }
 
+  /**
+   * getAutonomousCommandNames - return list of autonomous routine names
+   *
+   * @return list of names of all the autonomous routines
+   */
   public List<String> getAutonomousCommandNames() {
     return names;
   }
 
+  /**
+   * getChooserElement - return a supplier that will return the chooser element object.
+   *
+   * <p>A supplier is returned, and not the actual object to avoid generating the associated
+   * trajectories and commands until the element is actually needed.
+   *
+   * @param name the chooser name string
+   * @return AutoChooserElement supplier
+   */
   public Supplier<AutoChooserElement> getChooserElement(String name) {
     if (autonomousCommands.containsKey(name)) {
       return autonomousCommands.get(name);
@@ -200,6 +222,12 @@ public class SwerveAutos {
   }
 
   // ======================= COMPETITION Autonomous Routines ========================
+  //
+  // Commands are built on preceding commands and are constructed using function
+  // composition. For most commands, the new command is the old command composed
+  // with a new trajectory. Actions are performed from the supplied EventMap and
+  // triggered by event markers set with PathPlanner.
+  //
 
   public AutoChooserElement scoreCone() {
     return new AutoChooserElement(null, new SequentialCommandGroup(getEventMap().get("scoreCone")));
