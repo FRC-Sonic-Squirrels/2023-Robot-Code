@@ -14,6 +14,7 @@ import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -171,7 +172,8 @@ public class GenerateAndFollowPath extends CommandBase {
     //     PathPoint.fromCurrentHolonomicState(
     //         drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds()));
 
-    ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
+    // ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
+    var currentSpeeds = drivetrain.getModuleChassisSpeeds();
 
     double linearVel =
         Math.sqrt(
@@ -195,18 +197,19 @@ public class GenerateAndFollowPath extends CommandBase {
     // jerk when super close to checkpoint
     double heading = Math.toRadians(180);
 
+    Logger.getInstance().recordOutput("DriverAssist/linearVel", linearVel);
+
     if (linearVel > 1) {
       heading = Math.atan2(currentSpeeds.vyMetersPerSecond, currentSpeeds.vxMetersPerSecond);
     } else if (this.firstPathPose != null) {
-      var distance = currentPose.relativeTo(firstPathPose);
-      Logger.getInstance().recordOutput("DriverAssist/Distance x", Math.abs(distance.getX()));
-      Logger.getInstance().recordOutput("DriverAssist/Distance y", Math.abs(distance.getY()));
-      if (Math.abs(distance.getY()) > 0.25) {
-        heading =
-            Math.atan2(
-                firstPathPose.getY() - currentPose.getY(),
-                firstPathPose.getX() - firstPathPose.getX());
-      }
+      var distanceX = firstPathPose.getX() - currentPose.getX();
+      var distanceY = firstPathPose.getY() - currentPose.getY();
+
+      var distanceVector = new Translation2d(distanceX, distanceY);
+
+      // if (Math.abs(distanceVector.getX()) > 0.25 || Math.abs(distanceVector.getY()) > 0.25) {
+      heading = distanceVector.getAngle().getRadians();
+      // }
     }
 
     pathPoints.add(

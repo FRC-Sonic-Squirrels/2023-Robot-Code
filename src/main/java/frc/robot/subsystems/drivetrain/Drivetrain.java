@@ -542,6 +542,16 @@ public class Drivetrain extends SubsystemBase {
     return chassisSpeeds;
   }
 
+  public ChassisSpeeds getModuleChassisSpeeds() {
+    SwerveModuleState[] states = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = swerveModules[i].getState();
+      swerveModulePositions[i] = swerveModules[i].getPosition();
+    }
+
+    return KINEMATICS.toChassisSpeeds(states);
+  }
+
   /**
    * Puts the drivetrain into the x-stance orientation. In this orientation the wheels are aligned
    * to make an 'X'. This makes it more difficult for other robots to push the robot, which is
