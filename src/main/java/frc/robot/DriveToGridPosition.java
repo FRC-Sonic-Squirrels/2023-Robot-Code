@@ -50,6 +50,8 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    // TODO FIXME sometime path goes through pad if u start in front of it, the outside checkpoint x
+    // is too far out
     // TODO optimize to allow paths from in front of charging pad (just add more checkpoints i
     // think)
     // TODO define all the bounding boxes for where auto is allowed to start from
@@ -157,6 +159,12 @@ public class DriveToGridPosition {
     var checkpointsToFollow =
         HumanLoadingStationHandler.checkpointsToFollow(currentPose, rawSequence);
 
+    for (int i = 0; i < checkpointsToFollow.length - 1; i++) {
+      Logger.getInstance()
+          .recordOutput(
+              "DriverAssist/humanPlayer/checkpointsToFollow/" + i, checkpointsToFollow[i].pose);
+    }
+
     if (!(checkpointsToFollow.length == 0)) {
       for (PoseAndHeading poseAndHeading : checkpointsToFollow) {
         pointsToFollow.add(
@@ -174,6 +182,11 @@ public class DriveToGridPosition {
     var finalPose =
         HumanLoadingStationHandler.getFinalPoseForLocationAndAlliance(location, alliance);
 
+    // FIXME prolly dont need this
+    if (firstPose == null) {
+      firstPose = finalPose.pose;
+    }
+
     ArrayList<PathPoint> secondPathPoints = new ArrayList<>();
     secondPathPoints.add(
         new PathPoint(
@@ -181,14 +194,27 @@ public class DriveToGridPosition {
 
     // then go to final score position
 
-    return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
-        // extend elevator
-        // might be better to parrellel a slow path with a extension
-        // rather than a fast path that stops and then extends
-        Commands.waitSeconds(2),
-        new GenerateAndFollowPath(
-            drivetrain, secondPathPoints, constraints, finalPose.pose, false));
+    SequentialCommandGroup returnCommand;
+    var lastHalf =
+        new SequentialCommandGroup(
+            // new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
+            // extend elevator
+            // might be better to parrellel a slow path with a extension
+            // rather than a fast path that stops and then extends
+            Commands.waitSeconds(0.5),
+            new GenerateAndFollowPath(
+                drivetrain, secondPathPoints, constraints, finalPose.pose, false));
+
+    if (!(checkpointsToFollow.length == 0)) {
+      returnCommand =
+          new SequentialCommandGroup(
+              new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
+              lastHalf);
+    } else {
+      returnCommand = new SequentialCommandGroup(lastHalf);
+    }
+
+    return returnCommand;
   }
 
   // replace with better implementation of controller rumble
