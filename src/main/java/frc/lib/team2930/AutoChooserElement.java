@@ -11,7 +11,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.FollowPath;
+import frc.robot.commands.auto.FollowPath;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
 import java.util.HashMap;

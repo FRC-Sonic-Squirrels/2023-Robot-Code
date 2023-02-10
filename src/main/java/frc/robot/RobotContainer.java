@@ -9,11 +9,10 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -30,11 +29,18 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
-import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.drive.DriveWithSetRotation;
+import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorReal2022;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,21 +54,21 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverController = new XboxController(0);
-
+  private final CommandXboxController driverController = new CommandXboxController(0);
+  private final CommandXboxController operatorController = new CommandXboxController(1);
   /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  // these triggers are now directly detected
+  // zeroGyro is assigned to back
+  // robotCentric is assigned to b
+  // xStance is assigned to a
+  // intakeOut is assigned to right bumper
 
   private Drivetrain drivetrain;
   private Intake intake;
   public SwerveAutos autos;
+
+  private Elevator elevator;
+  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -127,6 +133,9 @@ public class RobotContainer {
             new Pneumatics(new PneumaticsIORev(false));
             new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
+            elevator = new Elevator(new ElevatorReal2022());
+
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
         case ROBOT_SIMBOT:
@@ -154,6 +163,9 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
+            elevator = new Elevator(new ElevatorIO() {});
+            wrist = new Wrist(new WristIO() {});
+
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
           }
@@ -175,12 +187,11 @@ public class RobotContainer {
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
       new Vision(new VisionIO() {});
+      new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
+      wrist = new Wrist(new WristIOSolenoid() {});
     }
-
-    // workaround warning about unused variable
-    // pneumatics.getPressure();
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
@@ -202,6 +213,10 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    // elevator.setDefaultCommand(
+    //     new ElevatorControlCommand(
+    //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
+
     configureButtonBindings();
     configureAutoCommands();
   }
@@ -219,26 +234,52 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    robotCentric.toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+    driverController
+        .b()
+        .toggleOnTrue(
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
 
     // reset gyro to 0 degrees
-    zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // x-stance
-    xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
     // intake
-    intakeOut.whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    intakeOut.onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    driverController
+        .rightBumper()
+        .whileTrue(
+            Commands.runOnce(intake::extend, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    driverController
+        .rightBumper()
+        .onFalse(
+            Commands.runOnce(intake::retract, intake)
+                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    driverController
+        .povDown()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    180)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    driverController
+        .povUp()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    0)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */

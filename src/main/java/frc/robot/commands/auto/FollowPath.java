@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.auto;
 
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
