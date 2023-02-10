@@ -56,6 +56,9 @@ public final class Constants {
       case ROBOT_2023_PRESEASON:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
+      case ROBOT_2023_COMPBOT:
+        return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+
       case ROBOT_SIMBOT:
         return Mode.SIM;
 
@@ -67,6 +70,7 @@ public final class Constants {
   // FIXME: update for various robots
   public enum RobotType {
     ROBOT_2023_PRESEASON,
+    ROBOT_2023_COMPBOT,
     ROBOT_SIMBOT
   }
 
