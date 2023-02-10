@@ -241,7 +241,7 @@ public class RobotContainer {
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
 
-  /** Use this method to define your commands for autonomous mode. */
+  /** configureAutoCommands - add autonomous routines to chooser */
   public void configureAutoCommands() {
 
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
@@ -275,27 +275,20 @@ public class RobotContainer {
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+   * Use this to pass name of the selected autonomous to the main {@link Robot}
    *
-   * @return the command to run in autonomous
+   * @return name of currently selected auton
    */
-  // public Command getAutonomousCommand() {
-  //   Supplier<AutoChooserElement> chooserElementSupplier = getSelectedAutonChooserElement();
-  //   if (chooserElementSupplier == null) {
-  //     return null;
-  //   }
-  //   AutoChooserElement chooserElement = chooserElementSupplier.get();
-  //   if (chooserElement == null) {
-  //     System.out.println("WARNING: getAutonomousCommand() chooserElement is null");
-  //     return null;
-  //   }
-  //   return chooserElement.getCommand();
-  // }
-
   public String getAutonomousCommandName() {
     return autoChooser.getSendableChooser().getSelected();
   }
 
+  /**
+   * Use this to pass the autonomous chooser Element to the main {@link Robot} class. The chooser
+   * element contains the selected autonomous command, trajectory, and starting pose.
+   *
+   * @return the autonomous chooser element
+   */
   public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
     Supplier<AutoChooserElement> chooserElement = autoChooser.get();
     if (chooserElement == null) {
