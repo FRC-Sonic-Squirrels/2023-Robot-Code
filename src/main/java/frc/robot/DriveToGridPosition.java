@@ -180,6 +180,14 @@ public class DriveToGridPosition {
           firstPose = poseAndHeading.pose;
         }
       }
+    } else {
+      var lastCheckpoint = rawSequence[rawSequence.length - 1];
+
+      pointsToFollow.add(
+          new PathPoint(
+              lastCheckpoint.pose.getTranslation(),
+              lastCheckpoint.heading,
+              lastCheckpoint.pose.getRotation()));
     }
 
     var finalPose =
@@ -197,27 +205,37 @@ public class DriveToGridPosition {
 
     // then go to final score position
 
-    SequentialCommandGroup returnCommand;
-    var lastHalf =
-        new SequentialCommandGroup(
-            // new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
-            // extend elevator
-            // might be better to parrellel a slow path with a extension
-            // rather than a fast path that stops and then extends
-            Commands.waitSeconds(0.5),
-            new GenerateAndFollowPath(
-                drivetrain, secondPathPoints, constraints, finalPose.pose, false));
+    // SequentialCommandGroup returnCommand;
+    // var lastHalf =
+    //     new SequentialCommandGroup(
+    //         // new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose,
+    // false),
+    //         // extend elevator
+    //         // might be better to parrellel a slow path with a extension
+    //         // rather than a fast path that stops and then extends
+    //         Commands.waitSeconds(0.5),
+    //         new GenerateAndFollowPath(
+    //             drivetrain, secondPathPoints, constraints, finalPose.pose, false));
 
-    if (!(checkpointsToFollow.length == 0)) {
-      returnCommand =
-          new SequentialCommandGroup(
-              new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
-              lastHalf);
-    } else {
-      returnCommand = new SequentialCommandGroup(lastHalf);
-    }
+    // if (!(checkpointsToFollow.length == 0)) {
+    //   returnCommand =
+    //       new SequentialCommandGroup(
+    //           new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose,
+    // false),
+    //           lastHalf);
+    // } else {
+    //   returnCommand = new SequentialCommandGroup(lastHalf);
+    // }
 
-    return returnCommand;
+    return new SequentialCommandGroup(
+        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
+        // extend elevator
+        // might be better to parrellel a slow path with a extension
+        // rather than a fast path that stops and then \
+        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
+        Commands.waitSeconds(0.5),
+        new GenerateAndFollowPath(
+            drivetrain, secondPathPoints, constraints, finalPose.pose, false));
   }
 
   // replace with better implementation of controller rumble

@@ -12,7 +12,7 @@ public class HumanLoadingStationHandler {
   // this checkpoint is where the elevator will extend up
   private static final double LAST_CHECKPOINT_X = 15.15;
   private static final double LEFT_SIDE_Y = 7.5;
-  private static final double RIGHT_SIDE_Y = 6.0;
+  private static final double RIGHT_SIDE_Y = 6.1;
 
   public final PoseAndHeading[] checkpointsOutsideIn;
   public final PoseAndHeading finalPickupPose;

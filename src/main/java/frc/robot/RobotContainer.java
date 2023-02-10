@@ -345,23 +345,40 @@ public class RobotContainer {
                 .beforeStarting(Commands.print("A")));
 
     driverController
-        .x()
+        .leftBumper()
         .onTrue(
             new InstantCommand(
-                    () -> {
-                      var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
+                () -> {
+                  var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
 
-                      Command currentCmd = drivetrain.getCurrentCommand();
+                  Command currentCmd = drivetrain.getCurrentCommand();
 
-                      if (currentCmd instanceof OverrideDrivetrainStop) {
-                        ((OverrideDrivetrainStop) currentCmd).overideStop();
-                      }
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
 
-                      // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                      // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                      cmd.schedule();
-                    })
-                .beforeStarting(Commands.print("X")));
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  cmd.schedule();
+                }));
+
+    driverController
+        .rightBumper()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.RIGHT);
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  cmd.schedule();
+                }));
 
     driverController
         .b()
