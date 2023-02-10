@@ -142,6 +142,9 @@ public class DriveToGridPosition {
   }
 
   public Command humanPlayerStation(LoadingStationLocation location) {
+
+    // TODO if past last checkpoint then drive to last checkpoint raise elevator and then go to
+    // final pose
     Alliance alliance = DriverStation.getAlliance();
 
     var currentPose = drivetrain.getPose().getTranslation();
