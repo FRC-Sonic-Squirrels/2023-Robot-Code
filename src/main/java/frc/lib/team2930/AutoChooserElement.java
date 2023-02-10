@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.lib.team2930;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
@@ -30,7 +30,7 @@ public class AutoChooserElement {
   private SequentialCommandGroup command;
   private AutoChooserElement next;
 
-  AutoChooserElement(PathPlannerTrajectory trajectory, SequentialCommandGroup command) {
+  public AutoChooserElement(PathPlannerTrajectory trajectory, SequentialCommandGroup command) {
 
     // Reduce the number of states in the trajectory. The trajectory is just for displaying
     // on the dashboard and not following. Reducing the trajectory size makes computation and
@@ -75,7 +75,7 @@ public class AutoChooserElement {
   }
 
   /**
-   * setNext() - append a new AutoChooserElement to a list of AutoChooserElements
+   * setNext - append a new AutoChooserElement to a list of AutoChooserElements
    *
    * @param append the AutoChooserElement to append to the list
    * @return AutoChooserElement
@@ -90,8 +90,7 @@ public class AutoChooserElement {
   }
 
   /**
-   * setNext() - append a new path follow command using PathPlanner event markers to trigger
-   * commands.
+   * setNext - append a new path follow command using PathPlanner event markers to trigger commands.
    *
    * @param path
    * @param initialPath set true if this is the first command the autonomous command will follow
@@ -114,7 +113,7 @@ public class AutoChooserElement {
   }
 
   /**
-   * setNext() - Add a command with no path follow.
+   * setNext - Add a command with no path follow.
    *
    * @param command
    * @return AutoChooserElement

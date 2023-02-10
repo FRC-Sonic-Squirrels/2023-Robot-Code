@@ -4,7 +4,7 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-import frc.robot.AutoChooserElement;
+import frc.lib.team2930.AutoChooserElement;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import org.littletonrobotics.junction.Logger;
 

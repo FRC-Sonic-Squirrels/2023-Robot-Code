@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -29,6 +29,7 @@ import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.robot.Constants.Mode;
+import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.intake.Intake;
@@ -240,10 +241,6 @@ public class RobotContainer {
             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
   }
 
-  //   public Pose2d getSelectedInitialState(){
-
-  //   }
-
   /** Use this method to define your commands for autonomous mode. */
   public void configureAutoCommands() {
 
@@ -282,20 +279,24 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
-    if (chooserElement == null) {
-      return null;
-    }
-
-    return autoChooser.get().get().getCommand();
-  }
+  // public Command getAutonomousCommand() {
+  //   Supplier<AutoChooserElement> chooserElementSupplier = getSelectedAutonChooserElement();
+  //   if (chooserElementSupplier == null) {
+  //     return null;
+  //   }
+  //   AutoChooserElement chooserElement = chooserElementSupplier.get();
+  //   if (chooserElement == null) {
+  //     System.out.println("WARNING: getAutonomousCommand() chooserElement is null");
+  //     return null;
+  //   }
+  //   return chooserElement.getCommand();
+  // }
 
   public String getAutonomousCommandName() {
     return autoChooser.getSendableChooser().getSelected();
   }
 
-  public Supplier<AutoChooserElement> getSelectedAutonomous() {
+  public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
     Supplier<AutoChooserElement> chooserElement = autoChooser.get();
     if (chooserElement == null) {
       return null;

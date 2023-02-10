@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import java.util.function.Supplier;
@@ -31,6 +32,7 @@ public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
   private Supplier<AutoChooserElement> currentAutoSupplier = null;
+  private AutoChooserElement currentAutoElement = null;
   private String currentAutoName = "";
   private RobotContainer robotContainer;
   Alliance alliance = Alliance.Invalid;
@@ -69,7 +71,7 @@ public class Robot extends LoggedRobot {
    * the changed alliance.
    */
   private void checkForUpdatedAutonomous() {
-    currentAutoSupplier = robotContainer.getSelectedAutonomous();
+    currentAutoSupplier = robotContainer.getSelectedAutonChooserElement();
 
     // only run if something has been selected
     if (currentAutoSupplier != null) {
@@ -83,20 +85,20 @@ public class Robot extends LoggedRobot {
         // The name of the auto changed, either the selected auto OR the alliance color
         currentAutoName = autoName;
 
-        AutoChooserElement currentAuto = currentAutoSupplier.get();
-        Trajectory trajectory = currentAuto.getTrajectory();
+        currentAutoElement = currentAutoSupplier.get();
+        Trajectory trajectory = currentAutoElement.getTrajectory();
         if (trajectory == null) {
           trajectory = new Trajectory();
         }
 
         PathPlannerState startState = new PathPlannerState();
-        startState.poseMeters = currentAuto.getPose2d();
+        startState.poseMeters = currentAutoElement.getPose2d();
 
         // TODO: do we want to set the robot's start pose?
         // robotContainer.getDrivetrain().resetOdometry(startState);
 
         Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
-        Logger.getInstance().recordOutput("Odometry/startPose", currentAuto.getPose2d());
+        Logger.getInstance().recordOutput("Odometry/startPose", currentAutoElement.getPose2d());
       }
     }
   }
@@ -214,13 +216,19 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
+    autonomousCommand = null;
     checkDSUpdate();
     checkForUpdatedAutonomous();
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    if (currentAutoElement != null) {
+      autonomousCommand = currentAutoElement.getCommand();
+    }
 
     // schedule the autonomous command
     if (autonomousCommand != null) {
+      System.out.println("Scheduling Autonomous Command");
       autonomousCommand.schedule();
+    } else {
+      System.out.println("WARNING: null Autonomous Command");
     }
   }
 
