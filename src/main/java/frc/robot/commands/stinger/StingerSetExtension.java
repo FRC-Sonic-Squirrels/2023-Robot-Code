@@ -13,7 +13,8 @@ public class StingerSetExtension extends CommandBase {
   private Stinger stinger;
   private double extensionInches;
 
-  // debounce: a statement must be true for a specific amount of time before it is viewed as true by the code
+  // debounce: a statement must be true for a specific amount of time before it is viewed as true by
+  // the code
   private double debounce;
 
   private double velocity;
@@ -29,28 +30,33 @@ public class StingerSetExtension extends CommandBase {
     this(stinger, extensionInches, false, 0.0, 0.0, 0.1);
   }
 
-  public StingerSetExtension(Stinger stinger, double extensionInches,
-    double debounce) {
+  public StingerSetExtension(Stinger stinger, double extensionInches, double debounce) {
 
     this(stinger, extensionInches, false, 0.0, 0.0, debounce);
   }
 
-  public StingerSetExtension(Stinger stinger, double extensionInches,
-    double velocity, double time) {
+  public StingerSetExtension(
+      Stinger stinger, double extensionInches, double velocity, double time) {
 
     this(stinger, extensionInches, true, velocity, time, 0.1);
   }
 
-  public StingerSetExtension(Stinger stinger, double extensionInches,
-    double velocity, double time, double debounce) {
+  public StingerSetExtension(
+      Stinger stinger, double extensionInches, double velocity, double time, double debounce) {
 
     this(stinger, extensionInches, true, velocity, time, debounce);
   }
 
-  // Called by all other constructors, puts in default values from previous constructor if not specified
-  public StingerSetExtension(Stinger stinger, double extensionInches, boolean changeConstraints,
-    double velocity, double time, double debounce) {
-    
+  // Called by all other constructors, puts in default values from previous constructor if not
+  // specified
+  public StingerSetExtension(
+      Stinger stinger,
+      double extensionInches,
+      boolean changeConstraints,
+      double velocity,
+      double time,
+      double debounce) {
+
     this.stinger = stinger;
     this.extensionInches = extensionInches;
     this.changeConstraints = changeConstraints;
@@ -74,7 +80,6 @@ public class StingerSetExtension extends CommandBase {
 
     // extends stinger
     stinger.setExtensionInches(extensionInches);
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.

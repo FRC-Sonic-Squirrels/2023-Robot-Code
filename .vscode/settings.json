@@ -32,8 +32,9 @@
   "source.fixAll.spotlessGradle": true
   },
   "cSpell.words": [
-    "APRILTAG",
     "algs",
+    "APRILTAG",
+    "auton",
     "Cancoder",
     "DEADBAND",
     "Feedforward",
@@ -60,5 +61,8 @@
     "Vandermonde",
     "WPILOG",
     "Xstance"
-  ]
+  ],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }

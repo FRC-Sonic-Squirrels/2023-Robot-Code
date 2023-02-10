@@ -4,13 +4,12 @@
 
 package frc.robot.subsystems.stinger;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
+import org.littletonrobotics.junction.Logger;
 
 public class Stinger extends SubsystemBase {
 
@@ -30,21 +29,19 @@ public class Stinger extends SubsystemBase {
       new TunableNumber("Stinger/kI", Constants.STINGER_PID.STINGER_KI);
   private final TunableNumber kDtunable =
       new TunableNumber("Stinger/kD", Constants.STINGER_PID.STINGER_KD);
-  
+
   private final TunableNumber velocityInchesSecond =
       new TunableNumber("Stinger/velocity inches per sec", 5);
-  private final TunableNumber desiredTime =
-      new TunableNumber("Stinger/desired time", 5);
-  
+  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 5);
 
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {
     this.io = io;
 
     io.setSensorPosition(0.0);
-    io.setPIDConstraints(feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
+    io.setPIDConstraints(
+        feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
     setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
-
   }
 
   @Override
@@ -53,8 +50,12 @@ public class Stinger extends SubsystemBase {
     Logger.getInstance().processInputs("Stinger", inputs);
 
     // update TunableNumbers and change PID accordingly
-    if (feedForwardTunable.hasChanged() || kPtunable.hasChanged() || kItunable.hasChanged() || kDtunable.hasChanged()) {
-      io.setPIDConstraints(feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
+    if (feedForwardTunable.hasChanged()
+        || kPtunable.hasChanged()
+        || kItunable.hasChanged()
+        || kDtunable.hasChanged()) {
+      io.setPIDConstraints(
+          feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
     }
     if (velocityInchesSecond.hasChanged() || desiredTime.hasChanged()) {
       setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
@@ -101,6 +102,7 @@ public class Stinger extends SubsystemBase {
   public boolean atRetractedLimit() {
     return (inputs.StingerAtRetractedLimit);
   }
+
   public boolean atExtendedLimit() {
     return inputs.StingerAtExtendedLimit;
   }
@@ -108,6 +110,7 @@ public class Stinger extends SubsystemBase {
   public double getSpeedRPM() {
     return inputs.StingerVelocityRPM;
   }
+
   public double getSpeedInchesPerSecond() {
     return inputs.StingerVelocityInchesPerSecond;
   }
@@ -124,5 +127,4 @@ public class Stinger extends SubsystemBase {
   public void setPercentOutput(double percent) {
     io.setPercent(percent);
   }
-
 }
