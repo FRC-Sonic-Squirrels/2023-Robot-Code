@@ -23,7 +23,7 @@ public class ElevatorSim implements ElevatorIO {
   private static final double kCarriageMass = 4.0; // kg
 
   private static final double kMinElevatorHeight = Units.inchesToMeters(0.0);
-  private static final double kMaxElevatorHeight = Units.inchesToMeters(49);
+  private static final double kMaxElevatorHeight = Units.inchesToMeters(24 * 2);
 
   // distance per pulse = (distance per revolution) / (pulses per revolution)
   //  = (Pi * D) / ppr

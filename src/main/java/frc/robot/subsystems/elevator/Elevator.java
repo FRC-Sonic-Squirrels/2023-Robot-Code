@@ -21,7 +21,7 @@ public class Elevator extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static final double toleranceInches = 0.05;
   // TODO: check real height
-  public static final double maxHeightInches = 26;
+  public static final double maxHeightInches = 24 * 2;
   private boolean zeroed;
   private boolean maxed;
 

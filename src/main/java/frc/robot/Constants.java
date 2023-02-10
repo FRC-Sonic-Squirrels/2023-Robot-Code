@@ -83,7 +83,7 @@ public final class Constants {
     // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
     // create problems if you already have a device using CAN id 0 on the CAN bus.
     public static final int DoNotUse_canId0 = 0;
-    
+
     public static final int CANID5_STINGER_TALON = 5;
     public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
     public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
@@ -111,7 +111,7 @@ public final class Constants {
 
   // TODO: determine whether elevator deserves it's own constants file
   public static class ElevatorConstants {
-  
+
     // TODO: check all values for new robot
     public static final double elevatorSpeedMultiplier = 1.0;
 
@@ -123,12 +123,10 @@ public final class Constants {
     public static final double CRUISE_VELOCITY = 20;
     public static final double DESIRED_TIME_TO_SPEED = 0.5;
   }
-    
-  
-  
+
   public static final class STINGER_PID {
 
-    //TODO: find better default PID values for the stinger
+    // TODO: find better default PID values for the stinger
     public static final double STINGER_FEEDFORWARD = 0.054;
     public static final double STINGER_KP = 0.48;
     public static final double STINGER_KI = 0.0;
@@ -138,16 +136,16 @@ public final class Constants {
   public static final class NODE_DISTANCES {
 
     // all these measurements are in INCHES
-    public static final double EXTENSION_LOW  = 8; // half the depth of the hybrid node
-    public static final double EXTENSION_MID  = 22.75;
+    public static final double EXTENSION_LOW = 8; // half the depth of the hybrid node
+    public static final double EXTENSION_MID = 22.75;
     public static final double EXTENSION_HIGH = 39.75;
 
-    // these measurements are 2 inches higher than the actual node heights so the items can make it over
+    // these measurements are 2 inches higher than the actual node heights so the items can make it
+    // over
     public static final double HEIGHT_LOW = 7;
     public static final double HEIGHT_MID_CUBE = 25.5;
     public static final double HEIGHT_MID_CONE = 36;
     public static final double HEIGHT_HIGH_CUBE = 37.5;
     public static final double HEIGHT_HIGH_CONE = 48;
   }
-  
 }

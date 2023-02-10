@@ -4,10 +4,9 @@
 
 package frc.robot.commands.stinger;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.stinger.Stinger;
+import java.util.function.DoubleSupplier;
 
 public class StingerManualControl extends CommandBase {
 
@@ -40,7 +39,6 @@ public class StingerManualControl extends CommandBase {
     } else {
       stinger.setPercentOutput(0);
     }
-
   }
 
   // Called once the command ends or is interrupted.

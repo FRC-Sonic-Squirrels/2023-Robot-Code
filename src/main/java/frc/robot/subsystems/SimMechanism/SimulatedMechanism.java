@@ -50,13 +50,13 @@ public class SimulatedMechanism extends SubsystemBase {
   private static final double BUMPER_WIDTH = 1.25;
   private static final double ROBOT_WIDTH = 28 + BUMPER_WIDTH * 2;
 
-  private static final double ELEVATOR_OFF_GROUND_HEIGHT = 4;
+  private static final double ELEVATOR_OFF_GROUND_HEIGHT = 9.375;
   private static final double ROBOT_TO_ELEVATOR_X = 3;
 
   private static final double ROBOT_LEFT_ROOT_X = MECHANISM_WIDTH - GRID_LENGTH - ROBOT_WIDTH;
   private static final double ELEVATOR_ROOT_X = ROBOT_LEFT_ROOT_X + ROBOT_TO_ELEVATOR_X;
 
-  private static final double ELEVATOR_ANGLE = 60;
+  private static final double ELEVATOR_ANGLE = 70;
 
   private final Mechanism2d m_mech2d = new Mechanism2d(MECHANISM_WIDTH, MECHANISM_HEIGHT);
   private final MechanismRoot2d m_mech2dRoot =
@@ -119,8 +119,8 @@ public class SimulatedMechanism extends SubsystemBase {
           new MechanismLigament2d(
               "robot bed", ROBOT_WIDTH, FACING_RIGHT, 30, new Color8Bit(Color.kOrange)));
 
-  private double elevatorMinLengthInches = 10;
-  private double stingerMinLengthInches = 15;
+  private double elevatorMinLengthInches = 0;
+  private double stingerMinLengthInches = 24.2;
 
   // private double elevatorLength = elevatorMinLengthInches;
   // private double stingerlength = stingerMinLengthInches;

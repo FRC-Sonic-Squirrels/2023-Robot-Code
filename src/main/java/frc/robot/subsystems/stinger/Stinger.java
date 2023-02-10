@@ -8,7 +8,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
-import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 import org.littletonrobotics.junction.Logger;
 
