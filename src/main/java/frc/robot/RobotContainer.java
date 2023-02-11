@@ -4,8 +4,28 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+import static frc.robot.Constants.CAMERA_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,15 +47,28 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.auto.FollowPath;
+import frc.robot.commands.drive.FeedForwardCharacterization;
+import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorFollowCurve;
+import frc.robot.commands.elevator.ElevatorManualControl;
+import frc.robot.commands.mechanism.MechanismPositions;
+import frc.robot.commands.stinger.StingerFollowCurve;
+import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
+import frc.robot.subsystems.elevator.ElevatorSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
@@ -43,7 +76,6 @@ import frc.robot.subsystems.intake.IntakeIO2022;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +105,7 @@ public class RobotContainer {
   private Stinger stinger;
   private Elevator elevator;
   private Wrist wrist;
+
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -234,7 +267,10 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
+            
+            elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
+            
             wrist = new Wrist(new WristIO() {});
 
             DriverStation.silenceJoystickConnectionWarning(true);
@@ -284,6 +320,12 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    elevator.setDefaultCommand(
+        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, () -> driverController.getRightX()));
+
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
     //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
@@ -305,52 +347,82 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    driverController
-        .b()
-        .toggleOnTrue(
-            Commands.either(
-                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-                drivetrain::getFieldRelative));
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
 
-    // reset gyro to 0 degrees
-    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // // reset gyro to 0 degrees
+    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
-    // x-stance
-    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    // // x-stance
+    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
-    // intake
-    driverController
-        .rightBumper()
-        .whileTrue(
-            Commands.runOnce(intake::extend, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    driverController
-        .rightBumper()
-        .onFalse(
-            Commands.runOnce(intake::retract, intake)
-                .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    // // intake
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.runOnce(intake::extend, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // driverController
+    //     .rightBumper()
+    //     .onFalse(
+    //         Commands.runOnce(intake::retract, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 180)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 0)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
+    // driverController
+    //     .a()
+    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
+
+    // driverController
+    //     .b()
+    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    // driverController
+    //     .x()
+    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
+
+    // driverController
+    //     .y()
+    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
+
+    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
     driverController
-        .povDown()
-        .onTrue(
-            new DriveWithSetRotation(
-                    drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
-                    180)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
-
+        .x()
+        .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
     driverController
-        .povUp()
-        .onTrue(
-            new DriveWithSetRotation(
-                    drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
-                    0)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+        .y()
+        .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+
+    // driverController.a().onTrue((Commands.print("A")));
+
+    // driverController.b().onTrue((Commands.print("B")));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */

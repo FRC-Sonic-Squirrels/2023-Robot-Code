@@ -17,6 +17,7 @@ public class Stinger extends SubsystemBase {
   private final StingerIOInputs inputs = new StingerIOInputs();
   // TODO: see if we can change max voltage to 12
   private double MAX_VOLTAGE = 10.0;
+
   public static double toleranceInches = 0.1;
 
   private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
@@ -31,8 +32,8 @@ public class Stinger extends SubsystemBase {
       new TunableNumber("Stinger/kD", Constants.STINGER_PID.STINGER_KD);
 
   private final TunableNumber velocityInchesSecond =
-      new TunableNumber("Stinger/velocity inches per sec", 5);
-  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 5);
+      new TunableNumber("Stinger/velocity inches per sec", 40);
+  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 0.1);
 
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {

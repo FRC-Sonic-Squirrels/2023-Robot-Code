@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -20,7 +21,6 @@ public class ElevatorReal2023 implements ElevatorIO {
       new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
   // TODO: Put in values of new robot
   private static final double gearRatio = 0.08229;
-  private static final double maxExtensionInches = 26;
   private static final double winchDiameter_inches = 1.43;
   private static final double winchCircumference = Math.PI * winchDiameter_inches;
   private static final double ticks2inches = gearRatio * winchCircumference / 2048;
@@ -154,5 +154,15 @@ public class ElevatorReal2023 implements ElevatorIO {
     lead_talon.config_kP(0, kP);
     lead_talon.config_kI(0, kI);
     lead_talon.config_kD(0, kD);
+  }
+
+  @Override
+  public void setHeightInches(double targetHeightInches) {
+    lead_talon.set(TalonFXControlMode.Position, inchesToTicks(targetHeightInches));
+  }
+
+  @Override
+  public void setElevatorVoltage(double volts) {
+    lead_talon.setVoltage(volts);
   }
 }

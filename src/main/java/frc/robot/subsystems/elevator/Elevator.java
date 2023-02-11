@@ -21,14 +21,14 @@ public class Elevator extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static final double toleranceInches = 0.05;
   // TODO: check real height
-  public static final double maxHeightInches = 26;
+  public static final double maxHeightInches = 24 * 2;
   private boolean zeroed;
   private boolean maxed;
 
   public final TunableNumber Kf =
       new TunableNumber("elevator/Kf", Constants.ElevatorConstants.F_CONTROLLER);
   public final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      new TunableNumber("elevator/tunableKp", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Ki =
       new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
   public final TunableNumber Kd =
@@ -90,6 +90,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeightInches(double targetHeightInches) {
+    MathUtil.clamp(targetHeightInches, 0, maxHeightInches);
+
     io.setHeightInches(targetHeightInches);
   }
 

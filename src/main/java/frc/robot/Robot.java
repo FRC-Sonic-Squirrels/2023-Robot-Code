@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
+
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -36,6 +38,10 @@ public class Robot extends LoggedRobot {
   private String currentAutoName = "";
   private RobotContainer robotContainer;
   Alliance alliance = Alliance.Invalid;
+
+  // private SimulatedMechanism simMech = new SimulatedMechanism();
+
+  private XboxController testController = new XboxController(0);
 
   private final Alert logReceiverQueueAlert =
       new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
@@ -147,7 +153,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        logger.addDataReceiver(new WPILOGWriter(""));
+        // logger.addDataReceiver(new WPILOGWriter(""));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -203,6 +209,8 @@ public class Robot extends LoggedRobot {
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
 
+
+
     checkDSUpdate();
 
     if (this.isDisabled()) {
@@ -240,6 +248,7 @@ public class Robot extends LoggedRobot {
      * autonomous to continue until interrupted by another command, remove this line or comment it
      * out.
      */
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
