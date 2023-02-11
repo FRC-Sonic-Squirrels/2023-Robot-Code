@@ -137,7 +137,7 @@ public final class Constants {
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
   }
-  
+
   // the depth and height of field nodes compared to a robot right in front of them
   public static final class NODE_DISTANCES {
 
