@@ -498,7 +498,7 @@ public class RobotContainer {
   public void configureAutoCommands() {
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-    autos = new SwerveAutos(drivetrain, intake);
+    autos = new SwerveAutos(drivetrain, intake, elevator, stinger);
 
     List<String> autoNames = autos.getAutonomousCommandNames();
 

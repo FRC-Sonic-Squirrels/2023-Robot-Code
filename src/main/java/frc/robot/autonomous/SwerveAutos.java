@@ -12,13 +12,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.team2930.AutoChooserElement;
 import frc.robot.commands.auto.FollowPath;
+import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.stinger.Stinger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class SwerveAutos {
@@ -26,17 +32,23 @@ public class SwerveAutos {
   private List<String> names = new ArrayList<>();
   private Drivetrain drivetrain;
   private Intake intake;
+  private Elevator elevator;
+  private Stinger stinger;
+  // private LED led;
 
   // get field dimensions from official WPILib file
   // https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2023-chargedup.json#L148-L151
   public static final double FIELD_LENGTH_METERS = 16.54175;
   public static final double FIELD_WIDTH_METERS = 8.0137;
 
-  public SwerveAutos(Drivetrain drivetrain, Intake intake) {
+  public SwerveAutos(Drivetrain drivetrain, Intake intake, Elevator elevator, Stinger stinger) {
     // FIXME: List of all required subsystems: elevator, stinger, intake, LED
     // iterate through all the commands in EventMap and extract the requirements for each command?
     this.drivetrain = drivetrain;
     this.intake = intake;
+    this.elevator = elevator;
+    this.stinger = stinger;
+    // this.led = led;
 
     //
     // Add named commands here.
@@ -56,8 +68,8 @@ public class SwerveAutos {
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
       addCommand("forwardLeft", () -> forwardLeft());
     }
-    addCommand("scoreCone", () -> scoreCone());
-    addCommand("scoreCube", () -> scoreCube());
+    addCommand("scoreCone", () -> scoreConeHigh());
+    addCommand("scoreCube", () -> scoreCubeHigh());
     addCommand("middle1BallEngage", () -> middle1BallEngage());
     addCommand("right1BallTaxi", () -> right1BallTaxi());
     addCommand("right2Ball", () -> right2Ball());
@@ -277,7 +289,7 @@ public class SwerveAutos {
   public AutoChooserElement testSeq() {
     PathPlannerTrajectory path = loadPath("2mforward");
 
-    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreCone());
+    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreConeHigh());
   }
 
   // ======================= COMPETITION Autonomous Routines ========================
@@ -287,25 +299,51 @@ public class SwerveAutos {
   // with a new trajectory. Actions are performed from the supplied EventMap and
   // triggered by event markers set with PathPlanner.
   //
-
-  public AutoChooserElement scoreCone() {
-    return new AutoChooserElement(null, new SequentialCommandGroup(getEventMap().get("scoreCone")));
+  public AutoChooserElement scoreConeHigh() {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake)));
   }
 
-  public AutoChooserElement scoreCube() {
-    return new AutoChooserElement(null, new SequentialCommandGroup(getEventMap().get("scoreCube")));
+  public AutoChooserElement scoreCubeHigh() {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake)));
+  }
+
+  public AutoChooserElement scoreConeMid() {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
+  }
+
+  public AutoChooserElement scoreCubeMid() {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            MechanismPositions.scoreConeMidPosition(elevator, stinger, intake),
+            Commands.waitUntil(mechanismInPos()),
+            new IntakeScoreCube(intake).raceWith(new WaitCommand(0.5)),
+            MechanismPositions.stowPosition(elevator, stinger)));
+  }
+
+  private BooleanSupplier mechanismInPos() {
+    return () -> (elevator.isAtHeight() && stinger.isAtExtension());
   }
 
   public AutoChooserElement middle1BallEngage() {
     PathPlannerTrajectory path = loadPath("middle1BallEngage");
 
-    return scoreCube().setNext(path, true, drivetrain, getEventMap());
+    return scoreCubeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right1BallTaxi() {
     PathPlannerTrajectory path = loadPath("right1BallTaxi");
 
-    return scoreCone().setNext(path, true, drivetrain, getEventMap());
+    return scoreConeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement right2Ball() {
@@ -335,7 +373,7 @@ public class SwerveAutos {
   public AutoChooserElement left1BallTaxi() {
     PathPlannerTrajectory path = loadPath("Left1BallTaxi");
 
-    return scoreCone().setNext(path, true, drivetrain, getEventMap());
+    return scoreConeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement left2Ball() {
