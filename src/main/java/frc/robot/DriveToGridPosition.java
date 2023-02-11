@@ -50,6 +50,7 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    // TODO log all the checkpoints, bounding boxes etc.
     // TODO FIXME sometime path goes through pad if u start in front of it, the outside checkpoint x
     // is too far out
     // TODO optimize to allow paths from in front of charging pad (just add more checkpoints i
