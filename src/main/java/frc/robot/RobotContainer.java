@@ -240,8 +240,7 @@ public class RobotContainer {
             drivetrain,
             driverController::getLeftY,
             driverController::getLeftX,
-            // FIXME
-            () -> 0));
+            driverController::getRightX));
 
     elevator.setDefaultCommand(
         new ElevatorManualControl(elevator, () -> -driverController.getRightY()));

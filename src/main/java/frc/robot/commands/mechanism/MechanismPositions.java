@@ -15,10 +15,10 @@ import frc.robot.subsystems.stinger.Stinger;
 public class MechanismPositions {
 
   // TODO: find the proper stow and pickup positions based off robot measurements
-  static final double stowHeight = 10;
+  static final double stowHeight = 0;
   static final double stowExtension = 0;
   static final double groundPickupHeight = 1;
-  static final double groundPickupExtension = 1;
+  static final double groundPickupExtension = 5;
   static final double substationPickupHeight = 20;
   static final double substationPickupExtension = 20;
 
@@ -103,7 +103,7 @@ public class MechanismPositions {
 
   public static Command stowPosition(Elevator elevator, Stinger stinger) {
     return new ParallelCommandGroup(
-        new ElevatorSetHeight(elevator, 10),
+        new ElevatorSetHeight(elevator, 0),
         new SequentialCommandGroup(
             // height must be >= 10 before moving stinger,
             // if any lower the stinger will collide with swerve module

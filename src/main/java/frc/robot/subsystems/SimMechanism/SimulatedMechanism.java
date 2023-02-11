@@ -51,7 +51,7 @@ public class SimulatedMechanism extends SubsystemBase {
   private static final double ROBOT_WIDTH = 28 + BUMPER_WIDTH * 2;
 
   private static final double ELEVATOR_OFF_GROUND_HEIGHT = 9.375;
-  private static final double ROBOT_TO_ELEVATOR_X = 4.5;
+  private static final double ROBOT_TO_ELEVATOR_X = 4.5 + BUMPER_WIDTH;
 
   private static final double ROBOT_LEFT_ROOT_X = MECHANISM_WIDTH - GRID_LENGTH - ROBOT_WIDTH;
   private static final double ELEVATOR_ROOT_X = ROBOT_LEFT_ROOT_X + ROBOT_TO_ELEVATOR_X;
@@ -219,6 +219,9 @@ public class SimulatedMechanism extends SubsystemBase {
     elevatorMech2d.setLength(elevatorLength);
 
     stingerMech2d.setLength(stingerlength);
+
+    elevatorLigament.setLength(Units.inchesToMeters(elevatorLength));
+    stingerLigament.setLength(Units.inchesToMeters(stingerlength));
 
     // var stingerLength = stingerSim.getPositionMeters();
     // var stingerInches = Units.metersToInches(stingerLength);
