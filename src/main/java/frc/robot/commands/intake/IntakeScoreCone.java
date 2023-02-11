@@ -9,23 +9,20 @@ import frc.robot.subsystems.intake.Intake;
 
 public class IntakeScoreCone extends CommandBase {
   /** Creates a new IntakeScoreCone. */
-
   Intake intake;
 
-  double speed; 
+  double speed;
 
   public IntakeScoreCone(Intake intake) {
-  this(intake, 0.8); 
+    this(intake, 0.8);
   }
 
-  
   public IntakeScoreCone(Intake intake, double speed) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.intake = intake;
-    this.speed = speed; 
+    this.speed = speed;
 
     addRequirements(intake);
-
   }
 
   // Called when the command is initially scheduled.

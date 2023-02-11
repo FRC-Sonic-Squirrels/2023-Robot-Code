@@ -9,17 +9,13 @@ import frc.robot.subsystems.intake.Intake;
 
 public class IntakeGrabCube extends CommandBase {
   /** Creates a new IntakeGrabCube. */
-
-
   Intake intake;
 
   double speed;
 
-
   public IntakeGrabCube(Intake intake) {
-    
-    this(intake, 0.8);
 
+    this(intake, 0.8);
   }
 
   public IntakeGrabCube(Intake intake, double speed) {
@@ -52,5 +48,3 @@ public class IntakeGrabCube extends CommandBase {
     return false;
   }
 }
-
-
