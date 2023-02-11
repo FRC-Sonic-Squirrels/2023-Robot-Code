@@ -38,7 +38,7 @@ import frc.robot.subsystems.elevator.ElevatorReal2022;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.intake.IntakeIO2022;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.wrist.Wrist;
@@ -134,8 +134,11 @@ public class RobotContainer {
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
+
+            intake = new Intake(new IntakeIO2022());
+
             new Vision(new VisionIOPhotonVision(LEFT_CAMERA_NAME), new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
-            intake = new Intake(new IntakeIOFalcon());
+            
             elevator = new Elevator(new ElevatorReal2022());
 
             // wrist = new Wrist(new WristIOSolenoid());
@@ -195,6 +198,7 @@ public class RobotContainer {
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
+
             break;
           }
 

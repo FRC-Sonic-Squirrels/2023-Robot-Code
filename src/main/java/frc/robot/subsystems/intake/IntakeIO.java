@@ -11,7 +11,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface IntakeIO {
   /** Contains all of the input data received from hardware. */
   public static class IntakeIOInputs implements LoggableInputs {
-    public boolean extended = false;
+    public boolean solenoid = false;
 
     public double intakeVelocityRPM = 0.0;
     public double intakeAppliedVolts = 0.0;
@@ -19,7 +19,7 @@ public interface IntakeIO {
     public double[] intakeTempCelsius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("Extended", extended);
+      table.put("solenoid state", solenoid);
 
       table.put("IntakeVelocityRPM", intakeVelocityRPM);
       table.put("IntakeAppliedVolts", intakeAppliedVolts);
@@ -28,7 +28,7 @@ public interface IntakeIO {
     }
 
     public void fromLog(LogTable table) {
-      extended = table.getBoolean("Extended", extended);
+      solenoid = table.getBoolean("Extended", solenoid);
 
       intakeVelocityRPM = table.getDouble("IntakeVelocityRPM", intakeVelocityRPM);
       intakeAppliedVolts = table.getDouble("IntakeAppliedVolts", intakeAppliedVolts);
