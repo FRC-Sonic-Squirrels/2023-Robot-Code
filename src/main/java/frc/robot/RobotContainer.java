@@ -27,6 +27,7 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
+import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
@@ -194,7 +195,8 @@ public class RobotContainer {
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
-            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            new Vision(new VisionIOPhotonVision(LEFT_CAMERA_NAME),
+                new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
