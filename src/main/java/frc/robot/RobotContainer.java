@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.CAMERA_NAME;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.AUTO_MAX_SPEED_METERS_PER_SECOND;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
@@ -46,13 +43,9 @@ import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
-import frc.lib.team3061.vision.VisionIOPhotonVision;
+import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.auto.FollowPath;
-import frc.robot.commands.drive.FeedForwardCharacterization;
-import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.autonomous.SwerveAutos;
-import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorFollowCurve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -63,19 +56,16 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
-import frc.robot.subsystems.elevator.ElevatorSim;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
-import frc.robot.subsystems.stinger.Stinger;
-import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
+import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2022;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
+import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,7 +95,6 @@ public class RobotContainer {
   private Stinger stinger;
   private Elevator elevator;
   private Wrist wrist;
-
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -171,9 +160,10 @@ public class RobotContainer {
 
             intake = new Intake(new IntakeIO2022());
 
-            new Vision(
-                new VisionIOPhotonVision(LEFT_CAMERA_NAME),
-                new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
+            // FIX ME i think the constants got killed in the merge
+            // new Vision(
+            //     new VisionIOPhotonVision(LEFT_CAMERA_NAME),
+            //     new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
 
             elevator = new Elevator(new ElevatorReal2022());
 
@@ -267,10 +257,10 @@ public class RobotContainer {
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
-            
+
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
-            
+
             wrist = new Wrist(new WristIO() {});
 
             DriverStation.silenceJoystickConnectionWarning(true);
