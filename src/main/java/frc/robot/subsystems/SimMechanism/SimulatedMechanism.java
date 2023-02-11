@@ -51,7 +51,7 @@ public class SimulatedMechanism extends SubsystemBase {
   private static final double ROBOT_WIDTH = 28 + BUMPER_WIDTH * 2;
 
   private static final double ELEVATOR_OFF_GROUND_HEIGHT = 9.375;
-  private static final double ROBOT_TO_ELEVATOR_X = 3;
+  private static final double ROBOT_TO_ELEVATOR_X = 4.5;
 
   private static final double ROBOT_LEFT_ROOT_X = MECHANISM_WIDTH - GRID_LENGTH - ROBOT_WIDTH;
   private static final double ELEVATOR_ROOT_X = ROBOT_LEFT_ROOT_X + ROBOT_TO_ELEVATOR_X;
@@ -128,6 +128,61 @@ public class SimulatedMechanism extends SubsystemBase {
   private double elevatorLength;
   private double stingerlength;
 
+  // TODO: get actual numbers of elevator and stinger
+  private static final double MAIN_MECH_WIDTH = ROBOT_WIDTH;
+  private static final double MAIN_MECH_HEIGHT = 50;
+
+  Mechanism2d mainMech =
+      new Mechanism2d(
+          Units.inchesToMeters(MAIN_MECH_WIDTH), Units.inchesToMeters(MAIN_MECH_HEIGHT));
+
+  MechanismRoot2d mainMechRoot =
+      mainMech.getRoot(
+          "mainMechRoot",
+          Units.inchesToMeters(ROBOT_TO_ELEVATOR_X),
+          Units.inchesToMeters(ELEVATOR_OFF_GROUND_HEIGHT));
+
+  MechanismLigament2d elevatorLigament =
+      mainMechRoot.append(new MechanismLigament2d("elevator", 1, ELEVATOR_ANGLE));
+
+  MechanismLigament2d stingerLigament =
+      elevatorLigament.append(new MechanismLigament2d("stinger", 10, -ELEVATOR_ANGLE));
+
+  // ------------
+  // TODO: get correct measurements
+  Mechanism2d fieldMech =
+      new Mechanism2d(
+          Units.inchesToMeters(GRID_LENGTH + ROBOT_WIDTH + 2),
+          Units.inchesToMeters(HIGH_POLE_HEIGHT + 2));
+
+  MechanismRoot2d fieldGridRoot =
+      fieldMech.getRoot(
+          "fieldGridRoot",
+          Units.inchesToMeters(GRID_LENGTH + ROBOT_WIDTH),
+          Units.inchesToMeters(0.0));
+
+  MechanismRoot2d highPoleRoot =
+      fieldMech.getRoot(
+          "highPoleRoot",
+          Units.inchesToMeters(GRID_LENGTH + ROBOT_WIDTH - ALLIANCE_WALL_TO_HIGH_POLE),
+          0.0);
+
+  MechanismLigament2d highPoleLigament =
+      highPoleRoot.append(
+          new MechanismLigament2d(
+              "highPoleLigament", Units.inchesToMeters(HIGH_POLE_HEIGHT), FACING_UP));
+
+  MechanismRoot2d midPoleRoot =
+      fieldMech.getRoot(
+          "midPoleRoot",
+          Units.inchesToMeters(GRID_LENGTH + ROBOT_WIDTH - ALLIANCE_WALL_TO_MID_POLE),
+          0.0);
+
+  MechanismLigament2d midPoleLigament =
+      midPoleRoot.append(
+          new MechanismLigament2d(
+              "midPoleLigament", Units.inchesToMeters(MID_POLE_HEIGHT), FACING_UP));
+
   private SimulatedMechanism() {}
 
   public static SimulatedMechanism getInstance() {
@@ -178,5 +233,9 @@ public class SimulatedMechanism extends SubsystemBase {
     // wristMech2d.setAngle(wristAngleDegrees);
 
     Logger.getInstance().recordOutput("SimMech", m_mech2d);
+
+    Logger.getInstance().recordOutput("MainMech", mainMech);
+
+    Logger.getInstance().recordOutput("FieldMech", fieldMech);
   }
 }
