@@ -240,12 +240,14 @@ public class RobotContainer {
             drivetrain,
             driverController::getLeftY,
             driverController::getLeftX,
-            driverController::getRightX));
+            // FIXME
+            () -> 0));
 
     elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -driverController.getLeftY()));
+        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
 
-    stinger.setDefaultCommand(new StingerManualControl(stinger, () -> driverController.getLeftX()));
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, () -> driverController.getRightX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
