@@ -22,8 +22,8 @@ public class ElevatorReal2023 implements ElevatorIO {
   // TODO: Put in values of new robot
   private static final double gearRatio = 0.08229;
   private static final double winchDiameter_inches = 1.43;
-  private static final double winchCircumfrence = Math.PI * winchDiameter_inches;
-  private static final double ticks2inches = gearRatio * winchCircumfrence / 2048;
+  private static final double winchCircumference = Math.PI * winchDiameter_inches;
+  private static final double ticks2inches = gearRatio * winchCircumference / 2048;
   private static final double ticks2rotations = 1 / 2048f;
   private double targetHeightInches;
 
@@ -81,7 +81,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     // TODO: determine whether we actually want to make this slow
     MotorUtils.setCtreStatusSlow(follow_talon);
 
-    // TODO make sure this doesnt slow down CAN to anything important
+    // TODO make sure this doesn't slow down CAN to anything important
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
@@ -123,10 +123,10 @@ public class ElevatorReal2023 implements ElevatorIO {
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
     // TODO: Use JVN calculator for exact numbers
 
-    double veloTicksPerSecond = inchesToTicks(cruiseVelocityInchesPerSecond);
+    double velocityTicksPerSecond = inchesToTicks(cruiseVelocityInchesPerSecond);
     double accelTicksPerSecondSquared = inchesToTicks(accelerationInchesPerSecondSquared);
 
-    lead_talon.configMotionCruiseVelocity(veloTicksPerSecond);
+    lead_talon.configMotionCruiseVelocity(velocityTicksPerSecond);
     lead_talon.configMotionAcceleration(accelTicksPerSecondSquared);
   }
 

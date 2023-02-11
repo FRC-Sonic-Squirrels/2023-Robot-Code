@@ -4,6 +4,7 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import frc.lib.team2930.AutoChooserElement;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,6 +27,8 @@ public class FollowPath extends PPSwerveControllerCommand {
   /**
    * Constructs a new FollowPath object.
    *
+   * <p>CAVEAT: This helper does not support useAllianceColor.
+   *
    * @param trajectory the specified trajectory created by PathPlanner
    * @param subsystem the drivetrain subsystem required by this command
    * @param initialPath true, if this trajectory is the first in a sequence of trajectories or the
@@ -43,6 +46,7 @@ public class FollowPath extends PPSwerveControllerCommand {
         subsystem.getAutoYController(),
         subsystem.getAutoThetaController(),
         subsystem::setSwerveModuleStates,
+        false,
         subsystem);
 
     this.drivetrain = subsystem;
@@ -73,7 +77,8 @@ public class FollowPath extends PPSwerveControllerCommand {
     this.drivetrain.getAutoYController().reset();
     this.drivetrain.getAutoThetaController().reset();
 
-    Logger.getInstance().recordOutput("Odometry/trajectory", trajectory);
+    Logger.getInstance()
+        .recordOutput("Odometry/trajectory", AutoChooserElement.decimateTrajectory(trajectory, 10));
   }
 
   /**

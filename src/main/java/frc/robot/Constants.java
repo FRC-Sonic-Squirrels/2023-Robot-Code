@@ -29,7 +29,8 @@ public final class Constants {
   public static final String CAN_BUS_NAME = "";
 
   // FIXME: specify the name of the camera used for detecting AprilTags
-  public static final String CAMERA_NAME = "ov9268";
+  public static final String LEFT_CAMERA_NAME = "ov9268";
+  public static final String RIGHT_CAMERA_NAME = "ov9268";
 
   private static final RobotType ROBOT = RobotType.ROBOT_SIMBOT;
 
@@ -56,6 +57,9 @@ public final class Constants {
       case ROBOT_2023_PRESEASON:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
+      case ROBOT_2023_COMPBOT:
+        return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+
       case ROBOT_SIMBOT:
         return Mode.SIM;
 
@@ -67,6 +71,7 @@ public final class Constants {
   // FIXME: update for various robots
   public enum RobotType {
     ROBOT_2023_PRESEASON,
+    ROBOT_2023_COMPBOT,
     ROBOT_SIMBOT
   }
 
@@ -132,6 +137,7 @@ public final class Constants {
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
   }
+  
   // the depth and height of field nodes compared to a robot right in front of them
   public static final class NODE_DISTANCES {
 

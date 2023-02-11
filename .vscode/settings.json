@@ -32,9 +32,14 @@
   "source.fixAll.spotlessGradle": true
   },
   "cSpell.words": [
-    "APRILTAG",
     "algs",
+    "APRILTAG",
+    "auton",
     "Cancoder",
+    "CANID",
+    "CANIVOR",
+    "Closedloop",
+    "COMPBOT",
     "DEADBAND",
     "Feedforward",
     "gamepad",
@@ -47,6 +52,7 @@
     "odometry",
     "photonvision",
     "rapidreact",
+    "reqs",
     "REVPH",
     "REVPHJNI",
     "rezero",
@@ -57,8 +63,12 @@
     "teleop",
     "teleoperated",
     "TRACKWIDTH",
+    "unpassed",
     "Vandermonde",
     "WPILOG",
     "Xstance"
-  ]
+  ],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }
