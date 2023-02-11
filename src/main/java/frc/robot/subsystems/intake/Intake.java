@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 import org.littletonrobotics.junction.Logger;
@@ -71,17 +69,9 @@ public class Intake extends SubsystemBase {
     runIntakePercent(percent * OUTTAKE_CUBE_INVERT);
   }
 
-  public Command extendCommand() {
-    return new InstantCommand(
-        () -> {
-          extend();
-        });
-  }
+  public void intakeConewithRPM(double speed) {}
 
-  public Command retractCommand() {
-    return new InstantCommand(
-        () -> {
-          retract();
-        });
-  }
+  public void outtakeConewithRPM(double speed) {}
+
+  public void intakeConewithRPM(double speed) {}
 }

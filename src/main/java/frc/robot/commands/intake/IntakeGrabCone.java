@@ -29,7 +29,7 @@ public class IntakeGrabCone extends CommandBase {
   public void initialize() {
     // if we use the pivot then we will have to extend and retrace as well
     // intake.extend();
-    intake.intakeCone(speed);
+    intake.intakeConewithRPM(speed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
