@@ -10,60 +10,64 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 /** Add your docs here. */
 public interface StingerIO {
 
-    // Contains all the input data received from hardware
-    public static class StingerIOInputs implements LoggableInputs {
+  // Contains all the input data received from hardware
+  public static class StingerIOInputs implements LoggableInputs {
 
-        public double StingerExtensionInches = 0.0;
-        public double StingerTargetExtensionInches = 0.0;
-        public double StingerVelocityInchesPerSecond = 0.0;
-        public double StingerVelocityRPM = 0.0;
-        public double StingerAppliedVolts = 0.0;
-        public double[] StingerCurrentAmps = new double[] {};
-        public double[] StingerTempCelsius = new double[] {};
+    public double StingerExtensionInches = 0.0;
+    public double StingerTargetExtensionInches = 0.0;
+    public double StingerVelocityInchesPerSecond = 0.0;
+    public double StingerVelocityRPM = 0.0;
+    public double StingerAppliedVolts = 0.0;
+    public double[] StingerCurrentAmps = new double[] {};
+    public double[] StingerTempCelsius = new double[] {};
 
-        // is the stinger hitting the lower limit switch?
-        public boolean StingerAtRetractedLimit = false;
+    // is the stinger hitting the lower limit switch?
+    public boolean StingerAtRetractedLimit = false;
 
-        // is the stinger hitting the upper limit switch?
-        public boolean StingerAtExtendedLimit = false;
+    // is the stinger hitting the upper limit switch?
+    public boolean StingerAtExtendedLimit = false;
 
-        public void toLog(LogTable table) {
-            table.put("StingerExtensionInches", StingerExtensionInches);
-            table.put("StingerTargetExtensionInches", StingerTargetExtensionInches);
-            table.put("StingerAtRetractedLimit", StingerAtRetractedLimit);
-            table.put("StingerVelocityInchesPerSecond", StingerVelocityInchesPerSecond);
-            table.put("StingerVelocityRPM", StingerVelocityRPM);
-            table.put("StingerAppliedVolts", StingerAppliedVolts);
-            table.put("StingerCurrentAmps", StingerCurrentAmps);
-            table.put("StingerTempCelsius", StingerTempCelsius);
-        }
-        public void fromLog(LogTable table) {
-            StingerAtRetractedLimit = table.getBoolean("StingerAtRetractedLimit", StingerAtRetractedLimit);
-            StingerAtExtendedLimit = table.getBoolean("StingerAtExtendedLimit", StingerAtExtendedLimit);
-            StingerVelocityInchesPerSecond = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
-            StingerVelocityRPM = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
-            StingerAppliedVolts = table.getDouble("StingerAppliedVolts", StingerAppliedVolts);
-            StingerCurrentAmps = table.getDoubleArray("StingerCurrentAmps", StingerCurrentAmps);
-            StingerTempCelsius = table.getDoubleArray("StingerTempCelsius", StingerTempCelsius);
-        }
+    public void toLog(LogTable table) {
+      table.put("StingerExtensionInches", StingerExtensionInches);
+      table.put("StingerTargetExtensionInches", StingerTargetExtensionInches);
+      table.put("StingerAtRetractedLimit", StingerAtRetractedLimit);
+      table.put("StingerVelocityInchesPerSecond", StingerVelocityInchesPerSecond);
+      table.put("StingerVelocityRPM", StingerVelocityRPM);
+      table.put("StingerAppliedVolts", StingerAppliedVolts);
+      table.put("StingerCurrentAmps", StingerCurrentAmps);
+      table.put("StingerTempCelsius", StingerTempCelsius);
     }
 
-    // updates the set of loggable inputs
-    public default void updateInputs(StingerIOInputs inputs) {};
+    public void fromLog(LogTable table) {
+      StingerAtRetractedLimit =
+          table.getBoolean("StingerAtRetractedLimit", StingerAtRetractedLimit);
+      StingerAtExtendedLimit = table.getBoolean("StingerAtExtendedLimit", StingerAtExtendedLimit);
+      StingerVelocityInchesPerSecond = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
+      StingerVelocityRPM = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
+      StingerAppliedVolts = table.getDouble("StingerAppliedVolts", StingerAppliedVolts);
+      StingerCurrentAmps = table.getDoubleArray("StingerCurrentAmps", StingerCurrentAmps);
+      StingerTempCelsius = table.getDoubleArray("StingerTempCelsius", StingerTempCelsius);
+    }
+  }
 
-    /** Run the Stinger open loop at the specified voltage. */
-    public default void setStingerVoltage(double volts) {}
+  // updates the set of loggable inputs
+  public default void updateInputs(StingerIOInputs inputs) {}
+  ;
 
-    /** Manually set the output percentage of the stinger */
-    public default void setPercent(double percent) {}
+  /** Run the Stinger open loop at the specified voltage. */
+  public default void setStingerVoltage(double volts) {}
 
-    /** set how far out the stinger should be extended, using MotionMagic constraints */
-    public default void setExtensionInches(double targetExtensionInches) {}
+  /** Manually set the output percentage of the stinger */
+  public default void setPercent(double percent) {}
 
-    /** set MotionMagic constraints, using velocity and acceleration */
-    public default void setMotionProfileConstraints(double cruiseVelocity, double acceleration) {}
+  /** set how far out the stinger should be extended, using MotionMagic constraints */
+  public default void setExtensionInches(double targetExtensionInches) {}
 
-    public default void setSensorPosition(double position) {};
+  /** set MotionMagic constraints, using velocity and acceleration */
+  public default void setMotionProfileConstraints(double cruiseVelocity, double acceleration) {}
 
-    public default void setPIDConstraints(double feedForward, double kP, double kI, double kD) {}
+  public default void setSensorPosition(double position) {}
+  ;
+
+  public default void setPIDConstraints(double feedForward, double kP, double kI, double kD) {}
 }

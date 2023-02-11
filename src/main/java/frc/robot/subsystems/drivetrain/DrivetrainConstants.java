@@ -3,7 +3,9 @@ package frc.robot.subsystems.drivetrain;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team3061.swerve.SwerveModuleConstants;
+import java.util.HashMap;
 
 public final class DrivetrainConstants {
 
@@ -109,6 +111,11 @@ public final class DrivetrainConstants {
   public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 2.0 * Math.PI;
   public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 2.0 * Math.PI;
 
+  public static final double AUTO_TEST_MAX_SPEED_METERS_PER_SECOND = 0.2;
+  public static final double AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 0.2;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 0.2 * Math.PI;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 0.2 * Math.PI;
+
   // FIXME: tune PID values for auto paths
 
   public static final double AUTO_DRIVE_P_CONTROLLER = 2.2941;
@@ -120,4 +127,6 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
   public static final double DEADBAND = 0.1;
+
+  public static final HashMap<String, Command> EVENT_MAP = new HashMap<>();
 }
