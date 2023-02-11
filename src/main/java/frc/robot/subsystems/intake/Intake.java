@@ -69,7 +69,6 @@ public class Intake extends SubsystemBase {
     runIntakePercent(percent * OUTTAKE_CUBE_INVERT);
   }
 
-  public void intakeConewithRPM(double speed) {}
 
   public void outtakeConewithRPM(double speed) {}
 

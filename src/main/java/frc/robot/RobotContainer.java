@@ -39,7 +39,6 @@ import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2022;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.wrist.Wrist;
