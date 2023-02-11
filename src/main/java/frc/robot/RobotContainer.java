@@ -7,15 +7,13 @@ package frc.robot;
 import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -29,25 +27,27 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.auto.FollowPath;
+import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
-import frc.robot.commands.drive.FeedForwardCharacterization;
-import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2022;
+import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -68,14 +68,13 @@ public class RobotContainer {
 
   private Drivetrain drivetrain;
   private Intake intake;
-
+  public SwerveAutos autos;
+  private Stinger stinger;
   private Elevator elevator;
   private Wrist wrist;
 
-
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-  private final LoggedDashboardChooser<Command> autoChooser =
-      new LoggedDashboardChooser<>("Auto Routine");
+  private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -139,9 +138,66 @@ public class RobotContainer {
             intake = new Intake(new IntakeIOFalcon());
             elevator = new Elevator(new ElevatorReal2022());
 
-            //wrist = new Wrist(new WristIOSolenoid());
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
+        case ROBOT_2023_COMPBOT:
+          {
+            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
+
+            SwerveModule flModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        0,
+                        FRONT_LEFT_MODULE_DRIVE_MOTOR,
+                        FRONT_LEFT_MODULE_STEER_MOTOR,
+                        FRONT_LEFT_MODULE_STEER_ENCODER,
+                        FRONT_LEFT_MODULE_STEER_OFFSET),
+                    0,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule frModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        1,
+                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_MOTOR,
+                        FRONT_RIGHT_MODULE_STEER_ENCODER,
+                        FRONT_RIGHT_MODULE_STEER_OFFSET),
+                    1,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule blModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        2,
+                        BACK_LEFT_MODULE_DRIVE_MOTOR,
+                        BACK_LEFT_MODULE_STEER_MOTOR,
+                        BACK_LEFT_MODULE_STEER_ENCODER,
+                        BACK_LEFT_MODULE_STEER_OFFSET),
+                    2,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            SwerveModule brModule =
+                new SwerveModule(
+                    new SwerveModuleIOTalonFX(
+                        3,
+                        BACK_RIGHT_MODULE_DRIVE_MOTOR,
+                        BACK_RIGHT_MODULE_STEER_MOTOR,
+                        BACK_RIGHT_MODULE_STEER_ENCODER,
+                        BACK_RIGHT_MODULE_STEER_OFFSET),
+                    3,
+                    MAX_VELOCITY_METERS_PER_SECOND);
+
+            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
+            new Pneumatics(new PneumaticsIORev(false));
+            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // TODO: add intake when intake is done
+            elevator = new Elevator(new ElevatorReal2023());
+            stinger = new Stinger(new StingerIOReal());
+            break;
+          }
+
         case ROBOT_SIMBOT:
           {
             SwerveModule flModule =
@@ -162,6 +218,7 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
+
             new Vision(
                 new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
                 new VisionIOSim(layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
@@ -170,6 +227,8 @@ public class RobotContainer {
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorIO() {});
             wrist = new Wrist(new WristIO() {});
+
+            DriverStation.silenceJoystickConnectionWarning(true);
             break;
           }
         default:
@@ -284,47 +343,64 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
   }
-  /** Use this method to define your commands for autonomous mode. */
-  private void configureAutoCommands() {
-    PathPlannerTrajectory testPath2mForward =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForward180 =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath3mForward360 =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
 
-    autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
-    autoChooser.addOption(
-        "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
-    autoChooser.addOption(
-        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
-    autoChooser.addOption(
-        "Drive Characterization",
-        new FeedForwardCharacterization(
-            drivetrain,
-            true,
-            new FeedForwardCharacterizationData("drive"),
-            drivetrain::runCharacterizationVolts,
-            drivetrain::getCharacterizationVelocity));
+  /** configureAutoCommands - add autonomous routines to chooser */
+  public void configureAutoCommands() {
+
+    autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
+    autos = new SwerveAutos(drivetrain, intake);
+
+    List<String> autoNames = autos.getAutonomousCommandNames();
+
+    for (int i = 0; i < autoNames.size(); i++) {
+      String name = autoNames.get(i);
+      System.out.println("configureAutoCommands: " + name);
+      if (i == 0) {
+        // Do nothing command must be first in list.
+        autoChooser.addDefaultOption(name, autos.getChooserElement(name));
+      } else {
+        autoChooser.addOption(name, autos.getChooserElement(name));
+      }
+    }
+
+    // TODO: add drive characterization command? maybe not necessary?
+    // autoChooser.addOption(
+    //   "Drive Characterization",
+    //    new FeedForwardCharacterization(
+    //        drivetrain,
+    //        true,
+    //        new FeedForwardCharacterizationData("drive"),
+    //        drivetrain::runCharacterizationVolts,
+    //        drivetrain::getCharacterizationVelocity));
+
     Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+   * Use this to pass name of the selected autonomous to the main {@link Robot}
    *
-   * @return the command to run in autonomous
+   * @return name of currently selected auton
    */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
+  public String getAutonomousCommandName() {
+    return autoChooser.getSendableChooser().getSelected();
+  }
+
+  /**
+   * Use this to pass the autonomous chooser Element to the main {@link Robot} class. The chooser
+   * element contains the selected autonomous command, trajectory, and starting pose.
+   *
+   * @return the autonomous chooser element
+   */
+  public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
+    }
+    return chooserElement;
+  }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
   }
 }

@@ -22,6 +22,7 @@ public class VisionIOSim implements VisionIO {
   private static final double DIAGONAL_FOV = 70; // FOV in degrees
   private static final int IMG_WIDTH = 1280; // image width in px
   private static final int IMG_HEIGHT = 720; // image heigh in px
+  private static final double MIN_TARGET_AREA = 1000.0; // change if width/height changes
   private final PhotonCamera camera = new PhotonCamera(CAMERA_NAME);
 
   private double lastTimestamp = 0;
@@ -36,7 +37,13 @@ public class VisionIOSim implements VisionIO {
 
     this.simVision =
         new SimVisionSystem(
-            CAMERA_NAME, DIAGONAL_FOV, robotToCamera.inverse(), 9000, IMG_WIDTH, IMG_HEIGHT, 0);
+            CAMERA_NAME,
+            DIAGONAL_FOV,
+            robotToCamera.inverse(),
+            9000,
+            IMG_WIDTH,
+            IMG_HEIGHT,
+            MIN_TARGET_AREA);
 
     layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
