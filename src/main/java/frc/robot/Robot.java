@@ -4,13 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
-
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -97,14 +95,12 @@ public class Robot extends LoggedRobot {
           trajectory = new Trajectory();
         }
 
-        PathPlannerState startState = new PathPlannerState();
-        startState.poseMeters = currentAutoElement.getPose2d();
-
         // TODO: do we want to set the robot's start pose?
-        // robotContainer.getDrivetrain().resetOdometry(startState);
+        robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
 
         Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
-        Logger.getInstance().recordOutput("Odometry/startPose", currentAutoElement.getPose2d());
+        Logger.getInstance()
+            .recordOutput("Odometry/startPose", currentAutoElement.getInitialState().poseMeters);
       }
     }
   }
@@ -208,8 +204,6 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
-
-
 
     checkDSUpdate();
 
