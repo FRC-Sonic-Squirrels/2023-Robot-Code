@@ -25,12 +25,21 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
+import frc.lib.team2930.driverassist.DeadzoneBox;
+import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.LogicalGridLocation;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -41,11 +50,13 @@ import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
+import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.commands.DriveAvoidBoxes;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorFollowCurve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -82,15 +93,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
-  /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
 
   private Drivetrain drivetrain;
   private Intake intake;
@@ -611,22 +613,6 @@ public class RobotContainer {
     //        new FeedForwardCharacterizationData("drive"),
     //        drivetrain::runCharacterizationVolts,
     //        drivetrain::getCharacterizationVelocity));
-
-    autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
-    autoChooser.addOption(
-        "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
-    autoChooser.addOption(
-        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
-    autoChooser.addOption(
-        "Drive Characterization",
-        new FeedForwardCharacterization(
-            drivetrain,
-            true,
-            new FeedForwardCharacterizationData("drive"),
-            drivetrain::runCharacterizationVolts,
-            drivetrain::getCharacterizationVelocity));
-    Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
   /**
