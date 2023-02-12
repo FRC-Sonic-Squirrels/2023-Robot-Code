@@ -3,7 +3,9 @@ package frc.robot.subsystems.drivetrain;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team3061.swerve.SwerveModuleConstants;
+import java.util.HashMap;
 
 public final class DrivetrainConstants {
 
@@ -96,6 +98,10 @@ public final class DrivetrainConstants {
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND =
       MAX_VELOCITY_METERS_PER_SECOND / Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
+  // TODO: find actual max angular acceleration
+  public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
+      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
   public static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05;
 
   public static final int TIMEOUT_MS = 30;
@@ -104,6 +110,11 @@ public final class DrivetrainConstants {
   public static final double AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
   public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 2.0 * Math.PI;
   public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 2.0 * Math.PI;
+
+  public static final double AUTO_TEST_MAX_SPEED_METERS_PER_SECOND = 0.2;
+  public static final double AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 0.2;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 0.2 * Math.PI;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 0.2 * Math.PI;
 
   // FIXME: tune PID values for auto paths
 
@@ -116,4 +127,6 @@ public final class DrivetrainConstants {
   public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
   public static final double DEADBAND = 0.1;
+
+  public static final HashMap<String, Command> EVENT_MAP = new HashMap<>();
 }

@@ -1,4 +1,11 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "window": {
+        "visible": false
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -15,8 +22,22 @@
       "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/Shuffleboard/MAIN/SendableChooser[0]": "String Chooser",
+      "/Shuffleboard/MAIN/SendableChooser[1]": "String Chooser",
+      "/Shuffleboard/MAIN/SendableChooser[2]": "String Chooser",
+      "/Shuffleboard/MAIN/SendableChooser[3]": "String Chooser",
+      "/Shuffleboard/MAIN/SendableChooser[4]": "String Chooser",
       "/SmartDashboard/Auto Routine": "String Chooser",
-      "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
+      "/SmartDashboard/simCamera Sim Field": "Field2d",
+      "/SmartDashboard/test Auto routines": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Auto Routine": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   }
 }

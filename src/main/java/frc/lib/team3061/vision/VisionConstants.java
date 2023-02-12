@@ -21,10 +21,11 @@ public final class VisionConstants {
       new File(Filesystem.getDeployDirectory(), "2023-chargedup.json").toPath();
 
   // FIXME: update this with the real transform from the robot to the camera
-  public static final Transform3d ROBOT_TO_CAMERA =
-      new Transform3d(
-          new Translation3d(Units.inchesToMeters(-7), 0.0, Units.inchesToMeters(31.5)),
-          new Rotation3d(0, 0, Units.degreesToRadians(180)));
+  public static final Transform3d LEFT_ROBOT_TO_CAMERA =
+      new Transform3d(new Translation3d(5, 5, 20), new Rotation3d(0, 0, Math.toRadians(35)));
+
+  public static final Transform3d RIGHT_ROBOT_TO_CAMERA =
+      new Transform3d(new Translation3d(-5, 5, 20), new Rotation3d(0, 0, Math.toRadians(-35)));
 
   public static final double MAXIMUM_AMBIGUITY = 0.2;
 

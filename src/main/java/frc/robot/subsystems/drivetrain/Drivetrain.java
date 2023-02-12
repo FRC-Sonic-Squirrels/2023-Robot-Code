@@ -351,7 +351,7 @@ public class Drivetrain extends SubsystemBase {
     gyroIO.updateInputs(gyroInputs);
     Logger.getInstance().processInputs("Drive/Gyro", gyroInputs);
 
-    // update and log the swerve moudles inputs
+    // update and log the swerve modules inputs
     for (SwerveModule swerveModule : swerveModules) {
       swerveModule.updateAndProcessInputs();
     }
@@ -418,10 +418,11 @@ public class Drivetrain extends SubsystemBase {
    * stopped moving, and brake mode is enabled, disable it.
    */
   private void updateBrakeMode() {
-    if (DriverStation.isEnabled() && !brakeMode) {
-      brakeMode = true;
-      setBrakeMode(true);
-
+    if (DriverStation.isEnabled()) {
+      if (!brakeMode) {
+        brakeMode = true;
+        setBrakeMode(true);
+      }
     } else {
       boolean stillMoving = false;
       for (SwerveModule mod : swerveModules) {
