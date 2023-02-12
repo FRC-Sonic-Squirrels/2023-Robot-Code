@@ -205,7 +205,8 @@ public class DriveToGridPosition {
     // }
 
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false));
+        new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false),
+        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain));
   }
 
   public Command humanPlayerStation(LoadingStationLocation location) {

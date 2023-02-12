@@ -20,7 +20,7 @@ public class Stinger extends SubsystemBase {
 
   public static double toleranceInches = 0.1;
 
-  private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
+  private final double maxExtensionInches = 27; // actually 24 letting more for unwinding
 
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.STINGER_PID.STINGER_FEEDFORWARD);

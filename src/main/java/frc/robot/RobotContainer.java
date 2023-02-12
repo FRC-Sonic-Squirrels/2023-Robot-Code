@@ -54,13 +54,8 @@ import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
-import frc.robot.commands.DriveAvoidBoxes;
 import frc.robot.commands.drive.TeleopSwerve;
-import frc.robot.commands.elevator.ElevatorFollowCurve;
-import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.mechanism.MechanismPositions;
-import frc.robot.commands.stinger.StingerFollowCurve;
-import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -310,26 +305,27 @@ public class RobotContainer {
      * and the left joystick's x axis specifies the velocity in the y direction.
      */
 
-    // drivetrain.setDefaultCommand(
-    //     new TeleopSwerve(
-    //         drivetrain,
-    //         driverController::getLeftY,
-    //         driverController::getLeftX,
-    //         driverController::getRightX));
-
     drivetrain.setDefaultCommand(
-        new DriveAvoidBoxes(
+        new TeleopSwerve(
             drivetrain,
             driverController::getLeftY,
             driverController::getLeftX,
             driverController::getRightX));
 
-    autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
-    elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+    // drivetrain.setDefaultCommand(
+    //     new DriveAvoidBoxes(
+    //         drivetrain,
+    //         driverController::getLeftY,
+    //         driverController::getLeftX,
+    //         driverController::getRightX));
 
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, () -> driverController.getRightX()));
+    autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
+
+    // elevator.setDefaultCommand(
+    //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+
+    // stinger.setDefaultCommand(
+    //     new StingerManualControl(stinger, () -> driverController.getRightX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
@@ -446,15 +442,17 @@ public class RobotContainer {
     //     .y()
     //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
 
-    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    // driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    // driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
-    driverController
-        .x()
-        .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
-    driverController
-        .y()
-        .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+    // driverController
+    //     .x()
+    //     .whileTrue(new StingerFollowCurve(elevator,
+    // stinger).beforeStarting(Commands.print("X")));
+    // driverController
+    //     .y()
+    //     .whileTrue(new ElevatorFollowCurve(elevator,
+    // stinger).beforeStarting(Commands.print("X")));
 
     // x-stance
     // xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
@@ -489,7 +487,7 @@ public class RobotContainer {
                     () -> {
                       var cmd =
                           autoDriveToGrid.testLogicalBay(
-                              gridPositionHandler.getDesiredBay()); // some command
+                              GridPositionHandler.getDesiredBay()); // some command
 
                       Command currentCmd = drivetrain.getCurrentCommand();
 
@@ -499,9 +497,20 @@ public class RobotContainer {
 
                       // interupt command if joystick value is greater than 0.7 for 0.2 seconds
                       // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                      var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+                      var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
+
+                      cmd =
+                          cmd.andThen(scoreCmd)
+                              .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
+
                       cmd.schedule();
                     })
                 .beforeStarting(Commands.print("A")));
+
+    driverController.leftTrigger().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+
+    // driverController.a().onTrue(autoDriveToGrid.driveToGridPoseCommand());
 
     driverController
         .leftBumper()
@@ -549,11 +558,11 @@ public class RobotContainer {
     driverController
         .povRight()
         .onTrue(
-            Commands.runOnce(() -> gridPositionHandler.incrementNextBay())
+            Commands.runOnce(() -> GridPositionHandler.incrementNextBay())
                 .andThen(Commands.print("Incremented bay")));
     driverController
         .povLeft()
-        .onTrue(Commands.runOnce(() -> gridPositionHandler.decrementNextBay()));
+        .onTrue(Commands.runOnce(() -> GridPositionHandler.decrementNextBay()));
 
     driverController
         .rightTrigger()
