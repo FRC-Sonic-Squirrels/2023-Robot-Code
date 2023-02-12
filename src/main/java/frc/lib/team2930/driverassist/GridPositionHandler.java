@@ -46,14 +46,14 @@ public class GridPositionHandler {
     DeadzoneBox.RED_IN_FRONT_PAD
   };
 
-  private int bayIndex = 0;
-  private LogicalGridLocation desiredBay = LogicalGridLocation.LOGICAL_BAY_1;
+  private static int bayIndex = 0;
+  private static LogicalGridLocation desiredBay = LogicalGridLocation.LOGICAL_BAY_1;
 
-  public LogicalGridLocation getDesiredBay() {
+  public static LogicalGridLocation getDesiredBay() {
     return desiredBay;
   }
 
-  public void incrementNextBay() {
+  public static void incrementNextBay() {
     if (bayIndex == logicalGridOrder.length - 1) {
       desiredBay = logicalGridOrder[logicalGridOrder.length - 1];
       return;
@@ -63,7 +63,7 @@ public class GridPositionHandler {
     desiredBay = logicalGridOrder[bayIndex];
   }
 
-  public void decrementNextBay() {
+  public static void decrementNextBay() {
     if (bayIndex == 0) {
       desiredBay = logicalGridOrder[0];
       return;

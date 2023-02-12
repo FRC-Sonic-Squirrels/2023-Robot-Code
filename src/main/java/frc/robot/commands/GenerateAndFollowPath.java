@@ -173,12 +173,19 @@ public class GenerateAndFollowPath extends CommandBase {
     //         drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds()));
 
     // ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
-    var currentSpeeds = drivetrain.getModuleChassisSpeeds();
+    // var currentSpeeds = drivetrain.getModuleChassisSpeeds();
+
+    var currentSpeeds = drivetrain.getDriverFieldRelativeInput();
+
+    // double linearVel =
+    //     Math.sqrt(
+    //         (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
+    //             + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
 
     double linearVel =
         Math.sqrt(
-            (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
-                + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
+            (currentSpeeds.getX() * currentSpeeds.getX())
+                + (currentSpeeds.getY() * currentSpeeds.getY()));
 
     // pathPoints.add(
     //     new PathPoint(
@@ -200,18 +207,27 @@ public class GenerateAndFollowPath extends CommandBase {
     Logger.getInstance().recordOutput("DriverAssist/linearVel", linearVel);
 
     if (linearVel > 1) {
-      heading = Math.atan2(currentSpeeds.vyMetersPerSecond, currentSpeeds.vxMetersPerSecond);
+      // heading = Math.atan2(currentSpeeds.vyMetersPerSecond, currentSpeeds.vxMetersPerSecond);
+
+      var distanceVector = new Translation2d(currentSpeeds.getX(), currentSpeeds.getY());
+
+      heading = distanceVector.getAngle().getRadians();
     } else if (this.firstPathPose != null) {
       var distanceX = firstPathPose.getX() - currentPose.getX();
       var distanceY = firstPathPose.getY() - currentPose.getY();
 
       var distanceVector = new Translation2d(distanceX, distanceY);
 
+      Logger.getInstance()
+          .recordOutput(
+              "DriverAssist/distanceVector", new Pose2d(distanceVector, new Rotation2d(0)));
+
       // if (Math.abs(distanceVector.getX()) > 0.25 || Math.abs(distanceVector.getY()) > 0.25) {
       heading = distanceVector.getAngle().getRadians();
       // }
     }
 
+    // FIXME
     pathPoints.add(
         new PathPoint(
             currentPose.getTranslation(),
@@ -234,6 +250,17 @@ public class GenerateAndFollowPath extends CommandBase {
 
     this.trajectory = PathPlanner.generatePath(this.pathConstraints, pathPoints);
 
+    System.out.println("total time: " + trajectory.getTotalTimeSeconds());
+    for (double i = 0; i <= trajectory.getTotalTimeSeconds(); i = i + 0.1) {
+      PathPlannerState x = (PathPlannerState) trajectory.sample(i);
+
+      System.out.println("at time: " + i);
+      Logger.getInstance()
+          .recordOutput(
+              "Odometry/holonicStates/" + i,
+              new Pose2d(x.poseMeters.getTranslation(), x.holonomicRotation));
+    }
+
     // Logger.getInstance()
     //     .recordOutput(
     //         "Odometry/initial heading?", trajectory.getInitialState().curvatureRadPerMeter);
@@ -241,7 +268,12 @@ public class GenerateAndFollowPath extends CommandBase {
     SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
 
     // TODO FIXME
-    Trajectory displayTrajectory = decimateTrajectory(trajectory, 20);
+    Trajectory displayTrajectory = decimateTrajectory(trajectory, 10);
+
+    // var states = displayTrajectory.getStates();
+    // for (int i = 0; i < states.size()-1; i++) {
+    //   Logger.getInstance().recordOutput("Odometry/ppstates/" + i, states.get(i).poseMeters);
+    // }
 
     this.field.getObject("traj").setTrajectory(displayTrajectory);
 

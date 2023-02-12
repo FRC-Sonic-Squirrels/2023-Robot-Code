@@ -28,6 +28,7 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.intake.Intake;
 import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
@@ -50,6 +51,8 @@ public class DriveToGridPosition {
   }
 
   public Command testLogicalBay(LogicalGridLocation logicalBay) {
+    // TODO make entrance checkpoints not require a explicate holonomic orientation to follow
+
     // TODO log all the checkpoints, bounding boxes etc.
     // TODO FIXME sometime path goes through pad if u start in front of it, the outside checkpoint x
     // is too far out
@@ -92,21 +95,83 @@ public class DriveToGridPosition {
 
     var AllianceCommunityBox = GridPositionHandler.getSkipCheckpointBoxForAlliance(alliance);
 
+    // FIXME
     // if its inside the alliance community ignore the checkpoints
     if (!AllianceCommunityBox.insideBox(currentPose.getTranslation())) {
 
-      for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
-        // this adds the checkpoints to the list of points if their position comes in between the
-        // current position and the target
-        if (currentPose.getX() > checkPoint.pose.getX()) {
-          points.add(EntranceCheckpoints.toPathPoint(checkPoint));
-          if (firstPose == null) {
-            firstPose = checkPoint.pose;
-          }
-          if (poseBeforeLineup == null) {
-            poseBeforeLineup = checkPoint.pose;
-          }
+      // for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
+      //   // this adds the checkpoints to the list of points if their position comes in between the
+      //   // current position and the target
+      //   if (currentPose.getX() > checkPoint.pose.getX()) {
+      //     //FIX ME
+      //     // points.add(EntranceCheckpoints.toPathPoint(checkPoint));
+      //     points.add(new PathPoint(checkPoint.pose.getTranslation(), checkPoint.heading,
+      // currentPose.getRotation()));
+      //     if (firstPose == null) {
+      //       firstPose = checkPoint.pose;
+      //     }
+      //     if (poseBeforeLineup == null) {
+      //       poseBeforeLineup = checkPoint.pose;
+      //     }
+      //   }
+      // }
+
+      var checkpoints = entranceCheckpoints.getOrderOutsideIn();
+      int numCheckpoints;
+
+      Logger.getInstance()
+          .recordOutput("Odometry/usedCheckpoints/rawCheckpoint size", checkpoints.length);
+
+      List<PoseAndHeading> usedCheckpoints = new ArrayList<>();
+      for (int i = 0; i < checkpoints.length; i++) {
+
+        Logger.getInstance().recordOutput("Odometry/usedCheckpoints/i", i);
+        if (currentPose.getX() < checkpoints[i].pose.getX()) {
+          continue;
         }
+
+        Logger.getInstance().recordOutput("Odometry/usedCheckpoints/" + i, checkpoints[i].pose);
+
+        usedCheckpoints.add(checkpoints[i]);
+      }
+
+      var initialRotation = currentPose.getRotation();
+      var finalRotation = physicalBay.score.pose.getRotation();
+
+      var deltaRotation = finalRotation.minus(initialRotation);
+
+      double increment = deltaRotation.getRadians() / usedCheckpoints.size();
+
+      double currentRotationSetPoint = currentPose.getRotation().getRadians();
+
+      Logger.getInstance()
+          .recordOutput("Odometry/checkpoint/initailRotation", initialRotation.getDegrees());
+
+      Logger.getInstance()
+          .recordOutput("Odometry/checkpoint/finalRotation", finalRotation.getDegrees());
+
+      Logger.getInstance().recordOutput("Odometry/checkpoint/increment", Math.toDegrees(increment));
+
+      for (int i = 0; i < usedCheckpoints.size(); i++) {
+        var poseAndHeading = usedCheckpoints.get(i);
+        Logger.getInstance()
+            .recordOutput(
+                "Odometry/checkpoint/currentRotationsetPoint/" + i,
+                new Pose2d(
+                    poseAndHeading.pose.getTranslation(),
+                    Rotation2d.fromRadians(currentRotationSetPoint)));
+
+        points.add(
+            new PathPoint(
+                poseAndHeading.pose.getTranslation(),
+                poseAndHeading.heading,
+                Rotation2d.fromRadians(currentRotationSetPoint)));
+
+        if (firstPose == null) {
+          firstPose = poseAndHeading.pose;
+        }
+
+        currentRotationSetPoint += increment;
       }
     }
 
@@ -123,6 +188,7 @@ public class DriveToGridPosition {
             physicalBay.lineup.pose.getY() - poseBeforeLineup.getY(),
             physicalBay.lineup.pose.getX() - poseBeforeLineup.getX());
 
+    // FIXME
     points.add(
         new PathPoint(
             physicalBay.lineup.pose.getTranslation(),
@@ -245,5 +311,24 @@ public class DriveToGridPosition {
         new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
         Commands.waitSeconds(0.5),
         new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+  }
+
+  public Command driveToGridPoseCommand() {
+
+    return new InstantCommand(
+        () -> {
+          var cmd = this.testLogicalBay(GridPositionHandler.getDesiredBay()); // some command
+
+          Command currentCmd = drivetrain.getCurrentCommand();
+
+          if (currentCmd instanceof OverrideDrivetrainStop) {
+            ((OverrideDrivetrainStop) currentCmd).overideStop();
+          }
+
+          // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+          // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+          // cmd.andThen(MechanismPositions.scoreConeHighPosition(elevator, stinger))
+          cmd.schedule();
+        });
   }
 }

@@ -108,6 +108,8 @@ public class Drivetrain extends SubsystemBase {
   private DriveMode driveMode = DriveMode.NORMAL;
   private double characterizationVoltage = 0.0;
 
+  private Translation2d driverFieldRelativeInput = new Translation2d(0.0, 0.0);
+
   /** Constructs a new DrivetrainSubsystem object. */
   public Drivetrain(
       GyroIO gyroIO,
@@ -287,6 +289,7 @@ public class Drivetrain extends SubsystemBase {
 
     switch (driveMode) {
       case NORMAL:
+        driverFieldRelativeInput = new Translation2d(xVelocity, yVelocity);
         if (isFieldRelative) {
           chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -315,6 +318,7 @@ public class Drivetrain extends SubsystemBase {
         break;
 
       case CHARACTERIZATION:
+        driverFieldRelativeInput = new Translation2d(0.0, 0.0);
         // In characterization mode, drive at the specified voltage (and turn to zero degrees)
         for (SwerveModule swerveModule : swerveModules) {
           swerveModule.setVoltageForCharacterization(characterizationVoltage);
@@ -322,6 +326,7 @@ public class Drivetrain extends SubsystemBase {
         break;
 
       case X:
+        driverFieldRelativeInput = new Translation2d(0.0, 0.0);
         this.setXStance();
 
         break;
@@ -551,6 +556,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     return KINEMATICS.toChassisSpeeds(states);
+  }
+
+  public Translation2d getDriverFieldRelativeInput() {
+    return driverFieldRelativeInput;
   }
 
   /**
