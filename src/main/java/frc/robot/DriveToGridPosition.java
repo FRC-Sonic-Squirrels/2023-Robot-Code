@@ -64,16 +64,16 @@ public class DriveToGridPosition {
     // think)
     // TODO define all the bounding boxes for where auto is allowed to start from
 
-    //TODO obstacle avoidance boxes are not mirrored for red alliance 
+    // TODO obstacle avoidance boxes are not mirrored for red alliance
     Alliance alliance = DriverStation.getAlliance();
 
     // FIXME: ADD THIS BACK
-    // boolean validStart = GridPositionHandler.isValidPointToStart(drivetrain.getPose(), alliance);
+    boolean validStart = GridPositionHandler.isValidPointToStart(drivetrain.getPose(), alliance);
 
-    // if (!validStart) {
-    //   Logger.getInstance().recordOutput("DriverAssist/GridPosition/valid_start", false);
-    //   return errorRumbleControllerCommand();
-    // }
+    if (!validStart) {
+      Logger.getInstance().recordOutput("DriverAssist/GridPosition/valid_start", false);
+      return errorRumbleControllerCommand();
+    }
 
     Logger.getInstance().recordOutput("DriverAssist/GridPosition/valid_start", true);
 
@@ -99,86 +99,90 @@ public class DriveToGridPosition {
     // used to optimize heading of the lineup position state
     Pose2d poseBeforeLineup = null;
 
-    var AllianceCommunityBox = GridPositionHandler.getSkipCheckpointBoxForAlliance(alliance);
+    boolean shouldSkipEntranceCheckpoints =
+        GridPositionHandler.shouldSkipEntranceCheckpoints(currentPose.getTranslation(), alliance);
 
     // FIXME
     // if its inside the alliance community ignore the checkpoints
-    if (!AllianceCommunityBox.insideBox(currentPose.getTranslation())) {
+    if (!shouldSkipEntranceCheckpoints) {
 
-      // for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
-      //   // this adds the checkpoints to the list of points if their position comes in between the
-      //   // current position and the target
-      //   if (currentPose.getX() > checkPoint.pose.getX()) {
-      //     //FIX ME
-      //     // points.add(EntranceCheckpoints.toPathPoint(checkPoint));
-      //     points.add(new PathPoint(checkPoint.pose.getTranslation(), checkPoint.heading,
-      // currentPose.getRotation()));
-      //     if (firstPose == null) {
-      //       firstPose = checkPoint.pose;
-      //     }
-      //     if (poseBeforeLineup == null) {
-      //       poseBeforeLineup = checkPoint.pose;
-      //     }
+      for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
+        // this adds the checkpoints to the list of points if their position comes in between the
+        // current position and the target
+        if (currentPose.getX() > checkPoint.pose.getX()) {
+          // FIX ME
+          // points.add(EntranceCheckpoints.toPathPoint(checkPoint));
+          points.add(
+              new PathPoint(
+                  checkPoint.pose.getTranslation(),
+                  checkPoint.heading,
+                  checkPoint.pose.getRotation()));
+          if (firstPose == null) {
+            firstPose = checkPoint.pose;
+          }
+          if (poseBeforeLineup == null) {
+            poseBeforeLineup = checkPoint.pose;
+          }
+        }
+      }
+
+      // var checkpoints = entranceCheckpoints.getOrderOutsideIn();
+
+      // Logger.getInstance()
+      //     .recordOutput("Odometry/usedCheckpoints/rawCheckpoint size", checkpoints.length);
+
+      // List<PoseAndHeading> usedCheckpoints = new ArrayList<>();
+      // for (int i = 0; i < checkpoints.length; i++) {
+
+      //   Logger.getInstance().recordOutput("Odometry/usedCheckpoints/i", i);
+      //   if (currentPose.getX() < checkpoints[i].pose.getX()) {
+      //     continue;
       //   }
+
+      //   Logger.getInstance().recordOutput("Odometry/usedCheckpoints/" + i, checkpoints[i].pose);
+
+      //   usedCheckpoints.add(checkpoints[i]);
       // }
 
-      var checkpoints = entranceCheckpoints.getOrderOutsideIn();
-      int numCheckpoints;
+      // var initialRotation = currentPose.getRotation();
+      // var finalRotation = physicalBay.score.pose.getRotation();
 
-      Logger.getInstance()
-          .recordOutput("Odometry/usedCheckpoints/rawCheckpoint size", checkpoints.length);
+      // var deltaRotation = finalRotation.minus(initialRotation);
 
-      List<PoseAndHeading> usedCheckpoints = new ArrayList<>();
-      for (int i = 0; i < checkpoints.length; i++) {
+      // double increment = deltaRotation.getRadians() / usedCheckpoints.size();
 
-        Logger.getInstance().recordOutput("Odometry/usedCheckpoints/i", i);
-        if (currentPose.getX() < checkpoints[i].pose.getX()) {
-          continue;
-        }
+      // double currentRotationSetPoint = currentPose.getRotation().getRadians();
 
-        Logger.getInstance().recordOutput("Odometry/usedCheckpoints/" + i, checkpoints[i].pose);
+      // Logger.getInstance()
+      //     .recordOutput("Odometry/checkpoint/initailRotation", initialRotation.getDegrees());
 
-        usedCheckpoints.add(checkpoints[i]);
-      }
+      // Logger.getInstance()
+      //     .recordOutput("Odometry/checkpoint/finalRotation", finalRotation.getDegrees());
 
-      var initialRotation = currentPose.getRotation();
-      var finalRotation = physicalBay.score.pose.getRotation();
+      // Logger.getInstance().recordOutput("Odometry/checkpoint/increment",
+      // Math.toDegrees(increment));
 
-      var deltaRotation = finalRotation.minus(initialRotation);
+      // for (int i = 0; i < usedCheckpoints.size(); i++) {
+      //   var poseAndHeading = usedCheckpoints.get(i);
+      //   Logger.getInstance()
+      //       .recordOutput(
+      //           "Odometry/checkpoint/currentRotationsetPoint/" + i,
+      //           new Pose2d(
+      //               poseAndHeading.pose.getTranslation(),
+      //               Rotation2d.fromRadians(currentRotationSetPoint)));
 
-      double increment = deltaRotation.getRadians() / usedCheckpoints.size();
+      //   points.add(
+      //       new PathPoint(
+      //           poseAndHeading.pose.getTranslation(),
+      //           poseAndHeading.heading,
+      //           Rotation2d.fromRadians(currentRotationSetPoint)));
 
-      double currentRotationSetPoint = currentPose.getRotation().getRadians();
+      //   if (firstPose == null) {
+      //     firstPose = poseAndHeading.pose;
+      //   }
 
-      Logger.getInstance()
-          .recordOutput("Odometry/checkpoint/initailRotation", initialRotation.getDegrees());
-
-      Logger.getInstance()
-          .recordOutput("Odometry/checkpoint/finalRotation", finalRotation.getDegrees());
-
-      Logger.getInstance().recordOutput("Odometry/checkpoint/increment", Math.toDegrees(increment));
-
-      for (int i = 0; i < usedCheckpoints.size(); i++) {
-        var poseAndHeading = usedCheckpoints.get(i);
-        Logger.getInstance()
-            .recordOutput(
-                "Odometry/checkpoint/currentRotationsetPoint/" + i,
-                new Pose2d(
-                    poseAndHeading.pose.getTranslation(),
-                    Rotation2d.fromRadians(currentRotationSetPoint)));
-
-        points.add(
-            new PathPoint(
-                poseAndHeading.pose.getTranslation(),
-                poseAndHeading.heading,
-                Rotation2d.fromRadians(currentRotationSetPoint)));
-
-        if (firstPose == null) {
-          firstPose = poseAndHeading.pose;
-        }
-
-        currentRotationSetPoint += increment;
-      }
+      //   currentRotationSetPoint += increment;
+      // }
     }
 
     if (firstPose == null) {

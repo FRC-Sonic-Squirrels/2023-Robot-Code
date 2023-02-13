@@ -14,27 +14,27 @@ public enum DeadzoneBox {
       new Translation2d(10, 10),
       new Translation2d(10, 5),
       new Translation2d(5, 10),
-      new Translation2d(5, 5)),
+      new Translation2d(5, 5));
 
-  BLUE_COMMUNITY(new Translation2d(1.4, 5.3), new Translation2d(3.4, 0.0)),
+  // BLUE_COMMUNITY(new Translation2d(1.4, 5.3), new Translation2d(3.4, 0.0)),
 
-  BLUE_ENTRANCE_WALL_SIDE(new Translation2d(2.9, 1.5), new Translation2d(5.5, 0.0)),
-  BLUE_ENTRANCE_HUMAN_PLAYER_SIDE(new Translation2d(3.0, 5.3), new Translation2d(5.5, 4.2)),
+  // BLUE_ENTRANCE_WALL_SIDE(new Translation2d(2.9, 1.5), new Translation2d(5.5, 0.0)),
+  // BLUE_ENTRANCE_HUMAN_PLAYER_SIDE(new Translation2d(3.0, 5.3), new Translation2d(5.5, 4.2)),
 
-  BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0)),
+  // BLUE_IN_FRONT_PAD(new Translation2d(5.5, 5.3), new Translation2d(6.5, 0.0)),
 
-  BLUE_SKIP_CHECKPOINT(new Translation2d(1.4, 5.3), new Translation2d(2.9, 0.0)),
+  // BLUE_SKIP_CHECKPOINT(new Translation2d(1.4, 5.3), new Translation2d(2.9, 0.0)),
 
-  // ----------------------RED----------------------------'
+  // // ----------------------RED----------------------------'
 
-  RED_COMMUNITY(BLUE_COMMUNITY),
+  // RED_COMMUNITY(BLUE_COMMUNITY),
 
-  RED_ENTRANCE_WALL_SIDE(BLUE_ENTRANCE_WALL_SIDE),
-  RED_ENTRANCE_HUMAN_PLAYER_SIDE(BLUE_ENTRANCE_HUMAN_PLAYER_SIDE),
+  // RED_ENTRANCE_WALL_SIDE(BLUE_ENTRANCE_WALL_SIDE),
+  // RED_ENTRANCE_HUMAN_PLAYER_SIDE(BLUE_ENTRANCE_HUMAN_PLAYER_SIDE),
 
-  RED_IN_FRONT_PAD(BLUE_IN_FRONT_PAD),
+  // RED_IN_FRONT_PAD(BLUE_IN_FRONT_PAD),
 
-  RED_SKIP_CHECKPOINT(BLUE_SKIP_CHECKPOINT);
+  // RED_SKIP_CHECKPOINT(BLUE_SKIP_CHECKPOINT);
 
   private Translation2d topL;
   private Translation2d topR;

@@ -2,6 +2,7 @@ package frc.lib.team2930.driverassist;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,18 +33,12 @@ public class GridPositionHandler {
     LogicalGridLocation.LOGICAL_BAY_9,
   };
 
-  public static final DeadzoneBox[] allowAbleActivationAreaBlue = {
-    DeadzoneBox.BLUE_COMMUNITY,
-    DeadzoneBox.BLUE_ENTRANCE_WALL_SIDE,
-    DeadzoneBox.BLUE_ENTRANCE_HUMAN_PLAYER_SIDE,
-    DeadzoneBox.BLUE_IN_FRONT_PAD
+  public static final BoundingBoxes[] allowableActivationAreaBlue = {
+    BoundingBoxes.BLUE_COMMUNITY, BoundingBoxes.BLUE_HALF_COURT
   };
 
-  public static final DeadzoneBox[] allowAbleActivationAreaRed = {
-    DeadzoneBox.RED_COMMUNITY,
-    DeadzoneBox.RED_ENTRANCE_WALL_SIDE,
-    DeadzoneBox.RED_ENTRANCE_HUMAN_PLAYER_SIDE,
-    DeadzoneBox.RED_IN_FRONT_PAD
+  public static final BoundingBoxes[] allowAbleActivationAreaRed = {
+    BoundingBoxes.RED_COMMUNITY, BoundingBoxes.RED_HALF_COURT
   };
 
   private static int bayIndex = 0;
@@ -109,7 +104,7 @@ public class GridPositionHandler {
 
   public static boolean isValidPointToStart(Pose2d currentPos, Alliance alliance) {
     if (alliance == Alliance.Blue) {
-      for (DeadzoneBox box : allowAbleActivationAreaBlue) {
+      for (BoundingBoxes box : allowableActivationAreaBlue) {
         if (box.insideBox(currentPos.getTranslation())) {
           return true;
         }
@@ -117,7 +112,7 @@ public class GridPositionHandler {
     }
 
     if (alliance == Alliance.Red) {
-      for (DeadzoneBox box : allowAbleActivationAreaRed) {
+      for (BoundingBoxes box : allowAbleActivationAreaRed) {
         if (box.insideBox(currentPos.getTranslation())) {
           return true;
         }
@@ -127,14 +122,15 @@ public class GridPositionHandler {
     return false;
   }
 
-  public static DeadzoneBox getSkipCheckpointBoxForAlliance(Alliance alliance) {
+  public static boolean shouldSkipEntranceCheckpoints(
+      Translation2d CurrentPose, Alliance alliance) {
     if (alliance == Alliance.Red) {
-      return DeadzoneBox.RED_SKIP_CHECKPOINT;
+      return BoundingBoxes.RED_SKIP_CHECKPOINT.insideBox(CurrentPose);
     } else if (alliance == Alliance.Blue) {
-      return DeadzoneBox.BLUE_SKIP_CHECKPOINT;
-    } else {
-      return null;
+      return BoundingBoxes.BLUE_SKIP_CHECKPOINT.insideBox(CurrentPose);
     }
+
+    return false;
   }
 
   public void log() {
