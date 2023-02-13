@@ -71,16 +71,9 @@ public class DriveToGridPosition {
       SequentialCommandGroup scoringSequence) {
     // TODO create robotState file which stores desired game piece, grid location etc.
     // TODO rename this class and objects to have a better name
-    // TODO make this return null and if its null dont chain the elevator and stinger commands onto
-    // it
-    // TODO make entrance checkpoints not require a explicate holonomic orientation to follow
 
-    // TODO log all the checkpoints, bounding boxes etc.
-    // TODO FIXME sometime path goes through pad if u start in front of it, the outside checkpoint x
-    // is too far out
-    // TODO optimize to allow paths from in front of charging pad (just add more checkpoints i
-    // think)
-    // TODO define all the bounding boxes for where auto is allowed to start from
+    // TODO define all the bounding boxes for where auto is allowed to start from need to do this
+    // for human player station
 
     // TODO obstacle avoidance boxes are not mirrored for red alliance
     Alliance alliance = DriverStation.getAlliance();
