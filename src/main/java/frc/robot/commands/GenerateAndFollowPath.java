@@ -42,7 +42,6 @@ public class GenerateAndFollowPath extends CommandBase {
   private final Consumer<SwerveModuleState[]> outputModuleStates;
   private final Consumer<ChassisSpeeds> outputChassisSpeeds;
   private final boolean useKinematics;
-  private final boolean useAllianceColor;
   private final Field2d field = new Field2d();
 
   private final Drivetrain drivetrain;
@@ -50,7 +49,8 @@ public class GenerateAndFollowPath extends CommandBase {
   private final List<PathPoint> pathWaypoints;
   private final PathConstraints pathConstraints;
 
-  private Pose2d firstPathPose;
+  private final Pose2d firstPathPose;
+  private final boolean useVelocityAsHeading;
 
   /**
    * Constructs a new PPSwerveControllerCommand that when executed will follow the provided
@@ -68,9 +68,6 @@ public class GenerateAndFollowPath extends CommandBase {
    * @param yController The Trajectory Tracker PID controller for the robot's y position.
    * @param rotationController The Trajectory Tracker PID controller for angle for the robot.
    * @param outputModuleStates The raw output module states from the position controllers.
-   * @param useAllianceColor Should the path states be automatically transformed based on alliance
-   *     color? In order for this to work properly, you MUST create your path on the blue side of
-   *     the field.
    * @param requirements The subsystems to require.
    */
   private GenerateAndFollowPath(
@@ -83,7 +80,8 @@ public class GenerateAndFollowPath extends CommandBase {
       PIDController yController,
       PIDController rotationController,
       Consumer<SwerveModuleState[]> outputModuleStates,
-      boolean useAllianceColor,
+      Pose2d firstPathPose,
+      boolean useVelocityAsHeading,
       Subsystem... requirements) {
     this.poseSupplier = poseSupplier;
     this.kinematics = kinematics;
@@ -91,7 +89,6 @@ public class GenerateAndFollowPath extends CommandBase {
     this.outputModuleStates = outputModuleStates;
     this.outputChassisSpeeds = null;
     this.useKinematics = true;
-    this.useAllianceColor = useAllianceColor;
 
     this.drivetrain = drivetrain;
     this.pathWaypoints = pathWaypoints;
@@ -99,34 +96,44 @@ public class GenerateAndFollowPath extends CommandBase {
 
     this.trajectory = null;
 
+    this.firstPathPose = firstPathPose;
+
+    this.useVelocityAsHeading = useVelocityAsHeading;
+
     addRequirements(requirements);
   }
 
+  /**
+   * @param drivetrain
+   * @param poses
+   * @param pathConstraints
+   * @param firstPathPose used to optimize the initial heading of the robot, passing null is okay
+   *     and will result in a default heading of 180 (towards alliance wall)
+   */
   public GenerateAndFollowPath(
       Drivetrain drivetrain,
       List<PathPoint> poses,
       PathConstraints pathConstraints,
-      boolean useAllianceColor) {
-    this(
-        drivetrain,
-        poses,
-        pathConstraints,
-        drivetrain::getPose,
-        DrivetrainConstants.KINEMATICS,
-        drivetrain.getAutoXController(),
-        drivetrain.getAutoYController(),
-        drivetrain.getAutoThetaController(),
-        drivetrain::setSwerveModuleStates,
-        useAllianceColor,
-        drivetrain);
+      Pose2d firstPathPose) {
+    this(drivetrain, poses, pathConstraints, firstPathPose, true);
   }
 
+  /**
+   * @param drivetrain
+   * @param poses
+   * @param pathConstraints
+   * @param firstPathPose used to optimize the initial heading of the robot, passing null is okay
+   *     and will result in a default heading of 180 (towards alliance wall)
+   * @param useVelocityAsHeading specifies if the velocity can be used to optimize the initial
+   *     heading if its sufficiently large enough, in most cases use the other constructor which
+   *     defaults this to true
+   */
   public GenerateAndFollowPath(
       Drivetrain drivetrain,
       List<PathPoint> poses,
       PathConstraints pathConstraints,
       Pose2d firstPathPose,
-      boolean useAllianceColor) {
+      boolean useVelocityAsHeading) {
     this(
         drivetrain,
         poses,
@@ -137,10 +144,9 @@ public class GenerateAndFollowPath extends CommandBase {
         drivetrain.getAutoYController(),
         drivetrain.getAutoThetaController(),
         drivetrain::setSwerveModuleStates,
-        useAllianceColor,
+        firstPathPose,
+        useVelocityAsHeading,
         drivetrain);
-
-    this.firstPathPose = firstPathPose;
   }
 
   @Override
@@ -148,86 +154,32 @@ public class GenerateAndFollowPath extends CommandBase {
 
     List<PathPoint> pathPoints = new ArrayList<PathPoint>();
 
-    // ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
-
-    // double linearVel =
-    //     Math.sqrt(
-    //         (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
-    //             + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
-
-    // Pose2d currentPose = drivetrain.getPose();
-    // Pose2d initialPose =
-    //     new Pose2d(currentPose.getX() - 0.5, currentPose.getY(), currentPose.getRotation());
-
-    // PathPoint initialPoint =
-    //     new PathPoint(
-    //         initialPose.getTranslation(),
-    //         Rotation2d.fromDegrees(180),
-    //         initialPose.getRotation(),
-    //         linearVel);
-
-    // pathPoints.add(initialPoint);
-
-    // pathPoints.add(
-    //     PathPoint.fromCurrentHolonomicState(
-    //         drivetrain.getPose(), drivetrain.getCurrentChassisSpeeds()));
-
-    // ChassisSpeeds currentSpeeds = drivetrain.getCurrentChassisSpeeds();
-    // var currentSpeeds = drivetrain.getModuleChassisSpeeds();
-
     var currentSpeeds = drivetrain.getDriverFieldRelativeInput();
-
-    // double linearVel =
-    //     Math.sqrt(
-    //         (currentSpeeds.vxMetersPerSecond * currentSpeeds.vxMetersPerSecond)
-    //             + (currentSpeeds.vyMetersPerSecond * currentSpeeds.vyMetersPerSecond));
 
     double linearVel =
         Math.sqrt(
             (currentSpeeds.getX() * currentSpeeds.getX())
                 + (currentSpeeds.getY() * currentSpeeds.getY()));
 
-    // pathPoints.add(
-    //     new PathPoint(
-    //         drivetrain.getPose(),
-    //         Rotation2d.fromDegrees(180),
-    //         drivetrain.getPose().getRotation(),
-    //         linearVel));
-
     Pose2d currentPose = drivetrain.getPose();
 
-    // FIXME: this is okay for if the robot is still but if its in motion use the chassis speeds for
-    // heading
-    // NOTE: I think u have to swap the X and Y in the atan2 arguments because of how the field is
-    // oriented
-    // FIXME: if the different in the x/y is small enough just use default heading, causes weird
-    // jerk when super close to checkpoint
     double heading = Math.toRadians(180);
 
     Logger.getInstance().recordOutput("DriverAssist/linearVel", linearVel);
 
-    if (linearVel > 1) {
-      // heading = Math.atan2(currentSpeeds.vyMetersPerSecond, currentSpeeds.vxMetersPerSecond);
-
+    if (linearVel > 1 && useVelocityAsHeading) {
       var distanceVector = new Translation2d(currentSpeeds.getX(), currentSpeeds.getY());
-
       heading = distanceVector.getAngle().getRadians();
+
     } else if (this.firstPathPose != null) {
       var distanceX = firstPathPose.getX() - currentPose.getX();
       var distanceY = firstPathPose.getY() - currentPose.getY();
 
       var distanceVector = new Translation2d(distanceX, distanceY);
 
-      Logger.getInstance()
-          .recordOutput(
-              "DriverAssist/distanceVector", new Pose2d(distanceVector, new Rotation2d(0)));
-
-      // if (Math.abs(distanceVector.getX()) > 0.25 || Math.abs(distanceVector.getY()) > 0.25) {
       heading = distanceVector.getAngle().getRadians();
-      // }
     }
 
-    // FIXME
     pathPoints.add(
         new PathPoint(
             currentPose.getTranslation(),
@@ -235,51 +187,16 @@ public class GenerateAndFollowPath extends CommandBase {
             currentPose.getRotation(),
             linearVel));
 
-    Logger.getInstance()
-        .recordOutput("DriverAssist/GridPosition/initialHeading", Math.toDegrees(heading));
-
-    // FIXME: heading is hard coded
-    // pathPoints.add(
-    //     new PathPoint(
-    //         drivetrain.getPose().getTranslation(),
-    //         Rotation2d.fromDegrees(180),
-    //         drivetrain.getPose().getRotation(),
-    //         linearVel));
-
     pathPoints.addAll(this.pathWaypoints);
 
     this.trajectory = PathPlanner.generatePath(this.pathConstraints, pathPoints);
 
-    System.out.println("total time: " + trajectory.getTotalTimeSeconds());
-    for (double i = 0; i <= trajectory.getTotalTimeSeconds(); i = i + 0.1) {
-      PathPlannerState x = (PathPlannerState) trajectory.sample(i);
-
-      System.out.println("at time: " + i);
-      Logger.getInstance()
-          .recordOutput(
-              "Odometry/holonicStates/" + i,
-              new Pose2d(x.poseMeters.getTranslation(), x.holonomicRotation));
-    }
-
-    // Logger.getInstance()
-    //     .recordOutput(
-    //         "Odometry/initial heading?", trajectory.getInitialState().curvatureRadPerMeter);
-
-    SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
-
-    // TODO FIXME
     Trajectory displayTrajectory = decimateTrajectory(trajectory, 10);
 
-    // var states = displayTrajectory.getStates();
-    // for (int i = 0; i < states.size()-1; i++) {
-    //   Logger.getInstance().recordOutput("Odometry/ppstates/" + i, states.get(i).poseMeters);
-    // }
-
+    SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
     this.field.getObject("traj").setTrajectory(displayTrajectory);
 
     PathPlannerServer.sendActivePath(this.trajectory.getStates());
-
-    Logger.getInstance().recordOutput("Odometry/generatedPath", displayTrajectory);
 
     this.timer.reset();
     this.timer.start();
@@ -353,6 +270,11 @@ public class GenerateAndFollowPath extends CommandBase {
 
   @Override
   public boolean isFinished() {
+    // TODO: could experiment with making this longer and having the end condition as the robot pose
+    // being
+    // close to the end pose or total time plus some abritary amount
+    // this would help with super short trajectries which have to rotate a large amount and as such
+    // cannot fully rotate before the command ends
     return this.timer.hasElapsed(this.trajectory.getTotalTimeSeconds());
   }
 

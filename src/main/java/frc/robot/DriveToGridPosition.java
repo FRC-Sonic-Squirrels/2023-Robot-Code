@@ -212,11 +212,13 @@ public class DriveToGridPosition {
             physicalBay.score.heading,
             physicalBay.score.pose.getRotation()));
 
-    // for (int i = 0; i < points.size(); i++) {
-    // }
-
+    // Should skip checkpoints part is for not using our current velocity as our heading if we are
+    // inside the community
+    // the problem with using the velocity is sometimes it generates a path that goes through the
+    // grid which would lead to the robot crashing irl
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false),
+        new GenerateAndFollowPath(
+            drivetrain, points, constraints, firstPose, !shouldSkipEntranceCheckpoints),
         Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
         scoringSequence);
   }
