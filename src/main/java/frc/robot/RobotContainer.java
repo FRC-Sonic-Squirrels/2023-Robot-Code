@@ -55,6 +55,7 @@ import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -485,9 +486,15 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
+                      var scoringSequence =
+                          MechanismPositions.scoreConeHighPosition(elevator, stinger)
+                              .andThen(
+                                  Commands.waitSeconds(0.4)
+                                      .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+
                       var cmd =
                           autoDriveToGrid.testLogicalBay(
-                              GridPositionHandler.getDesiredBay()); // some command
+                              GridPositionHandler.getDesiredBay(), scoringSequence); // some command
 
                       Command currentCmd = drivetrain.getCurrentCommand();
 
@@ -497,12 +504,12 @@ public class RobotContainer {
 
                       // interupt command if joystick value is greater than 0.7 for 0.2 seconds
                       // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                      var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
-                      var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
+                      // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+                      // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
 
-                      cmd =
-                          cmd.andThen(scoreCmd)
-                              .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
+                      // cmd =
+                      //     cmd.andThen(scoreCmd)
+                      //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
 
                       cmd.schedule();
                     })
@@ -512,30 +519,42 @@ public class RobotContainer {
 
     // driverController.a().onTrue(autoDriveToGrid.driveToGridPoseCommand());
 
-    driverController
-        .leftBumper()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
+    // driverController
+    //     .leftBumper()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
 
-                  Command currentCmd = drivetrain.getCurrentCommand();
+    //               Command currentCmd = drivetrain.getCurrentCommand();
 
-                  if (currentCmd instanceof OverrideDrivetrainStop) {
-                    ((OverrideDrivetrainStop) currentCmd).overideStop();
-                  }
+    //               if (currentCmd instanceof OverrideDrivetrainStop) {
+    //                 ((OverrideDrivetrainStop) currentCmd).overideStop();
+    //               }
 
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                  cmd.schedule();
-                }));
+    //               // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+    //               // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+    //               cmd.schedule();
+    //             }));
 
     driverController
         .rightBumper()
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.RIGHT);
+                  // make intake spin
+                  var pickUpSequence =
+                      new IntakeGrabCone(intake)
+                          .until(() -> true)
+                          .andThen(MechanismPositions.substationPickupPosition(elevator));
+                  // stop intake spinning
+                  var retractSequence =
+                      Commands.runOnce(() -> intake.stop(), intake)
+                          .andThen(MechanismPositions.stowPosition(elevator, stinger));
+
+                  var cmd =
+                      autoDriveToGrid.humanPlayerStation(
+                          LoadingStationLocation.RIGHT, pickUpSequence, retractSequence);
 
                   Command currentCmd = drivetrain.getCurrentCommand();
 

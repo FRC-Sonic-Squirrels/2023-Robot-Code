@@ -50,7 +50,11 @@ public class DriveToGridPosition {
     this.controller = controller;
   }
 
-  public Command testLogicalBay(LogicalGridLocation logicalBay) {
+  public Command testLogicalBay(
+      LogicalGridLocation logicalBay, SequentialCommandGroup scoringSequence) {
+    // TODO rename this class and objects to have a better name
+    // TODO make this return null and if its null dont chain the elevator and stinger commands onto
+    // it
     // TODO make entrance checkpoints not require a explicate holonomic orientation to follow
 
     // TODO log all the checkpoints, bounding boxes etc.
@@ -206,10 +210,14 @@ public class DriveToGridPosition {
 
     return new SequentialCommandGroup(
         new GenerateAndFollowPath(drivetrain, points, constraints, firstPose, false),
-        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain));
+        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
+        scoringSequence);
   }
 
-  public Command humanPlayerStation(LoadingStationLocation location) {
+  public Command humanPlayerStation(
+      LoadingStationLocation location,
+      SequentialCommandGroup pickupSequence,
+      SequentialCommandGroup retractSequence) {
 
     // TODO if past last checkpoint then drive to last checkpoint raise elevator and then go to
     // final pose
@@ -271,6 +279,14 @@ public class DriveToGridPosition {
         new PathPoint(
             finalPose.pose.getTranslation(), finalPose.heading, finalPose.pose.getRotation()));
 
+    List<PathPoint> retractingPathPoints = new ArrayList<>();
+
+    retractingPathPoints.add(
+        new PathPoint(
+            rawSequence[rawSequence.length - 1].pose.getTranslation(),
+            Rotation2d.fromDegrees(180),
+            Rotation2d.fromDegrees(0)));
+
     // then go to final score position
 
     // SequentialCommandGroup returnCommand;
@@ -301,9 +317,18 @@ public class DriveToGridPosition {
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
         Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
-        Commands.waitSeconds(0.5),
+        pickupSequence,
+        new GenerateAndFollowPath(drivetrain, secondPathPoints, constraints, finalPose.pose, false),
+        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
+        Commands.waitSeconds(0.4),
         new GenerateAndFollowPath(
-            drivetrain, secondPathPoints, constraints, finalPose.pose, false));
+            drivetrain,
+            retractingPathPoints,
+            constraints,
+            rawSequence[rawSequence.length - 1].pose,
+            false),
+        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
+        retractSequence);
   }
 
   // replace with better implementation of controller rumble
@@ -314,22 +339,22 @@ public class DriveToGridPosition {
         new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
   }
 
-  public Command driveToGridPoseCommand() {
+  // public Command driveToGridPoseCommand() {
 
-    return new InstantCommand(
-        () -> {
-          var cmd = this.testLogicalBay(GridPositionHandler.getDesiredBay()); // some command
+  //   return new InstantCommand(
+  //       () -> {
+  //         var cmd = this.testLogicalBay(GridPositionHandler.getDesiredBay()); // some command
 
-          Command currentCmd = drivetrain.getCurrentCommand();
+  //         Command currentCmd = drivetrain.getCurrentCommand();
 
-          if (currentCmd instanceof OverrideDrivetrainStop) {
-            ((OverrideDrivetrainStop) currentCmd).overideStop();
-          }
+  //         if (currentCmd instanceof OverrideDrivetrainStop) {
+  //           ((OverrideDrivetrainStop) currentCmd).overideStop();
+  //         }
 
-          // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-          // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-          // cmd.andThen(MechanismPositions.scoreConeHighPosition(elevator, stinger))
-          cmd.schedule();
-        });
-  }
+  //         // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+  //         // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+  //         // cmd.andThen(MechanismPositions.scoreConeHighPosition(elevator, stinger))
+  //         cmd.schedule();
+  //       });
+  // }
 }

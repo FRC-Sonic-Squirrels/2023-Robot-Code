@@ -19,7 +19,7 @@ public class MechanismPositions {
   static final double stowExtension = 0;
   static final double groundPickupHeight = 1;
   static final double groundPickupExtension = 5;
-  static final double substationPickupHeight = 20;
+  static final double substationPickupHeight = 45;
   static final double substationPickupExtension = 20;
 
   private MechanismPositions() {}
