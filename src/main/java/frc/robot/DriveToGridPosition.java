@@ -50,8 +50,25 @@ public class DriveToGridPosition {
     this.controller = controller;
   }
 
-  public Command testLogicalBay(
+  public Command driveToLogicalBayClosestEntrance(
       LogicalGridLocation logicalBay, SequentialCommandGroup scoringSequence) {
+
+    var currentPose = drivetrain.getPose();
+    var alliance = DriverStation.getAlliance();
+
+    var closestSide = GridPositionHandler.getClosestEntranceSide(currentPose, alliance);
+
+    if (closestSide == null) {
+      return errorRumbleControllerCommand();
+    }
+
+    return driveToLogicalBaySpecificEntrance(logicalBay, closestSide, scoringSequence);
+  }
+
+  public Command driveToLogicalBaySpecificEntrance(
+      LogicalGridLocation logicalBay,
+      GridPositionHandler.DesiredGridEntrance entranceSide,
+      SequentialCommandGroup scoringSequence) {
     // TODO create robotState file which stores desired game piece, grid location etc.
     // TODO rename this class and objects to have a better name
     // TODO make this return null and if its null dont chain the elevator and stinger commands onto
@@ -86,7 +103,8 @@ public class DriveToGridPosition {
     ArrayList<PathPoint> points = new ArrayList<PathPoint>();
 
     EntranceCheckpoints entranceCheckpoints =
-        GridPositionHandler.getEntrance(drivetrain.getPose(), alliance);
+        GridPositionHandler.getEntranceCheckpointsSpecificSide(
+            drivetrain.getPose(), entranceSide, alliance);
 
     if (entranceCheckpoints == EntranceCheckpoints.ERROR) {
       return errorRumbleControllerCommand();

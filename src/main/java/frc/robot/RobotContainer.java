@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.GridPositionHandler.DesiredGridEntrance;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -461,7 +462,7 @@ public class RobotContainer {
                                       .andThen(MechanismPositions.stowPosition(elevator, stinger)));
 
                       var cmd =
-                          autoDriveToGrid.testLogicalBay(
+                          autoDriveToGrid.driveToLogicalBayClosestEntrance(
                               GridPositionHandler.getDesiredBay(), scoringSequence); // some command
 
                       Command currentCmd = drivetrain.getCurrentCommand();
@@ -483,7 +484,75 @@ public class RobotContainer {
                     })
                 .beforeStarting(Commands.print("A")));
 
-    driverController.leftTrigger().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    driverController
+        .leftTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var scoringSequence =
+                      MechanismPositions.scoreConeHighPosition(elevator, stinger)
+                          .andThen(
+                              Commands.waitSeconds(0.4)
+                                  .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+
+                  var cmd =
+                      autoDriveToGrid.driveToLogicalBaySpecificEntrance(
+                          GridPositionHandler.getDesiredBay(),
+                          DesiredGridEntrance.LEFT,
+                          scoringSequence); // some command
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+                  // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
+
+                  // cmd =
+                  //     cmd.andThen(scoreCmd)
+                  //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
+
+                  cmd.schedule();
+                }));
+
+    driverController
+        .rightTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var scoringSequence =
+                      MechanismPositions.scoreConeHighPosition(elevator, stinger)
+                          .andThen(
+                              Commands.waitSeconds(0.4)
+                                  .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+
+                  var cmd =
+                      autoDriveToGrid.driveToLogicalBaySpecificEntrance(
+                          GridPositionHandler.getDesiredBay(),
+                          DesiredGridEntrance.RIGHT,
+                          scoringSequence); // some command
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+                  // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
+
+                  // cmd =
+                  //     cmd.andThen(scoreCmd)
+                  //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
+
+                  cmd.schedule();
+                }));
 
     // driverController.a().onTrue(autoDriveToGrid.driveToGridPoseCommand());
 
@@ -551,14 +620,14 @@ public class RobotContainer {
         .povLeft()
         .onTrue(Commands.runOnce(() -> GridPositionHandler.decrementNextBay()));
 
-    driverController
-        .rightTrigger()
-        .whileTrue(
-            new TeleopSwerve(
-                drivetrain,
-                driverController::getLeftY,
-                driverController::getLeftX,
-                driverController::getRightX));
+    // driverController
+    //     .rightTrigger()
+    //     .whileTrue(
+    //         new TeleopSwerve(
+    //             drivetrain,
+    //             driverController::getLeftY,
+    //             driverController::getLeftX,
+    //             driverController::getRightX));
 
     // PathPlannerTrajectory testAllianceFlipPath =
     //     PathPlanner.loadPath(

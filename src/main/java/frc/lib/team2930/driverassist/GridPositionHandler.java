@@ -81,25 +81,67 @@ public class GridPositionHandler {
     }
   }
 
-  public static EntranceCheckpoints getEntrance(Pose2d currentPose, Alliance alliance) {
-    double x = currentPose.getX();
-    double y = currentPose.getY();
+  public static DesiredGridEntrance getClosestEntranceSide(Pose2d currentPose, Alliance alliance) {
+    var y = currentPose.getY();
+
     if (alliance == Alliance.Blue) {
       if (y > 2.7) {
-        return EntranceCheckpoints.BLUE_HUMAN_PLAYER;
-      } else { // later check if in the correct band width
-        return EntranceCheckpoints.BLUE_WALL;
-      }
-    }
-    if (alliance == Alliance.Red) {
-      if (y > 5.32) {
-        return EntranceCheckpoints.RED_WALL;
+        return DesiredGridEntrance.LEFT;
       } else {
-        return EntranceCheckpoints.RED_HUMAN_PLAYER;
+        return DesiredGridEntrance.RIGHT;
       }
     }
 
-    return EntranceCheckpoints.ERROR;
+    if (alliance == Alliance.Red) {
+      if (y > 5.32) {
+        return DesiredGridEntrance.LEFT;
+      } else {
+        return DesiredGridEntrance.RIGHT;
+      }
+    }
+
+    return null;
+  }
+
+  public static EntranceCheckpoints getEntranceCheckpointsSpecificSide(
+      Pose2d currentPose, DesiredGridEntrance entranceSide, Alliance alliance) {
+    // double x = currentPose.getX();
+    // double y = currentPose.getY();
+    // if (alliance == Alliance.Blue) {
+    //   if (y > 2.7) {
+    //     return EntranceCheckpoints.BLUE_HUMAN_PLAYER;
+    //   } else { // later check if in the correct band width
+    //     return EntranceCheckpoints.BLUE_WALL;
+    //   }
+    // }
+    // if (alliance == Alliance.Red) {
+    //   if (y > 5.32) {
+    //     return EntranceCheckpoints.RED_WALL;
+    //   } else {
+    //     return EntranceCheckpoints.RED_HUMAN_PLAYER;
+    //   }
+    // }
+
+    // return EntranceCheckpoints.ERROR;
+
+    switch (entranceSide) {
+      case LEFT:
+        if (alliance == Alliance.Blue) {
+          return EntranceCheckpoints.BLUE_HUMAN_PLAYER;
+        } else {
+          return EntranceCheckpoints.RED_WALL;
+        }
+
+      case RIGHT:
+        if (alliance == Alliance.Blue) {
+          return EntranceCheckpoints.BLUE_WALL;
+        } else {
+          return EntranceCheckpoints.RED_HUMAN_PLAYER;
+        }
+
+      default:
+        return EntranceCheckpoints.ERROR;
+    }
   }
 
   public static boolean isValidPointToStart(Pose2d currentPos, Alliance alliance) {
@@ -152,6 +194,11 @@ public class GridPositionHandler {
       this.pose = new Pose2d();
       this.heading = new Rotation2d();
     }
+  }
+
+  public static enum DesiredGridEntrance {
+    LEFT,
+    RIGHT;
   }
 
   public static void logAllGridPositionDriverAssist() {
