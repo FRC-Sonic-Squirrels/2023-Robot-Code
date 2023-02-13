@@ -52,6 +52,7 @@ public class DriveToGridPosition {
 
   public Command testLogicalBay(
       LogicalGridLocation logicalBay, SequentialCommandGroup scoringSequence) {
+    // TODO create robotState file which stores desired game piece, grid location etc.
     // TODO rename this class and objects to have a better name
     // TODO make this return null and if its null dont chain the elevator and stinger commands onto
     // it
