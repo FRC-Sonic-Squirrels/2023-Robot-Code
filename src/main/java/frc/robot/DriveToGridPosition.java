@@ -219,7 +219,7 @@ public class DriveToGridPosition {
     return new SequentialCommandGroup(
         new GenerateAndFollowPath(
             drivetrain, points, constraints, firstPose, !shouldSkipEntranceCheckpoints),
-        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
+        // Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
         scoringSequence);
   }
 

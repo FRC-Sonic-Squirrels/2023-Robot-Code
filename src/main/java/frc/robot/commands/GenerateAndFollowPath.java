@@ -258,14 +258,17 @@ public class GenerateAndFollowPath extends CommandBase {
   public void end(boolean interrupted) {
     this.timer.stop();
 
-    if (interrupted) {
-      if (useKinematics) {
-        this.outputModuleStates.accept(
-            this.kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0)));
-      } else {
-        this.outputChassisSpeeds.accept(new ChassisSpeeds());
-      }
-    }
+    // if (interrupted) {
+    //   if (useKinematics) {
+    //     this.outputModuleStates.accept(
+    //         this.kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0)));
+    //   } else {
+    //     this.outputChassisSpeeds.accept(new ChassisSpeeds());
+    //   }
+    // }
+
+    // drivetrain.stop();
+    drivetrain.drive(0.0, 0.0, 0.0);
   }
 
   @Override
