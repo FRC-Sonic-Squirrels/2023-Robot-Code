@@ -63,6 +63,8 @@ public class DriveToGridPosition {
     // TODO optimize to allow paths from in front of charging pad (just add more checkpoints i
     // think)
     // TODO define all the bounding boxes for where auto is allowed to start from
+
+    //TODO obstacle avoidance boxes are not mirrored for red alliance 
     Alliance alliance = DriverStation.getAlliance();
 
     // FIXME: ADD THIS BACK
