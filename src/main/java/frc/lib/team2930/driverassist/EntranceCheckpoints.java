@@ -10,19 +10,20 @@ public enum EntranceCheckpoints {
   // TODO: Add a to pathpoint function(add this to the other physical grid locations as well)
   BLUE_WALL(
       new PoseAndHeading(
-          new Pose2d(2.5, 0.7, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+          new Pose2d(2.5, 0.7, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)),
       new PoseAndHeading(
-          new Pose2d(3.85, 0.7, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+          new Pose2d(3.85, 0.7, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)),
       new PoseAndHeading(
-          new Pose2d(5.5, 0.7, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))), // x:2.17
+          new Pose2d(5.5, 0.7, Rotation2d.fromDegrees(180)),
+          Rotation2d.fromDegrees(180))), // x:2.17
 
   BLUE_HUMAN_PLAYER(
       new PoseAndHeading(
-          new Pose2d(2.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+          new Pose2d(2.5, 4.65, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)),
       new PoseAndHeading(
-          new Pose2d(3.85, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180)),
+          new Pose2d(3.85, 4.65, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180)),
       new PoseAndHeading(
-          new Pose2d(5.5, 4.65, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(180))),
+          new Pose2d(5.5, 4.65, Rotation2d.fromDegrees(180)), Rotation2d.fromDegrees(180))),
 
   // -----------------------------RED-----------------------
 
