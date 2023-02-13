@@ -8,6 +8,7 @@
   },
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/MainMech": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Ungrouped/PIDController[10]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[11]": "PIDController",

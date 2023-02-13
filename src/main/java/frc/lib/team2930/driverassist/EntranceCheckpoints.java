@@ -95,7 +95,7 @@ public enum EntranceCheckpoints {
         selectedCheckPoint.pose.getRotation());
   }
 
-  public void log() {
+  public void log(String ROOT) {
     Pose2d insidePose =
         new Pose2d(checkPointInside.pose.getTranslation(), checkPointInside.heading);
     Pose2d middlePose =
@@ -105,13 +105,12 @@ public enum EntranceCheckpoints {
 
     Logger.getInstance()
         .recordOutput(
-            "DriverAssist/GridPosition/entrance " + this.name() + "/insideCheckpoint", insidePose);
+            ROOT + "/EntranceCheckpoints/" + this.name() + "/insideCheckpoint", insidePose);
     Logger.getInstance()
         .recordOutput(
-            "DriverAssist/GridPosition/entrance " + this.name() + "/middleCheckpoint", middlePose);
+            ROOT + "/EntranceCheckpoints/" + this.name() + "/middleCheckpoint", middlePose);
     Logger.getInstance()
         .recordOutput(
-            "DriverAssist/GridPosition/entrance " + this.name() + "/outsideCheckpoint",
-            outsidePose);
+            ROOT + "/EntranceCheckpoints/" + this.name() + "/outsideCheckpoint", outsidePose);
   }
 }

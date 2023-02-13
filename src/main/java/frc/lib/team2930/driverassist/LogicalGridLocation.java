@@ -26,4 +26,9 @@ public enum LogicalGridLocation {
     this.bluePhysical = bluePhysical;
     this.redPhysical = redPhysical;
   }
+
+  public void log(String ROOT) {
+    bluePhysical.log(ROOT);
+    redPhysical.log(ROOT);
+  }
 }

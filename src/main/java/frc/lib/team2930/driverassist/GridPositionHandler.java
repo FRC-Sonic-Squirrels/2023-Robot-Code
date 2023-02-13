@@ -18,7 +18,7 @@ public class GridPositionHandler {
 
   private GridPositionHandler() {}
 
-  public static final String ROOT_TABLE = "DriverAssist/GridPosition";
+  public static final String ROOT_TABLE = "DriverAssist/GridPositionAuto";
   public static final double FIELD_WIDTH_METERS = 8.02;
 
   public static final LogicalGridLocation[] logicalGridOrder = {
@@ -151,6 +151,28 @@ public class GridPositionHandler {
     public PoseAndHeading() {
       this.pose = new Pose2d();
       this.heading = new Rotation2d();
+    }
+  }
+
+  public static void logAllGridPositionDriverAssist() {
+    var logger = Logger.getInstance();
+
+    for (BoundingBoxes boundingBox : allowableActivationAreaBlue) {
+      boundingBox.log(ROOT_TABLE);
+    }
+
+    for (BoundingBoxes boundingBox : allowAbleActivationAreaRed) {
+      boundingBox.log(ROOT_TABLE);
+    }
+
+    EntranceCheckpoints.BLUE_HUMAN_PLAYER.log(ROOT_TABLE);
+    EntranceCheckpoints.BLUE_WALL.log(ROOT_TABLE);
+
+    EntranceCheckpoints.RED_HUMAN_PLAYER.log(ROOT_TABLE);
+    EntranceCheckpoints.RED_WALL.log(ROOT_TABLE);
+
+    for (LogicalGridLocation logicalGrid : logicalGridOrder) {
+      logicalGrid.log(ROOT_TABLE);
     }
   }
 }

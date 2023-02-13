@@ -35,10 +35,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
-import frc.lib.team2930.driverassist.DeadzoneBox;
 import frc.lib.team2930.driverassist.GridPositionHandler;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
-import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
@@ -345,39 +343,9 @@ public class RobotContainer {
     return robotContainer;
   }
 
-  public void testBox() {
-    // DeadzoneBox.BLUE_SKIP_CHECKPOINT.Log();
-
-    for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaBlue) {
-      box.Log();
-    }
-
-    for (DeadzoneBox box : GridPositionHandler.allowAbleActivationAreaRed) {
-      box.Log();
-    }
-
-    // GridPositionHandler.DeadzoneBox.TEST_DEADZONE.Log();
-
-    // var inside =
-    //     GridPositionHandler.DeadzoneBox.RED_COMMUNITY.insideBox(
-    //         drivetrain.getPose().getTranslation());
-
-    // Logger.getInstance().recordOutput("DriverAssist/GridPosition/insideBox", inside);
-
-    // EntranceCheckpoint.BLUE_WALL.log();
-    // EntranceCheckpoint.BLUE_HUMAN_PLAYER.log();
-
-    // EntranceCheckpoint.RED_WALL.log();
-    // EntranceCheckpoint.RED_HUMAN_PLAYER.log();
-
-    for (LogicalGridLocation logicGrid : GridPositionHandler.logicalGridOrder) {
-      logicGrid.bluePhysical.log();
-      logicGrid.redPhysical.log();
-    }
-  }
-
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
+
     // field-relative toggle
 
     // driverController

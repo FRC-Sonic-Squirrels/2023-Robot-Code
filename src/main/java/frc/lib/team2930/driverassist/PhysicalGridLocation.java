@@ -111,10 +111,10 @@ public enum PhysicalGridLocation {
             blueScore.heading);
   }
 
-  public void log() {
+  public void log(String ROOT) {
     Logger.getInstance()
-        .recordOutput(ROOT_TABLE + "/PHYSICAL_BAY/" + this.name() + "/lineup", this.lineup.pose);
+        .recordOutput(ROOT + "/PHYSICAL_BAY/" + this.name() + "/lineup", this.lineup.pose);
     Logger.getInstance()
-        .recordOutput(ROOT_TABLE + "/PHYSICAL_BAY/" + this.name() + "/score", this.score.pose);
+        .recordOutput(ROOT + "/PHYSICAL_BAY/" + this.name() + "/score", this.score.pose);
   }
 }

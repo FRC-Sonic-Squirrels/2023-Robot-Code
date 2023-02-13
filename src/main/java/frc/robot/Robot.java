@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.team2930.AutoChooserElement;
+import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import java.util.function.Supplier;
@@ -184,6 +186,9 @@ public class Robot extends LoggedRobot {
 
     // Invoke the factory method to create the RobotContainer singleton.
     robotContainer = RobotContainer.getInstance();
+
+    GridPositionHandler.logAllGridPositionDriverAssist();
+    HumanLoadingStationHandler.logAllHumanLoadingStationDriverAssist();
   }
 
   /**
@@ -204,8 +209,6 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     robotContainer.gridPositionHandler.log();
-
-    robotContainer.testBox();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
 

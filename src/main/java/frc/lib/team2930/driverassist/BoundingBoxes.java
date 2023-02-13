@@ -113,16 +113,11 @@ public enum BoundingBoxes {
     return odd;
   }
 
-  public void log() {
+  public void log(String ROOT) {
     List<State> states = new ArrayList<>();
 
     for (int i = 0; i < points.length; i++) {
       states.add(translationToState(points[i]));
-
-      Logger.getInstance()
-          .recordOutput(
-              "DriverAssist/BoundingBoxes/" + this.name() + "/points/" + i,
-              new Pose2d(points[i], new Rotation2d()));
     }
 
     states.add(translationToState(points[0]));
@@ -130,7 +125,7 @@ public enum BoundingBoxes {
     Trajectory displayTrajectory = new Trajectory(states);
 
     Logger.getInstance()
-        .recordOutput("DriverAssist/BoundingBoxes/" + this.name() + "/traj/", displayTrajectory);
+        .recordOutput(ROOT + "/boundingBoxes/" + this.name() + "/traj/", displayTrajectory);
   }
 
   private State translationToState(Translation2d point) {

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
 import java.util.ArrayList;
+import org.littletonrobotics.junction.Logger;
 
 public class HumanLoadingStationHandler {
 
@@ -13,6 +14,8 @@ public class HumanLoadingStationHandler {
   private static final double LAST_CHECKPOINT_X = 15.15;
   private static final double LEFT_SIDE_Y = 7.5;
   private static final double RIGHT_SIDE_Y = 6.1;
+
+  private static final String ROOT_TABLE = "DriverAssist/HumanPlayerAuto";
 
   public final PoseAndHeading[] checkpointsOutsideIn;
   public final PoseAndHeading finalPickupPose;
@@ -154,8 +157,22 @@ public class HumanLoadingStationHandler {
     }
   }
 
-  public static void log(String path, HumanLoadingStationHandler station) {
-    // Logger.getInstance()
-    //     .recordOutput(path + "/BLUE_LEFT/checkpoints", station.checkpointsOutsideIn);
+  public void log(String path, String name) {
+    var logger = Logger.getInstance();
+
+    for (int i = 0; i < checkpointsOutsideIn.length; i++) {
+      logger.recordOutput(
+          path + "/" + name + "/checkpointsOutsideIn/" + i, this.checkpointsOutsideIn[i].pose);
+    }
+
+    logger.recordOutput(path + "/" + name + "/finalPose/", this.finalPickupPose.pose);
+  }
+
+  public static void logAllHumanLoadingStationDriverAssist() {
+    BLUE_ALLIANCE_LEFT.log(ROOT_TABLE, "BLUE_LEFT");
+    BLUE_ALLIANCE_RIGHT.log(ROOT_TABLE, "BLUE_RIGHT");
+
+    RED_ALLIANCE_LEFT.log(ROOT_TABLE, "RED_LEFT");
+    RED_ALLIANCE_RIGHT.log(ROOT_TABLE, "RED_RIGHT");
   }
 }
