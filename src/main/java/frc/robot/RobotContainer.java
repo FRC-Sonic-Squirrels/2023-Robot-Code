@@ -27,6 +27,7 @@ import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
+import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
@@ -134,8 +135,11 @@ public class RobotContainer {
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
-            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+
             intake = new Intake(new IntakeIO2022());
+
+            new Vision(new VisionIOPhotonVision(LEFT_CAMERA_NAME), new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
+            
             elevator = new Elevator(new ElevatorReal2022());
 
             // wrist = new Wrist(new WristIOSolenoid());
@@ -191,7 +195,8 @@ public class RobotContainer {
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
-            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            new Vision(new VisionIOPhotonVision(LEFT_CAMERA_NAME),
+                new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
@@ -219,8 +224,10 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
-            // new Vision(
-            //     new VisionIOSim(layout, drivetrain::getPose, VisionConstants.ROBOT_TO_CAMERA));
+
+            new Vision(
+                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
+                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
@@ -247,7 +254,7 @@ public class RobotContainer {
       SwerveModule brModule =
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      new Vision(new VisionIO() {});
+      new Vision(new VisionIO() {}, new VisionIO() {});
       new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});

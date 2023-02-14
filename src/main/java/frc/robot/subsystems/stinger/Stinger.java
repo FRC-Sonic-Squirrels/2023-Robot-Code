@@ -74,7 +74,7 @@ public class Stinger extends SubsystemBase {
 
   public void setExtensionInches(double heightInches) {
     double targetInches = MathUtil.clamp(heightInches, 0.0, maxExtensionInches);
-    
+
     io.setExtensionInches(targetInches);
   }
 
