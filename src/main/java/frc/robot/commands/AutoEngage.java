@@ -18,17 +18,19 @@ public class AutoEngage extends CommandBase {
 
   private Drivetrain drivetrain;
 
-  private Timer timeEngaged;
+  private Timer timeEngaged = new Timer();
   private double error;
   private double currentPitch;
   private double drivePower;
 
-  private TunableNumber Kp = new TunableNumber("AutoEngage/Kp", 0.015);
+  private TunableNumber Kp = new TunableNumber("AutoEngage/testp1", 0.07);
   private TunableNumber balancedThresholdDegrees =
-      new TunableNumber("AutoEngage/balancedThresholdDegrees", 1);
+      new TunableNumber("AutoEngage/balancedThresholdDegrees", 3);
   // private TunableNumber timeRequiredBalanced =
   //     new TunableNumber("AutoEngage/timeRequiredBalanced", 1);
-  private TunableNumber maxPowerPercent = new TunableNumber("AutoEngage/maxPowerPercent", 50);
+  private TunableNumber maxPowerPercent = new TunableNumber("AutoEngage/maxPowerPercent", 1);
+
+  private TunableNumber doDrive = new TunableNumber("AutoEngage/doDrive2", 1);
 
   private DoubleSupplier y_supplier;
   /** Creates a new AutoEngage. */
@@ -47,11 +49,11 @@ public class AutoEngage extends CommandBase {
   @Override
   public void execute() {
     // Uncomment the line below this to simulate the gyroscope axis with a controller joystick
-    currentPitch = -1 * -modifyAxis(y_supplier.getAsDouble()) * 45;
+    // currentPitch = -1 * -modifyAxis(y_supplier.getAsDouble()) * 45;
     this.currentPitch = drivetrain.getGyroPitch();
 
     error = 0 - currentPitch;
-    drivePower = Math.min(Kp.get() * error, DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
+    drivePower = (Kp.get() * error);
 
     // The robot I referenced when making this needed extra power while in reverse.
     //  // Our robot needed an extra push to drive up in reverse, probably due to weight imbalances
@@ -68,12 +70,15 @@ public class AutoEngage extends CommandBase {
               drivePower);
     }
 
-    drivetrain.drive(drivePower, 0, 0);
+    if (doDrive.get() == 1) {
+      drivetrain.drive(drivePower, 0, 0);
+    }
 
     // Debugging Print Statments
     Logger.getInstance().recordOutput("AutoEngage/Current Angle", currentPitch);
     Logger.getInstance().recordOutput("AutoEngage/Error", error);
     Logger.getInstance().recordOutput("AutoEngage/Drive Power", drivePower);
+    Logger.getInstance().recordOutput("AutoEngage/timeEngaged", timeEngaged.get());
 
     // Starts the timer when we are within the specified threshold of being 'flat' (gyroscope pitch
     // of 0 degrees)
@@ -81,6 +86,12 @@ public class AutoEngage extends CommandBase {
       timeEngaged.start();
     } else {
       timeEngaged.reset();
+    }
+
+    if (timeEngaged.get() >= 0.5) {
+      drivetrain.enableXstance();
+    } else {
+      drivetrain.disableXstance();
     }
   }
 

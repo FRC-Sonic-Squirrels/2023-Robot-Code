@@ -28,7 +28,6 @@ import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
-import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoEngage;
@@ -126,7 +125,7 @@ public class RobotContainer {
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             new Pneumatics(new PneumaticsIORev(false));
-            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             intake = new Intake(new IntakeIOFalcon());
             break;
           }
@@ -231,8 +230,10 @@ public class RobotContainer {
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // x-stance
-    driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    driverController.rightTrigger().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    driverController
+        .rightTrigger()
+        .onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
     // autoEngage
     driverController.x().whileTrue(new AutoEngage(drivetrain, driverController::getRightY));
