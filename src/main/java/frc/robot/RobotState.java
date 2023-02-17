@@ -10,11 +10,11 @@ import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class RobotState {
-  private static RobotState instance;
+  private static RobotState instance = null;
 
   private GamePiece desiredGamePiece;
 
-  private LogicalGridLocation desiredLogicalGrid = LogicalGridLocation.LOGICAL_BAY_1;
+  private LogicalGridLocation desiredLogicalGrid;
 
   public static RobotState getInstance() {
     if (instance == null) {
@@ -24,7 +24,10 @@ public class RobotState {
     return instance;
   }
 
-  private RobotState() {}
+  private RobotState() {
+    setDesiredGamePiece(GamePiece.CUBE);
+    setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
+  }
 
   public LogicalGridLocation getDesiredLogicalGrid() {
     return desiredLogicalGrid;
@@ -53,7 +56,7 @@ public class RobotState {
     if (currentIndex == gridOrder.length - 1) {
       targetIndex = gridOrder.length - 1;
     } else {
-      targetIndex = currentIndex++;
+      targetIndex = currentIndex + 1;
     }
 
     setDesiredLogicalGrid(gridOrder[targetIndex]);
@@ -68,7 +71,7 @@ public class RobotState {
     if (currentIndex == 0) {
       targetIndex = 0;
     } else {
-      targetIndex = currentIndex--;
+      targetIndex = currentIndex - 1;
     }
 
     setDesiredLogicalGrid(gridOrder[targetIndex]);
