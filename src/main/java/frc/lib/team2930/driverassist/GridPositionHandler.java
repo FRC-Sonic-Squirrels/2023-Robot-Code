@@ -41,33 +41,6 @@ public class GridPositionHandler {
     BoundingBoxes.RED_COMMUNITY, BoundingBoxes.RED_HALF_COURT
   };
 
-  private static int bayIndex = 0;
-  private static LogicalGridLocation desiredBay = LogicalGridLocation.LOGICAL_BAY_1;
-
-  public static LogicalGridLocation getDesiredBay() {
-    return desiredBay;
-  }
-
-  public static void incrementNextBay() {
-    if (bayIndex == logicalGridOrder.length - 1) {
-      desiredBay = logicalGridOrder[logicalGridOrder.length - 1];
-      return;
-    }
-
-    bayIndex++;
-    desiredBay = logicalGridOrder[bayIndex];
-  }
-
-  public static void decrementNextBay() {
-    if (bayIndex == 0) {
-      desiredBay = logicalGridOrder[0];
-      return;
-    }
-
-    bayIndex--;
-    desiredBay = logicalGridOrder[bayIndex];
-  }
-
   public static PhysicalGridLocation getPhysicalLocationForLogicalBay(
       LogicalGridLocation logicalBay, Alliance alliance) {
 
@@ -173,12 +146,6 @@ public class GridPositionHandler {
     }
 
     return false;
-  }
-
-  public void log() {
-    Logger logger = Logger.getInstance();
-    logger.recordOutput("DriverAssist/GridPosition/bay_index", bayIndex);
-    logger.recordOutput("DriverAssist/GridPosition/desired_bay", desiredBay.name());
   }
 
   public static class PoseAndHeading {

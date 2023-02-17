@@ -463,7 +463,8 @@ public class RobotContainer {
 
                       var cmd =
                           autoDriveToGrid.driveToLogicalBayClosestEntrance(
-                              GridPositionHandler.getDesiredBay(), scoringSequence); // some command
+                              RobotState.getInstance().getDesiredLogicalGrid(),
+                              scoringSequence); // some command
 
                       Command currentCmd = drivetrain.getCurrentCommand();
 
@@ -497,7 +498,7 @@ public class RobotContainer {
 
                   var cmd =
                       autoDriveToGrid.driveToLogicalBaySpecificEntrance(
-                          GridPositionHandler.getDesiredBay(),
+                          RobotState.getInstance().getDesiredLogicalGrid(),
                           DesiredGridEntrance.LEFT,
                           scoringSequence); // some command
 
@@ -532,7 +533,7 @@ public class RobotContainer {
 
                   var cmd =
                       autoDriveToGrid.driveToLogicalBaySpecificEntrance(
-                          GridPositionHandler.getDesiredBay(),
+                          RobotState.getInstance().getDesiredLogicalGrid(),
                           DesiredGridEntrance.RIGHT,
                           scoringSequence); // some command
 
@@ -614,11 +615,11 @@ public class RobotContainer {
     driverController
         .povRight()
         .onTrue(
-            Commands.runOnce(() -> GridPositionHandler.incrementNextBay())
+            Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay())
                 .andThen(Commands.print("Incremented bay")));
     driverController
         .povLeft()
-        .onTrue(Commands.runOnce(() -> GridPositionHandler.decrementNextBay()));
+        .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
 
     // driverController
     //     .rightTrigger()
