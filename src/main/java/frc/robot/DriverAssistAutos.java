@@ -256,7 +256,11 @@ public class DriverAssistAutos {
     // final pose
     Alliance alliance = DriverStation.getAlliance();
 
-    var currentPose = drivetrain.getPose().getTranslation();
+    var currentPose = drivetrain.getPose();
+
+    if (!HumanLoadingStationHandler.isValidPointToStart(currentPose, alliance)) {
+      return errorRumbleControllerCommand();
+    }
 
     ArrayList<PathPoint> pointsToFollow = new ArrayList<>();
 
@@ -269,7 +273,7 @@ public class DriverAssistAutos {
     // find checkpoints we care about
 
     var checkpointsToFollow =
-        HumanLoadingStationHandler.checkpointsToFollow(currentPose, rawSequence);
+        HumanLoadingStationHandler.checkpointsToFollow(currentPose.getTranslation(), rawSequence);
 
     for (int i = 0; i < checkpointsToFollow.length - 1; i++) {
       Logger.getInstance()

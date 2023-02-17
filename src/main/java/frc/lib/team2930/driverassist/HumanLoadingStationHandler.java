@@ -20,6 +20,14 @@ public class HumanLoadingStationHandler {
   public final PoseAndHeading[] checkpointsOutsideIn;
   public final PoseAndHeading finalPickupPose;
 
+  public static final BoundingBoxes[] allowableActivationAreaBlue = {
+    BoundingBoxes.BLUE_HP_STATION_ACTIVATION_AREA
+  };
+
+  public static final BoundingBoxes[] allowableActivationAreaRed = {
+    BoundingBoxes.RED_HP_STATION_ACTIVATION_AREA
+  };
+
   private static HumanLoadingStationHandler BLUE_ALLIANCE_LEFT =
       new HumanLoadingStationHandler(
           new PoseAndHeading(
@@ -157,6 +165,26 @@ public class HumanLoadingStationHandler {
     }
   }
 
+  public static boolean isValidPointToStart(Pose2d currentPos, Alliance alliance) {
+    if (alliance == Alliance.Blue) {
+      for (BoundingBoxes box : allowableActivationAreaBlue) {
+        if (box.insideBox(currentPos.getTranslation())) {
+          return true;
+        }
+      }
+    }
+
+    if (alliance == Alliance.Red) {
+      for (BoundingBoxes box : allowableActivationAreaRed) {
+        if (box.insideBox(currentPos.getTranslation())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   public void log(String path, String name) {
     var logger = Logger.getInstance();
 
@@ -169,6 +197,14 @@ public class HumanLoadingStationHandler {
   }
 
   public static void logAllHumanLoadingStationDriverAssist() {
+    for (BoundingBoxes boundingBoxes : allowableActivationAreaBlue) {
+      boundingBoxes.log(ROOT_TABLE);
+    }
+
+    for (BoundingBoxes boundingBoxes : allowableActivationAreaRed) {
+      boundingBoxes.log(ROOT_TABLE);
+    }
+
     BLUE_ALLIANCE_LEFT.log(ROOT_TABLE, "BLUE_LEFT");
     BLUE_ALLIANCE_RIGHT.log(ROOT_TABLE, "BLUE_RIGHT");
 

@@ -39,6 +39,16 @@ public enum BoundingBoxes {
       new Translation2d(4.85, 4.0),
       new Translation2d(3.35, 4.0)),
 
+  BLUE_HP_STATION_ACTIVATION_AREA(
+      new Translation2d(5, 8.02),
+      new Translation2d(16.54, 8.02),
+      new Translation2d(16.54, 5.6),
+      new Translation2d(13, 5.6),
+      new Translation2d(13, 4.25),
+      new Translation2d(11.7, 4.25),
+      new Translation2d(11.7, 0),
+      new Translation2d(5, 0)),
+
   // -------------RED---------------
 
   RED_COMMUNITY(BLUE_COMMUNITY),
@@ -46,6 +56,8 @@ public enum BoundingBoxes {
   RED_HALF_COURT(BLUE_HALF_COURT),
 
   RED_SKIP_CHECKPOINT(BLUE_SKIP_CHECKPOINT),
+
+  RED_HP_STATION_ACTIVATION_AREA(BLUE_HP_STATION_ACTIVATION_AREA),
 
   TEST(
       new Translation2d(5, 5),
