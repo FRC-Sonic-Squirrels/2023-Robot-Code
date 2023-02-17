@@ -91,24 +91,24 @@ public enum BoundingBoxes {
   }
 
   public boolean insideBox(Translation2d pointToCheck) {
+    /**
+     * used this as a reference https://www.algorithms-and-technologies.com/point_in_polygon/java
+     */
 
     // A point is in a polygon if a line from the point to infinity crosses the polygon an odd
     // number of times
     boolean odd = false;
-    // int totalCrosses = 0; // this is just used for debugging
-    // For each edge (In this case for each point of the polygon and the previous one)
 
     for (int i = 0, j = points.length - 1; i < points.length; i++) {
-      // If a line from the point into infinity crosses this edge
-      // One point needs to be above, one below our y coordinate
 
       var currentPoint = points[i];
       var prevPoint = points[j];
 
+      // the pointToCheck has to be inbetween the Y of 2 points, doesnt work if they are both
+      // below/above/the same
       if ((currentPoint.getY() > pointToCheck.getY()) != (prevPoint.getY() > pointToCheck.getY())) {
-        // ...and the edge doesn't cross our Y corrdinate before our x coordinate (but between our x
-        // coordinate and infinity)
 
+        // fancy math to figure out if the pointToCheck is between the 2 points
         if (pointToCheck.getX()
             < (prevPoint.getX() - currentPoint.getX())
                     * (pointToCheck.getY() - currentPoint.getY())

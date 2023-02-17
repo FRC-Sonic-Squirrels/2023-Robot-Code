@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import org.littletonrobotics.junction.Logger;
 
 public class GridPositionHandler {
   private static GridPositionHandler instance;
@@ -78,24 +77,6 @@ public class GridPositionHandler {
 
   public static EntranceCheckpoints getEntranceCheckpointsSpecificSide(
       Pose2d currentPose, DesiredGridEntrance entranceSide, Alliance alliance) {
-    // double x = currentPose.getX();
-    // double y = currentPose.getY();
-    // if (alliance == Alliance.Blue) {
-    //   if (y > 2.7) {
-    //     return EntranceCheckpoints.BLUE_HUMAN_PLAYER;
-    //   } else { // later check if in the correct band width
-    //     return EntranceCheckpoints.BLUE_WALL;
-    //   }
-    // }
-    // if (alliance == Alliance.Red) {
-    //   if (y > 5.32) {
-    //     return EntranceCheckpoints.RED_WALL;
-    //   } else {
-    //     return EntranceCheckpoints.RED_HUMAN_PLAYER;
-    //   }
-    // }
-
-    // return EntranceCheckpoints.ERROR;
 
     switch (entranceSide) {
       case LEFT:
@@ -169,7 +150,6 @@ public class GridPositionHandler {
   }
 
   public static void logAllGridPositionDriverAssist() {
-    var logger = Logger.getInstance();
 
     for (BoundingBoxes boundingBox : allowableActivationAreaBlue) {
       boundingBox.log(ROOT_TABLE);

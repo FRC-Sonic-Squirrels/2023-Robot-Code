@@ -102,11 +102,6 @@ public class HumanLoadingStationHandler {
     return new PoseAndHeading(newPose, toFlip.heading);
   }
 
-  public static enum LoadingStationLocation {
-    LEFT,
-    RIGHT;
-  }
-
   public static PoseAndHeading[] getCheckpointSequenceForAlliance(
       LoadingStationLocation location, Alliance alliance) {
 
@@ -210,5 +205,10 @@ public class HumanLoadingStationHandler {
 
     RED_ALLIANCE_LEFT.log(ROOT_TABLE, "RED_LEFT");
     RED_ALLIANCE_RIGHT.log(ROOT_TABLE, "RED_RIGHT");
+  }
+
+  public static enum LoadingStationLocation {
+    LEFT,
+    RIGHT;
   }
 }

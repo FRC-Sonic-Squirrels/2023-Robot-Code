@@ -81,7 +81,6 @@ public enum PhysicalGridLocation {
   public final PoseAndHeading lineup;
   public final PoseAndHeading score;
 
-  private static final String ROOT_TABLE = GridPositionHandler.ROOT_TABLE;
   private static final double FIELD_WIDTH_METERS = GridPositionHandler.FIELD_WIDTH_METERS;
 
   private PhysicalGridLocation(PoseAndHeading lineup, PoseAndHeading score) {
