@@ -86,8 +86,6 @@ public class DriverAssistAutos {
       LogicalGridLocation logicalBay,
       GridPositionHandler.DesiredGridEntrance entranceSide,
       Command scoringSequence) {
-    // TODO create robotState file which stores desired game piece, grid location etc.
-    // TODO rename this class and objects to have a better name
 
     // TODO define all the bounding boxes for where auto is allowed to start from need to do this
     // for human player station

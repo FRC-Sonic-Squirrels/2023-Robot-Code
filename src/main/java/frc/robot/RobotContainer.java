@@ -54,7 +54,6 @@ import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.TeleopSwerve;
-import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -346,143 +345,34 @@ public class RobotContainer {
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
 
-    // field-relative toggle
-
-    // driverController
-    //     .b()
-    //     .toggleOnTrue(
-    //         Commands.either(
-    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-    //             drivetrain::getFieldRelative));
-
-    // // reset gyro to 0 degrees
-    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
-
-    // // x-stance
-    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
-
-    // // intake
-    // driverController
-    //     .rightBumper()
-    //     .whileTrue(
-    //         Commands.runOnce(intake::extend, intake)
-    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    // driverController
-    //     .rightBumper()
-    //     .onFalse(
-    //         Commands.runOnce(intake::retract, intake)
-    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-
-    // driverController
-    //     .povDown()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 180)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
-
-    // driverController
-    //     .povUp()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 0)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
-
-    // driverController
-    //     .a()
-    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
-
-    // driverController
-    //     .b()
-    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
-
-    // driverController
-    //     .x()
-    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
-
-    // driverController
-    //     .y()
-    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
-
-    // driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    // driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-
-    // driverController
-    //     .x()
-    //     .whileTrue(new StingerFollowCurve(elevator,
-    // stinger).beforeStarting(Commands.print("X")));
-    // driverController
-    //     .y()
-    //     .whileTrue(new ElevatorFollowCurve(elevator,
-    // stinger).beforeStarting(Commands.print("X")));
-
-    // x-stance
-    // xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    // xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
-
-    // // intake
-    // intakeOut.whileTrue(
-    //     Commands.runOnce(intake::extend, intake)
-    //         .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    // intakeOut.onFalse(
-    //     Commands.runOnce(intake::retract, intake)
-    //         .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // driverController
-    //     .x()
+    //     .a()
     //     .onTrue(
     //         new InstantCommand(
-    //             () -> {
-    //               var cmd =
-    //                   autoDriveToGrid.driveToGridPosAndScore(GridPositions.GRID_8); // some
-    // command
-    //               // you can do this because Trigger implements BooleanSupplier
-    //               cmd.schedule();
-    //             }));
+    //                 () -> {
+    //                   var scoringSequence =
+    //                       MechanismPositions.scoreConeHighPosition(elevator, stinger)
+    //                           .andThen(
+    //                               Commands.waitSeconds(0.4)
+    //                                   .andThen(MechanismPositions.stowPosition(elevator,
+    // stinger)));
 
-    driverController
-        .a()
-        .onTrue(
-            new InstantCommand(
-                    () -> {
-                      var scoringSequence =
-                          MechanismPositions.scoreConeHighPosition(elevator, stinger)
-                              .andThen(
-                                  Commands.waitSeconds(0.4)
-                                      .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+    //                   var cmd =
+    //                       driverAssist.driveToLogicalBayClosestEntrance(
+    //                           RobotState.getInstance().getDesiredLogicalGrid(),
+    //                           scoringSequence); // some command
 
-                      var cmd =
-                          driverAssist.driveToLogicalBayClosestEntrance(
-                              RobotState.getInstance().getDesiredLogicalGrid(),
-                              scoringSequence); // some command
+    //                   Command currentCmd = drivetrain.getCurrentCommand();
 
-                      Command currentCmd = drivetrain.getCurrentCommand();
+    //                   if (currentCmd instanceof OverrideDrivetrainStop) {
+    //                     ((OverrideDrivetrainStop) currentCmd).overideStop();
+    //                   }
 
-                      if (currentCmd instanceof OverrideDrivetrainStop) {
-                        ((OverrideDrivetrainStop) currentCmd).overideStop();
-                      }
-
-                      // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                      // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                      // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
-                      // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
-
-                      // cmd =
-                      //     cmd.andThen(scoreCmd)
-                      //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
-
-                      cmd.schedule();
-                    })
-                .beforeStarting(Commands.print("A")));
+    //                   cmd.schedule();
+    //                 })
+    //             .beforeStarting(Commands.print("A")));
 
     driverController
         .leftTrigger()
@@ -502,15 +392,6 @@ public class RobotContainer {
                   if (currentCmd instanceof OverrideDrivetrainStop) {
                     ((OverrideDrivetrainStop) currentCmd).overideStop();
                   }
-
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                  // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
-                  // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
-
-                  // cmd =
-                  //     cmd.andThen(scoreCmd)
-                  //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
 
                   cmd.schedule();
                 }));
@@ -534,19 +415,8 @@ public class RobotContainer {
                     ((OverrideDrivetrainStop) currentCmd).overideStop();
                   }
 
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-                  // var scoreCmd = MechanismPositions.scoreConeHighPosition(elevator, stinger);
-                  // var retractCmd = MechanismPositions.stowPosition(elevator, stinger);
-
-                  // cmd =
-                  //     cmd.andThen(scoreCmd)
-                  //         .andThen(Commands.waitSeconds(0.5).andThen(retractCmd));
-
                   cmd.schedule();
                 }));
-
-    // driverController.a().onTrue(autoDriveToGrid.driveToGridPoseCommand());
 
     driverController
         .leftBumper()
@@ -568,8 +438,6 @@ public class RobotContainer {
                     ((OverrideDrivetrainStop) currentCmd).overideStop();
                   }
 
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
                   cmd.schedule();
                 }));
 
@@ -593,8 +461,6 @@ public class RobotContainer {
                     ((OverrideDrivetrainStop) currentCmd).overideStop();
                   }
 
-                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
                   cmd.schedule();
                 }));
 
@@ -612,32 +478,6 @@ public class RobotContainer {
     driverController
         .povLeft()
         .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
-
-    // driverController
-    //     .rightTrigger()
-    //     .whileTrue(
-    //         new TeleopSwerve(
-    //             drivetrain,
-    //             driverController::getLeftY,
-    //             driverController::getLeftX,
-    //             driverController::getRightX));
-
-    // PathPlannerTrajectory testAllianceFlipPath =
-    //     PathPlanner.loadPath(
-    //         "testPath",
-    //         AUTO_MAX_SPEED_METERS_PER_SECOND,
-    //         AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-
-    // driverController.y().onTrue(new FollowPath(testAllianceFlipPath, drivetrain, true, true));
-
-    // .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
-
-    // driverController
-    //     .a()
-    //     .onTrue(
-    //         autoDriveToGrid
-    //             .driveToCommunityCheckPointBasedOnPos()
-    //             .until(anyJoystickInputAboveForTrigger(0.5, 0.2, driverController)));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
