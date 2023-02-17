@@ -91,7 +91,7 @@ public class RobotContainer {
   private Drivetrain drivetrain;
   private Intake intake;
 
-  private DriveToGridPosition autoDriveToGrid;
+  private DriverAssistAutos driverAssist;
   public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
   public SwerveAutos autos;
   private Stinger stinger;
@@ -320,7 +320,7 @@ public class RobotContainer {
     //         driverController::getLeftX,
     //         driverController::getRightX));
 
-    autoDriveToGrid = new DriveToGridPosition(drivetrain, intake, driverController);
+    driverAssist = new DriverAssistAutos(drivetrain, intake, driverController);
 
     // elevator.setDefaultCommand(
     //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
@@ -463,7 +463,7 @@ public class RobotContainer {
                                       .andThen(MechanismPositions.stowPosition(elevator, stinger)));
 
                       var cmd =
-                          autoDriveToGrid.driveToLogicalBayClosestEntrance(
+                          driverAssist.driveToLogicalBayClosestEntrance(
                               RobotState.getInstance().getDesiredLogicalGrid(),
                               scoringSequence); // some command
 
@@ -498,7 +498,7 @@ public class RobotContainer {
                                   .andThen(MechanismPositions.stowPosition(elevator, stinger)));
 
                   var cmd =
-                      autoDriveToGrid.driveToLogicalBaySpecificEntrance(
+                      driverAssist.driveToLogicalBaySpecificEntrance(
                           RobotState.getInstance().getDesiredLogicalGrid(),
                           DesiredGridEntrance.LEFT,
                           scoringSequence); // some command
@@ -533,7 +533,7 @@ public class RobotContainer {
                                   .andThen(MechanismPositions.stowPosition(elevator, stinger)));
 
                   var cmd =
-                      autoDriveToGrid.driveToLogicalBaySpecificEntrance(
+                      driverAssist.driveToLogicalBaySpecificEntrance(
                           RobotState.getInstance().getDesiredLogicalGrid(),
                           DesiredGridEntrance.RIGHT,
                           scoringSequence); // some command
@@ -573,7 +573,7 @@ public class RobotContainer {
                           .andThen(MechanismPositions.stowPosition(elevator, stinger));
 
                   var cmd =
-                      autoDriveToGrid.humanPlayerStation(
+                      driverAssist.humanPlayerStation(
                           LoadingStationLocation.LEFT, pickUpSequence, retractSequence);
 
                   Command currentCmd = drivetrain.getCurrentCommand();
@@ -602,7 +602,7 @@ public class RobotContainer {
                           .andThen(MechanismPositions.stowPosition(elevator, stinger));
 
                   var cmd =
-                      autoDriveToGrid.humanPlayerStation(
+                      driverAssist.humanPlayerStation(
                           LoadingStationLocation.RIGHT, pickUpSequence, retractSequence);
 
                   Command currentCmd = drivetrain.getCurrentCommand();

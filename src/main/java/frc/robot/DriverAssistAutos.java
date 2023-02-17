@@ -32,7 +32,7 @@ import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
-public class DriveToGridPosition {
+public class DriverAssistAutos {
   private Drivetrain drivetrain;
   private Intake intake;
 
@@ -43,8 +43,7 @@ public class DriveToGridPosition {
           DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
           DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.75);
 
-  public DriveToGridPosition(
-      Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
+  public DriverAssistAutos(Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
     this.drivetrain = drivetrain;
     this.intake = intake;
     this.controller = controller;
