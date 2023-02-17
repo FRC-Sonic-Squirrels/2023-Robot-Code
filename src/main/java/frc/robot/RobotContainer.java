@@ -55,6 +55,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeStop;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -557,23 +558,34 @@ public class RobotContainer {
 
     // driverController.a().onTrue(autoDriveToGrid.driveToGridPoseCommand());
 
-    // driverController
-    //     .leftBumper()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               var cmd = autoDriveToGrid.humanPlayerStation(LoadingStationLocation.LEFT);
+    driverController
+        .leftBumper()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  // make intake spin
+                  var pickUpSequence =
+                      new IntakeGrabCone(intake)
+                          .andThen(MechanismPositions.substationPickupPosition(elevator));
+                  // stop intake spinning
+                  var retractSequence =
+                      new IntakeStop(intake)
+                          .andThen(MechanismPositions.stowPosition(elevator, stinger));
 
-    //               Command currentCmd = drivetrain.getCurrentCommand();
+                  var cmd =
+                      autoDriveToGrid.humanPlayerStation(
+                          LoadingStationLocation.LEFT, pickUpSequence, retractSequence);
 
-    //               if (currentCmd instanceof OverrideDrivetrainStop) {
-    //                 ((OverrideDrivetrainStop) currentCmd).overideStop();
-    //               }
+                  Command currentCmd = drivetrain.getCurrentCommand();
 
-    //               // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-    //               // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-    //               cmd.schedule();
-    //             }));
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  // interupt command if joystick value is greater than 0.7 for 0.2 seconds
+                  // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
+                  cmd.schedule();
+                }));
 
     driverController
         .rightBumper()
@@ -583,11 +595,10 @@ public class RobotContainer {
                   // make intake spin
                   var pickUpSequence =
                       new IntakeGrabCone(intake)
-                          .until(() -> true)
                           .andThen(MechanismPositions.substationPickupPosition(elevator));
                   // stop intake spinning
                   var retractSequence =
-                      Commands.runOnce(() -> intake.stop(), intake)
+                      new IntakeStop(intake)
                           .andThen(MechanismPositions.stowPosition(elevator, stinger));
 
                   var cmd =
@@ -614,9 +625,8 @@ public class RobotContainer {
 
     driverController
         .povRight()
-        .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay())
-                .andThen(Commands.print("Incremented bay")));
+        .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
+
     driverController
         .povLeft()
         .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
