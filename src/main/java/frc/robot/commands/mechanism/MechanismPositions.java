@@ -4,7 +4,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.NODE_DISTANCES;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.elevator.Elevator;
@@ -103,11 +105,10 @@ public class MechanismPositions {
 
   public static Command stowPosition(Elevator elevator, Stinger stinger) {
     return new ParallelCommandGroup(
-        new ElevatorSetHeight(elevator, 0),
+        new StingerSetExtension(stinger, 0),
         new SequentialCommandGroup(
-            // height must be >= 10 before moving stinger,
-            // if any lower the stinger will collide with swerve module
-            Commands.waitUntil(() -> (elevator.getHeightInches() >= 10)),
-            new StingerSetExtension(stinger, 0)));
+            new WaitUntilCommand(
+                () -> stinger.getExtensionInches() <= NODE_DISTANCES.EXTENSION_MID / 2),
+            new ElevatorSetHeight(elevator, 0)));
   }
 }
