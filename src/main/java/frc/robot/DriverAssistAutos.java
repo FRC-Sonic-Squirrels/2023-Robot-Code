@@ -23,10 +23,19 @@ import frc.lib.team2930.driverassist.HumanLoadingStationHandler;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
+import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.GenerateAndFollowPath;
+import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeGrabCube;
+import frc.robot.commands.intake.IntakeScoreCone;
+import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.intake.IntakeStop;
+import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.stinger.Stinger;
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -35,6 +44,8 @@ import org.littletonrobotics.junction.Logger;
 public class DriverAssistAutos {
   private Drivetrain drivetrain;
   private Intake intake;
+  private Elevator elevator;
+  private Stinger stinger;
 
   private CommandXboxController controller;
 
@@ -43,9 +54,16 @@ public class DriverAssistAutos {
           DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
           DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.75);
 
-  public DriverAssistAutos(Drivetrain drivetrain, Intake intake, CommandXboxController controller) {
+  public DriverAssistAutos(
+      Drivetrain drivetrain,
+      Intake intake,
+      Elevator elevator,
+      Stinger stinger,
+      CommandXboxController controller) {
     this.drivetrain = drivetrain;
     this.intake = intake;
+    this.elevator = elevator;
+    this.stinger = stinger;
     this.controller = controller;
   }
 
@@ -67,7 +85,7 @@ public class DriverAssistAutos {
   public Command driveToLogicalBaySpecificEntrance(
       LogicalGridLocation logicalBay,
       GridPositionHandler.DesiredGridEntrance entranceSide,
-      SequentialCommandGroup scoringSequence) {
+      Command scoringSequence) {
     // TODO create robotState file which stores desired game piece, grid location etc.
     // TODO rename this class and objects to have a better name
 
@@ -234,9 +252,7 @@ public class DriverAssistAutos {
   }
 
   public Command humanPlayerStation(
-      LoadingStationLocation location,
-      SequentialCommandGroup pickupSequence,
-      SequentialCommandGroup retractSequence) {
+      LoadingStationLocation location, Command pickupSequence, Command retractSequence) {
 
     // TODO if past last checkpoint then drive to last checkpoint raise elevator and then go to
     // final pose
@@ -350,6 +366,48 @@ public class DriverAssistAutos {
         retractSequence);
   }
 
+  public Command getScoringSequenceForGridPositionAuto() {
+    var desiredBay = RobotState.getInstance().getDesiredLogicalGrid();
+
+    Command mechanismCommand;
+    Command intakeCommand;
+
+    if (desiredBay == LogicalGridLocation.LOGICAL_BAY_2
+        || desiredBay == LogicalGridLocation.LOGICAL_BAY_5
+        || desiredBay == LogicalGridLocation.LOGICAL_BAY_8) {
+
+      mechanismCommand = MechanismPositions.scoreCubeHighPosition(elevator, stinger);
+      intakeCommand = new IntakeScoreCube(intake);
+    } else {
+      mechanismCommand = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+      intakeCommand = new IntakeScoreCone(intake);
+    }
+
+    return mechanismCommand
+        .andThen(intakeCommand)
+        .andThen(Commands.waitSeconds(0.4))
+        .andThen(new IntakeStop(intake))
+        .andThen(MechanismPositions.stowPosition(elevator, stinger));
+  }
+
+  public Command getPickUpSequenceForHumanPlayerStation() {
+    Command intakeCommand;
+
+    var desiredGamePiece = RobotState.getInstance().getDesiredGamePiece();
+
+    if (desiredGamePiece == GamePiece.CONE) {
+      intakeCommand = new IntakeGrabCone(intake);
+    } else {
+      intakeCommand = new IntakeGrabCube(intake);
+    }
+
+    return intakeCommand.andThen(MechanismPositions.substationPickupPosition(elevator));
+  }
+
+  public Command getRetractSequenceForHumanPlayerStation() {
+    return new IntakeStop(intake).andThen(MechanismPositions.stowPosition(elevator, stinger));
+  }
+
   // replace with better implementation of controller rumble
   public Command errorRumbleControllerCommand() {
     return new SequentialCommandGroup(
@@ -357,23 +415,4 @@ public class DriverAssistAutos {
         Commands.waitSeconds(0.5),
         new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
   }
-
-  // public Command driveToGridPoseCommand() {
-
-  //   return new InstantCommand(
-  //       () -> {
-  //         var cmd = this.testLogicalBay(GridPositionHandler.getDesiredBay()); // some command
-
-  //         Command currentCmd = drivetrain.getCurrentCommand();
-
-  //         if (currentCmd instanceof OverrideDrivetrainStop) {
-  //           ((OverrideDrivetrainStop) currentCmd).overideStop();
-  //         }
-
-  //         // interupt command if joystick value is greater than 0.7 for 0.2 seconds
-  //         // cmd.until(anyJoystickInputAboveForTrigger(0.7, 0.2, driverController));
-  //         // cmd.andThen(MechanismPositions.scoreConeHighPosition(elevator, stinger))
-  //         cmd.schedule();
-  //       });
-  // }
 }

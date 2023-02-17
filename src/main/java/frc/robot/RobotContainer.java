@@ -54,8 +54,6 @@ import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.TeleopSwerve;
-import frc.robot.commands.intake.IntakeGrabCone;
-import frc.robot.commands.intake.IntakeStop;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -320,7 +318,7 @@ public class RobotContainer {
     //         driverController::getLeftX,
     //         driverController::getRightX));
 
-    driverAssist = new DriverAssistAutos(drivetrain, intake, driverController);
+    driverAssist = new DriverAssistAutos(drivetrain, intake, elevator, stinger, driverController);
 
     // elevator.setDefaultCommand(
     //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
@@ -491,11 +489,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var scoringSequence =
-                      MechanismPositions.scoreConeHighPosition(elevator, stinger)
-                          .andThen(
-                              Commands.waitSeconds(0.4)
-                                  .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
                   var cmd =
                       driverAssist.driveToLogicalBaySpecificEntrance(
@@ -526,11 +520,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var scoringSequence =
-                      MechanismPositions.scoreConeHighPosition(elevator, stinger)
-                          .andThen(
-                              Commands.waitSeconds(0.4)
-                                  .andThen(MechanismPositions.stowPosition(elevator, stinger)));
+                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
                   var cmd =
                       driverAssist.driveToLogicalBaySpecificEntrance(
@@ -564,13 +554,9 @@ public class RobotContainer {
             new InstantCommand(
                 () -> {
                   // make intake spin
-                  var pickUpSequence =
-                      new IntakeGrabCone(intake)
-                          .andThen(MechanismPositions.substationPickupPosition(elevator));
+                  var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
                   // stop intake spinning
-                  var retractSequence =
-                      new IntakeStop(intake)
-                          .andThen(MechanismPositions.stowPosition(elevator, stinger));
+                  var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
 
                   var cmd =
                       driverAssist.humanPlayerStation(
@@ -593,13 +579,9 @@ public class RobotContainer {
             new InstantCommand(
                 () -> {
                   // make intake spin
-                  var pickUpSequence =
-                      new IntakeGrabCone(intake)
-                          .andThen(MechanismPositions.substationPickupPosition(elevator));
+                  var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
                   // stop intake spinning
-                  var retractSequence =
-                      new IntakeStop(intake)
-                          .andThen(MechanismPositions.stowPosition(elevator, stinger));
+                  var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
 
                   var cmd =
                       driverAssist.humanPlayerStation(
