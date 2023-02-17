@@ -41,12 +41,12 @@ public class IntakeGrabCone extends CommandBase {
   public void end(boolean interrupted) {
     // if we use the pivot then we will have to extend and retrace as well
     // intake.retract();
-    intake.stop();
+    // intake.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
