@@ -25,8 +25,6 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -464,12 +462,7 @@ public class RobotContainer {
                   cmd.schedule();
                 }));
 
-    driverController
-        .b()
-        .onTrue(
-            new InstantCommand(
-                () -> drivetrain.resetOdometry(new Pose2d(4.5, 1.13, new Rotation2d())),
-                drivetrain));
+    driverController.b().onTrue(drivetrain.getDefaultCommand());
 
     driverController
         .povRight()
