@@ -12,21 +12,29 @@ public abstract class DrivetrainConstants {
   public int FRONT_LEFT_MODULE_STEER_MOTOR;
   public int FRONT_LEFT_MODULE_STEER_ENCODER;
   public double FRONT_LEFT_MODULE_STEER_OFFSET;
+  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE;
+  public boolean FRONT_LEFT_MODULE_INVERT_STEER;
 
   public int FRONT_RIGHT_MODULE_DRIVE_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_ENCODER;
   public double FRONT_RIGHT_MODULE_STEER_OFFSET;
+  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE;
+  public boolean FRONT_RIGHT_MODULE_INVERT_STEER;
 
   public int BACK_LEFT_MODULE_DRIVE_MOTOR;
   public int BACK_LEFT_MODULE_STEER_MOTOR;
   public int BACK_LEFT_MODULE_STEER_ENCODER;
   public double BACK_LEFT_MODULE_STEER_OFFSET;
+  public boolean BACK_LEFT_MODULE_INVERT_DRIVE;
+  public boolean BACK_LEFT_MODULE_INVERT_STEER;
 
   public int BACK_RIGHT_MODULE_DRIVE_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_ENCODER;
   public double BACK_RIGHT_MODULE_STEER_OFFSET;
+  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE;
+  public boolean BACK_RIGHT_MODULE_INVERT_STEER;
 
   public int PIGEON_ID;
   public String PIGEON_CAN_BUS_NAME = "CANivore";
@@ -155,6 +163,8 @@ public abstract class DrivetrainConstants {
 
   public Drivetrain buildDriveTrain() {
     GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
+
+    // FIXME: need to invert the back left drive motor and back right steer motor for 2023
 
     SwerveModule flModule =
         new SwerveModule(
