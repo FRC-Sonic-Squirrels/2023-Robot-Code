@@ -2,7 +2,6 @@ package frc.lib.team3061.vision;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -89,14 +88,14 @@ public class Vision extends SubsystemBase {
     Logger.getInstance().processInputs("Vision/Left", ioLeft);
     Logger.getInstance().processInputs("Vision/Right", ioRight);
 
-//    if (DriverStation.getAlliance() != lastAlliance) {
-//      lastAlliance = DriverStation.getAlliance();
-//      if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
-//        layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-//      } else {
-//        layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-//      }
-//    }
+    //    if (DriverStation.getAlliance() != lastAlliance) {
+    //      lastAlliance = DriverStation.getAlliance();
+    //      if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+    //        layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+    //      } else {
+    //        layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+    //      }
+    //    }
 
     if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
       lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
