@@ -29,6 +29,7 @@ import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants2022;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants2023;
 import frc.robot.subsystems.drivetrain.DrivetrainConstantsSimbot;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.intake.Intake;
@@ -40,12 +41,11 @@ import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSolenoid;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -54,302 +54,290 @@ import java.util.function.Supplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final CommandXboxController driverController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
-    /* Driver Buttons */
-    // these triggers are now directly detected
-    // zeroGyro is assigned to back
-    // robotCentric is assigned to b
-    // xStance is assigned to a
-    // intakeOut is assigned to right bumper
+  private final CommandXboxController driverController = new CommandXboxController(0);
+  private final CommandXboxController operatorController = new CommandXboxController(1);
+  /* Driver Buttons */
+  // these triggers are now directly detected
+  // zeroGyro is assigned to back
+  // robotCentric is assigned to b
+  // xStance is assigned to a
+  // intakeOut is assigned to right bumper
 
-    private DrivetrainConstants drivetrainConstants;
-    private Drivetrain drivetrain;
-    private Intake intake;
-    public SwerveAutos autos;
-    private Stinger stinger;
-    private Elevator elevator;
-    private Wrist wrist;
+  private DrivetrainConstants drivetrainConstants;
+  private Drivetrain drivetrain;
+  private Intake intake;
+  public SwerveAutos autos;
+  private Stinger stinger;
+  private Elevator elevator;
+  private Wrist wrist;
 
-    // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-    private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
+  // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
+  private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
 
-    // RobotContainer singleton
-    private static RobotContainer robotContainer = new RobotContainer();
+  // RobotContainer singleton
+  private static RobotContainer robotContainer = new RobotContainer();
 
-    /**
-     * Create the container for the robot. Contains subsystems, OI devices, and commands.
-     */
-    public RobotContainer() {
-        // create real, simulated, or replay subsystems based on the mode and robot specified
-        if (Constants.getMode() != Mode.REPLAY) {
-            switch (Constants.getRobot()) {
-                case ROBOT_2023_PRESEASON: {
-                    drivetrainConstants = new DrivetrainConstants2022();
-                    drivetrain = drivetrainConstants.buildDriveTrain();
-                    new Pneumatics(new PneumaticsIORev(false));
+  /** Create the container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
+    // create real, simulated, or replay subsystems based on the mode and robot specified
+    if (Constants.getMode() != Mode.REPLAY) {
+      switch (Constants.getRobot()) {
+        case ROBOT_2023_PRESEASON:
+          {
+            drivetrainConstants = new DrivetrainConstants2022();
+            drivetrain = drivetrainConstants.buildDriveTrain();
+            new Pneumatics(new PneumaticsIORev(false));
 
-                    intake = new Intake(new IntakeIO2022());
+            intake = new Intake(new IntakeIO2022());
 
-                    // FIX ME i think the constants got killed in the merge
-                    // new Vision(
-                    //     new VisionIOPhotonVision(LEFT_CAMERA_NAME),
-                    //     new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
+            // FIX ME i think the constants got killed in the merge
+            // new Vision(
+            //     new VisionIOPhotonVision(LEFT_CAMERA_NAME),
+            //     new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
 
-                    elevator = new Elevator(new ElevatorReal2022());
+            elevator = new Elevator(new ElevatorReal2022());
 
-                    // wrist = new Wrist(new WristIOSolenoid());
-                    break;
-                }
-                case ROBOT_2023_COMPBOT: {
-                    drivetrainConstants = new DrivetrainConstants2022();
-                    drivetrain = drivetrainConstants.buildDriveTrain();
-                    new Pneumatics(new PneumaticsIORev(false));
-                    // TODO add vision subsystem
-                    // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
-                    // TODO: add intake when intake is done
-                    elevator = new Elevator(new ElevatorReal2023());
-                    stinger = new Stinger(new StingerIOReal());
+            // wrist = new Wrist(new WristIOSolenoid());
+            break;
+          }
+        case ROBOT_2023_COMPBOT:
+          {
+            drivetrainConstants = new DrivetrainConstants2023();
+            drivetrain = drivetrainConstants.buildDriveTrain();
+            new Pneumatics(new PneumaticsIORev(false));
+            // TODO add vision subsystem
+            // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // TODO: add intake when intake is done
+            elevator = new Elevator(new ElevatorReal2023());
+            stinger = new Stinger(new StingerIOReal());
 
-                    break;
-                }
+            break;
+          }
 
-                case ROBOT_SIMBOT: {
-                    drivetrainConstants = new DrivetrainConstantsSimbot();
-                    drivetrain = drivetrainConstants.buildDriveTrain();
-                    AprilTagFieldLayout layout;
-                    try {
-                        layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-                    } catch (IOException e) {
-                        layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
-                    }
-
-                    new Vision(
-                            drivetrain.getPoseEstimator(),
-                            new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
-                            new VisionIOSim(layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
-
-                    new Pneumatics(new PneumaticsIO() {
-                    });
-                    intake = new Intake(new IntakeIO() {
-                    });
-
-                    elevator = new Elevator(new ElevatorSim());
-                    stinger = new Stinger(new StingerSim());
-
-                    wrist = new Wrist(new WristIO() {
-                    });
-
-                    DriverStation.silenceJoystickConnectionWarning(true);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-        } else {
+        case ROBOT_SIMBOT:
+          {
             drivetrainConstants = new DrivetrainConstantsSimbot();
             drivetrain = drivetrainConstants.buildDriveTrain();
-            new Vision(drivetrain.getPoseEstimator(),
-                    new VisionIO() {
-                    }, new VisionIO() {
-            });
-            new Elevator(new ElevatorIO() {
-            });
-            new Pneumatics(new PneumaticsIO() {
-            });
-            intake = new Intake(new IntakeIO() {
-            });
-            wrist = new Wrist(new WristIOSolenoid() {
-            });
-        }
-
-        // disable all telemetry in the LiveWindow to reduce the processing during each iteration
-        LiveWindow.disableAllTelemetry();
-
-        /*
-         * Set up the default command for the drivetrain. The joysticks' values map to percentage of the
-         * maximum velocities. The velocities may be specified from either the robot's frame of
-         * reference or the field's frame of reference. In the robot's frame of reference, the positive
-         * x direction is forward; the positive y direction, left; position rotation, CCW. In the field
-         * frame of reference, the origin of the field to the lower left corner (i.e., the corner of the
-         * field to the driver's right). Zero degrees is away from the driver and increases in the CCW
-         * direction. This is why the left joystick's y axis specifies the velocity in the x direction
-         * and the left joystick's x axis specifies the velocity in the y direction.
-         */
-        drivetrain.setDefaultCommand(
-                new TeleopSwerve(
-                        drivetrain,
-                        driverController::getLeftY,
-                        driverController::getLeftX,
-                        driverController::getRightX));
-
-        elevator.setDefaultCommand(
-                new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
-
-        stinger.setDefaultCommand(
-                new StingerManualControl(stinger, () -> driverController.getRightX()));
-
-        // elevator.setDefaultCommand(
-        //     new ElevatorControlCommand(
-        //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
-
-        configureButtonBindings();
-        configureAutoCommands();
-    }
-
-    /**
-     * Factory method to create the singleton robot container object.
-     *
-     * @return the singleton robot container object
-     */
-    public static RobotContainer getInstance() {
-        return robotContainer;
-    }
-
-    /**
-     * Use this method to define your button->command mappings.
-     */
-    private void configureButtonBindings() {
-        // field-relative toggle
-
-        // driverController
-        //     .b()
-        //     .toggleOnTrue(
-        //         Commands.either(
-        //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-        //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-        //             drivetrain::getFieldRelative));
-
-        // // reset gyro to 0 degrees
-        // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
-
-        // // x-stance
-        // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-        // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
-
-        // // intake
-        // driverController
-        //     .rightBumper()
-        //     .whileTrue(
-        //         Commands.runOnce(intake::extend, intake)
-        //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-        // driverController
-        //     .rightBumper()
-        //     .onFalse(
-        //         Commands.runOnce(intake::retract, intake)
-        //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
-
-        // driverController
-        //     .povDown()
-        //     .onTrue(
-        //         new DriveWithSetRotation(
-        //                 drivetrain,
-        //                 () -> driverController.getLeftY(),
-        //                 () -> driverController.getLeftX(),
-        //                 180)
-        //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
-
-        // driverController
-        //     .povUp()
-        //     .onTrue(
-        //         new DriveWithSetRotation(
-        //                 drivetrain,
-        //                 () -> driverController.getLeftY(),
-        //                 () -> driverController.getLeftX(),
-        //                 0)
-        //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
-
-        // driverController
-        //     .a()
-        //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
-
-        // driverController
-        //     .b()
-        //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
-
-        // driverController
-        //     .x()
-        //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
-
-        // driverController
-        //     .y()
-        //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
-
-        driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-        driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-
-        driverController
-                .x()
-                .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
-        driverController
-                .y()
-                .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
-
-        // driverController.a().onTrue((Commands.print("A")));
-
-        // driverController.b().onTrue((Commands.print("B")));
-    }
-
-    /**
-     * configureAutoCommands - add autonomous routines to chooser
-     */
-    public void configureAutoCommands() {
-
-        autoChooser = new LoggedDashboardChooser<>("Auto Routine");
-
-        autos = new SwerveAutos(drivetrain, intake);
-
-        List<String> autoNames = autos.getAutonomousCommandNames();
-
-        for (int i = 0; i < autoNames.size(); i++) {
-            String name = autoNames.get(i);
-            System.out.println("configureAutoCommands: " + name);
-            if (i == 0) {
-                // Do nothing command must be first in list.
-                autoChooser.addDefaultOption(name, autos.getChooserElement(name));
-            } else {
-                autoChooser.addOption(name, autos.getChooserElement(name));
+            AprilTagFieldLayout layout;
+            try {
+              layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
+            } catch (IOException e) {
+              layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
-        }
 
-        // TODO: add drive characterization command? maybe not necessary?
-        // autoChooser.addOption(
-        //   "Drive Characterization",
-        //    new FeedForwardCharacterization(
-        //        drivetrain,
-        //        true,
-        //        new FeedForwardCharacterizationData("drive"),
-        //        drivetrain::runCharacterizationVolts,
-        //        drivetrain::getCharacterizationVelocity));
+            new Vision(
+                drivetrain.getPoseEstimator(),
+                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
+                new VisionIOSim(
+                    layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
-        Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
+            new Pneumatics(new PneumaticsIO() {});
+            intake = new Intake(new IntakeIO() {});
+
+            elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
+
+            wrist = new Wrist(new WristIO() {});
+
+            DriverStation.silenceJoystickConnectionWarning(true);
+            break;
+          }
+        default:
+          break;
+      }
+
+    } else {
+      drivetrainConstants = new DrivetrainConstantsSimbot();
+      drivetrain = drivetrainConstants.buildDriveTrain();
+      new Vision(drivetrain.getPoseEstimator(), new VisionIO() {}, new VisionIO() {});
+      new Elevator(new ElevatorIO() {});
+      new Pneumatics(new PneumaticsIO() {});
+      intake = new Intake(new IntakeIO() {});
+      wrist = new Wrist(new WristIOSolenoid() {});
     }
 
-    /**
-     * Use this to pass name of the selected autonomous to the main {@link Robot}
-     *
-     * @return name of currently selected auton
+    // disable all telemetry in the LiveWindow to reduce the processing during each iteration
+    LiveWindow.disableAllTelemetry();
+
+    /*
+     * Set up the default command for the drivetrain. The joysticks' values map to percentage of the
+     * maximum velocities. The velocities may be specified from either the robot's frame of
+     * reference or the field's frame of reference. In the robot's frame of reference, the positive
+     * x direction is forward; the positive y direction, left; position rotation, CCW. In the field
+     * frame of reference, the origin of the field to the lower left corner (i.e., the corner of the
+     * field to the driver's right). Zero degrees is away from the driver and increases in the CCW
+     * direction. This is why the left joystick's y axis specifies the velocity in the x direction
+     * and the left joystick's x axis specifies the velocity in the y direction.
      */
-    public String getAutonomousCommandName() {
-        return autoChooser.getSendableChooser().getSelected();
+    drivetrain.setDefaultCommand(
+        new TeleopSwerve(
+            drivetrain,
+            driverController::getLeftY,
+            driverController::getLeftX,
+            driverController::getRightX));
+
+    elevator.setDefaultCommand(
+        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, () -> driverController.getRightX()));
+
+    // elevator.setDefaultCommand(
+    //     new ElevatorControlCommand(
+    //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
+
+    configureButtonBindings();
+    configureAutoCommands();
+  }
+
+  /**
+   * Factory method to create the singleton robot container object.
+   *
+   * @return the singleton robot container object
+   */
+  public static RobotContainer getInstance() {
+    return robotContainer;
+  }
+
+  /** Use this method to define your button->command mappings. */
+  private void configureButtonBindings() {
+    // field-relative toggle
+
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
+
+    // // reset gyro to 0 degrees
+    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+
+    // // x-stance
+    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+
+    // // intake
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.runOnce(intake::extend, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // driverController
+    //     .rightBumper()
+    //     .onFalse(
+    //         Commands.runOnce(intake::retract, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 180)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 0)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
+    // driverController
+    //     .a()
+    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
+
+    // driverController
+    //     .b()
+    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    // driverController
+    //     .x()
+    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
+
+    // driverController
+    //     .y()
+    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
+
+    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+
+    driverController
+        .x()
+        .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+    driverController
+        .y()
+        .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+
+    // driverController.a().onTrue((Commands.print("A")));
+
+    // driverController.b().onTrue((Commands.print("B")));
+  }
+
+  /** configureAutoCommands - add autonomous routines to chooser */
+  public void configureAutoCommands() {
+
+    autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
+    autos = new SwerveAutos(drivetrain, intake);
+
+    List<String> autoNames = autos.getAutonomousCommandNames();
+
+    for (int i = 0; i < autoNames.size(); i++) {
+      String name = autoNames.get(i);
+      System.out.println("configureAutoCommands: " + name);
+      if (i == 0) {
+        // Do nothing command must be first in list.
+        autoChooser.addDefaultOption(name, autos.getChooserElement(name));
+      } else {
+        autoChooser.addOption(name, autos.getChooserElement(name));
+      }
     }
 
-    /**
-     * Use this to pass the autonomous chooser Element to the main {@link Robot} class. The chooser
-     * element contains the selected autonomous command, trajectory, and starting pose.
-     *
-     * @return the autonomous chooser element
-     */
-    public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
-        Supplier<AutoChooserElement> chooserElement = autoChooser.get();
-        if (chooserElement == null) {
-            return null;
-        }
-        return chooserElement;
-    }
+    // TODO: add drive characterization command? maybe not necessary?
+    // autoChooser.addOption(
+    //   "Drive Characterization",
+    //    new FeedForwardCharacterization(
+    //        drivetrain,
+    //        true,
+    //        new FeedForwardCharacterizationData("drive"),
+    //        drivetrain::runCharacterizationVolts,
+    //        drivetrain::getCharacterizationVelocity));
 
-    public Drivetrain getDrivetrain() {
-        return drivetrain;
+    Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
+  }
+
+  /**
+   * Use this to pass name of the selected autonomous to the main {@link Robot}
+   *
+   * @return name of currently selected auton
+   */
+  public String getAutonomousCommandName() {
+    return autoChooser.getSendableChooser().getSelected();
+  }
+
+  /**
+   * Use this to pass the autonomous chooser Element to the main {@link Robot} class. The chooser
+   * element contains the selected autonomous command, trajectory, and starting pose.
+   *
+   * @return the autonomous chooser element
+   */
+  public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
     }
+    return chooserElement;
+  }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
+  }
 }

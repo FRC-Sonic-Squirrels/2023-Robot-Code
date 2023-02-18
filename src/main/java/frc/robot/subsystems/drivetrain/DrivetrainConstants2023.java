@@ -3,33 +3,33 @@ package frc.robot.subsystems.drivetrain;
 import edu.wpi.first.math.util.Units;
 import frc.lib.team3061.swerve.SwerveModuleConstants;
 
-public class DrivetrainConstants2022 extends DrivetrainConstants {
-  public DrivetrainConstants2022() {
+public class DrivetrainConstants2023 extends DrivetrainConstants {
+  public DrivetrainConstants2023() {
     FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     FRONT_LEFT_MODULE_STEER_MOTOR = 11;
     FRONT_LEFT_MODULE_STEER_ENCODER = 21;
-    FRONT_LEFT_MODULE_STEER_OFFSET = 320.2;
+    FRONT_LEFT_MODULE_STEER_OFFSET = 0.0; // FIXME
 
     FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
     FRONT_RIGHT_MODULE_STEER_MOTOR = 12;
     FRONT_RIGHT_MODULE_STEER_ENCODER = 22;
-    FRONT_RIGHT_MODULE_STEER_OFFSET = 93.3;
+    FRONT_RIGHT_MODULE_STEER_OFFSET = 0.0; // FIXME
 
     BACK_LEFT_MODULE_DRIVE_MOTOR = 4;
     BACK_LEFT_MODULE_STEER_MOTOR = 14;
     BACK_LEFT_MODULE_STEER_ENCODER = 24;
-    BACK_LEFT_MODULE_STEER_OFFSET = 282.4;
+    BACK_LEFT_MODULE_STEER_OFFSET = 0.0; // FIXME
 
     BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
     BACK_RIGHT_MODULE_STEER_MOTOR = 13;
     BACK_RIGHT_MODULE_STEER_ENCODER = 23;
-    BACK_RIGHT_MODULE_STEER_OFFSET = 329.2;
+    BACK_RIGHT_MODULE_STEER_OFFSET = 0.0; // FIXME
 
     PIGEON_ID = 15;
 
     initializeRobotBase(
+        Units.inchesToMeters(23.0),
         Units.inchesToMeters(25.0),
-        Units.inchesToMeters(24.0),
         Units.inchesToMeters(6.0),
         Units.inchesToMeters(6.0));
 
