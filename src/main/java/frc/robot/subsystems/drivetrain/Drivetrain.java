@@ -160,6 +160,18 @@ public class Drivetrain extends SubsystemBase {
     }
 
     SmartDashboard.putData("Field", field);
+
+    /* By pausing init for a second before setting module offsets, we avoid a bug with inverting motors.
+     * See https://github.com/Team364/BaseFalconSwerve/issues/8 for more info.
+     */
+    Timer.delay(1.0);
+    resetModulesToAbsolute();
+  }
+
+  public void resetModulesToAbsolute() {
+    for (SwerveModule mod : swerveModules) {
+      mod.resetToAbsolute();
+    }
   }
 
   /**
