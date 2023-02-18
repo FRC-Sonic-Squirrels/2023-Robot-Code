@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -120,7 +121,7 @@ public class RobotContainer {
             drivetrain = drivetrainConstants.buildDriveTrain();
             AprilTagFieldLayout layout;
             try {
-              layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
+              layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }

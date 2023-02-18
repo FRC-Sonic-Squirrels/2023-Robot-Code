@@ -25,6 +25,9 @@ public class SwerveAutos {
   private Drivetrain drivetrain;
   private Intake intake;
 
+  public static final double FIELD_LENGTH_METERS = 16.54175;
+  public static final double FIELD_WIDTH_METERS = 8.0137;
+
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     // FIXME: List of all required subsystems: elevator, stinger, intake, LED
     this.drivetrain = drivetrain;
