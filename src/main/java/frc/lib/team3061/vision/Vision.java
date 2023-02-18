@@ -14,6 +14,7 @@ import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -52,6 +53,9 @@ public class Vision extends SubsystemBase {
     for (AprilTag tag : layout.getTags()) {
       Logger.getInstance().recordOutput("Vision/AprilTags/" + tag.ID, tag.pose);
     }
+
+    Logger.getInstance().recordOutput("Vision/LeftCameraConstant", new Pose3d().transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA));
+    Logger.getInstance().recordOutput("Vision/RightCameraConstant", new Pose3d().transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
   }
 
   public enum Camera {
@@ -110,8 +114,10 @@ public class Vision extends SubsystemBase {
   private void updatePose(Camera camera) {
     // TODO: test to see if we only need the best target rather than every target:
     // getLatestResult(camera).getBestTarget()
+    List<String> seenTargets = new ArrayList<>();
     for (PhotonTrackedTarget target : getLatestResult(camera).getTargets()) {
       if (isValidTarget(target)) {
+        seenTargets.add(Integer.toString(target.getFiducialId()));
         // photon camera to target
         Transform3d cameraToTarget = target.getBestCameraToTarget();
         // the raw json position of target
@@ -128,22 +134,30 @@ public class Vision extends SubsystemBase {
         Pose3d cameraPose = tagPose.transformBy(cameraToTarget.inverse());
         // camera might not be in the center of the robot
         Pose3d robotPose;
+
+        String seenTargetsText = String.join(",", seenTargets);
         switch (camera) {
           case LEFT:
             robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
-            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            //poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
             Logger.getInstance().recordOutput("Vision/Left/RobotPose", robotPose.toPose2d());
 
+            Logger.getInstance().recordOutput("Vision/Left/SeenTargets", seenTargetsText);
+            break;
+          
           case RIGHT:
             robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
-            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            //poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);
             Logger.getInstance().recordOutput("Vision/Right/RobotPose", robotPose.toPose2d());
+
+            Logger.getInstance().recordOutput("Vision/Right/SeenTargets", seenTargetsText);
+            break;
           default:
             robotPose = null;
         }
