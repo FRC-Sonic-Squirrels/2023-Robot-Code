@@ -16,6 +16,8 @@ import frc.lib.team6328.util.Alert.AlertType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -37,10 +39,10 @@ public class Vision extends SubsystemBase {
           "No AprilTag layout file found. Update APRILTAG_FIELD_LAYOUT_PATH in VisionConstants.java",
           AlertType.WARNING);
 
-  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO) {
+  public Vision(SwerveDrivePoseEstimator poseEstimator, VisionIO L_VisionIO, VisionIO R_VisionIO) {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
-    this.poseEstimator = RobotOdometry.getInstance().getPoseEstimator();
+    this.poseEstimator = poseEstimator;
 
     try {
       layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);

@@ -1,7 +1,5 @@
 package frc.robot.autonomous;
 
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
-
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -162,7 +160,7 @@ public class SwerveAutos {
    */
   public PathPlannerTrajectory loadPath(String name) {
     return loadPath(
-        name, AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        name, drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND, drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
   // ========================= TEST Autonomous Routines ========================
@@ -206,7 +204,7 @@ public class SwerveAutos {
         PathPlanner.loadPathGroup(
             "squarePathGroup",
             new PathConstraints(
-                AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
+                    drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND, drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
 
     return new SequentialCommandGroup(
         new FollowPath(pathGroup1.get(0), drivetrain, true),

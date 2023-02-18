@@ -4,26 +4,6 @@
 
 package frc.robot;
 
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -31,15 +11,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
-import frc.lib.team3061.gyro.GyroIO;
-import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.pneumatics.Pneumatics;
 import frc.lib.team3061.pneumatics.PneumaticsIO;
 import frc.lib.team3061.pneumatics.PneumaticsIORev;
-import frc.lib.team3061.swerve.SwerveModule;
-import frc.lib.team3061.swerve.SwerveModuleIO;
-import frc.lib.team3061.swerve.SwerveModuleIOSim;
-import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
@@ -53,11 +27,11 @@ import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerFollowCurve;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorReal2022;
-import frc.robot.subsystems.elevator.ElevatorReal2023;
-import frc.robot.subsystems.elevator.ElevatorSim;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants2022;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants2023;
+import frc.robot.subsystems.drivetrain.DrivetrainConstantsSimbot;
+import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2022;
@@ -89,6 +63,7 @@ public class RobotContainer {
   // xStance is assigned to a
   // intakeOut is assigned to right bumper
 
+  private DrivetrainConstants drivetrainConstants;
   private Drivetrain drivetrain;
   private Intake intake;
   public SwerveAutos autos;
@@ -109,53 +84,8 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2023_PRESEASON:
           {
-            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
-
-            SwerveModule flModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        0,
-                        FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET),
-                    0,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule frModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        1,
-                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER,
-                        FRONT_RIGHT_MODULE_STEER_OFFSET),
-                    1,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule blModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        2,
-                        BACK_LEFT_MODULE_DRIVE_MOTOR,
-                        BACK_LEFT_MODULE_STEER_MOTOR,
-                        BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET),
-                    2,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule brModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        3,
-                        BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET),
-                    3,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
+            drivetrainConstants = new DrivetrainConstants2022();
+            drivetrain = drivetrainConstants.buildDriveTrain();
             new Pneumatics(new PneumaticsIORev(false));
 
             intake = new Intake(new IntakeIO2022());
@@ -172,53 +102,8 @@ public class RobotContainer {
           }
         case ROBOT_2023_COMPBOT:
           {
-            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
-
-            SwerveModule flModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        0,
-                        FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET),
-                    0,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule frModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        1,
-                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER,
-                        FRONT_RIGHT_MODULE_STEER_OFFSET),
-                    1,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule blModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        2,
-                        BACK_LEFT_MODULE_DRIVE_MOTOR,
-                        BACK_LEFT_MODULE_STEER_MOTOR,
-                        BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET),
-                    2,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule brModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        3,
-                        BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET),
-                    3,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
+            drivetrainConstants = new DrivetrainConstants2023();
+            drivetrain = drivetrainConstants.buildDriveTrain();
             new Pneumatics(new PneumaticsIORev(false));
             // TODO add vision subsystem
             // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
@@ -231,18 +116,8 @@ public class RobotContainer {
 
         case ROBOT_SIMBOT:
           {
-            SwerveModule flModule =
-                new SwerveModule(new SwerveModuleIOSim(), 0, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule frModule =
-                new SwerveModule(new SwerveModuleIOSim(), 1, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule blModule =
-                new SwerveModule(new SwerveModuleIOSim(), 2, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule brModule =
-                new SwerveModule(new SwerveModuleIOSim(), 3, MAX_VELOCITY_METERS_PER_SECOND);
-            drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
+            drivetrainConstants = new DrivetrainConstantsSimbot();
+            drivetrain = drivetrainConstants.buildDriveTrain();
             AprilTagFieldLayout layout;
             try {
               layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
@@ -251,6 +126,7 @@ public class RobotContainer {
             }
 
             new Vision(
+                drivetrain.getPoseEstimator(),
                 new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
                 new VisionIOSim(
                     layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
@@ -271,19 +147,9 @@ public class RobotContainer {
       }
 
     } else {
-      SwerveModule flModule =
-          new SwerveModule(new SwerveModuleIO() {}, 0, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule frModule =
-          new SwerveModule(new SwerveModuleIO() {}, 1, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule blModule =
-          new SwerveModule(new SwerveModuleIO() {}, 2, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule brModule =
-          new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
-      drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      new Vision(new VisionIO() {}, new VisionIO() {});
+      drivetrainConstants = new DrivetrainConstantsSimbot();
+      drivetrain = drivetrainConstants.buildDriveTrain();
+      new Vision(drivetrain.getPoseEstimator(), new VisionIO() {}, new VisionIO() {});
       new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
