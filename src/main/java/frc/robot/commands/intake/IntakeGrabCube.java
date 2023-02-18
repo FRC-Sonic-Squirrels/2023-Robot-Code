@@ -4,11 +4,15 @@
 
 package frc.robot.commands.intake;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.Intake;
 
 public class IntakeGrabCube extends CommandBase {
   /** Creates a new IntakeGrabCube. */
+  WPI_TalonFX talonFX = new WPI_TalonFX(-1);
+
   Intake intake;
 
   double speed;
@@ -39,7 +43,10 @@ public class IntakeGrabCube extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.stop();
+    //TODO: write code for limitswitch only for cubes
+    // if (trigger.{
+    //   intake.stop();
+    // }
   }
 
   // Returns true when the command should end.
