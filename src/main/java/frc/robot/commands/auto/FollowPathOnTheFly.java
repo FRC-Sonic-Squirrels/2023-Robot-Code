@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.auto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,7 +20,6 @@ public class FollowPathOnTheFly extends FollowPath {
    */
   public FollowPathOnTheFly(Pose2d targetPose, Drivetrain drivetrain) {
     super(drivetrain.generateOnTheFlyTrajectory(targetPose), drivetrain, false);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   public enum CommonFieldPoses {

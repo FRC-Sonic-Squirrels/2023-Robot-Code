@@ -118,6 +118,9 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 
+#### IntelliJ Idea ###
+.idea/*
+
 # Dump file
 *.stackdump
 
@@ -162,3 +165,8 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+simgui-ds.json
+simgui.json
+
+# .wpilog files
+Log*.wpilog

@@ -4,44 +4,47 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
-
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.lib.team3061.gyro.GyroIO;
-import frc.lib.team3061.gyro.GyroIOPigeon2;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.pneumatics.Pneumatics;
 import frc.lib.team3061.pneumatics.PneumaticsIO;
 import frc.lib.team3061.pneumatics.PneumaticsIORev;
-import frc.lib.team3061.swerve.SwerveModule;
-import frc.lib.team3061.swerve.SwerveModuleIO;
-import frc.lib.team3061.swerve.SwerveModuleIOSim;
-import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
-import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.FeedForwardCharacterization;
-import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
-import frc.robot.commands.FollowPath;
-import frc.robot.commands.TeleopSwerve;
+import frc.robot.autonomous.SwerveAutos;
+import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorFollowCurve;
+import frc.robot.commands.elevator.ElevatorManualControl;
+import frc.robot.commands.mechanism.MechanismPositions;
+import frc.robot.commands.stinger.StingerFollowCurve;
+import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants2022;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants2023;
+import frc.robot.subsystems.drivetrain.DrivetrainConstantsSimbot;
+import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOFalcon;
+import frc.robot.subsystems.intake.IntakeIO2022;
+import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIOReal;
+import frc.robot.subsystems.stinger.StingerSim;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -51,24 +54,25 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverController = new XboxController(0);
-
+  private final CommandXboxController driverController = new CommandXboxController(0);
+  private final CommandXboxController operatorController = new CommandXboxController(1);
   /* Driver Buttons */
-  private final JoystickButton zeroGyro =
-      new JoystickButton(driverController, XboxController.Button.kBack.value);
-  private final JoystickButton robotCentric =
-      new JoystickButton(driverController, XboxController.Button.kB.value);
-  private final JoystickButton xStance =
-      new JoystickButton(driverController, XboxController.Button.kA.value);
-  private final JoystickButton intakeOut =
-      new JoystickButton(driverController, XboxController.Button.kRightBumper.value);
+  // these triggers are now directly detected
+  // zeroGyro is assigned to back
+  // robotCentric is assigned to b
+  // xStance is assigned to a
+  // intakeOut is assigned to right bumper
 
+  private DrivetrainConstants drivetrainConstants;
   private Drivetrain drivetrain;
   private Intake intake;
+  public SwerveAutos autos;
+  private Stinger stinger;
+  private Elevator elevator;
+  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-  private final LoggedDashboardChooser<Command> autoChooser =
-      new LoggedDashboardChooser<>("Auto Routine");
+  private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -80,87 +84,62 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2023_PRESEASON:
           {
-            GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
-
-            SwerveModule flModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        0,
-                        FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_MOTOR,
-                        FRONT_LEFT_MODULE_STEER_ENCODER,
-                        FRONT_LEFT_MODULE_STEER_OFFSET),
-                    0,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule frModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        1,
-                        FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_MOTOR,
-                        FRONT_RIGHT_MODULE_STEER_ENCODER,
-                        FRONT_RIGHT_MODULE_STEER_OFFSET),
-                    1,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule blModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        2,
-                        BACK_LEFT_MODULE_DRIVE_MOTOR,
-                        BACK_LEFT_MODULE_STEER_MOTOR,
-                        BACK_LEFT_MODULE_STEER_ENCODER,
-                        BACK_LEFT_MODULE_STEER_OFFSET,
-                        false,
-                        true),
-                    2,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule brModule =
-                new SwerveModule(
-                    new SwerveModuleIOTalonFX(
-                        3,
-                        BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_MOTOR,
-                        BACK_RIGHT_MODULE_STEER_ENCODER,
-                        BACK_RIGHT_MODULE_STEER_OFFSET,
-                        true,
-                        false),
-                    3,
-                    MAX_VELOCITY_METERS_PER_SECOND);
-
-            drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
+            drivetrainConstants = new DrivetrainConstants2022();
+            drivetrain = drivetrainConstants.buildDriveTrain();
             new Pneumatics(new PneumaticsIORev(false));
-            new Vision(new VisionIOPhotonVision(CAMERA_NAME));
-            intake = new Intake(new IntakeIOFalcon());
+
+            intake = new Intake(new IntakeIO2022());
+
+            // FIX ME i think the constants got killed in the merge
+            // new Vision(
+            //     new VisionIOPhotonVision(LEFT_CAMERA_NAME),
+            //     new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
+
+            elevator = new Elevator(new ElevatorReal2022());
+
+            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
+        case ROBOT_2023_COMPBOT:
+          {
+            drivetrainConstants = new DrivetrainConstants2023();
+            drivetrain = drivetrainConstants.buildDriveTrain();
+            new Pneumatics(new PneumaticsIORev(false));
+            // TODO add vision subsystem
+            // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // TODO: add intake when intake is done
+            elevator = new Elevator(new ElevatorReal2023());
+            stinger = new Stinger(new StingerIOReal());
+
+            break;
+          }
+
         case ROBOT_SIMBOT:
           {
-            SwerveModule flModule =
-                new SwerveModule(new SwerveModuleIOSim(), 0, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule frModule =
-                new SwerveModule(new SwerveModuleIOSim(), 1, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule blModule =
-                new SwerveModule(new SwerveModuleIOSim(), 2, MAX_VELOCITY_METERS_PER_SECOND);
-
-            SwerveModule brModule =
-                new SwerveModule(new SwerveModuleIOSim(), 3, MAX_VELOCITY_METERS_PER_SECOND);
-            drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
+            drivetrainConstants = new DrivetrainConstantsSimbot();
+            drivetrain = drivetrainConstants.buildDriveTrain();
             AprilTagFieldLayout layout;
             try {
               layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
+
             new Vision(
-                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.ROBOT_TO_CAMERA));
+                drivetrain.getPoseEstimator(),
+                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
+                new VisionIOSim(
+                    layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
             new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
+
+            elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
+
+            wrist = new Wrist(new WristIO() {});
+
+            DriverStation.silenceJoystickConnectionWarning(true);
             break;
           }
         default:
@@ -168,25 +147,14 @@ public class RobotContainer {
       }
 
     } else {
-      SwerveModule flModule =
-          new SwerveModule(new SwerveModuleIO() {}, 0, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule frModule =
-          new SwerveModule(new SwerveModuleIO() {}, 1, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule blModule =
-          new SwerveModule(new SwerveModuleIO() {}, 2, MAX_VELOCITY_METERS_PER_SECOND);
-
-      SwerveModule brModule =
-          new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
-      drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      new Vision(new VisionIO() {});
+      drivetrainConstants = new DrivetrainConstantsSimbot();
+      drivetrain = drivetrainConstants.buildDriveTrain();
+      new Vision(drivetrain.getPoseEstimator(), new VisionIO() {}, new VisionIO() {});
+      new Elevator(new ElevatorIO() {});
       new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
+      wrist = new Wrist(new WristIOSolenoid() {});
     }
-
-    // workaround warning about unused variable
-    // pneumatics.getPressure();
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
@@ -208,6 +176,16 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    elevator.setDefaultCommand(
+        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, () -> driverController.getRightX()));
+
+    // elevator.setDefaultCommand(
+    //     new ElevatorControlCommand(
+    //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
+
     configureButtonBindings();
     configureAutoCommands();
   }
@@ -225,69 +203,141 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // field-relative toggle
 
-    robotCentric.toggleOnTrue(
-        Commands.either(
-            Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-            Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-            drivetrain::getFieldRelative));
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
 
-    // reset gyro to 0 degrees
-    zeroGyro.onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // // reset gyro to 0 degrees
+    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
-    // x-stance
-    xStance.onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
-    xStance.onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+    // // x-stance
+    // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
+    // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
 
-    // intake
-    intakeOut.whileTrue(
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    intakeOut.onFalse(
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    // // intake
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         Commands.runOnce(intake::extend, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
+    // driverController
+    //     .rightBumper()
+    //     .onFalse(
+    //         Commands.runOnce(intake::retract, intake)
+    //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 180)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         new DriveWithSetRotation(
+    //                 drivetrain,
+    //                 () -> driverController.getLeftY(),
+    //                 () -> driverController.getLeftX(),
+    //                 0)
+    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
+    // driverController
+    //     .a()
+    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
+
+    // driverController
+    //     .b()
+    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+
+    // driverController
+    //     .x()
+    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
+
+    // driverController
+    //     .y()
+    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
+
+    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+
+    driverController
+        .x()
+        .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+    driverController
+        .y()
+        .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+
+    // driverController.a().onTrue((Commands.print("A")));
+
+    // driverController.b().onTrue((Commands.print("B")));
   }
 
-  /** Use this method to define your commands for autonomous mode. */
-  private void configureAutoCommands() {
-    PathPlannerTrajectory testPath2mForward =
-        PathPlanner.loadPath(
-            "2mForward",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath2mForward180 =
-        PathPlanner.loadPath(
-            "2mForward180",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    PathPlannerTrajectory testPath3mForward360 =
-        PathPlanner.loadPath(
-            "3mForward360",
-            AUTO_MAX_SPEED_METERS_PER_SECOND,
-            AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+  /** configureAutoCommands - add autonomous routines to chooser */
+  public void configureAutoCommands() {
 
-    autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("2m Forward", new FollowPath(testPath2mForward, drivetrain, true));
-    autoChooser.addOption(
-        "2m Forward w/ 180", new FollowPath(testPath2mForward180, drivetrain, true));
-    autoChooser.addOption(
-        "3m Forward 2/ 360", new FollowPath(testPath3mForward360, drivetrain, true));
-    autoChooser.addOption(
-        "Drive Characterization",
-        new FeedForwardCharacterization(
-            drivetrain,
-            true,
-            new FeedForwardCharacterizationData("drive"),
-            drivetrain::runCharacterizationVolts,
-            drivetrain::getCharacterizationVelocity));
+    autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
+    autos = new SwerveAutos(drivetrain, intake);
+
+    List<String> autoNames = autos.getAutonomousCommandNames();
+
+    for (int i = 0; i < autoNames.size(); i++) {
+      String name = autoNames.get(i);
+      System.out.println("configureAutoCommands: " + name);
+      if (i == 0) {
+        // Do nothing command must be first in list.
+        autoChooser.addDefaultOption(name, autos.getChooserElement(name));
+      } else {
+        autoChooser.addOption(name, autos.getChooserElement(name));
+      }
+    }
+
+    // TODO: add drive characterization command? maybe not necessary?
+    // autoChooser.addOption(
+    //   "Drive Characterization",
+    //    new FeedForwardCharacterization(
+    //        drivetrain,
+    //        true,
+    //        new FeedForwardCharacterizationData("drive"),
+    //        drivetrain::runCharacterizationVolts,
+    //        drivetrain::getCharacterizationVelocity));
+
     Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+   * Use this to pass name of the selected autonomous to the main {@link Robot}
    *
-   * @return the command to run in autonomous
+   * @return name of currently selected auton
    */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
+  public String getAutonomousCommandName() {
+    return autoChooser.getSendableChooser().getSelected();
+  }
+
+  /**
+   * Use this to pass the autonomous chooser Element to the main {@link Robot} class. The chooser
+   * element contains the selected autonomous command, trajectory, and starting pose.
+   *
+   * @return the autonomous chooser element
+   */
+  public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
+    }
+    return chooserElement;
+  }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
   }
 }

@@ -24,14 +24,15 @@ public final class Constants {
 
   public static final double LOOP_PERIOD_SECS = 0.02;
 
-  public static final boolean TUNING_MODE = false;
+  public static final boolean TUNING_MODE = true;
 
   public static final String CAN_BUS_NAME = "";
 
   // FIXME: specify the name of the camera used for detecting AprilTags
-  public static final String CAMERA_NAME = "ov9268";
+  public static final String LEFT_CAMERA_NAME = "ov9268";
+  public static final String RIGHT_CAMERA_NAME = "ov9268";
 
-  private static final RobotType ROBOT = RobotType.ROBOT_2023_PRESEASON;
+  private static final RobotType ROBOT = RobotType.ROBOT_SIMBOT;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -56,6 +57,9 @@ public final class Constants {
       case ROBOT_2023_PRESEASON:
         return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
 
+      case ROBOT_2023_COMPBOT:
+        return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+
       case ROBOT_SIMBOT:
         return Mode.SIM;
 
@@ -67,6 +71,7 @@ public final class Constants {
   // FIXME: update for various robots
   public enum RobotType {
     ROBOT_2023_PRESEASON,
+    ROBOT_2023_COMPBOT,
     ROBOT_SIMBOT
   }
 
@@ -74,5 +79,79 @@ public final class Constants {
     REAL,
     REPLAY,
     SIM
+  }
+
+  public static final class CANIVOR_canId {
+    // CANIVOR Can Ids
+    public static final String name = "CANivore";
+
+    // CAN Id 0 is off limits. Typically unconfigured devices default to CAN id zero. This will
+    // create problems if you already have a device using CAN id 0 on the CAN bus.
+    public static final int DoNotUse_canId0 = 0;
+
+    public static final int CANID5_STINGER_TALON = 5;
+    public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
+    public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
+    public static final int CANID15_pigeon_imu = 15;
+  }
+
+  public static final class pneumatics {
+    public static final int channel_0 = 0;
+    public static final int channel_1 = 1;
+    public static final int channel_2 = 2;
+    public static final int channel_3 = 3;
+    public static final int channel_4 = 4;
+    public static final int channel_5 = 5;
+    public static final int channel_6 = 6;
+    public static final int channel_7 = 7;
+    public static final int channel_8 = 8;
+    public static final int channel_9 = 9;
+    public static final int channel_10 = 10;
+    public static final int channel_11 = 11;
+    public static final int channel_12 = 12;
+    public static final int channel_13 = 13;
+    public static final int channel_14_intake = 14;
+    public static final int channel_15_friction_brake = 15;
+  }
+
+  // TODO: determine whether elevator deserves it's own constants file
+  public static class ElevatorConstants {
+
+    // TODO: check all values for new robot
+    public static final double elevatorSpeedMultiplier = 1.0;
+
+    public static final double F_CONTROLLER = 1;
+    public static final double P_CONTROLLER = 0.48;
+    public static final double I_CONTROLLER = 0.0;
+    public static final double D_CONTROLLER = 0.0;
+
+    public static final double CRUISE_VELOCITY = 40;
+    public static final double DESIRED_TIME_TO_SPEED = 0.1;
+  }
+
+  public static final class STINGER_PID {
+
+    // TODO: find better default PID values for the stinger
+    public static final double STINGER_FEEDFORWARD = 0.054;
+    public static final double STINGER_KP = 0.48;
+    public static final double STINGER_KI = 0.0;
+    public static final double STINGER_KD = 0.0;
+  }
+
+  // the depth and height of field nodes compared to a robot right in front of them
+  public static final class NODE_DISTANCES {
+
+    // all these measurements are in INCHES
+    public static final double EXTENSION_LOW = 8; // half the depth of the hybrid node
+    public static final double EXTENSION_MID = 22.75;
+    public static final double EXTENSION_HIGH = 27;
+
+    // these measurements are 2 inches higher than the actual node heights so the items can make it
+    // over
+    public static final double HEIGHT_LOW = 7;
+    public static final double HEIGHT_MID_CUBE = 25.5;
+    public static final double HEIGHT_MID_CONE = 36;
+    public static final double HEIGHT_HIGH_CUBE = 37.5;
+    public static final double HEIGHT_HIGH_CONE = 48;
   }
 }
