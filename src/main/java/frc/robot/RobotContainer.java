@@ -38,18 +38,16 @@ import frc.robot.subsystems.intake.IntakeIO2022;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.stinger.StingerSim;
-import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristIO;
-import frc.robot.subsystems.wrist.WristIOSolenoid;
 import frc.robot.subsystems.streamdeck.Streamdeck;
 import frc.robot.subsystems.streamdeck.Streamdeck.StreamDeckLocation;
 import frc.robot.subsystems.streamdeck.StreamdeckReal;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -121,7 +119,6 @@ public class RobotContainer {
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
-
 
             streamdeckSubsystem =
                 new Streamdeck(

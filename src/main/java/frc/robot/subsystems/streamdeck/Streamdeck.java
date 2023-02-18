@@ -138,35 +138,35 @@ public class Streamdeck extends SubsystemBase {
       if (isTargetingValid(getAllTargetable())) {
         // Do targeting stuff
         String buttonPressed = findButtonPressed();
-        if (!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Greyed", false)){
+        if (!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Greyed", false)) {
           Commands.print("TargetingAction" + buttonPressed).schedule();
-                  if (SmartDashboard.getString("/streamdeck/TargetingSet", "None") != buttonPressed) {
-                    String targetted = SmartDashboard.getString("/streamdeck/TargetingSet", "None");
-                    SmartDashboard.putBoolean("/streamdeck/" + targetted + "Targeted", false);
-                  }
-                  SmartDashboard.putString("/streamdeck/TargetingSet", buttonPressed);
-                  SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Targeted", true);
-                  Commands.print(buttonPressed).schedule();
-                  targetingMode = TargetingMode.NONE;
-        }
-        else {
-          Commands.print(buttonPressed+" IS GREYED ! ! UNABLE TO TARGET").schedule();
+          if (SmartDashboard.getString("/streamdeck/TargetingSet", "None") != buttonPressed) {
+            String targetted = SmartDashboard.getString("/streamdeck/TargetingSet", "None");
+            SmartDashboard.putBoolean("/streamdeck/" + targetted + "Targeted", false);
+          }
+          SmartDashboard.putString("/streamdeck/TargetingSet", buttonPressed);
+          SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Targeted", true);
+          Commands.print(buttonPressed).schedule();
+          targetingMode = TargetingMode.NONE;
+        } else {
+          Commands.print(buttonPressed + " IS GREYED ! ! UNABLE TO TARGET").schedule();
         }
       }
-    } if (targetingMode == TargetingMode.GREYING) {
+    }
+    if (targetingMode == TargetingMode.GREYING) {
       if (isTargetingValid(getAllTargetable())) {
         // Do grey stuff
         String buttonPressed = findButtonPressed();
-        if(!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Targeted", false)){
+        if (!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Targeted", false)) {
           SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Greyed", true);
-        Commands.print("GreyingAction" + buttonPressed).schedule();
-        targetingMode = TargetingMode.NONE;
-        }
-        else{
-          Commands.print(buttonPressed+" IS TARGETED ! ! UNABLE TO GREY").schedule();
+          Commands.print("GreyingAction" + buttonPressed).schedule();
+          targetingMode = TargetingMode.NONE;
+        } else {
+          Commands.print(buttonPressed + " IS TARGETED ! ! UNABLE TO GREY").schedule();
         }
       }
-    } if (targetingMode == TargetingMode.DE_GREY) {
+    }
+    if (targetingMode == TargetingMode.DE_GREY) {
       if (isTargetingValid(getAllTargetable())) {
         // Do de greying stuff
         String buttonPressed = findButtonPressed();
