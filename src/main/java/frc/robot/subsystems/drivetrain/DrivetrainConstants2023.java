@@ -23,7 +23,8 @@ public class DrivetrainConstants2023 extends DrivetrainConstants {
     BACK_LEFT_MODULE_STEER_MOTOR = 14;
     BACK_LEFT_MODULE_STEER_ENCODER = 24;
     BACK_LEFT_MODULE_STEER_OFFSET = 0.0; // FIXME
-    BACK_LEFT_MODULE_INVERT_DRIVE = !SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED; // FIXME: invert back left drive
+    BACK_LEFT_MODULE_INVERT_DRIVE =
+        !SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED; // FIXME: invert back left drive
     BACK_LEFT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
 
     BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
@@ -31,7 +32,8 @@ public class DrivetrainConstants2023 extends DrivetrainConstants {
     BACK_RIGHT_MODULE_STEER_ENCODER = 23;
     BACK_RIGHT_MODULE_STEER_OFFSET = 0.0; // FIXME
     BACK_RIGHT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
-    BACK_RIGHT_MODULE_INVERT_STEER = !SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED; // FIXME: invert back right steer
+    BACK_RIGHT_MODULE_INVERT_STEER =
+        !SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED; // FIXME: invert back right steer
 
     PIGEON_ID = 15;
 
