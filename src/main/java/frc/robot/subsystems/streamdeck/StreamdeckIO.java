@@ -22,7 +22,7 @@ public interface StreamdeckIO {
   }
 
   default Trigger getButton(String buttonNumber) {
-    return new Trigger(() -> SmartDashboard.getBoolean( "/streamdeck/" + buttonNumber, false));
+    return new Trigger(() -> SmartDashboard.getBoolean("/streamdeck/" + buttonNumber, false));
   }
 
   public default void setButtonSprite(int buttonNumber) {}

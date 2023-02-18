@@ -12,6 +12,7 @@ import frc.robot.subsystems.streamdeck.StreamdeckIO.StreamdeckInputs;
 public class Streamdeck extends SubsystemBase {
   /** Creates a new Streamdeck. */
   StreamdeckData data = new StreamdeckData();
+
   StreamdeckIO leftIO;
 
   StreamdeckIO rightIO;
@@ -20,21 +21,41 @@ public class Streamdeck extends SubsystemBase {
   StreamdeckInputs rightInputs = new StreamdeckInputs();
 
   public enum TargetingMode {
-    TARGET, GREYING, DE_GREY, NONE
+    TARGET,
+    GREYING,
+    DE_GREY,
+    NONE
   }
 
+  /**
+   * The buttons that are currently being targeted.
+   *
+   * <p>
+   *
+   * <p><b>0</b> = Top Targeting Button <br>
+   * <b>1</b> = Middle Targeting Button <br>
+   * <b>2</b> = Bottom Targeting Button <br>
+   */
   public boolean[] targetingButtonsHeld = {false, false, false};
 
-  TargetingMode targetingMode  = TargetingMode.NONE;
+  TargetingMode targetingMode = TargetingMode.NONE;
 
   public Streamdeck(StreamdeckIO leftIO, StreamdeckIO rightIO) {
     this.leftIO = leftIO;
     this.rightIO = rightIO;
   }
 
+  /**
+   * Gets all the buttons pressed on the grid. <b><i>Does not include the targeting buttons.</i></b>
+   *
+   * @return Returns a boolean array of all the buttons pressed.
+   */
   public boolean[] getAllTargetable() {
-    String[] buttons = {"0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4", "1_5", "1_6", "1_7", "1_8", "1_9",
-             "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8", "2_9"};
+    String[] buttons = {
+      "0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4",
+      "1_5", "1_6", "1_7", "1_8", "1_9", "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8",
+      "2_9"
+    };
 
     int buttonAmount = buttons.length;
     boolean[] buttonsHeld = new boolean[buttonAmount];
@@ -66,8 +87,11 @@ public class Streamdeck extends SubsystemBase {
   }
 
   public String findButtonPressed() {
-    String[] buttons = {"0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4", "1_5", "1_6", "1_7", "1_8", "1_9",
-             "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8", "2_9"};
+    String[] buttons = {
+      "0_1", "0_2", "0_3", "0_4", "0_5", "0_6", "0_7", "0_8", "0_9", "1_1", "1_2", "1_3", "1_4",
+      "1_5", "1_6", "1_7", "1_8", "1_9", "2_1", "2_2", "2_3", "2_4", "2_5", "2_6", "2_7", "2_8",
+      "2_9"
+    };
 
     int buttonAmount = buttons.length;
     boolean[] buttonsHeld = new boolean[buttonAmount];
@@ -114,23 +138,43 @@ public class Streamdeck extends SubsystemBase {
       if (isTargetingValid(getAllTargetable())) {
         // Do targeting stuff
         String buttonPressed = findButtonPressed();
-        Commands.print("TargetingAction" + buttonPressed).schedule();
-        SmartDashboard.putString("/streamdeck/TargetingSet", buttonPressed);
+        if (!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Greyed", false)){
+          Commands.print("TargetingAction" + buttonPressed).schedule();
+                  if (SmartDashboard.getString("/streamdeck/TargetingSet", "None") != buttonPressed) {
+                    String targetted = SmartDashboard.getString("/streamdeck/TargetingSet", "None");
+                    SmartDashboard.putBoolean("/streamdeck/" + targetted + "Targeted", false);
+                  }
+                  SmartDashboard.putString("/streamdeck/TargetingSet", buttonPressed);
+                  SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Targeted", true);
+                  Commands.print(buttonPressed).schedule();
+                  targetingMode = TargetingMode.NONE;
+        }
+        else {
+          Commands.print(buttonPressed+" IS GREYED ! ! UNABLE TO TARGET").schedule();
+        }
       }
-    } else if (targetingMode == TargetingMode.GREYING) {
+    } if (targetingMode == TargetingMode.GREYING) {
       if (isTargetingValid(getAllTargetable())) {
         // Do grey stuff
         String buttonPressed = findButtonPressed();
+        if(!SmartDashboard.getBoolean("/streamdeck/" + buttonPressed + "Targeted", false)){
+          SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Greyed", true);
         Commands.print("GreyingAction" + buttonPressed).schedule();
+        targetingMode = TargetingMode.NONE;
+        }
+        else{
+          Commands.print(buttonPressed+" IS TARGETED ! ! UNABLE TO GREY").schedule();
+        }
       }
-    } else if (targetingMode == TargetingMode.DE_GREY) {
+    } if (targetingMode == TargetingMode.DE_GREY) {
       if (isTargetingValid(getAllTargetable())) {
         // Do de greying stuff
         String buttonPressed = findButtonPressed();
+        SmartDashboard.putBoolean("/streamdeck/" + buttonPressed + "Greyed", false);
         Commands.print("De-greyingAction" + buttonPressed).schedule();
+        targetingMode = TargetingMode.NONE;
       }
     }
-
 
     // Idea:
     // One array will store the values of the first colum of buttons, these are "action buttons" as

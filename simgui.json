@@ -25,12 +25,12 @@
     "Retained Values": {
       "open": false
     },
-    "Transitory Values": {
-      "open": false
-    },
     "transitory": {
       "SmartDashboard": {
-        "open": true
+        "open": true,
+        "streamdeck": {
+          "open": true
+        }
       }
     }
   },

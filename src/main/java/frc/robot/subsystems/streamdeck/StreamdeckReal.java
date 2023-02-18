@@ -21,6 +21,6 @@ public class StreamdeckReal implements StreamdeckIO {
 
   @Override
   public Trigger getButton(String buttonNumber) {
-    return new Trigger(() -> SmartDashboard.getBoolean( "/streamdeck/" + buttonNumber, false));
+    return new Trigger(() -> SmartDashboard.getBoolean("/streamdeck/" + buttonNumber, false));
   }
 }
