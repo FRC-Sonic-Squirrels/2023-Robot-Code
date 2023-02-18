@@ -160,7 +160,9 @@ public class SwerveAutos {
    */
   public PathPlannerTrajectory loadPath(String name) {
     return loadPath(
-        name, drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND, drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        name,
+        drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND,
+        drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
   // ========================= TEST Autonomous Routines ========================
@@ -204,7 +206,8 @@ public class SwerveAutos {
         PathPlanner.loadPathGroup(
             "squarePathGroup",
             new PathConstraints(
-                    drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND, drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
+                drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND,
+                drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
 
     return new SequentialCommandGroup(
         new FollowPath(pathGroup1.get(0), drivetrain, true),
