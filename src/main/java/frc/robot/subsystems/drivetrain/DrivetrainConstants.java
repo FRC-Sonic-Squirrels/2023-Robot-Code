@@ -5,6 +5,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
 import frc.lib.team3061.swerve.SwerveModule;
+import frc.lib.team3061.swerve.SwerveModuleConstants;
+import frc.lib.team3061.swerve.SwerveModuleConstants.*;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 
 public abstract class DrivetrainConstants {
@@ -12,29 +14,29 @@ public abstract class DrivetrainConstants {
   public int FRONT_LEFT_MODULE_STEER_MOTOR;
   public int FRONT_LEFT_MODULE_STEER_ENCODER;
   public double FRONT_LEFT_MODULE_STEER_OFFSET;
-  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE = false;
-  public boolean FRONT_LEFT_MODULE_INVERT_STEER = false;
+  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
+  public boolean FRONT_LEFT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
 
   public int FRONT_RIGHT_MODULE_DRIVE_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_ENCODER;
   public double FRONT_RIGHT_MODULE_STEER_OFFSET;
-  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE = false;
-  public boolean FRONT_RIGHT_MODULE_INVERT_STEER = false;
+  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
+  public boolean FRONT_RIGHT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
 
   public int BACK_LEFT_MODULE_DRIVE_MOTOR;
   public int BACK_LEFT_MODULE_STEER_MOTOR;
   public int BACK_LEFT_MODULE_STEER_ENCODER;
   public double BACK_LEFT_MODULE_STEER_OFFSET;
-  public boolean BACK_LEFT_MODULE_INVERT_DRIVE = false;
-  public boolean BACK_LEFT_MODULE_INVERT_STEER = false;
+  public boolean BACK_LEFT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
+  public boolean BACK_LEFT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
 
   public int BACK_RIGHT_MODULE_DRIVE_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_ENCODER;
   public double BACK_RIGHT_MODULE_STEER_OFFSET;
-  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE = false;
-  public boolean BACK_RIGHT_MODULE_INVERT_STEER = false;
+  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
+  public boolean BACK_RIGHT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
 
   public int PIGEON_ID;
   public String PIGEON_CAN_BUS_NAME = "CANivore";
@@ -173,7 +175,9 @@ public abstract class DrivetrainConstants {
                 FRONT_LEFT_MODULE_DRIVE_MOTOR,
                 FRONT_LEFT_MODULE_STEER_MOTOR,
                 FRONT_LEFT_MODULE_STEER_ENCODER,
-                FRONT_LEFT_MODULE_STEER_OFFSET),
+                FRONT_LEFT_MODULE_STEER_OFFSET,
+                FRONT_LEFT_MODULE_INVERT_DRIVE,
+                FRONT_LEFT_MODULE_INVERT_STEER),
             0,
             MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -184,7 +188,9 @@ public abstract class DrivetrainConstants {
                 FRONT_RIGHT_MODULE_DRIVE_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_ENCODER,
-                FRONT_RIGHT_MODULE_STEER_OFFSET),
+                FRONT_RIGHT_MODULE_STEER_OFFSET,
+                FRONT_RIGHT_MODULE_INVERT_DRIVE,
+                FRONT_RIGHT_MODULE_INVERT_STEER),
             1,
             MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -195,7 +201,9 @@ public abstract class DrivetrainConstants {
                 BACK_LEFT_MODULE_DRIVE_MOTOR,
                 BACK_LEFT_MODULE_STEER_MOTOR,
                 BACK_LEFT_MODULE_STEER_ENCODER,
-                BACK_LEFT_MODULE_STEER_OFFSET),
+                BACK_LEFT_MODULE_STEER_OFFSET,
+                BACK_LEFT_MODULE_INVERT_DRIVE,
+                BACK_LEFT_MODULE_INVERT_STEER),
             2,
             MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -206,7 +214,9 @@ public abstract class DrivetrainConstants {
                 BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 BACK_RIGHT_MODULE_STEER_MOTOR,
                 BACK_RIGHT_MODULE_STEER_ENCODER,
-                BACK_RIGHT_MODULE_STEER_OFFSET),
+                BACK_RIGHT_MODULE_STEER_OFFSET,
+                BACK_RIGHT_MODULE_INVERT_DRIVE,
+                BACK_RIGHT_MODULE_INVERT_STEER),
             3,
             MAX_VELOCITY_METERS_PER_SECOND);
 

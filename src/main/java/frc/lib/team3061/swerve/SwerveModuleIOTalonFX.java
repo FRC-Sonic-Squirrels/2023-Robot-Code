@@ -40,6 +40,10 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   private SimpleMotorFeedforward feedForward;
   private double angleOffsetDeg;
 
+  //2023 robot might have unflipped motors on the mk4i, dubbed mk4i- 
+  private boolean driverMotorInvert = SwerveModuleConstants.MK4_L2_DRIVE_MOTOR_INVERTED;
+  private boolean steerMotorInvert = SwerveModuleConstants.MK4_L2_ANGLE_MOTOR_INVERTED; 
+
   /**
    * Make a new SwerveModuleIOTalonFX object.
    *
@@ -66,6 +70,27 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
     configDriveMotor(driveMotorID);
   }
 
+  /**
+   * 
+   * @param moduleNumber the module number (0-3); primarily used for logging
+   * @param driveMotorID the CAN ID of the drive motor
+   * @param angleMotorID the CAN ID of the angle motor
+   * @param canCoderID the CAN ID of the CANcoder
+   * @param angleOffsetDeg the absolute offset of the angle encoder in degrees
+   * @param driveUnivert univert the drive motor on the mk4i 
+   * @param steerUnivert univert the steer motor on the mk4i 
+   */
+  public SwerveModuleIOTalonFX(
+      int moduleNumber, int driveMotorID, int angleMotorID, int canCoderID, double angleOffsetDeg, boolean manualDriveMotorInvert, boolean manualSteerMotorInvert) {
+
+        this(moduleNumber, driveMotorID, angleMotorID, canCoderID, angleOffsetDeg);
+
+    this.driverMotorInvert = manualDriveMotorInvert;
+    this.steerMotorInvert = manualSteerMotorInvert; 
+
+   
+  }
+
   private void configAngleEncoder(int canCoderID) {
     angleEncoder = new CANCoder(canCoderID, CAN_BUS_NAME);
 
@@ -87,7 +112,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             ANGLE_CONTINUOUS_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_DURATION);
-    angleMotorConfig.INVERTED = ANGLE_MOTOR_INVERTED;
+    
+    angleMotorConfig.INVERTED = steerMotorInvert;
+
     angleMotorConfig.NEUTRAL_MODE = ANGLE_NEUTRAL_MODE;
     angleMotorConfig.SLOT0_KP = turnKp.get();
     angleMotorConfig.SLOT0_KI = turnKi.get();
@@ -110,7 +137,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             DRIVE_CONTINUOUS_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_DURATION);
-    driveMotorConfig.INVERTED = DRIVE_MOTOR_INVERTED;
+
+    driveMotorConfig.INVERTED = driverMotorInvert;
+
     driveMotorConfig.NEUTRAL_MODE = DRIVE_NEUTRAL_MODE;
     driveMotorConfig.OPEN_LOOP_RAMP_RATE = OPEN_LOOP_RAMP;
     driveMotorConfig.CLOSED_LOOP_RAMP_RATE = CLOSED_LOOP_RAMP;
