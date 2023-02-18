@@ -12,29 +12,29 @@ public abstract class DrivetrainConstants {
   public int FRONT_LEFT_MODULE_STEER_MOTOR;
   public int FRONT_LEFT_MODULE_STEER_ENCODER;
   public double FRONT_LEFT_MODULE_STEER_OFFSET;
-  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE;
-  public boolean FRONT_LEFT_MODULE_INVERT_STEER;
+  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE = false;
+  public boolean FRONT_LEFT_MODULE_INVERT_STEER = false;
 
   public int FRONT_RIGHT_MODULE_DRIVE_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_MOTOR;
   public int FRONT_RIGHT_MODULE_STEER_ENCODER;
   public double FRONT_RIGHT_MODULE_STEER_OFFSET;
-  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE;
-  public boolean FRONT_RIGHT_MODULE_INVERT_STEER;
+  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE = false;
+  public boolean FRONT_RIGHT_MODULE_INVERT_STEER = false;
 
   public int BACK_LEFT_MODULE_DRIVE_MOTOR;
   public int BACK_LEFT_MODULE_STEER_MOTOR;
   public int BACK_LEFT_MODULE_STEER_ENCODER;
   public double BACK_LEFT_MODULE_STEER_OFFSET;
-  public boolean BACK_LEFT_MODULE_INVERT_DRIVE;
-  public boolean BACK_LEFT_MODULE_INVERT_STEER;
+  public boolean BACK_LEFT_MODULE_INVERT_DRIVE = false;
+  public boolean BACK_LEFT_MODULE_INVERT_STEER = false;
 
   public int BACK_RIGHT_MODULE_DRIVE_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_MOTOR;
   public int BACK_RIGHT_MODULE_STEER_ENCODER;
   public double BACK_RIGHT_MODULE_STEER_OFFSET;
-  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE;
-  public boolean BACK_RIGHT_MODULE_INVERT_STEER;
+  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE = false;
+  public boolean BACK_RIGHT_MODULE_INVERT_STEER = false;
 
   public int PIGEON_ID;
   public String PIGEON_CAN_BUS_NAME = "CANivore";
