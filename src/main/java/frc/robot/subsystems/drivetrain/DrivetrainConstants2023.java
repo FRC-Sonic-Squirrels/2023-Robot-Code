@@ -37,11 +37,7 @@ public class DrivetrainConstants2023 extends DrivetrainConstants {
 
     PIGEON_ID = 15;
 
-    initializeRobotBase(
-        Units.inchesToMeters(23.0),
-        Units.inchesToMeters(25.0),
-        Units.inchesToMeters(6.0),
-        Units.inchesToMeters(6.0));
+    
 
     MAX_VELOCITY_METERS_PER_SECOND =
         6380.0
@@ -72,5 +68,11 @@ public class DrivetrainConstants2023 extends DrivetrainConstants {
     AUTO_TURN_D_CONTROLLER = 0.0;
 
     DEADBAND = 0.1;
+
+    initializeRobotBase(
+        Units.inchesToMeters(23.0),
+        Units.inchesToMeters(25.0),
+        Units.inchesToMeters(6.0),
+        Units.inchesToMeters(6.0));
   }
 }
