@@ -8,7 +8,6 @@
 package frc.lib.team2930.lib.util;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * linearInterpolator - given a table of x and y values, will interpolate values of y between known
@@ -57,9 +56,11 @@ public class linearInterpolator {
 
     table = new double[rows][cols];
     for (int x = 0; x < data.length; x++) {
-      System.arraycopy(data[x], 0, table[x], 0, data[x].length);
+      for (int y = 0; y < data[x].length; y++) {
+        table[x][y] = data[x][y];
+      }
     }
-    Arrays.sort(table, Comparator.comparingDouble(a -> a[0]));
+    Arrays.sort(table, (a, b) -> Double.compare(a[0], b[0]));
     initialized = true;
   }
 

@@ -6,7 +6,7 @@
  * Initially from https://github.com/Mechanical-Advantage/SwerveDevelopment
  */
 
-package frc.robot.commands;
+package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;

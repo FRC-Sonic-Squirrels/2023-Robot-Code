@@ -159,4 +159,8 @@ public class SwerveModule {
   public void setAngleBrakeMode(boolean enable) {
     io.setAngleBrakeMode(enable);
   }
+
+  public void resetToAbsolute() {
+    io.resetToAbsolute();
+  }
 }

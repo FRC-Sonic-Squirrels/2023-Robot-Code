@@ -4,10 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,7 +31,15 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
 
   private Command autonomousCommand;
+  private Supplier<AutoChooserElement> currentAutoSupplier = null;
+  private AutoChooserElement currentAutoElement = null;
+  private String currentAutoName = "";
   private RobotContainer robotContainer;
+  Alliance alliance = Alliance.Invalid;
+
+  // private SimulatedMechanism simMech = new SimulatedMechanism();
+
+  private XboxController testController = new XboxController(0);
 
   private final Alert logReceiverQueueAlert =
       new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
@@ -32,6 +48,63 @@ public class Robot extends LoggedRobot {
   public Robot() {
     super(Constants.LOOP_PERIOD_SECS);
   }
+
+  /** checkDSUpdate() - check for changes to the current Alliance Selection */
+  private void checkDSUpdate() {
+    Alliance currentAlliance = DriverStation.getAlliance();
+
+    // If we have data, and have a new alliance from last time
+    if (DriverStation.isDSAttached() && (currentAlliance != alliance)) {
+      // Do stuff here that needs to know the alliance
+      System.out.println("Alliance Color Changed to: " + DriverStation.getAlliance().name());
+
+      // FIXME: change vision AprilTag map, or maybe that needs to live in the Vision subsystem?
+      // https://www.chiefdelphi.com/t/getalliance-always-returning-red/425782/39
+
+      // re-configure autonomous commands to update trajectories
+      robotContainer.configureAutoCommands();
+      alliance = currentAlliance;
+    }
+  }
+
+  /**
+   * checkForUpdatedAutonomous() - check to see if the selected autonomous changed
+   *
+   * <p>When a new autonomous is selected in the dashboard chooser, or the alliance color changes,
+   * update the current autonomous command. This involves mirroring all the auto trajectories for
+   * the changed alliance.
+   */
+  private void checkForUpdatedAutonomous() {
+    currentAutoSupplier = robotContainer.getSelectedAutonChooserElement();
+
+    // only run if something has been selected
+    if (currentAutoSupplier != null) {
+
+      String autoName =
+          robotContainer.getAutonomousCommandName() + DriverStation.getAlliance().name();
+
+      SmartDashboard.putString("AutoName", autoName);
+
+      if (!currentAutoName.equals(autoName)) {
+        // The name of the auto changed, either the selected auto OR the alliance color
+        currentAutoName = autoName;
+
+        currentAutoElement = currentAutoSupplier.get();
+        Trajectory trajectory = currentAutoElement.getTrajectory();
+        if (trajectory == null) {
+          trajectory = new Trajectory();
+        }
+
+        // TODO: do we want to set the robot's start pose?
+        robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
+
+        Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
+        Logger.getInstance()
+            .recordOutput("Odometry/startPose", currentAutoElement.getInitialState().poseMeters);
+      }
+    }
+  }
+
   /**
    * This method is executed when the code first starts running on the robot and should be used for
    * any initialization code.
@@ -66,7 +139,7 @@ public class Robot extends LoggedRobot {
 
     switch (Constants.getMode()) {
       case REAL:
-        // FIXME: this requires a USB stick to be inserted into the ROBOrio
+        // FIXME: this requires a USB stick to be inserted into the roboRIO
         logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
 
         // Provide log data over the network, viewable in Advantage Scope.
@@ -76,7 +149,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        logger.addDataReceiver(new WPILOGWriter(""));
+        // logger.addDataReceiver(new WPILOGWriter(""));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -131,6 +204,12 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+
+    checkDSUpdate();
+
+    if (this.isDisabled()) {
+      checkForUpdatedAutonomous();
+    }
   }
 
   /**
@@ -139,11 +218,19 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    autonomousCommand = null;
+    checkDSUpdate();
+    checkForUpdatedAutonomous();
+    if (currentAutoElement != null) {
+      autonomousCommand = currentAutoElement.getCommand();
+    }
 
     // schedule the autonomous command
     if (autonomousCommand != null) {
+      System.out.println("Scheduling Autonomous Command");
       autonomousCommand.schedule();
+    } else {
+      System.out.println("WARNING: null Autonomous Command");
     }
   }
 
@@ -155,9 +242,16 @@ public class Robot extends LoggedRobot {
      * autonomous to continue until interrupted by another command, remove this line or comment it
      * out.
      */
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    // clear autonomous path preview during teleop
+    currentAutoName = "";
+    SmartDashboard.putString("AutoName", currentAutoName);
+    Logger.getInstance().recordOutput("Odometry/autonTrajectory", new Trajectory());
+    Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
   }
 
   /** This method is invoked at the start of the test period. */
