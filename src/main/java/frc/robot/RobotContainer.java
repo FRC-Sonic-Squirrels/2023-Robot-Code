@@ -28,7 +28,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
@@ -47,11 +46,7 @@ import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.TeleopSwerve;
-import frc.robot.commands.elevator.ElevatorFollowCurve;
-import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.mechanism.MechanismPositions;
-import frc.robot.commands.stinger.StingerFollowCurve;
-import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -310,11 +305,11 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+    // elevator.setDefaultCommand(
+    //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
 
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, () -> driverController.getRightX()));
+    // stinger.setDefaultCommand(
+    //     new StingerManualControl(stinger, () -> driverController.getRightX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
@@ -401,14 +396,9 @@ public class RobotContainer {
     //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
 
     driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-
-    driverController
-        .x()
-        .whileTrue(new StingerFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
-    driverController
-        .y()
-        .whileTrue(new ElevatorFollowCurve(elevator, stinger).beforeStarting(Commands.print("X")));
+    driverController.b().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
+    driverController.x().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    driverController.y().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
 
     // driverController.a().onTrue((Commands.print("A")));
 

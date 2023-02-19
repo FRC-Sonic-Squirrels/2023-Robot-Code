@@ -15,10 +15,12 @@ public class ElevatorFollowCurve extends CommandBase {
   private Stinger stinger;
   private Elevator elevator;
   private double elevatorHeight;
+  private double stingerExtension;
 
-  public ElevatorFollowCurve(Elevator elevator, Stinger stinger) {
+  public ElevatorFollowCurve(Elevator elevator, Stinger stinger, double stingerExtension) {
     this.elevator = elevator;
     this.stinger = stinger;
+    this.stingerExtension = stingerExtension;
   }
 
   // Called when the command is initially scheduled.
@@ -35,6 +37,7 @@ public class ElevatorFollowCurve extends CommandBase {
     Logger.getInstance().recordOutput("ElevatorCurve/Stinger", stinger.getExtensionInches());
     // find elevator height through formula, set stinger extension to result
     elevator.setHeightInches(elevatorHeight);
+    stinger.setExtensionInches(stingerExtension);
   }
 
   // Called once the command ends or is interrupted.
@@ -46,6 +49,6 @@ public class ElevatorFollowCurve extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return (stinger.isAtExtension(stingerExtension));
   }
 }
