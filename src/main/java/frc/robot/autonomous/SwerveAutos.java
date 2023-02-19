@@ -25,11 +25,14 @@ public class SwerveAutos {
   private Drivetrain drivetrain;
   private Intake intake;
 
+  // get field dimensions from official WPILib file
+  // https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2023-chargedup.json#L148-L151
   public static final double FIELD_LENGTH_METERS = 16.54175;
   public static final double FIELD_WIDTH_METERS = 8.0137;
 
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     // FIXME: List of all required subsystems: elevator, stinger, intake, LED
+    // iterate through all the commands in EventMap and extract the requirements for each command?
     this.drivetrain = drivetrain;
     this.intake = intake;
 
@@ -151,8 +154,6 @@ public class SwerveAutos {
 
     var alliance = DriverStation.getAlliance();
     if (alliance == DriverStation.Alliance.Red) {
-      final double FIELD_LENGTH_METERS = 16.4592;
-
       transformedTrajectory =
           PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, alliance);
 
