@@ -57,6 +57,8 @@ public interface ElevatorIO {
 
   public default void brakeOn() {}
 
+  public default void setMaxHeightInches(double inches) {}
+
   public default void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {}
   // reset sensor position

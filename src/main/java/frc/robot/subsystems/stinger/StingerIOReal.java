@@ -43,11 +43,11 @@ public class StingerIOReal implements StingerIO {
       (motor.getSelectedSensorPosition() * gearRatio * pulleyTeeth / (2048 * beltTeethPerInch));
   */
 
-  private final double gearRatio = 0.4; // (12 * 50) / (30 * 50)
-  private final double pulleyDiameter = 1.128;
-  private final double pulleyCircumference = pulleyDiameter * Math.PI;
+  private final double gearRatio = 0.144; // (12 * 30) / (50 * 50)
+  private final double pulleyDiameterInches = 1.125;
+  private final double pulleyCircumference = pulleyDiameterInches * Math.PI;
   // Multiplied by 2 because of the continuous elevator; double the elevator moves
-  private final double cascadeMultiplier = 2;
+  private final double cascadeMultiplier = 2.0;
 
   // falcons have a rate of 2048 ticks per rotation
   private double ticks2distanceInches = gearRatio * pulleyCircumference * cascadeMultiplier / 2048;

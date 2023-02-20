@@ -19,13 +19,14 @@ public class ElevatorReal2023 implements ElevatorIO {
       new WPI_TalonFX(CANIVOR_canId.CANID9_ELEVATOR_LEAD_TALON, CANIVOR_canId.name);
   private WPI_TalonFX follow_talon =
       new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
-  // TODO: Put in values of new robot
-  private static final double gearRatio = 0.08229;
-  private static final double winchDiameter_inches = 1.43;
-  private static final double winchCircumference = Math.PI * winchDiameter_inches;
-  private static final double ticks2inches = gearRatio * winchCircumference / 2048;
+  private static final double gearRatio = 0.072; // (12 * 18) / (50 * 60)
+  private static final double pulleyDiameterInches = 1.75;
+  private static final double pulleyCircumference = Math.PI * pulleyDiameterInches;
+  // we multiply ticks2inches by 2, because it's a 2 stage cascading elevator
+  private static final double ticks2inches = 2.0 * gearRatio * pulleyCircumference / 2048;
   private static final double ticks2rotations = 1 / 2048f;
   private double targetHeightInches;
+  private double maxHeightInches = 0.0;
 
   public ElevatorReal2023() {
     lead_talon.configFactoryDefault();
@@ -61,8 +62,10 @@ public class ElevatorReal2023 implements ElevatorIO {
     // TODO: remember to configure
     lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-    lead_talon.configForwardLimitSwitchSource(
-        LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
+
+    // No physical forward limit switch
+    // lead_talon.configForwardLimitSwitchSource(
+    //     LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
 
     follow_talon.follow(lead_talon);
     // TODO: check to see whether inverted or not
@@ -82,12 +85,12 @@ public class ElevatorReal2023 implements ElevatorIO {
     MotorUtils.setCtreStatusSlow(follow_talon);
 
     // TODO make sure this doesn't slow down CAN to anything important
-    follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
+    follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 41);
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
-    // TODO: NEED TO CONFIGURE THESE
-    // winch_lead_talon.configForwardSoftLimitThreshold(inchesToTicks(0.0));
-    // winch_lead_talon.configForwardSoftLimitEnable(true);
+    // TODO: make sure this works
+    lead_talon.configForwardSoftLimitThreshold(inchesToTicks(maxHeightInches));
+    lead_talon.configForwardSoftLimitEnable(true);
   }
 
   @Override
@@ -98,36 +101,46 @@ public class ElevatorReal2023 implements ElevatorIO {
       inputs.ElevatorAtLowerLimit = false;
     }
 
-    if (lead_talon.isFwdLimitSwitchClosed() == 1) {
-      inputs.ElevatorAtUpperLimit = true;
-    } else {
-      inputs.ElevatorAtUpperLimit = false;
-    }
-
     inputs.ElevatorTargetHeightInches = targetHeightInches;
-    inputs.ElevatorHeightInches =
-        ticksToInches(lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    // TODO: or is it ticksToInches(lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    inputs.ElevatorHeightInches = ticksToInches(lead_talon.getSelectedSensorPosition());
+    inputs.ElevatorAtUpperLimit = (inputs.ElevatorHeightInches >= maxHeightInches);
+
+    // no physical upper limit switch
+    // if (lead_talon.isFwdLimitSwitchClosed() == 1) {
+    //   inputs.ElevatorAtUpperLimit = true;
+    // } else {
+    //   inputs.ElevatorAtUpperLimit = false;
+    // }
+
     inputs.ElevatorAppliedVolts = lead_talon.getMotorOutputVoltage();
     inputs.ElevatorCurrentAmps = new double[] {lead_talon.getSupplyCurrent()};
     inputs.ElevatorTempCelsius = new double[] {lead_talon.getTemperature()};
-    // TODO: double check math
-    inputs.ElevatorVelocityInchesPerSecond =
-        ticks2inches * 10.0 * lead_talon.getSelectedSensorVelocity();
-    // TODO: double check math
-    inputs.ElevatorVelocityRPM =
-        lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotations / 60;
+    double sensorVelocity = lead_talon.getSelectedSensorVelocity();
+    // TODO: or is ti lead_talon.getSensorCollection().getIntegratedSensorVelocity();
+    // TODO: or is it lead_talon.getSelectedSensorVelocity();
+    inputs.ElevatorVelocityInchesPerSecond = ticksToInchesPerSecond(sensorVelocity);
+    inputs.ElevatorVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
   }
 
+  /**
+   * setMotionProfileConstraints - set the max velocity and acceleration of motion profile.
+   *
+   * <p>velocity is inches/sec acceleration is inches/s^2
+   */
   @Override
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
-    // TODO: Use JVN calculator for exact numbers
 
-    double velocityTicksPerSecond = inchesToTicks(cruiseVelocityInchesPerSecond);
-    double accelTicksPerSecondSquared = inchesToTicks(accelerationInchesPerSecondSquared);
+    double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
+    double accelTicksPer100msPerSecond = inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
 
-    lead_talon.configMotionCruiseVelocity(velocityTicksPerSecond);
-    lead_talon.configMotionAcceleration(accelTicksPerSecondSquared);
+    lead_talon.configMotionCruiseVelocity(velocityTicksPer100ms);
+    lead_talon.configMotionAcceleration(accelTicksPer100msPerSecond);
+  }
+
+  public void setMaxHeightInches(double inches) {
+    maxHeightInches = inches;
   }
 
   private double inchesToTicks(double inches) {
@@ -136,6 +149,26 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   private double ticksToInches(double ticks) {
     return ticks * ticks2inches;
+  }
+
+  /**
+   * Convert form inches/s to CTRE ticks / 100ms
+   *
+   * @param inchesPerSecond
+   * @return ticksPer100ms
+   */
+  private double inchesToTicksPer100ms(double inchesPerSecond) {
+    return inchesToTicks(inchesPerSecond) / 10.0;
+  }
+
+  /**
+   * convert from CTRE ticks / 100ms to Inches/s
+   *
+   * @param ticksPer100ms
+   * @return inchesPerSecond
+   */
+  private double ticksToInchesPerSecond(double ticksPer100ms) {
+    return ticksToInches(ticksPer100ms) * 10;
   }
 
   @Override
