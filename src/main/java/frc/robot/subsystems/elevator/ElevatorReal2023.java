@@ -12,14 +12,12 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.lib.team2930.lib.util.MotorUtils;
-import frc.robot.Constants.CANIVOR_canId;
+import frc.robot.Constants.CanId;
 
 public class ElevatorReal2023 implements ElevatorIO {
 
-  private WPI_TalonFX lead_talon =
-      new WPI_TalonFX(CANIVOR_canId.CANID9_ELEVATOR_LEAD_TALON, CANIVOR_canId.name);
-  private WPI_TalonFX follow_talon =
-      new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
+  private WPI_TalonFX lead_talon = new WPI_TalonFX(CanId.CANID9_ELEVATOR_LEAD_TALON, CanId.name);
+  private WPI_TalonFX follow_talon = new WPI_TalonFX(CanId.CANID10_ELEVATOR_FOLLOW_TALON, "");
   private static final double gearRatio = 0.072; // (12 * 18) / (50 * 60)
   private static final double pulleyDiameterInches = 1.75;
   private static final double pulleyCircumference = Math.PI * pulleyDiameterInches;

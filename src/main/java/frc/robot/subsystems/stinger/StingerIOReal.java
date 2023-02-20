@@ -14,7 +14,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.robot.Constants;
-import frc.robot.Constants.CANIVOR_canId;
+import frc.robot.Constants.CanId;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
@@ -22,8 +22,7 @@ public class StingerIOReal implements StingerIO {
 
   // The stinger has similar code to the elevator, but it only has 1 motor and no brake (and it is
   // horizontal)
-  private WPI_TalonFX motor =
-      new WPI_TalonFX(CANIVOR_canId.CANID5_STINGER_TALON, CANIVOR_canId.name);
+  private WPI_TalonFX motor = new WPI_TalonFX(CanId.CANID5_STINGER_TALON, CanId.name);
 
   /*
   // motor's native units: ticks/100ms, can be converted to RPM
