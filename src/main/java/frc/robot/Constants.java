@@ -153,6 +153,8 @@ public final class Constants {
     public static final double STINGER_KP = 0.12711;
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
+
+    public static final double VELOCITY_INCHES_PER_SECOND = 40;
   }
 
   // the depth and height of field nodes compared to a robot right in front of them
