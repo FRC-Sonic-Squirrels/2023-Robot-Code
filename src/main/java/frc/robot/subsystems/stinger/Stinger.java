@@ -19,6 +19,7 @@ public class Stinger extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
 
   public static double toleranceInches = 0.1;
+  private boolean zeroed = false;
 
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.Stinger.STINGER_FEEDFORWARD);
@@ -30,7 +31,8 @@ public class Stinger extends SubsystemBase {
       new TunableNumber("Stinger/kD", Constants.Stinger.STINGER_KD);
 
   private final TunableNumber velocityInchesSecond =
-      new TunableNumber("Stinger/velocity inches per sec", 40);
+      new TunableNumber(
+          "Stinger/velocity inches per sec", Constants.Stinger.VELOCITY_INCHES_PER_SECOND);
   private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 0.1);
 
   /** Creates a new Stinger. */
@@ -58,6 +60,12 @@ public class Stinger extends SubsystemBase {
     }
     if (velocityInchesSecond.hasChanged() || desiredTime.hasChanged()) {
       setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
+    }
+
+    // zero the elevator
+    if (!zeroed && atRetractedLimit()) {
+      zeroExtension();
+      zeroed = true;
     }
   }
 
@@ -98,7 +106,7 @@ public class Stinger extends SubsystemBase {
     return isAtExtension(inputs.StingerTargetExtensionInches);
   }
 
-  /** atLowerLimit() returns true if the retracted (lower) limit switch is triggered. */
+  /** atRetractedLimit() returns true if the retracted (lower) limit switch is triggered. */
   public boolean atRetractedLimit() {
     return (inputs.StingerAtRetractedLimit);
   }
