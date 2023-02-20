@@ -121,7 +121,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
-    // Openloop effects manual control only
+    // Open loop effects manual control only
     lead_talon.configOpenloopRamp(0.1);
 
     // Reduce CAN traffic where possible
