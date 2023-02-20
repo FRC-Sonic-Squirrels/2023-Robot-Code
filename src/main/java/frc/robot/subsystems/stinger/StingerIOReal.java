@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import frc.robot.Constants;
 import frc.robot.Constants.CANIVOR_canId;
 import org.littletonrobotics.junction.Logger;
 
@@ -49,12 +50,9 @@ public class StingerIOReal implements StingerIO {
   private final double pulleyCircumference = pulleyDiameterInches * Math.PI;
   // Multiplied by 2 because of the continuous elevator; double the elevator moves
   private final double cascadeMultiplier = 2.0;
+  private double ticks2Inches = gearRatio * pulleyCircumference * cascadeMultiplier / 2048.0;
 
-  // falcons have a rate of 2048 ticks per rotation
-  private double ticks2distanceInches = gearRatio * pulleyCircumference * cascadeMultiplier / 2048;
-
-  private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
-  // private double extensionSetpointInches = 0.0;
+  private final double maxExtensionInches = Constants.Stinger.MAX_EXTENSION_INCHES;
 
   public boolean atMaxExtension;
 
@@ -77,7 +75,7 @@ public class StingerIOReal implements StingerIO {
     // config.motionAcceleration = 30000; // 60941;    //  20521 ticks/100ms     = 11 in/s
     // config.motionCruiseVelocity = 15235; //  20521 ticks/100ms/sec = 11 in/s^2
 
-    config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2distanceInches;
+    config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2Inches;
 
     // set config
     motor.configAllSettings(config);
@@ -91,7 +89,7 @@ public class StingerIOReal implements StingerIO {
     motor.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
-    motor.configForwardLimitSwitchSource(
+    motor.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
     // TODO: check if motor should be inverted or not
@@ -103,8 +101,8 @@ public class StingerIOReal implements StingerIO {
         new SupplyCurrentLimitConfiguration(true, 20, 25, 0.1);
     motor.configSupplyCurrentLimit(currentLimit);
 
-    // TODO: see if we need this forced delay, since we already have magicMotion controls
-    // motor.configOpenloopRamp(0.1);
+    // this only effects manual control
+    motor.configOpenloopRamp(0.1);
 
     setSensorPosition(0.0);
 
@@ -122,15 +120,15 @@ public class StingerIOReal implements StingerIO {
   }
 
   @Override
-  public void setExtensionInches(double heightInches) {
+  public void setExtensionInches(double extensionInches) {
     // if (heightInches < 0.0) {
     //   heightInches = 0.0;
     // }
-    if (heightInches > maxExtensionInches) {
-      heightInches = maxExtensionInches;
+    if (extensionInches > maxExtensionInches) {
+      extensionInches = maxExtensionInches;
     }
 
-    motor.set(ControlMode.MotionMagic, extensionToTicks(heightInches));
+    motor.set(ControlMode.MotionMagic, extensionToTicks(extensionInches));
   }
 
   /**
@@ -157,7 +155,6 @@ public class StingerIOReal implements StingerIO {
 
   public void resetSensorPosition(double position) {
     motor.setSelectedSensorPosition(position);
-    // motor.getSensorCollection().setIntegratedSensorPosition(position, 0);
   }
 
   public void setPIDConstraints(double feedForward, double kP, double kI, double kD) {
@@ -171,10 +168,30 @@ public class StingerIOReal implements StingerIO {
   }
 
   public double extensionToTicks(double extensionInches) {
-    return extensionInches / ticks2distanceInches;
+    return extensionInches / ticks2Inches;
   }
 
   public double ticksToExtensionInches(double ticks) {
-    return ticks * ticks2distanceInches;
+    return ticks * ticks2Inches;
+  }
+
+  /**
+   * Convert form inches/s to CTRE ticks / 100ms
+   *
+   * @param inchesPerSecond
+   * @return ticksPer100ms
+   */
+  private double inchesToTicksPer100ms(double inchesPerSecond) {
+    return extensionToTicks(inchesPerSecond) / 10.0;
+  }
+
+  /**
+   * convert from CTRE ticks / 100ms to Inches/s
+   *
+   * @param ticksPer100ms
+   * @return inchesPerSecond
+   */
+  private double ticksToInchesPerSecond(double ticksPer100ms) {
+    return ticksToExtensionInches(ticksPer100ms) * 10;
   }
 }

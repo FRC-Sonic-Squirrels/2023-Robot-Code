@@ -24,8 +24,8 @@ public class ElevatorReal2023 implements ElevatorIO {
   private static final double pulleyDiameterInches = 1.75;
   private static final double pulleyCircumference = Math.PI * pulleyDiameterInches;
   // we multiply ticks2inches by 2, because it's a 2 stage cascading elevator
-  private static final double ticks2inches = 2.0 * gearRatio * pulleyCircumference / 2048;
-  private static final double ticks2rotations = 1 / 2048f;
+  private static final double ticks2inches = 2.0 * gearRatio * pulleyCircumference / 2048.0;
+  private static final double ticks2rotations = 1.0 / 2048f;
   private double targetHeightInches;
   private double maxHeightInches = 0.0;
 
