@@ -7,7 +7,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
@@ -27,7 +26,6 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputs ioLeft = new VisionIOInputs();
   private final VisionIOInputs ioRight = new VisionIOInputs();
   private AprilTagFieldLayout layout;
-  private DriverStation.Alliance lastAlliance = DriverStation.Alliance.Invalid;
 
   private double lastTimestampLeft;
   private double lastTimestampRight;
