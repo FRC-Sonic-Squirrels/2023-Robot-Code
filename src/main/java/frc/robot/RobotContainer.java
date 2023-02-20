@@ -40,8 +40,6 @@ import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristIO;
-import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,14 +96,12 @@ public class RobotContainer {
 
             elevator = new Elevator(new ElevatorReal2022());
 
-            // wrist = new Wrist(new WristIOSolenoid());
             break;
           }
         case ROBOT_2023_COMPBOT:
           {
             drivetrainConstants = new DrivetrainConstants2023();
             drivetrain = drivetrainConstants.buildDriveTrain();
-            new Pneumatics(new PneumaticsIORev(false));
             // TODO add vision subsystem
             // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
             // TODO: add intake when intake is done
@@ -138,8 +134,6 @@ public class RobotContainer {
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
 
-            wrist = new Wrist(new WristIO() {});
-
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
           }
@@ -152,9 +146,7 @@ public class RobotContainer {
       drivetrain = drivetrainConstants.buildDriveTrain();
       new Vision(drivetrain.getPoseEstimator(), new VisionIO() {}, new VisionIO() {});
       new Elevator(new ElevatorIO() {});
-      new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
-      wrist = new Wrist(new WristIOSolenoid() {});
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
