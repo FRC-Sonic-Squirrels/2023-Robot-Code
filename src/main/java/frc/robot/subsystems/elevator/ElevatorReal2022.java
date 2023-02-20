@@ -6,6 +6,7 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -93,6 +94,9 @@ public class ElevatorReal2022 implements ElevatorIO {
 
     // set config
     lead_talon.configAllSettings(leadConfig);
+
+    // configure integrated sensor as selected sensor
+    lead_talon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 
     // use pid from slot 0 for motion magic
     lead_talon.selectProfileSlot(0, 0);

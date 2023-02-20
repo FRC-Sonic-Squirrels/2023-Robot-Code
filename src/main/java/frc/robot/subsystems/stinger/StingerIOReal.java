@@ -5,6 +5,7 @@
 package frc.robot.subsystems.stinger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -80,6 +81,9 @@ public class StingerIOReal implements StingerIO {
 
     // set config
     motor.configAllSettings(config);
+
+    // configure integrated sensor as selected sensor
+    motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 
     // use pid from slot 0 for motion magic
     motor.selectProfileSlot(0, 0);
