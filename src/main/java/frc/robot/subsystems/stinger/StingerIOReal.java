@@ -13,50 +13,25 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
-import org.littletonrobotics.junction.Logger;
 
-/** Add your docs here. */
 public class StingerIOReal implements StingerIO {
 
   // The stinger has similar code to the elevator, but it only has 1 motor and no brake (and it is
   // horizontal)
   private WPI_TalonFX motor = new WPI_TalonFX(CanId.CANID5_STINGER_TALON, CanId.name);
-
-  /*
-  // motor's native units: ticks/100ms, can be converted to RPM
-  // the RPM is applied to the gear ratio,
-  // then used to find RPM of pulley
-  // pulley RPM -> teeth/rotation -> teeth/inch
-  // ticks/second -> motor revolutions/minute -> pulley rpm (account gears) -> teeth/revolution -> teeth/inch
-  private final double pulleyTeeth = 20;
-  private final double gearRatio = 0.1;
-  private final double beltTeethPerInch = 10;
-  // private double motorRPM = motor.getSelectedSensorVelocity() * (10/2048) * 60;
-  // private final double pulleyRPM = motorRPM * gearRatio;
-  // private final double pulleyTeethPerMinute = pulleyRPM * pulleyTeeth;
-  // private final double beltInchesPerMinute = pulleyTeethPerMinute / beltTeethPerInch;
-  // private final double beltInchesPerSecond = beltInchesPerMinute / 60;
-  // private double ticks2VelocityInchesSecond =
-  //     (10 * gearRatio * pulleyTeeth) / (2048 * beltTeethPerInch);
-  private double ticks2distanceInches =
-      (motor.getSelectedSensorPosition() * gearRatio * pulleyTeeth / (2048 * beltTeethPerInch));
-  */
-
   private final double gearRatio = 0.144; // (12 * 30) / (50 * 50)
   private final double pulleyDiameterInches = 1.125;
   private final double pulleyCircumference = pulleyDiameterInches * Math.PI;
   // Multiplied by 2 because of the continuous elevator; double the elevator moves
   private final double cascadeMultiplier = 2.0;
   private double ticks2Inches = gearRatio * pulleyCircumference * cascadeMultiplier / 2048.0;
+  private static final double ticks2rotations = 1.0 / 2048.0;
 
   private final double maxExtensionInches = Constants.Stinger.MAX_EXTENSION_INCHES;
-
-  public boolean atMaxExtension;
-
-  public double currentExtension;
-  public double targetExtensionInches;
+  private double targetExtensionInches = 0.0;
 
   public StingerIOReal() {
     motor.configFactoryDefault();
@@ -65,14 +40,10 @@ public class StingerIOReal implements StingerIO {
     config.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
-    // Details on elevator motors, gearing and calculated kP and kFF are here
-    // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
-    // this also has suggest trapezoidal velocity profile constants.
+    // FIXME: FPID values need to be set by calling setPIDConstraints()
 
-    // do we need this if the command is updating the motion magic constraints?
-    // maybe have a safe default?
-    // config.motionAcceleration = 30000; // 60941;    //  20521 ticks/100ms     = 11 in/s
-    // config.motionCruiseVelocity = 15235; //  20521 ticks/100ms/sec = 11 in/s^2
+    // JVN calculator w/ suggested kFF, kP, velocity, and acceleration
+    // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
 
     config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2Inches;
 
@@ -94,8 +65,7 @@ public class StingerIOReal implements StingerIO {
     // TODO: check if motor should be inverted or not
     motor.setInverted(false);
 
-    // JVN calculator predicts 41.2 A per motor under load
-    // TODO: Check new JVN prediction
+    // JVN calculator predicts 12 A under load
     SupplyCurrentLimitConfiguration currentLimit =
         new SupplyCurrentLimitConfiguration(true, 20, 25, 0.1);
     motor.configSupplyCurrentLimit(currentLimit);
@@ -106,8 +76,37 @@ public class StingerIOReal implements StingerIO {
     setSensorPosition(0.0);
 
     // TODO: see if we need this soft limit, since we already have a limit switch
-    motor.configForwardSoftLimitThreshold(extensionToTicks(maxExtensionInches));
+    motor.configForwardSoftLimitThreshold(inchesToTicks(maxExtensionInches));
     motor.configForwardSoftLimitEnable(true);
+  }
+
+  @Override
+  public void updateInputs(StingerIOInputs inputs) {
+    if (motor.isRevLimitSwitchClosed() == 1) {
+      inputs.StingerAtRetractedLimit = true;
+    } else {
+      inputs.StingerAtRetractedLimit = false;
+    }
+
+    inputs.StingerTargetExtensionInches = targetExtensionInches;
+    inputs.StingerExtensionInches = ticksToInches(motor.getSelectedSensorPosition());
+    inputs.StingerAtExtendedLimit = (inputs.StingerExtensionInches >= maxExtensionInches);
+
+    // no physical upper limit switch
+    // if (lead_talon.isFwdLimitSwitchClosed() == 1) {
+    //   inputs.ElevatorAtUpperLimit = true;
+    // } else {
+    //   inputs.ElevatorAtUpperLimit = false;
+    // }
+
+    inputs.StingerAppliedVolts = motor.getMotorOutputVoltage();
+    inputs.StingerCurrentAmps = new double[] {motor.getSupplyCurrent()};
+    inputs.StingerTempCelsius = new double[] {motor.getTemperature()};
+    // NOTE: don't use talon.getSensorCollection() see:
+    // https://www.chiefdelphi.com/t/swerve-odometry-problems/392680/5
+    double sensorVelocity = motor.getSelectedSensorVelocity();
+    inputs.StingerVelocityInchesPerSecond = ticksToInchesPerSecond(sensorVelocity);
+    inputs.StingerVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
   }
 
   public void setStingerVoltage(double volts) {
@@ -120,14 +119,13 @@ public class StingerIOReal implements StingerIO {
 
   @Override
   public void setExtensionInches(double extensionInches) {
-    // if (heightInches < 0.0) {
-    //   heightInches = 0.0;
-    // }
-    if (extensionInches > maxExtensionInches) {
+    if (extensionInches < 0.0) {
+      extensionInches = 0.0;
+    } else if (extensionInches > maxExtensionInches) {
       extensionInches = maxExtensionInches;
     }
-
-    motor.set(ControlMode.MotionMagic, extensionToTicks(extensionInches));
+    targetExtensionInches = extensionInches;
+    motor.set(ControlMode.MotionMagic, inchesToTicks(extensionInches));
   }
 
   /**
@@ -135,21 +133,20 @@ public class StingerIOReal implements StingerIO {
    * @param cruiseVelocity max velocity in inches per second
    */
   @Override
-  public void setMotionProfileConstraints(double cruiseVelocity, double acceleration) {
-    // math adapted from howdyBots jvn calculator equation
-    // TODO: if speed and acceleration are strange during testing, check to see if these values are
-    // correct
-    double veloInTicks = cruiseVelocity; // * (12.15 / winchCircumference) * 2048 / 10;
-    double accelInTicks = acceleration; // TODO: inches to ticks
+  public void setMotionProfileConstraints(
+      double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
 
-    motor.configMotionAcceleration(accelInTicks);
-    motor.configMotionCruiseVelocity(veloInTicks);
+    double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
+    double accelTicksPer100msPerSecond = inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
 
-    // temporary for debugging
-    Logger.getInstance().recordOutput("Stinger Constraint Accel INCHES", acceleration);
-    Logger.getInstance().recordOutput("Stinger Constraint velo INCHES", cruiseVelocity);
-    Logger.getInstance().recordOutput("Stinger Constraint accel TICKS", accelInTicks);
-    Logger.getInstance().recordOutput("Stinger Constraint velo TICKS", veloInTicks);
+    motor.configMotionCruiseVelocity(velocityTicksPer100ms);
+    motor.configMotionAcceleration(accelTicksPer100msPerSecond);
+
+    // FIXME: temporary for debugging
+    SmartDashboard.putNumber("Stinger Accel INCHES", accelerationInchesPerSecondSquared);
+    SmartDashboard.putNumber("Stinger Velo INCHES", cruiseVelocityInchesPerSecond);
+    SmartDashboard.putNumber("Stinger Accel TICKS", accelTicksPer100msPerSecond);
+    SmartDashboard.putNumber("Stinger Velo TICKS", velocityTicksPer100ms);
   }
 
   public void resetSensorPosition(double position) {
@@ -166,11 +163,11 @@ public class StingerIOReal implements StingerIO {
     // motor.configClosedLoopPeakOutput(0, 1);
   }
 
-  public double extensionToTicks(double extensionInches) {
+  public double inchesToTicks(double extensionInches) {
     return extensionInches / ticks2Inches;
   }
 
-  public double ticksToExtensionInches(double ticks) {
+  public double ticksToInches(double ticks) {
     return ticks * ticks2Inches;
   }
 
@@ -181,7 +178,7 @@ public class StingerIOReal implements StingerIO {
    * @return ticksPer100ms
    */
   private double inchesToTicksPer100ms(double inchesPerSecond) {
-    return extensionToTicks(inchesPerSecond) / 10.0;
+    return inchesToTicks(inchesPerSecond) / 10.0;
   }
 
   /**
@@ -191,6 +188,6 @@ public class StingerIOReal implements StingerIO {
    * @return inchesPerSecond
    */
   private double ticksToInchesPerSecond(double ticksPer100ms) {
-    return ticksToExtensionInches(ticksPer100ms) * 10;
+    return ticksToInches(ticksPer100ms) * 10;
   }
 }
