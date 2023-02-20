@@ -17,8 +17,7 @@ public class IntakeIO2023 implements IntakeIO {
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     // TODO check formula
-    inputs.intakeVelocityRPM =
-        motor.getSensorCollection().getIntegratedSensorVelocity() * 10 * 60 / 2048;
+    inputs.intakeVelocityRPM = motor.getSelectedSensorVelocity() * 10 * 60 / 2048;
 
     inputs.intakeAppliedVolts = motor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {motor.getSupplyCurrent()};

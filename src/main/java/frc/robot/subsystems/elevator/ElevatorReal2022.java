@@ -286,22 +286,21 @@ public class ElevatorReal2022 implements ElevatorIO {
       inputs.ElevatorAtUpperLimit = false;
     }
 
+    // cache position and velocity values
+    double sensorPosition = lead_talon.getSelectedSensorPosition();
+    double sensorVelocity = lead_talon.getSelectedSensorVelocity();
+
     inputs.ElevatorTargetHeightInches = targetHeightInches;
-    inputs.ElevatorHeightInches =
-        ticksToInches(lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    inputs.ElevatorHeightInches = ticksToInches(sensorPosition);
 
     inputs.ElevatorAppliedVolts = lead_talon.getMotorOutputVoltage();
     inputs.ElevatorCurrentAmps = new double[] {lead_talon.getSupplyCurrent()};
     inputs.ElevatorTempCelsius = new double[] {lead_talon.getTemperature()};
-    inputs.ElevatorVelocityInchesPerSecond =
-        ticks2distance * 10.0 * lead_talon.getSelectedSensorVelocity();
-    inputs.ElevatorVelocityRPM = lead_talon.getSelectedSensorVelocity() * 10.0 * ticks2rotation;
+    inputs.ElevatorVelocityInchesPerSecond = ticks2distance * 10.0 * sensorVelocity;
+    inputs.ElevatorVelocityRPM = sensorVelocity * 10.0 * ticks2rotation;
 
     Logger.getInstance().recordOutput("elevator/ElevatorUpperSoftLimit", maxExtensionInches);
-    Logger.getInstance()
-        .recordOutput(
-            "elevator/ElevatorHeightTicks",
-            lead_talon.getSensorCollection().getIntegratedSensorPosition());
+    Logger.getInstance().recordOutput("elevator/ElevatorHeightTicks", sensorPosition);
     Logger.getInstance()
         .recordOutput("elevator/ElevatorUpperSoftLimitTicks", inchesToTicks(maxExtensionInches));
   }

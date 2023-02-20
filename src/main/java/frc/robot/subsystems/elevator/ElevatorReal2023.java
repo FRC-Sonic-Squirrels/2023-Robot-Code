@@ -102,7 +102,6 @@ public class ElevatorReal2023 implements ElevatorIO {
     }
 
     inputs.ElevatorTargetHeightInches = targetHeightInches;
-    // TODO: or is it ticksToInches(lead_talon.getSensorCollection().getIntegratedSensorPosition());
     inputs.ElevatorHeightInches = ticksToInches(lead_talon.getSelectedSensorPosition());
     inputs.ElevatorAtUpperLimit = (inputs.ElevatorHeightInches >= maxHeightInches);
 
@@ -116,9 +115,9 @@ public class ElevatorReal2023 implements ElevatorIO {
     inputs.ElevatorAppliedVolts = lead_talon.getMotorOutputVoltage();
     inputs.ElevatorCurrentAmps = new double[] {lead_talon.getSupplyCurrent()};
     inputs.ElevatorTempCelsius = new double[] {lead_talon.getTemperature()};
+    // NOTE: don't use talon.getSensorCollection() see:
+    // https://www.chiefdelphi.com/t/swerve-odometry-problems/392680/5
     double sensorVelocity = lead_talon.getSelectedSensorVelocity();
-    // TODO: or is ti lead_talon.getSensorCollection().getIntegratedSensorVelocity();
-    // TODO: or is it lead_talon.getSelectedSensorVelocity();
     inputs.ElevatorVelocityInchesPerSecond = ticksToInchesPerSecond(sensorVelocity);
     inputs.ElevatorVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
   }
@@ -173,7 +172,8 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void resetSensorHeight(double heightInches) {
-    lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
+    lead_talon.setSelectedSensorPosition(inchesToTicks(heightInches));
+    // lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   @Override

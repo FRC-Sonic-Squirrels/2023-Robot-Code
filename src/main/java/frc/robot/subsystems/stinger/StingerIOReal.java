@@ -152,7 +152,8 @@ public class StingerIOReal implements StingerIO {
   }
 
   public void resetSensorPosition(double position) {
-    motor.getSensorCollection().setIntegratedSensorPosition(position, 0);
+    motor.setSelectedSensorPosition(position);
+    // motor.getSensorCollection().setIntegratedSensorPosition(position, 0);
   }
 
   public void setPIDConstraints(double feedForward, double kP, double kI, double kD) {
