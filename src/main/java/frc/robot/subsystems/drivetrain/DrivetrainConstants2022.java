@@ -27,7 +27,6 @@ public class DrivetrainConstants2022 extends DrivetrainConstants {
 
     PIGEON_ID = 15;
 
-    
     MAX_VELOCITY_METERS_PER_SECOND =
         6380.0
             / 60.0
@@ -63,6 +62,5 @@ public class DrivetrainConstants2022 extends DrivetrainConstants {
         Units.inchesToMeters(24.0),
         Units.inchesToMeters(6.0),
         Units.inchesToMeters(6.0));
-
   }
 }

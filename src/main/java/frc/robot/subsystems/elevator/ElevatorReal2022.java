@@ -60,11 +60,11 @@ public class ElevatorReal2022 implements ElevatorIO {
   private boolean solenoidEnabled = false;
 
   private final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      new TunableNumber("elevator/Kp", Constants.Elevator2022.P_CONTROLLER);
   private final TunableNumber Ki =
-      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
+      new TunableNumber("elevator/Ki", Constants.Elevator2022.I_CONTROLLER);
   private final TunableNumber Kd =
-      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
+      new TunableNumber("elevator/Kd", Constants.Elevator2022.D_CONTROLLER);
 
   public ElevatorReal2022() {
     lead_talon.configFactoryDefault();
@@ -121,6 +121,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
+    // Openloop effects manual control only
     lead_talon.configOpenloopRamp(0.1);
 
     // Reduce CAN traffic where possible

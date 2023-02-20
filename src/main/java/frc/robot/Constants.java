@@ -115,25 +115,31 @@ public final class Constants {
   }
 
   // TODO: determine whether elevator deserves it's own constants file
-  public static class ElevatorConstants {
+  public static class Elevator {
+
+    public static final double MAX_HEIGHT_INCHES = 25.0;
 
     // TODO: check all values for new robot
     public static final double elevatorSpeedMultiplier = 1.0;
 
-    public static final double F_CONTROLLER = 1;
-    public static final double P_CONTROLLER = 0.48;
+    // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
+    public static final double F_CONTROLLER = 0.024427;
+    public static final double P_CONTROLLER = 0.098864;
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
 
-    public static final double CRUISE_VELOCITY = 40;
-    public static final double DESIRED_TIME_TO_SPEED = 0.1;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 35;
+    public static final double DESIRED_TIME_TO_SPEED = 0.5;
   }
 
-  public static final class STINGER_PID {
+  public static final class Stinger {
 
-    // TODO: find better default PID values for the stinger
-    public static final double STINGER_FEEDFORWARD = 0.054;
-    public static final double STINGER_KP = 0.48;
+    public static final double MAX_EXTENSION_INCHES = 26.0;
+
+    // TODO: tune PIDF for stinger
+    // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
+    public static final double STINGER_FEEDFORWARD = 0.024705;
+    public static final double STINGER_KP = 0.12711;
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
   }
@@ -153,5 +159,19 @@ public final class Constants {
     public static final double HEIGHT_MID_CONE = 36;
     public static final double HEIGHT_HIGH_CUBE = 37.5;
     public static final double HEIGHT_HIGH_CONE = 48;
+  }
+
+  public static class Elevator2022 {
+
+    public static final double MAX_HEIGHT_INCHES = 25.0;
+
+    // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
+    public static final double F_CONTROLLER = 1.0;
+    public static final double P_CONTROLLER = 0.48;
+    public static final double I_CONTROLLER = 0.0;
+    public static final double D_CONTROLLER = 0.0;
+
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 40;
+    public static final double DESIRED_TIME_TO_SPEED = 0.1;
   }
 }

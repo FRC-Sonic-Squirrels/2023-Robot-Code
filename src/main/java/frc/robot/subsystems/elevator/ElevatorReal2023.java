@@ -38,15 +38,9 @@ public class ElevatorReal2023 implements ElevatorIO {
     leadConfig.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
-    // Details on elevator motors, gearing and calculated kP and kFF are here
-    // https://docs.google.com/spreadsheets/d/1sOS_vM87iaKPZUFSJTqKqaFTxIl3Jj5OEwBgRxc-QGM/edit?usp=sharing
-    // this also has suggest trapezoidal velocity profile constants.
-    // leadConfig.slot0.integralZone = 0.0;
-    // leadConfig.slot0.closedLoopPeakOutput = 1.0;
-
-    // TODO: Check these values for 2023 robot
-    // leadConfig.motionAcceleration = 30000;
-    // leadConfig.motionCruiseVelocity = 15235;
+    // TODO: PIDF values are set later with setPIDConstraints() from Elevator class?
+    leadConfig.slot0.integralZone = 0.0;
+    leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
     leadConfig.slot0.allowableClosedloopError = Elevator.toleranceInches / ticks2inches;
 
@@ -73,17 +67,17 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     follow_talon.follow(lead_talon);
     // TODO: check to see whether inverted or not
-    lead_talon.setInverted(true);
-    follow_talon.setInverted(true);
+    lead_talon.setInverted(false);
+    follow_talon.setInverted(false);
 
-    // TODO: Check JVN calculator for current limit
+    // JVN calculator suggests 8Amp max
     SupplyCurrentLimitConfiguration currentLimit =
         new SupplyCurrentLimitConfiguration(true, 10, 25, 0.1);
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
-    // TODO: check whether we need this
-    // lead_talon.configOpenloopRamp(0.1);
+    // NOTE: only effects manual control
+    lead_talon.configOpenloopRamp(0.1);
 
     // TODO: determine whether we actually want to make this slow
     MotorUtils.setCtreStatusSlow(follow_talon);

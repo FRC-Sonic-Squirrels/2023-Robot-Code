@@ -20,16 +20,14 @@ public class Stinger extends SubsystemBase {
 
   public static double toleranceInches = 0.1;
 
-  private final double maxExtensionInches = 26; // actually 24 letting more for unwinding
-
   private final TunableNumber feedForwardTunable =
-      new TunableNumber("Stinger/FeedForward", Constants.STINGER_PID.STINGER_FEEDFORWARD);
+      new TunableNumber("Stinger/FeedForward", Constants.Stinger.STINGER_FEEDFORWARD);
   private final TunableNumber kPtunable =
-      new TunableNumber("Stinger/kP", Constants.STINGER_PID.STINGER_KP);
+      new TunableNumber("Stinger/kP", Constants.Stinger.STINGER_KP);
   private final TunableNumber kItunable =
-      new TunableNumber("Stinger/kI", Constants.STINGER_PID.STINGER_KI);
+      new TunableNumber("Stinger/kI", Constants.Stinger.STINGER_KI);
   private final TunableNumber kDtunable =
-      new TunableNumber("Stinger/kD", Constants.STINGER_PID.STINGER_KD);
+      new TunableNumber("Stinger/kD", Constants.Stinger.STINGER_KD);
 
   private final TunableNumber velocityInchesSecond =
       new TunableNumber("Stinger/velocity inches per sec", 40);
@@ -73,8 +71,9 @@ public class Stinger extends SubsystemBase {
     runStingerVoltage(0.0);
   }
 
-  public void setExtensionInches(double heightInches) {
-    double targetInches = MathUtil.clamp(heightInches, 0.0, maxExtensionInches);
+  public void setExtensionInches(double extensionInches) {
+    double targetInches =
+        MathUtil.clamp(extensionInches, 0.0, Constants.Stinger.MAX_EXTENSION_INCHES);
 
     io.setExtensionInches(targetInches);
   }
