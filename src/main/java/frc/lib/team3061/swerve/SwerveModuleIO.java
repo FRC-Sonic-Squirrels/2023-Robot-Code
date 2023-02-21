@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 /** Swerve module hardware abstraction interface. */
 public interface SwerveModuleIO {
+
   @AutoLog
   public static class SwerveModuleIOInputs {
     double drivePositionDeg = 0.0;
