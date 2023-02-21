@@ -62,8 +62,7 @@ public class Robot extends LoggedRobot {
       // https://www.chiefdelphi.com/t/getalliance-always-returning-red/425782/39
 
       // re-configure autonomous commands to update trajectories
-      // FIXME: UNCOMMENT auto configureAutoCommands
-      // robotContainer.configureAutoCommands();
+      robotContainer.configureAutoCommands();
       alliance = currentAlliance;
     }
   }

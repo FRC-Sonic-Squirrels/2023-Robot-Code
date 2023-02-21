@@ -4,13 +4,13 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
@@ -22,6 +22,7 @@ import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -33,7 +34,9 @@ import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,7 +61,7 @@ public class RobotContainer {
   private Elevator elevator;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
-  // private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
+  private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -271,8 +274,8 @@ public class RobotContainer {
     //     new ElevatorControlCommand(
     //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
 
-    // configureButtonBindings();
-    // configureAutoCommands();
+    configureButtonBindings();
+    configureAutoCommands();
   }
 
   /**
@@ -286,29 +289,26 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // field-relative toggle
-    // driverController
-    //     .start()
-    //     .onTrue(Commands.runOnce(drivetrain., drivetrain));
 
     // Debug Swerve Commands
-    driverController.a().whileTrue(Commands.run(() -> drivetrain.drive(-1, 0, 0), drivetrain));
-    driverController.b().whileTrue(Commands.run(() -> drivetrain.drive(0, -1, 0), drivetrain));
-    driverController.x().whileTrue(Commands.run(() -> drivetrain.drive(0, 1, 0), drivetrain));
-    driverController.y().whileTrue(Commands.run(() -> drivetrain.drive(1, 0, 0), drivetrain));
+    // driverController.a().whileTrue(Commands.run(() -> drivetrain.drive(-1, 0, 0), drivetrain));
+    // driverController.b().whileTrue(Commands.run(() -> drivetrain.drive(0, -1, 0), drivetrain));
+    // driverController.x().whileTrue(Commands.run(() -> drivetrain.drive(0, 1, 0), drivetrain));
+    // driverController.y().whileTrue(Commands.run(() -> drivetrain.drive(1, 0, 0), drivetrain));
 
     // FIXME: UNCOMMENT button bindings
 
-    // driverController
-    //     .b()
-    //     .toggleOnTrue(
-    //         Commands.either(
-    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-    //             drivetrain::getFieldRelative));
+    // toggle between Field and Robot centric driving
+    driverController
+        .b()
+        .toggleOnTrue(
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
 
-    // // reset gyro to 0 degrees
-    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // reset gyro to 0 degrees
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // // x-stance
     // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
@@ -326,48 +326,45 @@ public class RobotContainer {
     //         Commands.runOnce(intake::retract, intake)
     //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    // driverController
-    //     .povDown()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 180)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+    driverController
+        .povDown()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    180)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
 
-    // driverController
-    //     .povUp()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 0)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+    driverController
+        .povUp()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    0)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
   public void configureAutoCommands() {
+    autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-    // FIXME: UNCOMMENT autos
+    autos = new SwerveAutos(drivetrain, intake);
 
-    // autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+    List<String> autoNames = autos.getAutonomousCommandNames();
 
-    // autos = new SwerveAutos(drivetrain, intake);
-
-    // List<String> autoNames = autos.getAutonomousCommandNames();
-
-    // for (int i = 0; i < autoNames.size(); i++) {
-    //   String name = autoNames.get(i);
-    //   // System.out.println("configureAutoCommands: " + name);
-    //   if (i == 0) {
-    //     // Do nothing command must be first in list.
-    //     autoChooser.addDefaultOption(name, autos.getChooserElement(name));
-    //   } else {
-    //     autoChooser.addOption(name, autos.getChooserElement(name));
-    //   }
-    // }
+    for (int i = 0; i < autoNames.size(); i++) {
+      String name = autoNames.get(i);
+      // System.out.println("configureAutoCommands: " + name);
+      if (i == 0) {
+        // Do nothing command must be first in list.
+        autoChooser.addDefaultOption(name, autos.getChooserElement(name));
+      } else {
+        autoChooser.addOption(name, autos.getChooserElement(name));
+      }
+    }
 
     // TODO: add drive characterization command? maybe not necessary?
     // autoChooser.addOption(
@@ -379,7 +376,7 @@ public class RobotContainer {
     //        drivetrain::runCharacterizationVolts,
     //        drivetrain::getCharacterizationVelocity));
 
-    // Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
+    Shuffleboard.getTab("MAIN").add(autoChooser.getSendableChooser());
   }
 
   /**
@@ -388,8 +385,7 @@ public class RobotContainer {
    * @return name of currently selected auton
    */
   public String getAutonomousCommandName() {
-    // return autoChooser.getSendableChooser().getSelected();
-    return "";
+    return autoChooser.getSendableChooser().getSelected();
   }
 
   /**
@@ -399,12 +395,11 @@ public class RobotContainer {
    * @return the autonomous chooser element
    */
   public Supplier<AutoChooserElement> getSelectedAutonChooserElement() {
-    // Supplier<AutoChooserElement> chooserElement = autoChooser.get();
-    // if (chooserElement == null) {
-    //   return null;
-    // }
-    // return chooserElement;
-    return null;
+    Supplier<AutoChooserElement> chooserElement = autoChooser.get();
+    if (chooserElement == null) {
+      return null;
+    }
+    return chooserElement;
   }
 
   public Drivetrain getDrivetrain() {
