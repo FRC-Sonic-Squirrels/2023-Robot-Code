@@ -11,8 +11,9 @@ import frc.robot.subsystems.drivetrain.DrivetrainConstants;
  * (drivetrain and vision)
  */
 public class RobotOdometry {
-  private final SwerveDrivePoseEstimator estimator;
-  private final SwerveModulePosition[] defaultPositions =
+  private static final RobotOdometry robotOdometry = new RobotOdometry();
+  private SwerveDrivePoseEstimator estimator;
+  private SwerveModulePosition[] defaultPositions =
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
@@ -20,10 +21,14 @@ public class RobotOdometry {
         new SwerveModulePosition()
       };
 
-  public RobotOdometry(DrivetrainConstants constants) {
+  private RobotOdometry() {
     estimator =
         new SwerveDrivePoseEstimator(
-            constants.KINEMATICS, new Rotation2d(), defaultPositions, new Pose2d());
+            DrivetrainConstants.KINEMATICS, new Rotation2d(), defaultPositions, new Pose2d());
+  }
+
+  public static RobotOdometry getInstance() {
+    return robotOdometry;
   }
 
   public SwerveDrivePoseEstimator getPoseEstimator() {

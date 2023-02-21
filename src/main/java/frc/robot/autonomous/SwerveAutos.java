@@ -1,5 +1,7 @@
 package frc.robot.autonomous;
 
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -40,11 +42,15 @@ public class SwerveAutos {
     // Add named commands here.
     //
 
+    // FIXME: temporarily make this the default command for testing vision
+    addCommand("left1BallTaxi", () -> left1BallTaxi());
+
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
 
     if (!DriverStation.isFMSAttached()) {
       // only add test paths when not connected to FMS
+      addCommand("Test Sequential", () -> testSeq());
       addCommand("2m Forward", () -> testPath2mForward());
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
@@ -58,7 +64,7 @@ public class SwerveAutos {
     addCommand("right2BallEngage", () -> right2BallEngage());
     addCommand("right3Ball", () -> right3Ball());
     addCommand("right4Ball", () -> right4Ball());
-    addCommand("left1BallTaxi", () -> left1BallTaxi());
+    //    addCommand("left1BallTaxi", () -> left1BallTaxi());
     addCommand("left2Ball", () -> left2Ball());
     addCommand("left2BallEngage", () -> left2BallEngage());
     addCommand("left3Ball", () -> left3Ball());
@@ -133,6 +139,30 @@ public class SwerveAutos {
         new SequentialCommandGroup(new PrintCommand("object picked up"), Commands.waitSeconds(2)));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
+    eventMap.put(
+        "test",
+        new SequentialCommandGroup(
+            new PrintCommand("test1 1"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test1 2"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test1 3")));
+    eventMap.put(
+        "test2",
+        new SequentialCommandGroup(
+            new PrintCommand("test2 1"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test2 2"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test2 3")));
+    eventMap.put(
+        "slowTest",
+        new SequentialCommandGroup(
+            new PrintCommand("slow 1"),
+            Commands.waitSeconds(0.5),
+            new PrintCommand("slow 2"),
+            Commands.waitSeconds(0.5),
+            new PrintCommand("slow 3")));
 
     return eventMap;
   }
@@ -149,8 +179,9 @@ public class SwerveAutos {
     PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxAcceleration);
     PathPlannerTrajectory transformedTrajectory;
 
-    System.out.println(
-        "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " + name);
+    // System.out.println(
+    //     "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " +
+    // name);
 
     var alliance = DriverStation.getAlliance();
     if (alliance == DriverStation.Alliance.Red) {
@@ -189,9 +220,7 @@ public class SwerveAutos {
    */
   public PathPlannerTrajectory loadPath(String name) {
     return loadPath(
-        name,
-        drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND,
-        drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
+        name, AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
 
   // ========================= TEST Autonomous Routines ========================
@@ -235,8 +264,7 @@ public class SwerveAutos {
         PathPlanner.loadPathGroup(
             "squarePathGroup",
             new PathConstraints(
-                drivetrain.constants.AUTO_MAX_SPEED_METERS_PER_SECOND,
-                drivetrain.constants.AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
+                AUTO_MAX_SPEED_METERS_PER_SECOND, AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
 
     return new SequentialCommandGroup(
         new FollowPath(pathGroup1.get(0), drivetrain, true),
@@ -250,6 +278,12 @@ public class SwerveAutos {
 
     return new AutoChooserElement(
         path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+  }
+
+  public AutoChooserElement testSeq() {
+    PathPlannerTrajectory path = loadPath("2mforward");
+
+    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreCone());
   }
 
   // ======================= COMPETITION Autonomous Routines ========================

@@ -2,50 +2,43 @@ package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import frc.lib.team3061.gyro.GyroIO;
-import frc.lib.team3061.gyro.GyroIOPigeon2;
-import frc.lib.team3061.swerve.SwerveModule;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team3061.swerve.SwerveModuleConstants;
-import frc.lib.team3061.swerve.SwerveModuleConstants.*;
-import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
+import java.util.HashMap;
 
-public abstract class DrivetrainConstants {
-  public int FRONT_LEFT_MODULE_DRIVE_MOTOR;
-  public int FRONT_LEFT_MODULE_STEER_MOTOR;
-  public int FRONT_LEFT_MODULE_STEER_ENCODER;
-  public double FRONT_LEFT_MODULE_STEER_OFFSET;
-  public boolean FRONT_LEFT_MODULE_INVERT_DRIVE =
-      SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
-  public boolean FRONT_LEFT_MODULE_INVERT_STEER =
-      SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
+public final class DrivetrainConstants {
 
-  public int FRONT_RIGHT_MODULE_DRIVE_MOTOR;
-  public int FRONT_RIGHT_MODULE_STEER_MOTOR;
-  public int FRONT_RIGHT_MODULE_STEER_ENCODER;
-  public double FRONT_RIGHT_MODULE_STEER_OFFSET;
-  public boolean FRONT_RIGHT_MODULE_INVERT_DRIVE =
-      SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
-  public boolean FRONT_RIGHT_MODULE_INVERT_STEER =
-      SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
+  private static final String CONSTRUCTOR_EXCEPTION = "constant class";
 
-  public int BACK_LEFT_MODULE_DRIVE_MOTOR;
-  public int BACK_LEFT_MODULE_STEER_MOTOR;
-  public int BACK_LEFT_MODULE_STEER_ENCODER;
-  public double BACK_LEFT_MODULE_STEER_OFFSET;
-  public boolean BACK_LEFT_MODULE_INVERT_DRIVE = SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
-  public boolean BACK_LEFT_MODULE_INVERT_STEER = SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
+  private DrivetrainConstants() {
+    throw new IllegalStateException(CONSTRUCTOR_EXCEPTION);
+  }
 
-  public int BACK_RIGHT_MODULE_DRIVE_MOTOR;
-  public int BACK_RIGHT_MODULE_STEER_MOTOR;
-  public int BACK_RIGHT_MODULE_STEER_ENCODER;
-  public double BACK_RIGHT_MODULE_STEER_OFFSET;
-  public boolean BACK_RIGHT_MODULE_INVERT_DRIVE =
-      SwerveModuleConstants.MK4I_L2_DRIVE_MOTOR_INVERTED;
-  public boolean BACK_RIGHT_MODULE_INVERT_STEER =
-      SwerveModuleConstants.MK4I_L2_ANGLE_MOTOR_INVERTED;
+  public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
+  public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 11;
+  public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 21;
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 103.8; // 320.2;
 
-  public int PIGEON_ID;
-  public String PIGEON_CAN_BUS_NAME = "CANivore";
+  public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
+  public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;
+  public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 22;
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 112.6; // 93.3;
+
+  // Module 2
+  public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 4;
+  public static final int BACK_LEFT_MODULE_STEER_MOTOR = 14;
+  public static final int BACK_LEFT_MODULE_STEER_ENCODER = 24;
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = 9.7; // 282.4;
+
+  // module 3
+  public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
+  public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 13;
+  public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 23;
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 202.9; // 329.2;
+
+  public static final int PIGEON_ID = 15;
+  public static final String PIGEON_CAN_BUS_NAME = "CANivore";
 
   // FIXME: update robot dimensions
 
@@ -54,23 +47,31 @@ public abstract class DrivetrainConstants {
    *
    * <p>Should be measured from center to center.
    */
-  public double TRACKWIDTH_METERS;
+  public static final double TRACKWIDTH_METERS = Units.inchesToMeters(23);
 
   /**
    * The front-to-back distance between the drivetrain wheels.
    *
    * <p>Should be measured from center to center.
    */
-  public double WHEELBASE_METERS;
+  public static final double WHEELBASE_METERS = Units.inchesToMeters(25);
 
-  public double ROBOT_WIDTH_WITH_BUMPERS;
-  public double ROBOT_LENGTH_WITH_BUMPERS;
+  public static final double ROBOT_WIDTH_WITH_BUMPERS = Units.inchesToMeters(34);
+  public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36);
 
   /* The geometry and coordinate systems can be confusing. Refer to this document
-  for a detailed explanation: https://docs.google
-  .com/document/d/17dg5cIfqVOlQTTbo2ust4QxTZlUoPNzuBu2oe58Ov84/edit#heading=h.x4ppzp81ed1
+  for a detailed explanation: https://docs.google.com/document/d/17dg5cIfqVOlQTTbo2ust4QxTZlUoPNzuBu2oe58Ov84/edit#heading=h.x4ppzp81ed1
   */
-  public SwerveDriveKinematics KINEMATICS;
+  public static final SwerveDriveKinematics KINEMATICS =
+      new SwerveDriveKinematics(
+          // Front left
+          new Translation2d(WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
+          // Front right
+          new Translation2d(WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0),
+          // Back left
+          new Translation2d(-WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
+          // Back right
+          new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0));
 
   /**
    * The formula for calculating the theoretical maximum velocity is: <Motor free speed RPM> / 60 *
@@ -85,147 +86,49 @@ public abstract class DrivetrainConstants {
    *
    * <p>This is a measure of how fast the robot should be able to drive in a straight line.
    */
-  public double MAX_VELOCITY_METERS_PER_SECOND;
+  public static final double MAX_VELOCITY_METERS_PER_SECOND =
+      6380.0
+          / 60.0
+          / SwerveModuleConstants.DRIVE_GEAR_RATIO
+          * SwerveModuleConstants.WHEEL_CIRCUMFERENCE;
 
   /**
    * The maximum angular velocity of the robot in radians per second.
    *
    * <p>This is a measure of how fast the robot can rotate in place.
    */
-  public double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+  public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND =
+      MAX_VELOCITY_METERS_PER_SECOND / Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
   // TODO: find actual max angular acceleration
-  public double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
+  public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
+      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
-  public double MAX_COAST_VELOCITY_METERS_PER_SECOND;
+  public static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05;
 
-  public int TIMEOUT_MS = 30;
+  public static final int TIMEOUT_MS = 30;
 
-  public double AUTO_MAX_SPEED_METERS_PER_SECOND;
-  public double AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-  public double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
-  public double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED;
+  public static final double AUTO_MAX_SPEED_METERS_PER_SECOND = 2.0;
+  public static final double AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
+  public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 2.0 * Math.PI;
+  public static final double AUTO_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 2.0 * Math.PI;
 
-  public double AUTO_TEST_MAX_SPEED_METERS_PER_SECOND;
-  public double AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-  public double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
-  public double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED;
+  public static final double AUTO_TEST_MAX_SPEED_METERS_PER_SECOND = 0.2;
+  public static final double AUTO_TEST_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 0.2;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 0.2 * Math.PI;
+  public static final double AUTO_TEST_MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 0.2 * Math.PI;
 
   // FIXME: tune PID values for auto paths
 
-  public double AUTO_DRIVE_P_CONTROLLER;
-  public double AUTO_DRIVE_I_CONTROLLER;
-  public double AUTO_DRIVE_D_CONTROLLER;
+  public static final double AUTO_DRIVE_P_CONTROLLER = 2.2941;
+  public static final double AUTO_DRIVE_I_CONTROLLER = 0.0;
+  public static final double AUTO_DRIVE_D_CONTROLLER = 0.0;
 
-  public double AUTO_TURN_P_CONTROLLER;
-  public double AUTO_TURN_I_CONTROLLER;
-  public double AUTO_TURN_D_CONTROLLER;
+  public static final double AUTO_TURN_P_CONTROLLER = 4.9;
+  public static final double AUTO_TURN_I_CONTROLLER = 0.0;
+  public static final double AUTO_TURN_D_CONTROLLER = 0.0;
 
-  public double DEADBAND;
+  public static final double DEADBAND = 0.1;
 
-  protected void initializeRobotBase(
-      double trackWidth, double wheelBase, double extraBumperWidth, double extraBumperLength) {
-    /**
-     * The left-to-right distance between the drivetrain wheels
-     *
-     * <p>Should be measured from center to center.
-     */
-    TRACKWIDTH_METERS = trackWidth;
-    ROBOT_WIDTH_WITH_BUMPERS = trackWidth + extraBumperWidth;
-
-    /**
-     * The front-to-back distance between the drivetrain wheels.
-     *
-     * <p>Should be measured from center to center.
-     */
-    WHEELBASE_METERS = wheelBase;
-    ROBOT_LENGTH_WITH_BUMPERS = wheelBase + extraBumperLength;
-
-    /* The geometry and coordinate systems can be confusing. Refer to this document
-    for a detailed explanation: https://docs.google
-    .com/document/d/17dg5cIfqVOlQTTbo2ust4QxTZlUoPNzuBu2oe58Ov84/edit#heading=h.x4ppzp81ed1
-    */
-    KINEMATICS =
-        new SwerveDriveKinematics(
-            // Front left
-            new Translation2d(WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
-            // Front right
-            new Translation2d(WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0),
-            // Back left
-            new Translation2d(-WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
-            // Back right
-            new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0));
-
-    /**
-     * The maximum angular velocity of the robot in radians per second.
-     *
-     * <p>This is a measure of how fast the robot can rotate in place.
-     */
-    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND =
-        MAX_VELOCITY_METERS_PER_SECOND
-            / Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
-
-    // TODO: find actual max angular acceleration
-    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-  }
-
-  public Drivetrain buildDriveTrain() {
-    GyroIO gyro = new GyroIOPigeon2(PIGEON_ID, PIGEON_CAN_BUS_NAME);
-
-    // FIXME: need to invert the back left drive motor and back right steer motor for 2023
-
-    SwerveModule flModule =
-        new SwerveModule(
-            new SwerveModuleIOTalonFX(
-                0,
-                FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                FRONT_LEFT_MODULE_STEER_MOTOR,
-                FRONT_LEFT_MODULE_STEER_ENCODER,
-                FRONT_LEFT_MODULE_STEER_OFFSET,
-                FRONT_LEFT_MODULE_INVERT_DRIVE,
-                FRONT_LEFT_MODULE_INVERT_STEER),
-            0,
-            MAX_VELOCITY_METERS_PER_SECOND);
-
-    SwerveModule frModule =
-        new SwerveModule(
-            new SwerveModuleIOTalonFX(
-                1,
-                FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_ENCODER,
-                FRONT_RIGHT_MODULE_STEER_OFFSET,
-                FRONT_RIGHT_MODULE_INVERT_DRIVE,
-                FRONT_RIGHT_MODULE_INVERT_STEER),
-            1,
-            MAX_VELOCITY_METERS_PER_SECOND);
-
-    SwerveModule blModule =
-        new SwerveModule(
-            new SwerveModuleIOTalonFX(
-                2,
-                BACK_LEFT_MODULE_DRIVE_MOTOR,
-                BACK_LEFT_MODULE_STEER_MOTOR,
-                BACK_LEFT_MODULE_STEER_ENCODER,
-                BACK_LEFT_MODULE_STEER_OFFSET,
-                BACK_LEFT_MODULE_INVERT_DRIVE,
-                BACK_LEFT_MODULE_INVERT_STEER),
-            2,
-            MAX_VELOCITY_METERS_PER_SECOND);
-
-    SwerveModule brModule =
-        new SwerveModule(
-            new SwerveModuleIOTalonFX(
-                3,
-                BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                BACK_RIGHT_MODULE_STEER_MOTOR,
-                BACK_RIGHT_MODULE_STEER_ENCODER,
-                BACK_RIGHT_MODULE_STEER_OFFSET,
-                BACK_RIGHT_MODULE_INVERT_DRIVE,
-                BACK_RIGHT_MODULE_INVERT_STEER),
-            3,
-            MAX_VELOCITY_METERS_PER_SECOND);
-
-    return new Drivetrain(this, gyro, flModule, frModule, blModule, brModule);
-  }
+  public static final HashMap<String, Command> EVENT_MAP = new HashMap<>();
 }

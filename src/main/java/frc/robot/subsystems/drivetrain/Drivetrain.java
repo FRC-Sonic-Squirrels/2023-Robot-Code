@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.drivetrain;
 
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -11,7 +13,11 @@ import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -28,6 +34,7 @@ import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOInputsAutoLogged;
 import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.util.RobotOdometry;
+import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team6328.util.TunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -37,21 +44,29 @@ import org.littletonrobotics.junction.Logger;
  * robot's rotation.
  */
 public class Drivetrain extends SubsystemBase {
-  public final DrivetrainConstants constants;
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Field2d field = new Field2d();
 
-  private final TunableNumber autoDriveKp;
-  private final TunableNumber autoDriveKi;
-  private final TunableNumber autoDriveKd;
-  private final TunableNumber autoTurnKp;
-  private final TunableNumber autoTurnKi;
-  private final TunableNumber autoTurnKd;
+  private final TunableNumber autoDriveKp =
+      new TunableNumber("AutoDrive/DriveKp", AUTO_DRIVE_P_CONTROLLER);
+  private final TunableNumber autoDriveKi =
+      new TunableNumber("AutoDrive/DriveKi", AUTO_DRIVE_I_CONTROLLER);
+  private final TunableNumber autoDriveKd =
+      new TunableNumber("AutoDrive/DriveKd", AUTO_DRIVE_D_CONTROLLER);
+  private final TunableNumber autoTurnKp =
+      new TunableNumber("AutoDrive/TurnKp", AUTO_TURN_P_CONTROLLER);
+  private final TunableNumber autoTurnKi =
+      new TunableNumber("AutoDrive/TurnKi", AUTO_TURN_I_CONTROLLER);
+  private final TunableNumber autoTurnKd =
+      new TunableNumber("AutoDrive/TurnKd", AUTO_TURN_D_CONTROLLER);
 
-  private final PIDController autoXController;
-  private final PIDController autoYController;
-  private final PIDController autoThetaController;
+  private final PIDController autoXController =
+      new PIDController(autoDriveKp.get(), autoDriveKi.get(), autoDriveKd.get());
+  private final PIDController autoYController =
+      new PIDController(autoDriveKp.get(), autoDriveKi.get(), autoDriveKd.get());
+  private final PIDController autoThetaController =
+      new PIDController(autoTurnKp.get(), autoTurnKi.get(), autoTurnKd.get());
 
   private final SwerveModule[] swerveModules = new SwerveModule[4]; // FL, FR, BL, BR
 
@@ -83,7 +98,7 @@ public class Drivetrain extends SubsystemBase {
 
   private static final String SUBSYSTEM_NAME = "Drivetrain";
   private static final boolean TESTING = false;
-  private static final boolean DEBUGGING = true;
+  private static final boolean DEBUGGING = false;
 
   private final SwerveDrivePoseEstimator poseEstimator;
   private Timer timer;
@@ -94,29 +109,16 @@ public class Drivetrain extends SubsystemBase {
 
   /** Constructs a new DrivetrainSubsystem object. */
   public Drivetrain(
-      DrivetrainConstants constants,
       GyroIO gyroIO,
       SwerveModule flModule,
       SwerveModule frModule,
       SwerveModule blModule,
       SwerveModule brModule) {
-    this.constants = constants;
     this.gyroIO = gyroIO;
     this.swerveModules[0] = flModule;
     this.swerveModules[1] = frModule;
     this.swerveModules[2] = blModule;
     this.swerveModules[3] = brModule;
-
-    autoDriveKp = new TunableNumber("AutoDrive/DriveKp", constants.AUTO_DRIVE_P_CONTROLLER);
-    autoDriveKi = new TunableNumber("AutoDrive/DriveKi", constants.AUTO_DRIVE_I_CONTROLLER);
-    autoDriveKd = new TunableNumber("AutoDrive/DriveKd", constants.AUTO_DRIVE_D_CONTROLLER);
-    autoTurnKp = new TunableNumber("AutoDrive/TurnKp", constants.AUTO_TURN_P_CONTROLLER);
-    autoTurnKi = new TunableNumber("AutoDrive/TurnKi", constants.AUTO_TURN_I_CONTROLLER);
-    autoTurnKd = new TunableNumber("AutoDrive/TurnKd", constants.AUTO_TURN_D_CONTROLLER);
-
-    autoXController = new PIDController(autoDriveKp.get(), autoDriveKi.get(), autoDriveKd.get());
-    autoYController = new PIDController(autoDriveKp.get(), autoDriveKi.get(), autoDriveKd.get());
-    autoThetaController = new PIDController(autoTurnKp.get(), autoTurnKi.get(), autoTurnKd.get());
 
     this.autoThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -133,7 +135,7 @@ public class Drivetrain extends SubsystemBase {
     this.timer = new Timer();
     this.startTimer();
 
-    this.poseEstimator = new RobotOdometry(constants).getPoseEstimator();
+    this.poseEstimator = RobotOdometry.getInstance().getPoseEstimator();
 
     ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
     tabMain.addNumber("Gyroscope Angle", () -> getRotation().getDegrees());
@@ -160,18 +162,6 @@ public class Drivetrain extends SubsystemBase {
     }
 
     SmartDashboard.putData("Field", field);
-
-    /* By pausing init for a second before setting module offsets, we avoid a bug with inverting motors.
-     * See https://github.com/Team364/BaseFalconSwerve/issues/8 for more info.
-     */
-    Timer.delay(1.0);
-    resetModulesToAbsolute();
-  }
-
-  public void resetModulesToAbsolute() {
-    for (SwerveModule mod : swerveModules) {
-      mod.resetToAbsolute();
-    }
   }
 
   /**
@@ -235,10 +225,6 @@ public class Drivetrain extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
-  public SwerveDrivePoseEstimator getPoseEstimator() {
-    return poseEstimator;
-  }
-
   /**
    * Sets the odometry of the robot to the specified PathPlanner state. This method should only be
    * invoked when the rotation of the robot is known (e.g., at the start of an autonomous path). The
@@ -277,9 +263,9 @@ public class Drivetrain extends SubsystemBase {
    * <p>If the drive mode is CHARACTERIZATION, the robot will ignore the specified velocities and
    * run the characterization routine.
    *
-   * @param xVelocity the desired velocity in the x direction (m/s)
-   * @param yVelocity the desired velocity in the y direction (m/s)
-   * @param rotationalVelocity the desired rotational velcoity (rad/s)
+   * @param translationXSupplier the desired velocity in the x direction (m/s)
+   * @param translationYSupplier the desired velocity in the y direction (m/s)
+   * @param rotationSupplier the desired rotational velcoity (rad/s)
    */
   public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
 
@@ -302,9 +288,9 @@ public class Drivetrain extends SubsystemBase {
             .recordOutput("Drivetrain/chassisSpeedVo", chassisSpeeds.omegaRadiansPerSecond);
 
         SwerveModuleState[] swerveModuleStates =
-            constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
+            KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
         SwerveDriveKinematics.desaturateWheelSpeeds(
-            swerveModuleStates, constants.MAX_VELOCITY_METERS_PER_SECOND);
+            swerveModuleStates, MAX_VELOCITY_METERS_PER_SECOND);
 
         for (SwerveModule swerveModule : swerveModules) {
           swerveModule.setDesiredState(
@@ -332,8 +318,7 @@ public class Drivetrain extends SubsystemBase {
    */
   public void stop() {
     chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-    SwerveModuleState[] states =
-        constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
+    SwerveModuleState[] states = KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
     setSwerveModuleStates(states);
   }
 
@@ -376,7 +361,7 @@ public class Drivetrain extends SubsystemBase {
         previous.distanceMeters = current.distanceMeters;
       }
 
-      Twist2d twist = constants.KINEMATICS.toTwist2d(moduleDeltas);
+      Twist2d twist = KINEMATICS.toTwist2d(moduleDeltas);
 
       estimatedPoseWithoutGyro = estimatedPoseWithoutGyro.exp(twist);
     }
@@ -402,6 +387,10 @@ public class Drivetrain extends SubsystemBase {
     Logger.getInstance().recordOutput("Odometry/RobotNoGyro", estimatedPoseWithoutGyro);
     Logger.getInstance().recordOutput("Odometry/Robot", poseEstimatorPose);
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
+    Logger.getInstance()
+        .recordOutput(
+            "3DCamera",
+            new Pose3d(poseEstimatorPose).transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
   }
@@ -419,8 +408,7 @@ public class Drivetrain extends SubsystemBase {
     } else {
       boolean stillMoving = false;
       for (SwerveModule mod : swerveModules) {
-        if (Math.abs(mod.getState().speedMetersPerSecond)
-            > constants.MAX_COAST_VELOCITY_METERS_PER_SECOND) {
+        if (Math.abs(mod.getState().speedMetersPerSecond) > MAX_COAST_VELOCITY_METERS_PER_SECOND) {
           stillMoving = true;
         }
       }
@@ -449,7 +437,7 @@ public class Drivetrain extends SubsystemBase {
    * @param states the specified swerve module state for each swerve module
    */
   public void setSwerveModuleStates(SwerveModuleState[] states) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, constants.MAX_VELOCITY_METERS_PER_SECOND);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
     for (SwerveModule swerveModule : swerveModules) {
       swerveModule.setDesiredState(states[swerveModule.getModuleNumber()], false, false);
@@ -488,13 +476,12 @@ public class Drivetrain extends SubsystemBase {
    */
   public void setXStance() {
     chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-    SwerveModuleState[] states =
-        constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
-    double diagonal_angle = Math.atan(constants.TRACKWIDTH_METERS / constants.WHEELBASE_METERS);
-    states[0].angle = new Rotation2d(Math.PI / 2 - diagonal_angle);
-    states[1].angle = new Rotation2d(Math.PI / 2 + diagonal_angle);
-    states[2].angle = new Rotation2d(Math.PI / 2 + diagonal_angle);
-    states[3].angle = new Rotation2d(3.0 / 2.0 * Math.PI - diagonal_angle);
+    SwerveModuleState[] states = KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
+    states[0].angle = new Rotation2d(Math.PI / 2 - Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS));
+    states[1].angle = new Rotation2d(Math.PI / 2 + Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS));
+    states[2].angle = new Rotation2d(Math.PI / 2 + Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS));
+    states[3].angle =
+        new Rotation2d(3.0 / 2.0 * Math.PI - Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS));
     for (SwerveModule swerveModule : swerveModules) {
       swerveModule.setDesiredState(states[swerveModule.getModuleNumber()], true, true);
     }
@@ -615,8 +602,8 @@ public class Drivetrain extends SubsystemBase {
   public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose) {
     return PathPlanner.generatePath(
         new PathConstraints(
-            constants.MAX_VELOCITY_METERS_PER_SECOND,
-            constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
+            DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+            DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
         PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
         new PathPoint(
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
