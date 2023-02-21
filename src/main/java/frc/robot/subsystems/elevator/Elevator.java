@@ -21,14 +21,14 @@ public class Elevator extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static final double toleranceInches = 0.05;
   // TODO: check real height
-  public static final double maxHeightInches = 26;
-  private boolean zeroed;
-  private boolean maxed;
+  public static final double maxHeightInches = 20.0;
+  private boolean zeroed = false;
+  private boolean maxed = false;
 
   public final TunableNumber Kf =
       new TunableNumber("elevator/Kf", Constants.ElevatorConstants.F_CONTROLLER);
   public final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      new TunableNumber("elevator/tunableKp", Constants.ElevatorConstants.P_CONTROLLER);
   public final TunableNumber Ki =
       new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
   public final TunableNumber Kd =
@@ -45,6 +45,7 @@ public class Elevator extends SubsystemBase {
     io.resetSensorHeight(0.0);
     setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
+    io.setMaxHeightInches(maxHeightInches);
   }
 
   @Override
@@ -64,17 +65,18 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
-    if (inputs.ElevatorAtUpperLimit) {
-      if (!maxed) {
-        // only zero height once per time hitting limit switch
-        // TODO: add method to reset to max height in io
-        io.resetSensorHeight(maxHeightInches);
-        maxed = true;
-      }
-    } else {
-      // not currently on limit switch, zero again next time we hit limit switch
-      maxed = false;
-    }
+    // No physical upper limit switch
+    // if (inputs.ElevatorAtUpperLimit) {
+    //   if (!maxed) {
+    //     // only zero height once per time hitting limit switch
+    //     // TODO: add method to reset to max height in io
+    //     io.resetSensorHeight(maxHeightInches);
+    //     maxed = true;
+    //   }
+    // } else {
+    //   // not currently on limit switch, zero again next time we hit limit switch
+    //   maxed = false;
+    // }
 
     if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
@@ -90,6 +92,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeightInches(double targetHeightInches) {
+    MathUtil.clamp(targetHeightInches, 0, maxHeightInches);
+
     io.setHeightInches(targetHeightInches);
   }
 
@@ -140,7 +144,7 @@ public class Elevator extends SubsystemBase {
     io.setPIDConstraints(kF, kP, kI, kD);
   }
 
-  // TODO: change meters to inches
+  // FIXME: change meters to inches
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double desiredTimeSeconds) {
 

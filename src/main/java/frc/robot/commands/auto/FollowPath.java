@@ -1,7 +1,5 @@
 package frc.robot.commands.auto;
 
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
-
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import frc.lib.team2930.AutoChooserElement;
@@ -41,7 +39,7 @@ public class FollowPath extends PPSwerveControllerCommand {
     super(
         trajectory,
         subsystem::getPose,
-        KINEMATICS,
+        subsystem.constants.KINEMATICS,
         subsystem.getAutoXController(),
         subsystem.getAutoYController(),
         subsystem.getAutoThetaController(),

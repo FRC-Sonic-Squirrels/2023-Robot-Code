@@ -5,8 +5,8 @@
 package frc.lib.team2930;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,7 +25,7 @@ import java.util.List;
  * chained together.
  */
 public class AutoChooserElement {
-  private Pose2d initialPose;
+  private PathPlannerState initialState;
   private Trajectory trajectory;
   private SequentialCommandGroup command;
   private AutoChooserElement next;
@@ -36,9 +36,9 @@ public class AutoChooserElement {
     // on the dashboard and not following. Reducing the trajectory size makes computation and
     // transmitting the data on NetworkTables faster.
     this.trajectory = decimateTrajectory(trajectory, 10);
-    this.initialPose = null;
+    this.initialState = null;
     if (trajectory != null) {
-      this.initialPose = trajectory.getInitialHolonomicPose();
+      this.initialState = trajectory.getInitialState();
     }
     this.command = command;
     this.next = null;
@@ -46,8 +46,8 @@ public class AutoChooserElement {
 
   public String toString() {
     String s = "pose: ";
-    if (initialPose != null) {
-      s += initialPose.getTranslation().toString();
+    if (initialState != null) {
+      s += initialState.poseMeters.toString();
     } else {
       s += "NONE";
     }
@@ -129,14 +129,14 @@ public class AutoChooserElement {
     return command;
   }
 
-  public Pose2d getPose2d() {
-    if ((initialPose == null) && (next != null)) {
-      initialPose = next.getPose2d();
+  public PathPlannerState getInitialState() {
+    if ((initialState == null) && (next != null)) {
+      initialState = next.getInitialState();
     }
-    if (initialPose == null) {
-      return new Pose2d();
+    if (initialState == null) {
+      return new PathPlannerState();
     }
-    return initialPose;
+    return initialState;
   }
 
   public Trajectory getTrajectory() {

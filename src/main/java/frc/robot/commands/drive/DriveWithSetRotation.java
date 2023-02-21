@@ -9,7 +9,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -35,14 +34,7 @@ public class DriveWithSetRotation extends CommandBase {
   private final TunableNumber toleranceDegrees =
       new TunableNumber("Drive/DriveSetRotation/toleranceDegrees", TOLERANCE_DEGREES_DEFAULT_VALUE);
   // PID controller to maintain fixed rotation, with P being a TunableNumber
-  private ProfiledPIDController rotationController =
-      new ProfiledPIDController(
-          rotationKp.get(),
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-              DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
+  private ProfiledPIDController rotationController;
 
   /** Creates a new DriveWithSetRotation. */
   public DriveWithSetRotation(Drivetrain drive, DoubleSupplier x, DoubleSupplier y, int pov) {
@@ -53,6 +45,15 @@ public class DriveWithSetRotation extends CommandBase {
     m_rotationPOV = pov;
 
     m_setRotationRadians = 0;
+
+    rotationController =
+        new ProfiledPIDController(
+            rotationKp.get(),
+            0,
+            0,
+            new TrapezoidProfile.Constraints(
+                drive.constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                drive.constants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -75,8 +76,8 @@ public class DriveWithSetRotation extends CommandBase {
     double xPercentage = -modifyAxis(m_translationXSupplier.getAsDouble());
     double yPercentage = -modifyAxis(m_translationYSupplier.getAsDouble());
 
-    double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-    double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+    double xVelocity = xPercentage * m_drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
+    double yVelocity = yPercentage * m_drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
     // if pov was < 0 that would mean theres no input
     if (m_rotationPOV >= 0) {
 
@@ -119,9 +120,9 @@ public class DriveWithSetRotation extends CommandBase {
     Logger.getInstance().recordOutput("ActiveCommands/DriveWithSetRotation", false);
   }
 
-  private static double modifyAxis(double value) {
+  private double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, DrivetrainConstants.DEADBAND);
+    value = deadband(value, m_drivetrain.constants.DEADBAND);
 
     // Square the axis
     value = Math.copySign(value * value, value);

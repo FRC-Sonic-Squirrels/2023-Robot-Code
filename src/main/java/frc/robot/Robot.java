@@ -4,11 +4,11 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -36,6 +36,10 @@ public class Robot extends LoggedRobot {
   private String currentAutoName = "";
   private RobotContainer robotContainer;
   Alliance alliance = Alliance.Invalid;
+
+  // private SimulatedMechanism simMech = new SimulatedMechanism();
+
+  private XboxController testController = new XboxController(0);
 
   private final Alert logReceiverQueueAlert =
       new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
@@ -91,14 +95,12 @@ public class Robot extends LoggedRobot {
           trajectory = new Trajectory();
         }
 
-        PathPlannerState startState = new PathPlannerState();
-        startState.poseMeters = currentAutoElement.getPose2d();
-
         // TODO: do we want to set the robot's start pose?
-        // robotContainer.getDrivetrain().resetOdometry(startState);
+        robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
 
         Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
-        Logger.getInstance().recordOutput("Odometry/startPose", currentAutoElement.getPose2d());
+        Logger.getInstance()
+            .recordOutput("Odometry/startPose", currentAutoElement.getInitialState().poseMeters);
       }
     }
   }
@@ -147,7 +149,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        logger.addDataReceiver(new WPILOGWriter(""));
+        // logger.addDataReceiver(new WPILOGWriter(""));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -240,6 +242,7 @@ public class Robot extends LoggedRobot {
      * autonomous to continue until interrupted by another command, remove this line or comment it
      * out.
      */
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }

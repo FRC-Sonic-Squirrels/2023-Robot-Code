@@ -2,7 +2,6 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -57,10 +56,10 @@ public class TeleopSwerve extends CommandBase {
     double yPercentage = -modifyAxis(translationYSupplier.getAsDouble());
     double rotationPercentage = -modifyAxis(rotationSupplier.getAsDouble());
 
-    double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-    double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+    double xVelocity = xPercentage * drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
+    double yVelocity = yPercentage * drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
     double rotationalVelocity =
-        rotationPercentage * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        rotationPercentage * drivetrain.constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
     Logger.getInstance().recordOutput("ActiveCommands/TeleopSwerve", true);
     Logger.getInstance().recordOutput("TeleopSwerve/xVelocity", xVelocity);
@@ -86,9 +85,9 @@ public class TeleopSwerve extends CommandBase {
    * @param value
    * @return
    */
-  private static double modifyAxis(double value) {
+  private double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, DrivetrainConstants.DEADBAND);
+    value = deadband(value, drivetrain.constants.DEADBAND);
 
     // Square the axis
     value = Math.copySign(value * value, value);
