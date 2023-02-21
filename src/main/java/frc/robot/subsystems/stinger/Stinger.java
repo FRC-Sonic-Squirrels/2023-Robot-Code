@@ -62,10 +62,16 @@ public class Stinger extends SubsystemBase {
       setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
     }
 
-    // zero the elevator
-    if (!zeroed && atRetractedLimit()) {
-      zeroExtension();
-      zeroed = true;
+    // limit switch
+    if (inputs.StingerAtRetractedLimit) {
+      if (!zeroed) {
+        // only zero height once per time hitting limit switch
+        io.setSensorPosition(0.0);
+        zeroed = true;
+      }
+    } else {
+      // not currently on limit switch, zero again next time we hit limit switch
+      zeroed = false;
     }
   }
 

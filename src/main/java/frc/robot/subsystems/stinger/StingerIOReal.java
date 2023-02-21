@@ -56,14 +56,15 @@ public class StingerIOReal implements StingerIO {
     // use pid from slot 0 for motion magic
     motor.selectProfileSlot(0, 0);
 
-    motor.setNeutralMode(NeutralMode.Brake);
+    // FIXME: set to Brake mode after testing
+    motor.setNeutralMode(NeutralMode.Coast);
 
     // config hard limit switch for full down position
     motor.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
     // TODO: check if motor should be inverted or not
-    motor.setInverted(false);
+    motor.setInverted(true);
 
     // JVN calculator predicts 12 A under load
     SupplyCurrentLimitConfiguration currentLimit =

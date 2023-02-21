@@ -51,8 +51,9 @@ public class ElevatorReal2023 implements ElevatorIO {
     // use pid from slot 0 for motion magic
     lead_talon.selectProfileSlot(0, 0);
 
-    lead_talon.setNeutralMode(NeutralMode.Brake);
-    follow_talon.setNeutralMode(NeutralMode.Brake);
+    // FIXME: set to Brake mode after testing
+    lead_talon.setNeutralMode(NeutralMode.Coast);
+    follow_talon.setNeutralMode(NeutralMode.Coast);
 
     // config hard limit switch for full down position
     // TODO: remember to configure
@@ -65,8 +66,8 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     follow_talon.follow(lead_talon);
     // TODO: check to see whether inverted or not
-    lead_talon.setInverted(false);
-    follow_talon.setInverted(false);
+    lead_talon.setInverted(true);
+    follow_talon.setInverted(true);
 
     // JVN calculator suggests 8Amp max
     SupplyCurrentLimitConfiguration currentLimit =
