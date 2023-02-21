@@ -100,7 +100,6 @@ public class ElevatorSetHeight extends CommandBase {
   @Override
   public boolean isFinished() {
     // elevator has to be at that height for 0.1 seconds
-    // TODO: check if this is needed
     return isFinishedTrigger.getAsBoolean();
   }
 }

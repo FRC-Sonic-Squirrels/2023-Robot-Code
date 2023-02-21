@@ -17,7 +17,6 @@ public class Intake extends SubsystemBase {
   private final boolean EXTENDED_BOOL = true;
   private final boolean RETRACTED_BOOL = false;
 
-  // TODO figure out which way the motor would spin for every action
   private final double INTAKE_CONE_INVERT = -1;
   private final double INTAKE_CUBE_INVERT = -1;
 

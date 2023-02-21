@@ -114,7 +114,6 @@ public final class Constants {
     public static final int channel_15_friction_brake = 15;
   }
 
-  // TODO: determine whether elevator deserves it's own constants file
   public static class ElevatorConstants {
 
     // TODO: check all values for new robot
