@@ -2,7 +2,6 @@ package frc.lib.team3061.vision;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
@@ -30,27 +29,23 @@ public class VisionIOSim implements VisionIO {
 
   private Supplier<Pose2d> poseSupplier;
   private SimVisionSystem simVision;
+  private AprilTagFieldLayout layout;
 
   public VisionIOSim(
       AprilTagFieldLayout layout, Supplier<Pose2d> poseSupplier, Transform3d robotToCamera) {
     this.poseSupplier = poseSupplier;
-
+    this.layout = layout;
     this.simVision =
         new SimVisionSystem(
             CAMERA_NAME,
             DIAGONAL_FOV,
-            robotToCamera.inverse(),
+            robotToCamera, // .inverse(),
             9000,
             IMG_WIDTH,
             IMG_HEIGHT,
             MIN_TARGET_AREA);
 
-    layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-
-    for (AprilTag tag : layout.getTags()) {
-      this.simVision.addSimVisionTarget(
-          new SimVisionTarget(tag.pose, Units.inchesToMeters(6), Units.inchesToMeters(6), tag.ID));
-    }
+    updateSimInputs();
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
@@ -79,7 +74,16 @@ public class VisionIOSim implements VisionIO {
   @Override
   public synchronized void updateInputs(VisionIOInputs inputs) {
     this.simVision.processFrame(poseSupplier.get());
+
     inputs.lastTimestamp = this.lastTimestamp;
     inputs.lastResult = this.lastResult;
+  }
+
+  private void updateSimInputs() {
+    this.simVision.clearVisionTargets();
+    for (AprilTag tag : layout.getTags()) {
+      this.simVision.addSimVisionTarget(
+          new SimVisionTarget(tag.pose, Units.inchesToMeters(6), Units.inchesToMeters(6), tag.ID));
+    }
   }
 }

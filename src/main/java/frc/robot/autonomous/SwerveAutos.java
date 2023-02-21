@@ -3,6 +3,8 @@ package frc.robot.autonomous;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,8 +25,14 @@ public class SwerveAutos {
   private Drivetrain drivetrain;
   private Intake intake;
 
+  // get field dimensions from official WPILib file
+  // https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2023-chargedup.json#L148-L151
+  public static final double FIELD_LENGTH_METERS = 16.54175;
+  public static final double FIELD_WIDTH_METERS = 8.0137;
+
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     // FIXME: List of all required subsystems: elevator, stinger, intake, LED
+    // iterate through all the commands in EventMap and extract the requirements for each command?
     this.drivetrain = drivetrain;
     this.intake = intake;
 
@@ -144,11 +152,32 @@ public class SwerveAutos {
     System.out.println(
         "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " + name);
 
-    transformedTrajectory =
-        PathPlannerTrajectory.transformTrajectoryForAlliance(
-            trajectory, DriverStation.getAlliance());
+    var alliance = DriverStation.getAlliance();
+    if (alliance == DriverStation.Alliance.Red) {
+      transformedTrajectory =
+          PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, alliance);
 
-    return transformedTrajectory;
+      for (var i = 0; i < trajectory.getStates().size(); i++) {
+        var oldState = (PathPlannerTrajectory.PathPlannerState) trajectory.getState(i);
+        var newState = (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.getState(i);
+
+        Pose2d pose2d = oldState.poseMeters;
+        var x = pose2d.getX();
+        var y = pose2d.getY();
+        var rot = pose2d.getRotation();
+        rot = new Rotation2d(-rot.getCos(), rot.getSin());
+
+        Rotation2d holonomicRotation = oldState.holonomicRotation;
+        newState.holonomicRotation =
+            new Rotation2d(-holonomicRotation.getCos(), holonomicRotation.getSin());
+
+        newState.poseMeters = new Pose2d(FIELD_LENGTH_METERS - x, y, rot);
+      }
+
+      return transformedTrajectory;
+    }
+
+    return trajectory;
   }
 
   /**

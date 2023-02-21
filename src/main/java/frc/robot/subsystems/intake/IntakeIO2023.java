@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -10,6 +11,7 @@ public class IntakeIO2023 implements IntakeIO {
   public IntakeIO2023() {
     // TalonFXConfiguration config = new TalonFXConfiguration();
     motor.configFactoryDefault();
+    motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setInverted(false);
     motor.setNeutralMode(NeutralMode.Brake);
   }
@@ -17,8 +19,7 @@ public class IntakeIO2023 implements IntakeIO {
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     // TODO check formula
-    inputs.intakeVelocityRPM =
-        motor.getSensorCollection().getIntegratedSensorVelocity() * 10 * 60 / 2048;
+    inputs.intakeVelocityRPM = motor.getSelectedSensorVelocity() * 10 * 60 / 2048;
 
     inputs.intakeAppliedVolts = motor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {motor.getSupplyCurrent()};
