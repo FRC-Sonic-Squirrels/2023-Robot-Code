@@ -12,7 +12,8 @@ public interface IntakeIO {
   /** Contains all of the input data received from hardware. */
   public static class IntakeIOInputs implements LoggableInputs {
     public boolean solenoid = false;
-
+    public boolean intakeRevLimitSwitch = false;
+    public boolean intakeFwdLimitSwitch = false;
     public double intakeVelocityRPM = 0.0;
     public double intakeAppliedVolts = 0.0;
     public double[] intakeCurrentAmps = new double[] {};
@@ -20,7 +21,8 @@ public interface IntakeIO {
 
     public void toLog(LogTable table) {
       table.put("solenoid state", solenoid);
-
+      table.put("intakeRevLimitSwitch", intakeRevLimitSwitch);
+      table.put("intakeFwdLimitSwitch", intakeFwdLimitSwitch);
       table.put("IntakeVelocityRPM", intakeVelocityRPM);
       table.put("IntakeAppliedVolts", intakeAppliedVolts);
       table.put("IntakeCurrentAmps", intakeCurrentAmps);
@@ -29,7 +31,8 @@ public interface IntakeIO {
 
     public void fromLog(LogTable table) {
       solenoid = table.getBoolean("Extended", solenoid);
-
+      intakeRevLimitSwitch = table.getBoolean("intakeRevLimitSwitch", intakeRevLimitSwitch);
+      intakeFwdLimitSwitch = table.getBoolean("intakeFwdLimitSwitch", intakeFwdLimitSwitch);
       intakeVelocityRPM = table.getDouble("IntakeVelocityRPM", intakeVelocityRPM);
       intakeAppliedVolts = table.getDouble("IntakeAppliedVolts", intakeAppliedVolts);
       intakeCurrentAmps = table.getDoubleArray("IntakeCurrentAmps", intakeCurrentAmps);
@@ -45,4 +48,6 @@ public interface IntakeIO {
 
   /** Set solenoid state. */
   public default void setExtended(boolean extended) {}
+
+  public void resetSensorHeight(double d);
 }

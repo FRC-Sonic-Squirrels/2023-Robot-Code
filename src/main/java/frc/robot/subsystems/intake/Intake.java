@@ -24,6 +24,9 @@ public class Intake extends SubsystemBase {
   private final double OUTTAKE_CONE_INVERT = 1;
   private final double OUTTAKE_CUBE_INVERT = 1;
 
+  private boolean cubeup = false;
+  private boolean conedown = false;
+
   /** Creates a new Intake */
   public Intake(IntakeIO io) {
     this.io = io;
@@ -34,6 +37,24 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
+
+    if (inputs.intakeRevLimitSwitch) {
+      if (!cubeup) {
+        io.resetSensorHeight(0.0);
+        cubeup = true;
+      }
+    } else {
+      cubeup = false;
+    }
+
+    if (inputs.intakeFwdLimitSwitch) {
+      if (!conedown) {
+        io.resetSensorHeight(0.0);
+        conedown = true;
+      }
+    } else {
+      conedown = false;
+    }
   }
 
   /** Run the intake intake at the specified percentage. */
