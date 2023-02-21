@@ -184,7 +184,7 @@ public class SwerveAutos {
     // name);
 
     var alliance = DriverStation.getAlliance();
-    if (alliance == DriverStation.Alliance.Red) {
+    if ((trajectory != null) && (alliance == DriverStation.Alliance.Red)) {
       transformedTrajectory =
           PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, alliance);
 
@@ -339,7 +339,7 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement left1BallTaxi() {
-    PathPlannerTrajectory path = loadPath("left1BallTaxi");
+    PathPlannerTrajectory path = loadPath("Left1BallTaxi");
 
     return scoreCone().setNext(path, true, drivetrain, getEventMap());
   }

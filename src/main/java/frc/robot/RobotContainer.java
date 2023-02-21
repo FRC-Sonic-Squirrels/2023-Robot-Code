@@ -182,6 +182,8 @@ public class RobotContainer {
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
+            intake = new Intake(new IntakeIO() {});
+
             break;
           }
 
