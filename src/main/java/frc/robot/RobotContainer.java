@@ -24,6 +24,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorManualControl;
+import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -266,11 +268,11 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    // elevator.setDefaultCommand(
-    //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
+    elevator.setDefaultCommand(
+        new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
 
-    // stinger.setDefaultCommand(
-    //     new StingerManualControl(stinger, () -> driverController.getRightX()));
+    stinger.setDefaultCommand(
+        new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(

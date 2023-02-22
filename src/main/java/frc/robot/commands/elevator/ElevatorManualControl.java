@@ -28,7 +28,7 @@ public class ElevatorManualControl extends CommandBase {
   public void execute() {
 
     // negative because up on joystick y axis goes negative
-    double elevatorJoyStickValue = controllerAxis.getAsDouble();
+    double elevatorJoyStickValue = controllerAxis.getAsDouble() * 0.2;
 
     if (Math.abs(elevatorJoyStickValue) > 0.1) {
       elevator.setPercentOutput(elevatorJoyStickValue);
