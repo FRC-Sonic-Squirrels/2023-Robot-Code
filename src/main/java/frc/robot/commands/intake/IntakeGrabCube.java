@@ -15,7 +15,7 @@ public class IntakeGrabCube extends CommandBase {
 
   public IntakeGrabCube(Intake intake) {
 
-    this(intake, 0.8);
+    this(intake, 0.3);
   }
 
   public IntakeGrabCube(Intake intake, double speed) {
@@ -45,6 +45,7 @@ public class IntakeGrabCube extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // TODO: check for motor stall or limit switch
     return false;
   }
 }

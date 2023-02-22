@@ -27,9 +27,8 @@ public class IntakeGrabCone extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // if we use the pivot then we will have to extend and retrace as well
-    // intake.extend();
-    intake.intakeConeWithRPM(speed);
+
+    intake.intakeCone(speed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,14 +38,13 @@ public class IntakeGrabCone extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // if we use the pivot then we will have to extend and retrace as well
-    // intake.retract();
     intake.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // TODO: check stall motor check or limit switch
     return false;
   }
 }
