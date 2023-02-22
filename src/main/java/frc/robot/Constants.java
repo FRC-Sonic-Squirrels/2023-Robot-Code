@@ -102,6 +102,7 @@ public final class Constants {
     public static final int DoNotUse_canId0 = 0;
 
     public static final int CANID5_STINGER_TALON = 5;
+    public static final int CANID6_INTAKE_TALON = 6;
     public static final int CANID9_ELEVATOR_LEAD_TALON = 9;
     public static final int CANID10_ELEVATOR_FOLLOW_TALON = 10;
   }

@@ -120,14 +120,8 @@ public class SwerveAutos {
   private HashMap<String, Command> getEventMap() {
     HashMap<String, Command> eventMap = new HashMap<>();
 
-    eventMap.put(
-        "extendIntake",
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    eventMap.put(
-        "retractIntake",
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    eventMap.put("extendIntake", Commands.runOnce(() -> intake.runIntakePercent(0.5), intake));
+    eventMap.put("retractIntake", Commands.runOnce(() -> intake.runIntakePercent(0.0), intake));
     eventMap.put(
         "scoreCube",
         new SequentialCommandGroup(new PrintCommand("cube scored"), Commands.waitSeconds(2)));
