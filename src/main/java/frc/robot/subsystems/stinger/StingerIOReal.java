@@ -16,6 +16,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
+import org.littletonrobotics.junction.Logger;
 
 public class StingerIOReal implements StingerIO {
 
@@ -108,6 +109,8 @@ public class StingerIOReal implements StingerIO {
     double sensorVelocity = motor.getSelectedSensorVelocity();
     inputs.StingerVelocityInchesPerSecond = ticksToInchesPerSecond(sensorVelocity);
     inputs.StingerVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
+
+    Logger.getInstance().recordOutput("stinger/distanceInTicks", motor.getSelectedSensorPosition());
   }
 
   public void setStingerVoltage(double volts) {
@@ -150,10 +153,12 @@ public class StingerIOReal implements StingerIO {
     SmartDashboard.putNumber("Stinger Velo TICKS", velocityTicksPer100ms);
   }
 
-  public void resetSensorPosition(double position) {
+  @Override
+  public void setSensorPosition(double position) {
     motor.setSelectedSensorPosition(position);
   }
 
+  @Override
   public void setPIDConstraints(double feedForward, double kP, double kI, double kD) {
 
     motor.config_kF(0, feedForward);
