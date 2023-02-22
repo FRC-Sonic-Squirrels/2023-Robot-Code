@@ -4,7 +4,25 @@
 
 package frc.robot;
 
-import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
+import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -24,8 +42,10 @@ import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
-import frc.robot.commands.elevator.ElevatorManualControl;
-import frc.robot.commands.stinger.StingerManualControl;
+import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeGrabCube;
+import frc.robot.commands.intake.IntakeScoreCone;
+import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -268,11 +288,11 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
+    // elevator.setDefaultCommand(
+    //     new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
 
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
+    // stinger.setDefaultCommand(
+    //     new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
 
     // elevator.setDefaultCommand(
     //     new ElevatorControlCommand(
@@ -349,6 +369,12 @@ public class RobotContainer {
                     () -> driverController.getLeftX(),
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+
+    operatorController.y().whileTrue(new IntakeGrabCone(intake, 0.8));
+    operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
+
+    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */

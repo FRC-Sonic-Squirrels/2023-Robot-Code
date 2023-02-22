@@ -43,7 +43,7 @@ public class SwerveAutos {
     //
 
     // FIXME: temporarily make this the default command for testing vision
-    addCommand("left1BallTaxi", () -> left1BallTaxi());
+    // addCommand("left1BallTaxi", () -> left1BallTaxi());
 
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
@@ -62,13 +62,13 @@ public class SwerveAutos {
     addCommand("right1BallTaxi", () -> right1BallTaxi());
     addCommand("right2Ball", () -> right2Ball());
     addCommand("right2BallEngage", () -> right2BallEngage());
-    addCommand("right3Ball", () -> right3Ball());
-    addCommand("right4Ball", () -> right4Ball());
-    //    addCommand("left1BallTaxi", () -> left1BallTaxi());
+    // addCommand("right3Ball", () -> right3Ball());
+    // addCommand("right4Ball", () -> right4Ball());
+    addCommand("left1BallTaxi", () -> left1BallTaxi());
     addCommand("left2Ball", () -> left2Ball());
     addCommand("left2BallEngage", () -> left2BallEngage());
-    addCommand("left3Ball", () -> left3Ball());
-    addCommand("left4Ball", () -> left4Ball());
+    // addCommand("left3Ball", () -> left3Ball());
+    // addCommand("left4Ball", () -> left4Ball());
   }
 
   /**
