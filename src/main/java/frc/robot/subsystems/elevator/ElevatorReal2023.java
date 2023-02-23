@@ -29,7 +29,7 @@ public class ElevatorReal2023 implements ElevatorIO {
   // private static final double ticks2inches = 2.0 * gearRatio * pulleyCircumference / 2048.0;
   private static final double ticks2inches = 45.0 / 103297.0; // measured
   private static final double ticks2rotations = 1.0 / 2048f;
-  private double targetHeightInches;
+  private double targetHeightInches = 0.0;
 
   public ElevatorReal2023() {
     lead_talon.configFactoryDefault();
@@ -78,6 +78,9 @@ public class ElevatorReal2023 implements ElevatorIO {
         new SupplyCurrentLimitConfiguration(true, 10, 25, 0.1);
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
+
+    // lead_talon.configPeakOutputForward(0.2);
+    // lead_talon.configPeakOutputReverse(-0.2);
 
     // NOTE: only effects manual control
     lead_talon.configOpenloopRamp(0.1);
@@ -192,7 +195,8 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void setHeightInches(double targetHeightInches) {
-    lead_talon.set(TalonFXControlMode.Position, inchesToTicks(targetHeightInches));
+    this.targetHeightInches = targetHeightInches;
+    lead_talon.set(TalonFXControlMode.MotionMagic, inchesToTicks(targetHeightInches));
   }
 
   @Override

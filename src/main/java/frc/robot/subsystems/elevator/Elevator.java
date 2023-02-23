@@ -24,8 +24,7 @@ public class Elevator extends SubsystemBase {
   private boolean maxed = false;
 
   public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
-  public final TunableNumber Kp =
-      new TunableNumber("elevator/tunableKp", Constants.Elevator.P_CONTROLLER);
+  public final TunableNumber Kp = new TunableNumber("elevator/Kp", Constants.Elevator.P_CONTROLLER);
   public final TunableNumber Ki = new TunableNumber("elevator/Ki", Constants.Elevator.I_CONTROLLER);
   public final TunableNumber Kd = new TunableNumber("elevator/Kd", Constants.Elevator.D_CONTROLLER);
 
@@ -42,6 +41,7 @@ public class Elevator extends SubsystemBase {
     // TODO: load different PIDF values for different IO classes
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
     io.setMaxHeightInches(Constants.Elevator.MAX_HEIGHT_INCHES);
+    stop();
   }
 
   @Override
