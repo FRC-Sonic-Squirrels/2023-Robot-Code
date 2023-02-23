@@ -140,8 +140,11 @@ public final class Constants {
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
 
-    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10;
-    public static final double DESIRED_TIME_TO_SPEED = 2;
+    // FIXME: figure out what the arbitrary feed forward is to offset gravity
+    public static final double ARBITRARY_FEED_FORWARD = 0.08;
+
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10.0;
+    public static final double DESIRED_TIME_TO_SPEED = 2.0;
   }
 
   public static final class Stinger {

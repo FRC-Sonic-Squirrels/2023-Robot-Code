@@ -21,7 +21,6 @@ public class Elevator extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static final double toleranceInches = 0.05;
   private boolean zeroed = false;
-  private boolean maxed = false;
 
   public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
   public final TunableNumber Kp = new TunableNumber("elevator/Kp", Constants.Elevator.P_CONTROLLER);
@@ -74,6 +73,7 @@ public class Elevator extends SubsystemBase {
     //   maxed = false;
     // }
 
+    // FIXME: add Izone to tuneable parameters
     if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 

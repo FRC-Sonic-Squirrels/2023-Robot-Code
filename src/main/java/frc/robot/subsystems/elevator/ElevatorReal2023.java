@@ -11,6 +11,8 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import frc.lib.team2930.lib.util.MotorUtils;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
@@ -30,6 +32,16 @@ public class ElevatorReal2023 implements ElevatorIO {
   private static final double ticks2inches = 45.0 / 103297.0; // measured
   private static final double ticks2rotations = 1.0 / 2048f;
   private double targetHeightInches = 0.0;
+  private double startTime = 0.0;
+
+  private TrapezoidProfile.Constraints constraints =
+      new TrapezoidProfile.Constraints(
+          Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC,
+          (Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC
+              / Constants.Elevator.DESIRED_TIME_TO_SPEED));
+  private TrapezoidProfile.State goalHeightInches = new TrapezoidProfile.State();
+  private TrapezoidProfile.State setpointHeightInches = new TrapezoidProfile.State();
+  private TrapezoidProfile profile = new TrapezoidProfile(constraints, goalHeightInches);
 
   public ElevatorReal2023() {
     lead_talon.configFactoryDefault();
@@ -139,11 +151,16 @@ public class ElevatorReal2023 implements ElevatorIO {
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
 
-    double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
-    double accelTicksPer100msPerSecond = inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
+    constraints =
+        new TrapezoidProfile.Constraints(
+            cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
 
-    lead_talon.configMotionCruiseVelocity(velocityTicksPer100ms);
-    lead_talon.configMotionAcceleration(accelTicksPer100msPerSecond);
+    // double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
+    // double accelTicksPer100msPerSecond =
+    // inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
+
+    // lead_talon.configMotionCruiseVelocity(velocityTicksPer100ms);
+    // lead_talon.configMotionAcceleration(accelTicksPer100msPerSecond);
   }
 
   private double inchesToTicks(double inches) {
@@ -177,7 +194,6 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void resetSensorHeight(double heightInches) {
     lead_talon.setSelectedSensorPosition(inchesToTicks(heightInches));
-    // lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   @Override
@@ -196,7 +212,14 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void setHeightInches(double targetHeightInches) {
     this.targetHeightInches = targetHeightInches;
-    lead_talon.set(TalonFXControlMode.MotionMagic, inchesToTicks(targetHeightInches));
+    goalHeightInches = new TrapezoidProfile.State(targetHeightInches, 0);
+    profile = new TrapezoidProfile(constraints, goalHeightInches);
+
+    startTime = Timer.getFPGATimestamp();
+
+    setpointHeightInches = profile.calculate(0.02);
+
+    lead_talon.set(TalonFXControlMode.Position, inchesToTicks(setpointHeightInches.position));
   }
 
   @Override
