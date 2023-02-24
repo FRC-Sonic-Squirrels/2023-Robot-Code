@@ -19,7 +19,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
   // TODO: limiting to 10V for manual control is a safe starting point
   private double MAX_VOLTAGE = 10.0;
-  public static final double toleranceInches = 0.05;
+  public static final double toleranceInches = 0.1;
   private boolean zeroed = false;
 
   public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
