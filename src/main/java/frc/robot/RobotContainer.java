@@ -49,6 +49,7 @@ import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.stinger.StingerManualControl;
+import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -379,6 +380,10 @@ public class RobotContainer {
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
     operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 46.0));
     operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
+
+    operatorController.povLeft().onTrue(new StingerSetExtension(stinger, 0));
+    operatorController.povUp().onTrue(new StingerSetExtension(stinger, 10));
+    operatorController.povRight().onTrue(new StingerSetExtension(stinger, 25));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
