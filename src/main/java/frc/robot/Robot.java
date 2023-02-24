@@ -206,6 +206,11 @@ public class Robot extends LoggedRobot {
     }
   }
 
+  @Override
+  public void disabledInit() {
+    robotContainer.stopAll();
+  }
+
   /**
    * This method is invoked at the start of the autonomous period. It schedules the autonomous
    * command selected by your {@link RobotContainer} class.

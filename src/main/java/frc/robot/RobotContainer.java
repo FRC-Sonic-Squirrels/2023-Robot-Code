@@ -381,8 +381,8 @@ public class RobotContainer {
     operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
     operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
-    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 20));
-    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 0));
+    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 10));
+    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 20));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
@@ -442,5 +442,10 @@ public class RobotContainer {
 
   public Drivetrain getDrivetrain() {
     return drivetrain;
+  }
+
+  public void stopAll() {
+    elevator.stop();
+    stinger.stop();
   }
 }

@@ -60,25 +60,14 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
-    // No physical upper limit switch
-    // if (inputs.ElevatorAtUpperLimit) {
-    //   if (!maxed) {
-    //     // only zero height once per time hitting limit switch
-    //     // TODO: add method to reset to max height in io
-    //     io.resetSensorHeight(maxHeightInches);
-    //     maxed = true;
-    //   }
-    // } else {
-    //   // not currently on limit switch, zero again next time we hit limit switch
-    //   maxed = false;
-    // }
-
     // FIXME: add Izone to tuneable parameters
     if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 
     if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
       setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+
+    io.updateProfilePosition();
   }
 
   /** Run the Elevator at the specified voltage */

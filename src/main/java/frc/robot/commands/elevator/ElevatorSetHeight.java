@@ -101,6 +101,6 @@ public class ElevatorSetHeight extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return elevator.isAtHeight(targetHeightInches);
+    return Math.abs(elevator.getHeightInches() - targetHeightInches) < 0.1;
   }
 }

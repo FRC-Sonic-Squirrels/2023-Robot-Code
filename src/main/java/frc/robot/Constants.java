@@ -131,17 +131,15 @@ public final class Constants {
 
     public static final double MAX_HEIGHT_INCHES = 44.0; // 45.0 max physical
 
-    // TODO: check all values for new robot
-    public static final double elevatorSpeedMultiplier = 1.0;
-
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
-    public static final double F_CONTROLLER = 0.024427;
-    public static final double P_CONTROLLER = 0.098864;
+    public static final double F_CONTROLLER = 0.0; // jvn velocity 0.024427;
+    public static final double P_CONTROLLER = 0.08; // jvn velocity 0.098864;
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
 
-    // FIXME: figure out what the arbitrary feed forward is to offset gravity
-    public static final double ARBITRARY_FEED_FORWARD = 0.08;
+    // Arbitrary feed forward voltage is to offset gravity.
+    // Holding voltage is between 0.25-0.45V
+    public static final double ARBITRARY_FEED_FORWARD = 0.35;
 
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10.0;
     public static final double DESIRED_TIME_TO_SPEED = 2.0;
