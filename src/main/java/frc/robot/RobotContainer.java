@@ -370,7 +370,7 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    operatorController.y().whileTrue(new IntakeGrabCone(intake, 0.9));
+    operatorController.y().whileTrue(new IntakeGrabCone(intake, 0.7));
     operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
 
     operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
@@ -378,7 +378,7 @@ public class RobotContainer {
 
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 20));
     operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 44.0));
-    operatorController.a().onTrue(new ElevatorSetHeight(elevator, 0.0));
+    operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
