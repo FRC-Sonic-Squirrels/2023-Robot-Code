@@ -150,16 +150,15 @@ public final class Constants {
 
     // TODO: tune PIDF for stinger
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
-    public static final double STINGER_FEEDFORWARD = 0.024705;
-    public static final double STINGER_KP = 0.12711;
+    public static final double STINGER_FEEDFORWARD = 0.0;
+    public static final double STINGER_KP = 0.04;
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
 
-    // public static final double VELOCITY_INCHES_PER_SECOND = 40;
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10;
-    public static final double DESIRED_TIME_TO_SPEED = 10;
+    public static final double DESIRED_TIME_TO_SPEED = 2;
 
-    public static final double ARBITRARY_FEED_FORWARD = 0.01 / 12;
+    public static final double ARBITRARY_FEED_FORWARD = 0.01 / 12.0;
   }
 
   // the depth and height of field nodes compared to a robot right in front of them
