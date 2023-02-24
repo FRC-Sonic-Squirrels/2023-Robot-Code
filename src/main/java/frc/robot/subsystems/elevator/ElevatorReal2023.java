@@ -57,7 +57,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     leadConfig.slot0.integralZone = inchesToTicks(0.5);
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
-    leadConfig.slot0.allowableClosedloopError = Elevator.toleranceInches / ticks2inches;
+    leadConfig.slot0.allowableClosedloopError = inchesToTicks(Elevator.toleranceInches);
 
     // set config
     lead_talon.configAllSettings(leadConfig);
@@ -92,8 +92,8 @@ public class ElevatorReal2023 implements ElevatorIO {
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
-    lead_talon.configPeakOutputForward(0.2);
-    lead_talon.configPeakOutputReverse(-0.2);
+    // lead_talon.configPeakOutputForward(0.2);
+    lead_talon.configPeakOutputReverse(-0.5);
 
     // NOTE: only effects manual control
     lead_talon.configOpenloopRamp(0.1);
@@ -142,6 +142,10 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     Logger.getInstance()
         .recordOutput("elevator/distanceInTicks", lead_talon.getSelectedSensorPosition());
+
+    Logger.getInstance()
+        .recordOutput(
+            "elevator/distanceError", inputs.ElevatorSetpointInches - inputs.ElevatorHeightInches);
   }
 
   public void updateProfilePosition() {
@@ -158,11 +162,18 @@ public class ElevatorReal2023 implements ElevatorIO {
 
       setpoint = profile.calculate(0.02);
 
+      // if (Math.abs(setpoint)
+      //   Math.abs(targetHeightInches - ticksToInches(lead_talon.getSelectedSensorPosition()))
+      //     < 0.3) {
+      //   lead_talon.set(ControlMode.PercentOutput, Constants.Elevator.ARBITRARY_FEED_FORWARD +
+      // 0.02);
+      // } else {
       lead_talon.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),
           DemandType.ArbitraryFeedForward,
-          Constants.Elevator.ARBITRARY_FEED_FORWARD / 12.0);
+          Constants.Elevator.ARBITRARY_FEED_FORWARD);
+      // }
     }
   }
 

@@ -10,6 +10,9 @@
     },
     "transitory": {
       "AdvantageKit": {
+        "Intake": {
+          "open": true
+        },
         "open": true
       },
       "SmartDashboard": {
@@ -19,6 +22,7 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/MAIN/SendableChooser[0]": "String Chooser",
+      "/Shuffleboard/MAIN/SendableChooser[1]": "String Chooser",
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d"
@@ -33,16 +37,91 @@
         "window": {
           "visible": true
         }
-      },
-      "/SmartDashboard/Field": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
     "serverTeam": "2930"
+  },
+  "Plots": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "height": 548,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/AdvantageKit/Elevator/ElevatorAppliedVolts"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <1>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "max": 2.0
+            }
+          ],
+          "height": 338,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/AdvantageKit/Elevator/ElevatorAppliedVolts"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <2>": {
+      "plots": [
+        {
+          "height": 738,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/AdvantageKit/Intake/IntakeVelocityRPM"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/AdvantageKit/Intake/IntakeAppliedVolts"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <3>": {
+      "plots": [
+        {
+          "height": 338
+        }
+      ]
+    }
   }
 }
