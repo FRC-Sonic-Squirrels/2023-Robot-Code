@@ -288,9 +288,6 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    // elevator.setDefaultCommand(
-    //     new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
-
     stinger.setDefaultCommand(
         new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
 
