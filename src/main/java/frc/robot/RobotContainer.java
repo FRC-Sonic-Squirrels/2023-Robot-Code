@@ -44,10 +44,6 @@ import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.elevator.ElevatorSetHeight;
-import frc.robot.commands.intake.IntakeGrabCone;
-import frc.robot.commands.intake.IntakeGrabCube;
-import frc.robot.commands.intake.IntakeScoreCone;
-import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -373,16 +369,17 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    operatorController
-        .y()
-        .whileTrue(new IntakeGrabCone(intake, 0.6).beforeStarting(Commands.print("y")));
-    operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
+    // operatorController
+    //     .y()
+    //     .whileTrue(new IntakeGrabCone(intake, 0.6).beforeStarting(Commands.print("y")));
+    // operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
 
-    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
-    operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
+    // operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    // operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 10));
     operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 20));
+    operatorController.a().onTrue(new ElevatorSetHeight(elevator, 0.0));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
