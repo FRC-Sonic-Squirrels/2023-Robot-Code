@@ -376,8 +376,8 @@ public class RobotContainer {
     operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
     operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
-    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 20));
-    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 44.0));
+    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
+    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 46.0));
     operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
   }
 
