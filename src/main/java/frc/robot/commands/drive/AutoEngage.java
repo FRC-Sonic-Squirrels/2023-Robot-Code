@@ -22,8 +22,9 @@ public class AutoEngage extends CommandBase {
   private double error;
   private double currentPitch;
   private double drivePower;
+  private boolean flip;
 
-  private TunableNumber Kp = new TunableNumber("AutoEngage/kp", 0.07);
+  private TunableNumber Kp = new TunableNumber("AutoEngage/kp", 0.05);
   private TunableNumber balancedThresholdDegrees =
       new TunableNumber("AutoEngage/balancedThresholdDegrees", 3);
   // private TunableNumber timeRequiredBalanced =
@@ -32,11 +33,13 @@ public class AutoEngage extends CommandBase {
 
   private TunableNumber doDrive = new TunableNumber("AutoEngage/EnableCommand", 1);
 
+  
   private DoubleSupplier y_supplier;
   /** Creates a new AutoEngage. */
-  public AutoEngage(Drivetrain drivetrain, DoubleSupplier yAxisSup) {
+  public AutoEngage(Drivetrain drivetrain, DoubleSupplier yAxisSup, Boolean flip) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
+    this.flip = flip;
     y_supplier = yAxisSup;
     addRequirements(drivetrain);
   }
@@ -54,9 +57,14 @@ public class AutoEngage extends CommandBase {
     // FIXME: we are climbing facing backwards, this might been to be negated
     this.currentPitch = drivetrain.getGyroPitch();
 
-    error = 0 - currentPitch;
+    error = currentPitch;
     drivePower = (Kp.get() * error);
 
+    // drivePower = Math.copySign(drivePower, error);
+
+    if(flip){
+      drivePower*=-1;
+    }
     // The robot I referenced when making this needed extra power while in reverse.
     //  // Our robot needed an extra push to drive up in reverse, probably due to weight imbalances
     //  if (drivePower < 0) {
@@ -91,9 +99,9 @@ public class AutoEngage extends CommandBase {
     }
 
     if (timeEngaged.get() >= 0.5) {
-      drivetrain.enableXstance();
+     // drivetrain.enableXstance();
     } else {
-      drivetrain.disableXstance();
+      //drivetrain.disableXstance();
     }
   }
 
