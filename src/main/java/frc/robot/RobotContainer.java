@@ -40,6 +40,7 @@ import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
+import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
@@ -89,6 +90,7 @@ public class RobotContainer {
   public SwerveAutos autos;
   private Stinger stinger;
   private Elevator elevator;
+  private Vision vision;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -213,6 +215,16 @@ public class RobotContainer {
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
             intake = new Intake(new IntakeIO2023());
+
+            AprilTagFieldLayout layout;
+            try {
+              layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+            } catch (IOException e) {
+              layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
+            }
+
+            vision = new Vision(new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME), new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
+
 
             break;
           }
