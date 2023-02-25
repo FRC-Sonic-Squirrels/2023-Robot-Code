@@ -64,6 +64,8 @@ import frc.robot.subsystems.elevator.ElevatorReal2023;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
+import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
@@ -94,6 +96,7 @@ public class RobotContainer {
   public SwerveAutos autos;
   private Stinger stinger;
   private Elevator elevator;
+  private LED leds;
   private Vision vision;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
@@ -219,6 +222,7 @@ public class RobotContainer {
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
             intake = new Intake(new IntakeIO2023());
+            leds = new LED(new LEDIOReal());
 
             vision =
                 new Vision(
