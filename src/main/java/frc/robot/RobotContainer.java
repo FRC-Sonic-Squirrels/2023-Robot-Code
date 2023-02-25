@@ -62,6 +62,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
 import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -269,6 +270,7 @@ public class RobotContainer {
 
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorIO() {});
+            stinger = new Stinger(new StingerIO() {});
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
