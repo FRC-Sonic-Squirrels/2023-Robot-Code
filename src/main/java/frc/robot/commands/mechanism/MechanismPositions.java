@@ -165,8 +165,8 @@ public class MechanismPositions {
       Command suckCommand) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        new StingerSetExtension(stinger, 0),
-        new ElevatorSetHeight(elevator, stowHeight),
+        // new StingerSetExtension(stinger, 0),
+        // new ElevatorSetHeight(elevator, stowHeight),
         new ElevatorSetHeight(elevator, heightInches),
         new ParallelCommandGroup(
             new StingerSetExtension(stinger, extensionInches),
@@ -177,7 +177,9 @@ public class MechanismPositions {
     return new ConditionalCommand(
         new ElevatorSetHeight(elevator, elevatorAboveBumberHeight),
         new InstantCommand(),
-        (() -> (elevator.getHeightInches() < elevatorAboveBumberHeight)));
+        (() ->
+            (elevator.getHeightInches() < elevatorAboveBumberHeight)
+                && stinger.getExtensionInches() >= 2));
   }
 
   public static Command goToPositionCurve(
