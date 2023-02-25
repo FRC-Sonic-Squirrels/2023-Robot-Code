@@ -395,10 +395,10 @@ public class RobotContainer {
     //     .y()
     //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
 
-    driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    driverController.b().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
-    driverController.x().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-    driverController.y().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+    // driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    // driverController.b().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
+    // driverController.x().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    // driverController.y().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
 
     // driverController.a().onTrue((Commands.print("A")));
 

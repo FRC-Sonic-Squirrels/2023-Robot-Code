@@ -49,6 +49,7 @@ public class ElevatorFollowCurve extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    //TODO: probably want to end with stinger and elevtaor at setpoint
     return (stinger.isAtExtension(stingerExtension));
   }
 }
