@@ -14,7 +14,7 @@ public class RobotState {
 
   private GamePiece desiredGamePiece;
 
-  //private LogicalGridLocation desiredLogicalGrid;
+  // private LogicalGridLocation desiredLogicalGrid;
 
   public static RobotState getInstance() {
     if (instance == null) {
@@ -26,7 +26,7 @@ public class RobotState {
 
   private RobotState() {
     setDesiredGamePiece(GamePiece.CUBE);
-    //setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
+    // setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
   }
 
   // public LogicalGridLocation getDesiredLogicalGrid() {
@@ -43,7 +43,8 @@ public class RobotState {
   }
 
   // public void setDesiredLogicalGrid(LogicalGridLocation gridLocation) {
-  //   Logger.getInstance().recordOutput("RobotState/DesiredLogicalGridLocation", gridLocation.name());
+  //   Logger.getInstance().recordOutput("RobotState/DesiredLogicalGridLocation",
+  // gridLocation.name());
   //   desiredLogicalGrid = gridLocation;
   // }
 
