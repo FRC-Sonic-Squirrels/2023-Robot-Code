@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
@@ -324,11 +325,7 @@ public class RobotContainer {
     // if we do this system remember to make the end stop the system incase we let go of the while
     // true button when joystick has a value > 0.0
     // otherwise the system will run at that percent speed until it hits soft/hard limit.
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
-
-    elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
+   
 
     configureButtonBindings();
     configureAutoCommands();
@@ -409,7 +406,7 @@ public class RobotContainer {
     operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
-    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 49.0));
+    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 48.75));
     operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
     // feeder station
     operatorController.leftTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 45.5));
@@ -417,6 +414,11 @@ public class RobotContainer {
     operatorController.povLeft().onTrue(new StingerSetExtension(stinger, 0));
     operatorController.povUp().onTrue(new StingerSetExtension(stinger, 10));
     operatorController.povRight().onTrue(new StingerSetExtension(stinger, 25));
+
+    operatorController.leftTrigger().whileTrue(new ParallelCommandGroup(
+      new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
+      new StingerManualControl(stinger, elevator, operatorController::getRightX)
+    ));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
