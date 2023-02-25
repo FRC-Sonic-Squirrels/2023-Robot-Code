@@ -129,7 +129,7 @@ public final class Constants {
   // TODO: determine whether elevator deserves it's own constants file
   public static class Elevator {
 
-    public static final double MAX_HEIGHT_INCHES = 46.0; // 46.5 max physical
+    public static final double MAX_HEIGHT_INCHES = 47.8; // 48.1 max physical
 
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
     public static final double F_CONTROLLER = 0.0; // jvn velocity 0.024427;
@@ -139,7 +139,7 @@ public final class Constants {
 
     // Arbitrary feed forward voltage is to offset gravity.
     // Holding voltage is between 0.25-0.45 Volts. Convert to percent output.
-    public static final double ARBITRARY_FEED_FORWARD = 0.20 / 12.0;
+    public static final double ARBITRARY_FEED_FORWARD = 0.18 / 12.0;
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 45.0;
     public static final double DESIRED_TIME_TO_SPEED = 0.25;
   }
