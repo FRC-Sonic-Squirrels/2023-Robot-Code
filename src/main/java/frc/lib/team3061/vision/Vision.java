@@ -30,6 +30,7 @@ public class Vision extends SubsystemBase {
   private double lastTimestampLeft;
   private double lastTimestampRight;
 
+  private boolean updatePoseWithVisionReadings = true;
   private boolean useMaxValidDistanceAway = true;
 
   private Alert noAprilTagLayoutAlert =
@@ -41,6 +42,7 @@ public class Vision extends SubsystemBase {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
 
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", true);
     Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", true);
 
     try {
@@ -109,6 +111,10 @@ public class Vision extends SubsystemBase {
     //        layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
     //      }
     //    }
+
+    if (!updatePoseWithVisionReadings) {
+      return;
+    }
 
     if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
       lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
@@ -287,5 +293,15 @@ public class Vision extends SubsystemBase {
   public void disableMaxDistanceAwayForTags() {
     Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", false);
     useMaxValidDistanceAway = false;
+  }
+
+  public void enableUpdatePoseWithVisionReadings() {
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", true);
+    updatePoseWithVisionReadings = true;
+  }
+
+  public void disableUpdatePoseWithVisionReadings() {
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", false);
+    updatePoseWithVisionReadings = false;
   }
 }
