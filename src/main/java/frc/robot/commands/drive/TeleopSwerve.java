@@ -1,5 +1,7 @@
 package frc.robot.commands.drive;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
@@ -61,6 +63,15 @@ public class TeleopSwerve extends CommandBase {
     double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double rotationalVelocity =
         rotationPercentage * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
+    // because our coordinate frame never changes from the bottom left, the "forward" direction in
+    // code is always facing the red alliance wall
+    // to make up on the joystick away from the red alliance wall we negate it when on the red
+    // alliance
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      xVelocity *= -1;
+      yVelocity *= -1;
+    }
 
     Logger.getInstance().recordOutput("ActiveCommands/TeleopSwerve", true);
     Logger.getInstance().recordOutput("TeleopSwerve/xVelocity", xVelocity);
