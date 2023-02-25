@@ -614,6 +614,18 @@ public class Drivetrain extends SubsystemBase {
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
   }
 
+  public double getGyroYaw() {
+    return gyroInputs.yaw;
+  }
+
+  public double getGyroPitch() {
+    return gyroInputs.pitch;
+  }
+
+  public double getGyroRoll() {
+    return gyroInputs.roll;
+  }
+
   private enum DriveMode {
     NORMAL,
     X,
