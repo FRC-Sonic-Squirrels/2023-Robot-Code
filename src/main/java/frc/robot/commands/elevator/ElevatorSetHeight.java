@@ -103,7 +103,7 @@ public class ElevatorSetHeight extends CommandBase {
   public boolean isFinished() {
     // TODO add this back in
     // make sure that the default command kicking in doesnt cause issues
-    return false;
-    // return Math.abs(elevator.getHeightInches() - targetHeightInches) < 0.1;
+    // return elevator.isAtHeight(targetHeightInches);
+    return Math.abs(elevator.getHeightInches() - targetHeightInches) < 0.2;
   }
 }
