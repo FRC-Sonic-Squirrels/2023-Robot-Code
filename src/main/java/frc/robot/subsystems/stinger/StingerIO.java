@@ -16,6 +16,7 @@ public interface StingerIO {
     public double StingerExtensionInches = 0.0;
     public double StingerTargetExtensionInches = 0.0;
     public double StingerVelocityInchesPerSecond = 0.0;
+    public double StingerSetpointInches = 0.0;
     public double StingerVelocityRPM = 0.0;
     public double StingerAppliedVolts = 0.0;
     public double[] StingerCurrentAmps = new double[] {};
@@ -31,6 +32,7 @@ public interface StingerIO {
       table.put("StingerExtensionInches", StingerExtensionInches);
       table.put("StingerTargetExtensionInches", StingerTargetExtensionInches);
       table.put("StingerAtRetractedLimit", StingerAtRetractedLimit);
+      table.put("StingerSetpointInches", StingerSetpointInches);
       table.put("StingerVelocityInchesPerSecond", StingerVelocityInchesPerSecond);
       table.put("StingerVelocityRPM", StingerVelocityRPM);
       table.put("StingerAppliedVolts", StingerAppliedVolts);
@@ -41,6 +43,8 @@ public interface StingerIO {
     public void fromLog(LogTable table) {
       StingerAtRetractedLimit =
           table.getBoolean("StingerAtRetractedLimit", StingerAtRetractedLimit);
+      StingerSetpointInches = table.getDouble("StingerSetpointInches", StingerSetpointInches);
+
       StingerAtExtendedLimit = table.getBoolean("StingerAtExtendedLimit", StingerAtExtendedLimit);
       StingerVelocityInchesPerSecond = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);
       StingerVelocityRPM = table.getDouble("StingerVelocityRPM", StingerVelocityRPM);

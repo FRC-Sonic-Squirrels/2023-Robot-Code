@@ -371,14 +371,14 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    operatorController.y().whileTrue(new IntakeGrabCone(intake, 0.7));
+    operatorController.y().whileTrue(new IntakeGrabCone(intake, 1.0));
     operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
 
     operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
     operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
-    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 46.0));
+    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 49.0));
     operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
 
     operatorController.povLeft().onTrue(new StingerSetExtension(stinger, 0));

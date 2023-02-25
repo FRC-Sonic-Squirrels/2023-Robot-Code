@@ -18,7 +18,7 @@ public class Stinger extends SubsystemBase {
   // TODO: see if we can change max voltage to 12
   private double MAX_VOLTAGE = 10.0;
 
-  public static double toleranceInches = 0.1;
+  public static double toleranceInches = 0.05;
   private boolean zeroed = false;
 
   private final TunableNumber feedForwardTunable =

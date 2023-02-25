@@ -60,6 +60,7 @@ public class StingerIOReal implements StingerIO {
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
 
     config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2Inches;
+    config.slot0.integralZone = inchesToTicks(0.2);
 
     // set config
     motor.configAllSettings(config);
@@ -71,7 +72,7 @@ public class StingerIOReal implements StingerIO {
     motor.selectProfileSlot(0, 0);
 
     // FIXME: set to Brake mode after testing
-    motor.setNeutralMode(NeutralMode.Coast);
+    motor.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
     motor.configReverseLimitSwitchSource(
@@ -106,6 +107,7 @@ public class StingerIOReal implements StingerIO {
     inputs.StingerTargetExtensionInches = targetExtensionInches;
     inputs.StingerExtensionInches = ticksToInches(motor.getSelectedSensorPosition());
     inputs.StingerAtExtendedLimit = (inputs.StingerExtensionInches >= maxExtensionInches);
+    inputs.StingerSetpointInches = setpoint.position;
 
     inputs.StingerAppliedVolts = motor.getMotorOutputVoltage();
     inputs.StingerCurrentAmps = new double[] {motor.getSupplyCurrent()};
@@ -117,6 +119,10 @@ public class StingerIOReal implements StingerIO {
     inputs.StingerVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
 
     Logger.getInstance().recordOutput("stinger/distanceInTicks", motor.getSelectedSensorPosition());
+
+    Logger.getInstance()
+        .recordOutput(
+            "stinger/distanceError", inputs.StingerSetpointInches - inputs.StingerExtensionInches);
   }
 
   public void updateProfilePosition() {
