@@ -29,4 +29,6 @@ public final class VisionConstants {
           new Rotation3d(0, Math.toRadians(-10), Math.toRadians(-35)));
 
   public static final double MAXIMUM_AMBIGUITY = 0.2;
+
+  public static final double MAX_VALID_DISTANCE_AWAY_METERS = 1;
 }
