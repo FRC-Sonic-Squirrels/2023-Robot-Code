@@ -426,10 +426,19 @@ public class RobotContainer {
     // operatorController.povUp().onTrue(new ConditionalCommand(new , null, () ->
     // RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
-    // operatorController.y().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    // operatorController.x().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
-    // operatorController.b().onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger));
-    // operatorController.a().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+    operatorController
+        .y()
+        .onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger, intake));
+    operatorController
+        .x()
+        .onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger, intake));
+    operatorController
+        .b()
+        .onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
+    operatorController
+        .a()
+        .onTrue(MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
+    operatorController.povDown().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
 
     operatorController
         .y()
@@ -439,10 +448,12 @@ public class RobotContainer {
 
     operatorController
         .back()
-        .onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
+        .onTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
     operatorController
         .start()
-        .onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+        .onTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
