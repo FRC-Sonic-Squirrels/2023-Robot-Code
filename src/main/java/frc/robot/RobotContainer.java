@@ -216,15 +216,10 @@ public class RobotContainer {
             stinger = new Stinger(new StingerIOReal());
             intake = new Intake(new IntakeIO2023());
 
-            AprilTagFieldLayout layout;
-            try {
-              layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
-            } catch (IOException e) {
-              layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
-            }
-
-            vision = new Vision(new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME), new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
-
+            vision =
+                new Vision(
+                    new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
+                    new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
 
             break;
           }
