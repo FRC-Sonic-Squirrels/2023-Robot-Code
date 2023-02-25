@@ -317,6 +317,13 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
+    // positional control
+    // instead of working around it lets just have a button.whileTrue where these are only active if
+    // that button is pressed.
+    // if we do this system remember to make the end stop the system incase we let go of the while
+    // true button when joystick has a value > 0.0
+    // otherwise the system will run at that percent speed until it hits soft/hard limit.
     stinger.setDefaultCommand(
         new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
 
