@@ -158,7 +158,8 @@ public final class Constants {
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10;
     public static final double DESIRED_TIME_TO_SPEED = 2;
 
-    public static final double ARBITRARY_FEED_FORWARD = 0.01 / 12.0;
+    // Arbitrary feed forward is in percent output (volts/12.0)
+    public static final double ARBITRARY_FEED_FORWARD = 0.0 / 12.0;
   }
 
   // the depth and height of field nodes compared to a robot right in front of them

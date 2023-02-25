@@ -162,6 +162,7 @@ public class ElevatorReal2023 implements ElevatorIO {
 
       setpoint = profile.calculate(0.02);
 
+      // TODO: zero feed forward when going down? (setpoint < currentheight)
       lead_talon.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),
