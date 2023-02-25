@@ -132,6 +132,10 @@ public final class Constants {
     public static final int channel_15_friction_brake = 15;
   }
 
+  public static class PWMPorts {
+    public static final int kBlinkin = 0;
+  }
+
   // TODO: determine whether elevator deserves it's own constants file
   public static class Elevator {
 
@@ -176,7 +180,7 @@ public final class Constants {
     public static final double EXTENSION_MID_CUBE = 16.3;
     public static final double EXTENSION_MID_CONE = 12.5;
     public static final double EXTENSION_HIGH_CONE = Stinger.MAX_EXTENSION_INCHES;
-    public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES; 
+    public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES;
 
     // these measurements are 2 inches higher than the actual node heights so the items can make it
     // over
