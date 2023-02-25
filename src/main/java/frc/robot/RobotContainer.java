@@ -380,6 +380,8 @@ public class RobotContainer {
     operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
     operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 49.0));
     operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
+    // feeder station
+    operatorController.leftTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 45.5));
 
     operatorController.povLeft().onTrue(new StingerSetExtension(stinger, 0));
     operatorController.povUp().onTrue(new StingerSetExtension(stinger, 10));
