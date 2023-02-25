@@ -67,7 +67,8 @@ public interface StingerIO {
   public default void setMotionProfileConstraints(double cruiseVelocity, double acceleration) {}
 
   public default void setSensorPosition(double position) {}
-  ;
+
+  public default void updateProfilePosition() {}
 
   public default void setPIDConstraints(double feedForward, double kP, double kI, double kD) {}
 }

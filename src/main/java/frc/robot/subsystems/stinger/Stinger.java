@@ -74,6 +74,7 @@ public class Stinger extends SubsystemBase {
       // not currently on limit switch, zero again next time we hit limit switch
       zeroed = false;
     }
+    io.updateProfilePosition();
   }
 
   /** Run the Stinger at the specified voltage */
