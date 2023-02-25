@@ -12,22 +12,17 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputs inputs = new IntakeIOInputs();
 
-  private final double MAX_VOLTAGE = 12.0;
+  public final double MAX_VOLTAGE = 11.0;
 
-  private final boolean EXTENDED_BOOL = true;
-  private final boolean RETRACTED_BOOL = false;
+  private final double INTAKE_CONE_INVERT = 1.0;
+  private final double INTAKE_CUBE_INVERT = -1.0;
 
-  // TODO figure out which way the motor would spin for every action
-  private final double INTAKE_CONE_INVERT = -1;
-  private final double INTAKE_CUBE_INVERT = -1;
-
-  private final double OUTTAKE_CONE_INVERT = 1;
-  private final double OUTTAKE_CUBE_INVERT = 1;
+  private final double OUTTAKE_CONE_INVERT = -INTAKE_CONE_INVERT;
+  private final double OUTTAKE_CUBE_INVERT = -INTAKE_CUBE_INVERT;
 
   /** Creates a new Intake */
   public Intake(IntakeIO io) {
     this.io = io;
-    retract();
   }
 
   @Override
@@ -43,14 +38,6 @@ public class Intake extends SubsystemBase {
 
   public void stop() {
     runIntakePercent(0.0);
-  }
-
-  public void extend() {
-    io.setExtended(EXTENDED_BOOL);
-  }
-
-  public void retract() {
-    io.setExtended(RETRACTED_BOOL);
   }
 
   public void intakeCone(double percent) {
@@ -69,7 +56,7 @@ public class Intake extends SubsystemBase {
     runIntakePercent(percent * OUTTAKE_CUBE_INVERT);
   }
 
-  public void outtakeConewithRPM(double speed) {}
+  public void outtakeConeWithRPM(double speed) {}
 
-  public void intakeConewithRPM(double speed) {}
+  public void intakeConeWithRPM(double speed) {}
 }

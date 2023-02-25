@@ -81,7 +81,8 @@ public class ElevatorSetHeight extends CommandBase {
   @Override
   public void initialize() {
     if (changeMotionProfile) {
-      elevator.setMotionProfileConstraints(motionProfileVelocity, motionProfileDesiredTime);
+      System.out.println("CHANGING ELEVATOR PID");
+      // elevator.setMotionProfileConstraints(motionProfileVelocity, motionProfileDesiredTime);
     }
     elevator.setHeightInches(targetHeightInches);
   }
@@ -93,14 +94,13 @@ public class ElevatorSetHeight extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elevator.stop();
+    // don't .stop() that disables position control
+    // elevator.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // elevator has to be at that height for 0.1 seconds
-    // TODO: check if this is needed
-    return isFinishedTrigger.getAsBoolean();
+    return elevator.isAtHeight(targetHeightInches);
   }
 }

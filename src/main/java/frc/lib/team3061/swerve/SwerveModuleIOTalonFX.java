@@ -87,7 +87,7 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             ANGLE_CONTINUOUS_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_LIMIT,
             ANGLE_PEAK_CURRENT_DURATION);
-    angleMotorConfig.INVERTED = ANGLE_MOTOR_INVERTED;
+    angleMotorConfig.INVERTED = (angleMotorID % 10) == 4 ? false : true; // ANGLE_MOTOR_INVERTED;
     angleMotorConfig.NEUTRAL_MODE = ANGLE_NEUTRAL_MODE;
     angleMotorConfig.SLOT0_KP = turnKp.get();
     angleMotorConfig.SLOT0_KI = turnKi.get();
@@ -110,7 +110,7 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
             DRIVE_CONTINUOUS_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_LIMIT,
             DRIVE_PEAK_CURRENT_DURATION);
-    driveMotorConfig.INVERTED = DRIVE_MOTOR_INVERTED;
+    driveMotorConfig.INVERTED = (driveMotorID % 10) == 3 ? false : true; // DRIVE_MOTOR_INVERTED;
     driveMotorConfig.NEUTRAL_MODE = DRIVE_NEUTRAL_MODE;
     driveMotorConfig.OPEN_LOOP_RAMP_RATE = OPEN_LOOP_RAMP;
     driveMotorConfig.CLOSED_LOOP_RAMP_RATE = CLOSED_LOOP_RAMP;
@@ -220,5 +220,12 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   public void setAngleBrakeMode(boolean enable) {
     // always leave the angle motor in coast mode
     mAngleMotor.setNeutralMode(NeutralMode.Coast);
+  }
+
+  // FIXME: this is currently unused. part of possible swerve initialization fix
+  public void resetToAbsolute() {
+    double absolutePosition =
+        Conversions.degreesToFalcon(getCanCoder().getDegrees() - angleOffsetDeg, ANGLE_GEAR_RATIO);
+    mAngleMotor.setSelectedSensorPosition(absolutePosition);
   }
 }

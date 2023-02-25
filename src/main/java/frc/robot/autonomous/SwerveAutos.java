@@ -5,6 +5,8 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.*;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,8 +27,14 @@ public class SwerveAutos {
   private Drivetrain drivetrain;
   private Intake intake;
 
+  // get field dimensions from official WPILib file
+  // https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2023-chargedup.json#L148-L151
+  public static final double FIELD_LENGTH_METERS = 16.54175;
+  public static final double FIELD_WIDTH_METERS = 8.0137;
+
   public SwerveAutos(Drivetrain drivetrain, Intake intake) {
     // FIXME: List of all required subsystems: elevator, stinger, intake, LED
+    // iterate through all the commands in EventMap and extract the requirements for each command?
     this.drivetrain = drivetrain;
     this.intake = intake;
 
@@ -34,11 +42,15 @@ public class SwerveAutos {
     // Add named commands here.
     //
 
+    // FIXME: temporarily make this the default command for testing vision
+    // addCommand("left1BallTaxi", () -> left1BallTaxi());
+
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
 
     if (!DriverStation.isFMSAttached()) {
       // only add test paths when not connected to FMS
+      addCommand("Test Sequential", () -> testSeq());
       addCommand("2m Forward", () -> testPath2mForward());
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
@@ -50,13 +62,13 @@ public class SwerveAutos {
     addCommand("right1BallTaxi", () -> right1BallTaxi());
     addCommand("right2Ball", () -> right2Ball());
     addCommand("right2BallEngage", () -> right2BallEngage());
-    addCommand("right3Ball", () -> right3Ball());
-    addCommand("right4Ball", () -> right4Ball());
+    // addCommand("right3Ball", () -> right3Ball());
+    // addCommand("right4Ball", () -> right4Ball());
     addCommand("left1BallTaxi", () -> left1BallTaxi());
     addCommand("left2Ball", () -> left2Ball());
     addCommand("left2BallEngage", () -> left2BallEngage());
-    addCommand("left3Ball", () -> left3Ball());
-    addCommand("left4Ball", () -> left4Ball());
+    // addCommand("left3Ball", () -> left3Ball());
+    // addCommand("left4Ball", () -> left4Ball());
   }
 
   /**
@@ -108,14 +120,8 @@ public class SwerveAutos {
   private HashMap<String, Command> getEventMap() {
     HashMap<String, Command> eventMap = new HashMap<>();
 
-    eventMap.put(
-        "extendIntake",
-        Commands.runOnce(intake::extend, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.5), intake)));
-    eventMap.put(
-        "retractIntake",
-        Commands.runOnce(intake::retract, intake)
-            .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
+    eventMap.put("extendIntake", Commands.runOnce(() -> intake.runIntakePercent(0.5), intake));
+    eventMap.put("retractIntake", Commands.runOnce(() -> intake.runIntakePercent(0.0), intake));
     eventMap.put(
         "scoreCube",
         new SequentialCommandGroup(new PrintCommand("cube scored"), Commands.waitSeconds(2)));
@@ -127,6 +133,30 @@ public class SwerveAutos {
         new SequentialCommandGroup(new PrintCommand("object picked up"), Commands.waitSeconds(2)));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
+    eventMap.put(
+        "test",
+        new SequentialCommandGroup(
+            new PrintCommand("test1 1"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test1 2"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test1 3")));
+    eventMap.put(
+        "test2",
+        new SequentialCommandGroup(
+            new PrintCommand("test2 1"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test2 2"),
+            Commands.waitSeconds(0.1),
+            new PrintCommand("test2 3")));
+    eventMap.put(
+        "slowTest",
+        new SequentialCommandGroup(
+            new PrintCommand("slow 1"),
+            Commands.waitSeconds(0.5),
+            new PrintCommand("slow 2"),
+            Commands.waitSeconds(0.5),
+            new PrintCommand("slow 3")));
 
     return eventMap;
   }
@@ -143,14 +173,36 @@ public class SwerveAutos {
     PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxAcceleration);
     PathPlannerTrajectory transformedTrajectory;
 
-    System.out.println(
-        "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " + name);
+    // System.out.println(
+    //     "TransformTrajectoryForAlliance: " + DriverStation.getAlliance().name() + " path: " +
+    // name);
 
-    transformedTrajectory =
-        PathPlannerTrajectory.transformTrajectoryForAlliance(
-            trajectory, DriverStation.getAlliance());
+    var alliance = DriverStation.getAlliance();
+    if ((trajectory != null) && (alliance == DriverStation.Alliance.Red)) {
+      transformedTrajectory =
+          PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, alliance);
 
-    return transformedTrajectory;
+      for (var i = 0; i < trajectory.getStates().size(); i++) {
+        var oldState = (PathPlannerTrajectory.PathPlannerState) trajectory.getState(i);
+        var newState = (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.getState(i);
+
+        Pose2d pose2d = oldState.poseMeters;
+        var x = pose2d.getX();
+        var y = pose2d.getY();
+        var rot = pose2d.getRotation();
+        rot = new Rotation2d(-rot.getCos(), rot.getSin());
+
+        Rotation2d holonomicRotation = oldState.holonomicRotation;
+        newState.holonomicRotation =
+            new Rotation2d(-holonomicRotation.getCos(), holonomicRotation.getSin());
+
+        newState.poseMeters = new Pose2d(FIELD_LENGTH_METERS - x, y, rot);
+      }
+
+      return transformedTrajectory;
+    }
+
+    return trajectory;
   }
 
   /**
@@ -222,6 +274,12 @@ public class SwerveAutos {
         path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
   }
 
+  public AutoChooserElement testSeq() {
+    PathPlannerTrajectory path = loadPath("2mforward");
+
+    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreCone());
+  }
+
   // ======================= COMPETITION Autonomous Routines ========================
   //
   // Commands are built on preceding commands and are constructed using function
@@ -275,7 +333,7 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement left1BallTaxi() {
-    PathPlannerTrajectory path = loadPath("left1BallTaxi");
+    PathPlannerTrajectory path = loadPath("Left1BallTaxi");
 
     return scoreCone().setNext(path, true, drivetrain, getEventMap());
   }

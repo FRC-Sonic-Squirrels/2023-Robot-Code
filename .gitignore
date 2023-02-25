@@ -118,6 +118,9 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 
+#### IntelliJ Idea ###
+.idea/*
+
 # Dump file
 *.stackdump
 

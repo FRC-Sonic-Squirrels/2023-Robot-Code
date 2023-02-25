@@ -35,8 +35,7 @@ public class IntakeIO2022 implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     inputs.solenoid = solenoid.get();
 
-    inputs.intakeVelocityRPM =
-        intakeMotor.getSensorCollection().getIntegratedSensorVelocity() * 600 / 2048;
+    inputs.intakeVelocityRPM = intakeMotor.getSelectedSensorVelocity() * 600 / 2048;
 
     inputs.intakeAppliedVolts = intakeMotor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {intakeMotor.getSupplyCurrent()};

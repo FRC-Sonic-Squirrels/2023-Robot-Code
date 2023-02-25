@@ -21,7 +21,7 @@ public class SwerveModule {
   private double maxVelocity;
 
   private static final String SUBSYSTEM_NAME = "Swerve";
-  private static final boolean DEBUGGING = false;
+  private static final boolean DEBUGGING = true;
 
   /**
    * Create a new swerve module.
@@ -158,5 +158,9 @@ public class SwerveModule {
    */
   public void setAngleBrakeMode(boolean enable) {
     io.setAngleBrakeMode(enable);
+  }
+
+  public void resetToAbsolute() {
+    io.resetToAbsolute();
   }
 }

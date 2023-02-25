@@ -37,20 +37,24 @@
     "auton",
     "Cancoder",
     "CANID",
-    "CANIVOR",
+    "CANIVORE",
+    "chargedup",
     "Closedloop",
     "COMPBOT",
+    "CTRE",
     "DEADBAND",
     "Feedforward",
     "gamepad",
     "gradlew",
     "holonomic",
+    "howdybots",
     "Huskie",
     "jama",
     "javac",
     "Nivore",
     "odometry",
     "photonvision",
+    "PIDF",
     "rapidreact",
     "reqs",
     "REVPH",
@@ -63,6 +67,8 @@
     "teleop",
     "teleoperated",
     "TRACKWIDTH",
+    "tunables",
+    "unconfigured",
     "unpassed",
     "Vandermonde",
     "WPILOG",
@@ -70,5 +76,6 @@
   ],
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
-  }
+  },
+  "wpilib.selectDefaultSimulateExtension": true
 }

@@ -48,5 +48,24 @@
   "maxVelocity": 2.0,
   "maxAcceleration": 2.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.10200195312500002,
+      "names": [
+        "test"
+      ]
+    },
+    {
+      "position": 0.3970936168323865,
+      "names": [
+        "test2"
+      ]
+    },
+    {
+      "position": 0.5957541725852273,
+      "names": [
+        "slowTest"
+      ]
+    }
+  ]
 }

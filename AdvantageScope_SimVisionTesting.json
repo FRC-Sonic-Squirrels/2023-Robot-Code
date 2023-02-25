@@ -1,0 +1,69 @@
+{
+  "version": "2.2.1",
+  "layout": [
+    {
+      "type": 5,
+      "fields": [],
+      "listFields": [
+        []
+      ],
+      "options": {
+        "game": "2023",
+        "unitDistance": "meters",
+        "unitRotation": "radians",
+        "origin": "right",
+        "size": 0.75,
+        "allianceBumpers": "auto",
+        "allianceOrigin": "blue",
+        "orientation": "blue left, red right"
+      },
+      "title": "Odometry"
+    },
+    {
+      "type": 2,
+      "fields": [
+        "/AdvantageKit/RealOutputs/Vision/visibleTargets",
+        "/AdvantageKit/RealOutputs/Vision/NumVisibleTargets"
+      ],
+      "title": "Table"
+    },
+    {
+      "type": 6,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Robot",
+            "key": "/AdvantageKit/RealOutputs/3DField",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Camera Override",
+            "key": "/AdvantageKit/RealOutputs/3DCamera",
+            "fieldTypeIndex": 0
+          }
+        ],
+        [
+          {
+            "type": "Ghost",
+            "key": "/AdvantageKit/RealOutputs/Vision/RobotPoseFromAprilTag",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "/AdvantageKit/RealOutputs/Odometry/autonTrajectory",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "field": "2023",
+        "alliance": "auto",
+        "robot": "KitBot",
+        "unitDistance": "meters",
+        "unitRotation": "radians"
+      },
+      "title": "3D Field"
+    }
+  ]
+}

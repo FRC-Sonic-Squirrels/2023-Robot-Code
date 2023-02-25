@@ -25,6 +25,7 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -32,36 +33,34 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
-import frc.lib.team3061.pneumatics.Pneumatics;
-import frc.lib.team3061.pneumatics.PneumaticsIO;
-import frc.lib.team3061.pneumatics.PneumaticsIORev;
 import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
-import frc.lib.team3061.vision.Vision;
-import frc.lib.team3061.vision.VisionConstants;
-import frc.lib.team3061.vision.VisionIO;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
+
 import frc.robot.commands.mechanism.MechanismPositions;
+
+import frc.robot.commands.elevator.ElevatorManualControl;
+import frc.robot.commands.elevator.ElevatorSetHeight;
+import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeGrabCube;
+import frc.robot.commands.intake.IntakeScoreCone;
+import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.stinger.StingerManualControl;
+
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorReal2022;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
-import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIO2022;
+import frc.robot.subsystems.intake.IntakeIO2023;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
-import frc.robot.subsystems.stinger.StingerSim;
-import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristIO;
-import frc.robot.subsystems.wrist.WristIOSolenoid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,6 @@ public class RobotContainer {
   public SwerveAutos autos;
   private Stinger stinger;
   private Elevator elevator;
-  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -151,16 +149,10 @@ public class RobotContainer {
                     MAX_VELOCITY_METERS_PER_SECOND);
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
-            new Pneumatics(new PneumaticsIORev(false));
-
-            intake = new Intake(new IntakeIO2022());
-
-            // FIX ME i think the constants got killed in the merge
-            // new Vision(
-            //     new VisionIOPhotonVision(LEFT_CAMERA_NAME),
-            //     new VisionIOPhotonVision(RIGHT_CAMERA_NAME));
-
-            elevator = new Elevator(new ElevatorReal2022());
+            // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
+            // VisionIOPhotonVision(CAMERA_NAME));
+            // intake = new Intake(new IntakeIOFalcon());
+            // elevator = new Elevator(new ElevatorReal2022());
 
             // wrist = new Wrist(new WristIOSolenoid());
             break;
@@ -214,12 +206,12 @@ public class RobotContainer {
                     MAX_VELOCITY_METERS_PER_SECOND);
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
-            new Pneumatics(new PneumaticsIORev(false));
-            // TODO add vision subsystem
-            // new Vision(new VisionIOPhotonVision(CAMERA_NAME));
+            // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
+            // VisionIOPhotonVision(CAMERA_NAME));
             // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
+            intake = new Intake(new IntakeIO2023());
 
             break;
           }
@@ -240,23 +232,23 @@ public class RobotContainer {
             drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
             AprilTagFieldLayout layout;
             try {
-              layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
+              layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
+            // new Vision(
+            //     VisionConstants.LEFT_ROBOT_TO_CAMERA,
+            //     new VisionIOSim(layout, drivetrain::getPose,
+            // VisionConstants.LEFT_ROBOT_TO_CAMERA));
 
-            new Vision(
-                new VisionIOSim(layout, drivetrain::getPose, VisionConstants.LEFT_ROBOT_TO_CAMERA),
-                new VisionIOSim(
-                    layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
+            // TODO: test to see if we can just add a second camera
+            // new Vision(
+            //     VisionConstants.RIGHT_ROBOT_TO_CAMERA,
+            //     new VisionIOSim(
+            //         layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
-            new Pneumatics(new PneumaticsIO() {});
             intake = new Intake(new IntakeIO() {});
-
-            elevator = new Elevator(new ElevatorSim());
-            stinger = new Stinger(new StingerSim());
-
-            wrist = new Wrist(new WristIO() {});
+            elevator = new Elevator(new ElevatorIO() {});
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
@@ -278,11 +270,9 @@ public class RobotContainer {
       SwerveModule brModule =
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      new Vision(new VisionIO() {}, new VisionIO() {});
+      // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {});
       new Elevator(new ElevatorIO() {});
-      new Pneumatics(new PneumaticsIO() {});
       intake = new Intake(new IntakeIO() {});
-      wrist = new Wrist(new WristIOSolenoid() {});
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
@@ -305,15 +295,7 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    // elevator.setDefaultCommand(
-    //     new ElevatorManualControl(elevator, () -> -driverController.getRightY()));
-
-    // stinger.setDefaultCommand(
-    //     new StingerManualControl(stinger, () -> driverController.getRightX()));
-
-    // elevator.setDefaultCommand(
-    //     new ElevatorControlCommand(
-    //         elevator, operatorController, Constants.ElevatorConstants.elevatorSpeedMultiplier));
+//TODO: add elevator and stinger default command 
 
     configureButtonBindings();
     configureAutoCommands();
@@ -330,18 +312,26 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // field-relative toggle
 
-    // driverController
-    //     .b()
-    //     .toggleOnTrue(
-    //         Commands.either(
-    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-    //             drivetrain::getFieldRelative));
+    // Debug Swerve Commands
+    // driverController.a().whileTrue(Commands.run(() -> drivetrain.drive(-1, 0, 0), drivetrain));
+    // driverController.b().whileTrue(Commands.run(() -> drivetrain.drive(0, -1, 0), drivetrain));
+    // driverController.x().whileTrue(Commands.run(() -> drivetrain.drive(0, 1, 0), drivetrain));
+    // driverController.y().whileTrue(Commands.run(() -> drivetrain.drive(1, 0, 0), drivetrain));
 
-    // // reset gyro to 0 degrees
-    // driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
+    // FIXME: UNCOMMENT button bindings
+
+    // toggle between Field and Robot centric driving
+    driverController
+        .b()
+        .toggleOnTrue(
+            Commands.either(
+                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+                drivetrain::getFieldRelative));
+
+    // reset gyro to 0 degrees
+    driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // // x-stance
     // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
@@ -359,55 +349,41 @@ public class RobotContainer {
     //         Commands.runOnce(intake::retract, intake)
     //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    // driverController
-    //     .povDown()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 180)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.7));
 
-    // driverController
-    //     .povUp()
-    //     .onTrue(
-    //         new DriveWithSetRotation(
-    //                 drivetrain,
-    //                 () -> driverController.getLeftY(),
-    //                 () -> driverController.getLeftX(),
-    //                 0)
-    //             .until(() -> Math.abs(driverController.getRightX()) > 0.3));
+    driverController
+        .povDown()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    180)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
 
-    // driverController
-    //     .a()
-    //     .onTrue(new ElevatorSetHeight(elevator, 20).beforeStarting(Commands.print("A")));
+    driverController
+        .povUp()
+        .onTrue(
+            new DriveWithSetRotation(
+                    drivetrain,
+                    () -> driverController.getLeftY(),
+                    () -> driverController.getLeftX(),
+                    0)
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    // driverController
-    //     .b()
-    //     .onTrue(new ElevatorSetHeight(elevator, 0.0).beforeStarting(Commands.print("B")));
+    operatorController
+        .y()
+        .whileTrue(new IntakeGrabCone(intake, 0.6).beforeStarting(Commands.print("y")));
+    operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
 
-    // driverController
-    //     .x()
-    //     .onTrue(new StingerSetExtension(stinger, 0).beforeStarting(Commands.print("X")));
+    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
 
-    // driverController
-    //     .y()
-    //     .onTrue(new StingerSetExtension(stinger, 25).beforeStarting(Commands.print("Y")));
-
-    // driverController.a().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    // driverController.b().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
-    // driverController.x().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-    // driverController.y().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
-
-    // driverController.a().onTrue((Commands.print("A")));
-
-    // driverController.b().onTrue((Commands.print("B")));
+    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 20));
+    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 0));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
   public void configureAutoCommands() {
-
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
     autos = new SwerveAutos(drivetrain, intake);
@@ -416,7 +392,7 @@ public class RobotContainer {
 
     for (int i = 0; i < autoNames.size(); i++) {
       String name = autoNames.get(i);
-      System.out.println("configureAutoCommands: " + name);
+      // System.out.println("configureAutoCommands: " + name);
       if (i == 0) {
         // Do nothing command must be first in list.
         autoChooser.addDefaultOption(name, autos.getChooserElement(name));

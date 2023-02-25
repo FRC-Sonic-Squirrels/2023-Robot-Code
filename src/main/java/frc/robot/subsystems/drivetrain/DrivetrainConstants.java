@@ -18,22 +18,24 @@ public final class DrivetrainConstants {
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 11;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 21;
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 320.2;
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 103.8; // 320.2;
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 22;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 93.3;
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 112.6; // 93.3;
 
+  // Module 2
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 4;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 14;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 24;
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = 282.4;
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = 9.7; // 282.4;
 
+  // module 3
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 13;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 23;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 329.2;
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 202.9; // 329.2;
 
   public static final int PIGEON_ID = 15;
   public static final String PIGEON_CAN_BUS_NAME = "CANivore";
@@ -45,16 +47,16 @@ public final class DrivetrainConstants {
    *
    * <p>Should be measured from center to center.
    */
-  public static final double TRACKWIDTH_METERS = Units.inchesToMeters(25);
+  public static final double TRACKWIDTH_METERS = Units.inchesToMeters(23);
 
   /**
    * The front-to-back distance between the drivetrain wheels.
    *
    * <p>Should be measured from center to center.
    */
-  public static final double WHEELBASE_METERS = Units.inchesToMeters(24);
+  public static final double WHEELBASE_METERS = Units.inchesToMeters(25);
 
-  public static final double ROBOT_WIDTH_WITH_BUMPERS = Units.inchesToMeters(35);
+  public static final double ROBOT_WIDTH_WITH_BUMPERS = Units.inchesToMeters(34);
   public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36);
 
   /* The geometry and coordinate systems can be confusing. Refer to this document

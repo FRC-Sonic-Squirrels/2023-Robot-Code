@@ -24,8 +24,7 @@ public class IntakeIO2023Pivot implements IntakeIO {
     inputs.solenoid = solenoid.get();
 
     // TODO check formula
-    inputs.intakeVelocityRPM =
-        motor.getSensorCollection().getIntegratedSensorVelocity() * 10 * 60 / 2048;
+    inputs.intakeVelocityRPM = motor.getSelectedSensorVelocity() * 10 * 60 / 2048;
 
     inputs.intakeAppliedVolts = motor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {motor.getSupplyCurrent()};

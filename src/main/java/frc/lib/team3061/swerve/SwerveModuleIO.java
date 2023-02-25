@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 /** Swerve module hardware abstraction interface. */
 public interface SwerveModuleIO {
+
   @AutoLog
   public static class SwerveModuleIOInputs {
     double drivePositionDeg = 0.0;
@@ -38,4 +39,6 @@ public interface SwerveModuleIO {
 
   /** Enable or disable brake mode on the turn motor. */
   public default void setAngleBrakeMode(boolean enable) {}
+
+  public default void resetToAbsolute() {}
 }
