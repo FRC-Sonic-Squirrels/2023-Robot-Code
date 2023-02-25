@@ -35,8 +35,8 @@ public final class Constants {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // FIXME: FIXMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
   // FIXME: make sure these are the correct names
-  public static final String LEFT_CAMERA_NAME = "leftCamera";
-  public static final String RIGHT_CAMERA_NAME = "rightCamera";
+  public static final String LEFT_CAMERA_NAME = "LeftCamera";
+  public static final String RIGHT_CAMERA_NAME = "RightCamera";
 
   private static final RobotType ROBOT = RobotType.ROBOT_2023_COMPBOT;
 
