@@ -97,6 +97,8 @@ public class StingerSetExtension extends CommandBase {
   public boolean isFinished() {
     // TODO add this back in
     // make sure that the default command kicking in doesnt cause issues
-    return false;
+    // return stinger.isAtExtension(extensionInches);
+    return Math.abs(stinger.getExtensionInches() - extensionInches) < 0.3;
   }
 }
+
