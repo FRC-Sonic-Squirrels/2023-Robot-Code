@@ -30,10 +30,11 @@ public final class Constants {
 
   // FIXME: specify the name of the camera used for detecting AprilTags
 
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //FIX MEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE make sure these are the correct names 
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // FIX MEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE make
+  // sure these are the correct names
   public static final String LEFT_CAMERA_NAME = "leftCamera";
   public static final String RIGHT_CAMERA_NAME = "rightCamera";
 
@@ -173,7 +174,7 @@ public final class Constants {
     // all these measurements are in INCHES
     public static final double EXTENSION_LOW = 8; // half the depth of the hybrid node
     public static final double EXTENSION_MID = 22.75;
-    public static final double EXTENSION_HIGH = 27;
+    public static final double EXTENSION_HIGH = Stinger.MAX_EXTENSION_INCHES;
 
     // these measurements are 2 inches higher than the actual node heights so the items can make it
     // over
@@ -181,7 +182,7 @@ public final class Constants {
     public static final double HEIGHT_MID_CUBE = 25.5;
     public static final double HEIGHT_MID_CONE = 36;
     public static final double HEIGHT_HIGH_CUBE = 37.5;
-    public static final double HEIGHT_HIGH_CONE = 48;
+    public static final double HEIGHT_HIGH_CONE = Elevator.MAX_HEIGHT_INCHES;
   }
 
   public static class Elevator2022 {

@@ -10,9 +10,12 @@ import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.commands.elevator.ElevatorFollowCurve;
 import frc.robot.commands.elevator.ElevatorSetHeight;
+import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.stinger.StingerFollowCurve;
 import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.stinger.Stinger;
 
 /** MechanismPositions */
@@ -135,5 +138,17 @@ public class MechanismPositions {
     } else {
       return new StingerFollowCurve(elevator, stinger, heightInches);
     }
+  }
+
+  public static Command testScoreConeHigh(Elevator elevator, Stinger stinger, Intake intake) {
+
+    return new SequentialCommandGroup(
+        new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE),
+        // --
+        new ParallelCommandGroup(
+            new IntakeGrabCone(intake, 0.8).withTimeout(0.1),
+            new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_HIGH)),
+        // --
+        new IntakeScoreCone(intake).withTimeout(0.25));
   }
 }
