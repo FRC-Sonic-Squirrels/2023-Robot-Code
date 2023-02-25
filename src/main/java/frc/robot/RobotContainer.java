@@ -65,6 +65,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
 import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
@@ -230,6 +231,7 @@ public class RobotContainer {
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
 
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
+            leds.setColor(colors.YELLOW);
 
             break;
           }
@@ -487,11 +489,13 @@ public class RobotContainer {
     operatorController
         .back()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
+                .alongWith(Commands.runOnce(() -> leds.setColor(colors.VIOLET), leds)));
     operatorController
         .start()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE))
+                .alongWith(Commands.runOnce(() -> leds.setColor(colors.YELLOW), leds)));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
