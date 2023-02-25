@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
@@ -157,20 +158,25 @@ public class Vision extends SubsystemBase {
         switch (camera) {
           case LEFT:
             robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
-            // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             if (useMaxValidDistanceAway) {
               var currentPose =
                   RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
 
-              var deltaPose = robotPose.toPose2d().relativeTo(currentPose);
+              double distance =
+                  currentPose
+                      .getTranslation()
+                      .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
 
-              Logger.getInstance().recordOutput("Vision/Left/deltaPose", deltaPose);
+              Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
 
-              if (Math.abs(deltaPose.getX()) > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS
-                  || Math.abs(deltaPose.getY()) > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
                 continue;
               }
+
+              // FIXME: enable pose updates when we're happy with them
+              // poseEstimator.addVisionMeasurement(robotPose.toPose2d(),
+              // getLatestTimestamp(camera));
             }
 
             RobotOdometry.getInstance()
