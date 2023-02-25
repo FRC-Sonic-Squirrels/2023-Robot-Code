@@ -23,13 +23,13 @@ import frc.robot.subsystems.stinger.Stinger;
 public class MechanismPositions {
 
   // TODO: find the proper stow and pickup positions based off robot measurements
-  static final double stowHeight = 0;
+  static final double stowHeight = 6;
   static final double stowExtension = 0;
-  static final double groundPickupHeight = 1;
-  static final double groundPickupExtension = 5;
+  static final double groundPickupHeight = 3;
+  static final double groundPickupExtension = 11;
   static final double substationPickupHeight = 20;
   static final double substationPickupExtension = 20;
-  static final double elevatorAboveBumberHeight = 5;
+  static final double elevatorAboveBumberHeight =  3;
   private static final TunableNumber elevatorHeightThreshold =
       new TunableNumber("MechPosCommand/elevatorHeightThreshold", 20);
   private static final TunableNumber stingerExtensionThreshold =
@@ -50,7 +50,7 @@ public class MechanismPositions {
         elevator,
         stinger,
         Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
-        Constants.NODE_DISTANCES.EXTENSION_MID);
+        Constants.NODE_DISTANCES.EXTENSION_MID_CUBE);
   }
 
   public static Command scoreConeMidPosition(Elevator elevator, Stinger stinger) {
@@ -58,7 +58,7 @@ public class MechanismPositions {
         elevator,
         stinger,
         Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
-        Constants.NODE_DISTANCES.EXTENSION_MID);
+        Constants.NODE_DISTANCES.EXTENSION_MID_CONE);
   }
 
   public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger) {
@@ -66,7 +66,7 @@ public class MechanismPositions {
         elevator,
         stinger,
         Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
-        Constants.NODE_DISTANCES.EXTENSION_HIGH);
+        Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE);
   }
 
   public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger) {
@@ -74,7 +74,7 @@ public class MechanismPositions {
         elevator,
         stinger,
         Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE,
-        Constants.NODE_DISTANCES.EXTENSION_HIGH);
+        Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE);
   }
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
@@ -89,10 +89,16 @@ public class MechanismPositions {
   }
 
   public static Command stowPosition(Elevator elevator, Stinger stinger) {
-    return new SequentialCommandGroup(
-        avoidBumper(elevator, stinger),
-        new StingerSetExtension(stinger, stowExtension),
-        new ElevatorSetHeight(elevator, stowHeight));
+    return new ConditionalCommand(
+      new SequentialCommandGroup(
+        new StingerSetExtension(stinger, stowExtension), 
+        new ElevatorSetHeight(elevator, stowHeight)),  
+      new SequentialCommandGroup(
+        
+        new ElevatorSetHeight(elevator, stowHeight),
+        new StingerSetExtension(stinger, stowExtension)),  
+        () -> (elevator.getHeightInches()>stowHeight));
+        
   }
 
   public static Command goToPosition(
@@ -147,7 +153,7 @@ public class MechanismPositions {
         // --
         new ParallelCommandGroup(
             new IntakeGrabCone(intake, 0.8).withTimeout(0.1),
-            new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_HIGH)),
+            new StingerSetExtension(stinger, Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE)),
         // --
         new IntakeScoreCone(intake).withTimeout(0.25));
   }
