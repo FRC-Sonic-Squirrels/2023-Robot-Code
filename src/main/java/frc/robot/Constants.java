@@ -176,7 +176,7 @@ public final class Constants {
     public static final double EXTENSION_MID_CUBE = 16.3;
     public static final double EXTENSION_MID_CONE = 12.5;
     public static final double EXTENSION_HIGH_CONE = Stinger.MAX_EXTENSION_INCHES;
-    public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES; 
+    public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES;
 
     // these measurements are 2 inches higher than the actual node heights so the items can make it
     // over

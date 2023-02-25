@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
@@ -51,7 +52,9 @@ import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.intake.IntakeGrabCone;
+import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
+import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -221,6 +224,8 @@ public class RobotContainer {
                 new Vision(
                     new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
+
+            RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
 
             break;
           }
@@ -400,21 +405,27 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    operatorController.x().whileTrue(new IntakeGrabCone(intake, 1.0));
-    // operatorController.povLeft().whileTrue(new IntakeGrabCube(intake, 0.3));
+    // operatorController.x().whileTrue(new IntakeGrabCone(intake, 1.0));
+    // operatorController.leftBumper().whileTrue(new IntakeGrabCube(intake, 0.3));
 
-    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
-    // operatorController.povRight().whileTrue(new IntakeScoreCube(intake, 0.5));
+    // operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    // operatorController.rightBumper().whileTrue(new IntakeScoreCube(intake, 0.5));
 
-    // operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
-    // operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 48.75));
-    // operatorController.rightTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 0.0));
-    // // feeder station
-    // operatorController.leftTrigger(0.5).onTrue(new ElevatorSetHeight(elevator, 45.5));
-
-    // operatorController.povLeft().onTrue(new StingerSetExtension(stinger, 0));
-    // operatorController.povUp().onTrue(new StingerSetExtension(stinger, 10));
-    // operatorController.povRight().onTrue(new StingerSetExtension(stinger, 25));
+    // operatorController
+    //     .a()
+    //     .onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger, intake));
+    // operatorController
+    //     .y()
+    //     .onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
+    // operatorController
+    //     .povUp()
+    //     .onTrue(MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
+    // operatorController
+    //     .povRight()
+    //     .onTrue(MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CUBE));
+    // operatorController
+    //     .povLeft()
+    //     .onTrue(MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CONE));
 
     operatorController
         .leftTrigger()
@@ -426,26 +437,49 @@ public class RobotContainer {
     // operatorController.povUp().onTrue(new ConditionalCommand(new , null, () ->
     // RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
-    operatorController
-        .y()
-        .onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger, intake));
-    operatorController
-        .x()
-        .onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger, intake));
-    operatorController
-        .b()
-        .onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
-    operatorController
-        .a()
-        .onTrue(MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
-    operatorController.povDown().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+    operatorController.x().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+
+    operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+
+    operatorController.a().onTrue(MechanismPositions.safeZero(elevator, stinger));
+    operatorController.y().onTrue(MechanismPositions.substationPickupPosition(elevator, stinger));
 
     operatorController
-        .y()
-        .onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger, intake));
+        .povUp()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreConeHighPosition(elevator, stinger, intake),
+                MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .povLeft()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreConeMidPosition(elevator, stinger, intake),
+                MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .povDown()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CONE),
+                MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CUBE),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 
-    operatorController.rightBumper().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeGrabCone(intake, 1.0),
+                new IntakeGrabCube(intake, 0.3),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeScoreCone(intake, 0.8),
+                new IntakeScoreCube(intake, 0.5),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .back()
         .onTrue(
