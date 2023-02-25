@@ -162,18 +162,11 @@ public class ElevatorReal2023 implements ElevatorIO {
 
       setpoint = profile.calculate(0.02);
 
-      // if (Math.abs(setpoint)
-      //   Math.abs(targetHeightInches - ticksToInches(lead_talon.getSelectedSensorPosition()))
-      //     < 0.3) {
-      //   lead_talon.set(ControlMode.PercentOutput, Constants.Elevator.ARBITRARY_FEED_FORWARD +
-      // 0.02);
-      // } else {
       lead_talon.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),
           DemandType.ArbitraryFeedForward,
           Constants.Elevator.ARBITRARY_FEED_FORWARD);
-      // }
     }
   }
 
