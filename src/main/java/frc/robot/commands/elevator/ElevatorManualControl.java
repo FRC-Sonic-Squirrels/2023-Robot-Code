@@ -5,8 +5,10 @@
 package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.function.DoubleSupplier;
+
 
 public class ElevatorManualControl extends CommandBase {
   Elevator elevator;
@@ -30,7 +32,7 @@ public class ElevatorManualControl extends CommandBase {
     // negative because up on joystick y axis goes negative
     double elevatorJoyStickValue = deadband(controllerAxis.getAsDouble(), 0.1);
 
-    elevator.setPercentOutput(elevatorJoyStickValue * 0.2);
+    elevator.setPercentOutput((elevatorJoyStickValue * 0.2) + 0.02);
   }
 
   @Override
