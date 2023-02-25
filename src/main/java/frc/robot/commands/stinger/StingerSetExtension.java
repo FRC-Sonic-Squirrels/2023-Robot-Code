@@ -88,11 +88,15 @@ public class StingerSetExtension extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    // dont stop because that ends positional control
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // TODO add this back in
+    // make sure that the default command kicking in doesnt cause issues
     return false;
   }
 }
