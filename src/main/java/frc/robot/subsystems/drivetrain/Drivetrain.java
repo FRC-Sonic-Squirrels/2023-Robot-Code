@@ -389,8 +389,12 @@ public class Drivetrain extends SubsystemBase {
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
     Logger.getInstance()
         .recordOutput(
-            "3DCamera",
+            "3DCameraLeft",
             new Pose3d(poseEstimatorPose).transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA));
+    Logger.getInstance()
+        .recordOutput(
+            "3DCameraRight",
+            new Pose3d(poseEstimatorPose).transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
   }

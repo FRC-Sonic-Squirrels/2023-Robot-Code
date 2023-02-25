@@ -3,11 +3,11 @@ package frc.lib.team3061.vision;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
@@ -29,17 +29,15 @@ public class Vision extends SubsystemBase {
 
   private double lastTimestampLeft;
   private double lastTimestampRight;
-  private SwerveDrivePoseEstimator poseEstimator;
 
   private Alert noAprilTagLayoutAlert =
       new Alert(
           "No AprilTag layout file found. Update APRILTAG_FIELD_LAYOUT_PATH in VisionConstants.java",
           AlertType.WARNING);
 
-  public Vision(SwerveDrivePoseEstimator poseEstimator, VisionIO L_VisionIO, VisionIO R_VisionIO) {
+  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO) {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
-    this.poseEstimator = poseEstimator;
 
     try {
       layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
@@ -148,6 +146,9 @@ public class Vision extends SubsystemBase {
             robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
             // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
+            RobotOdometry.getInstance()
+                .getPoseEstimator()
+                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
             Logger.getInstance().recordOutput("Vision/Left/RobotPose", robotPose.toPose2d());
@@ -158,6 +159,9 @@ public class Vision extends SubsystemBase {
           case RIGHT:
             robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
             // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            RobotOdometry.getInstance()
+                .getPoseEstimator()
+                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);

@@ -38,6 +38,9 @@ import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
+import frc.lib.team3061.vision.Vision;
+import frc.lib.team3061.vision.VisionConstants;
+import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
@@ -234,6 +237,18 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
+            new Vision(
+                new VisionIOSim(
+                    layout,
+                    drivetrain::getPose,
+                    VisionConstants.LEFT_ROBOT_TO_CAMERA,
+                    "leftCameraNetwork"),
+                new VisionIOSim(
+                    layout,
+                    drivetrain::getPose,
+                    VisionConstants.RIGHT_ROBOT_TO_CAMERA,
+                    "rightCameraNetwork"));
+
             // new Vision(
             //     VisionConstants.LEFT_ROBOT_TO_CAMERA,
             //     new VisionIOSim(layout, drivetrain::getPose,
