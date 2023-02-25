@@ -78,7 +78,7 @@ public class TeleopSwerve extends CommandBase {
     Logger.getInstance().recordOutput("TeleopSwerve/yVelocity", yVelocity);
     Logger.getInstance().recordOutput("TeleopSwerve/rotationalVelocity", rotationalVelocity);
 
-    drivetrain.drive(xVelocity, yVelocity, rotationalVelocity);
+    drivetrain.drive(xVelocity * 0.6, yVelocity * 0.6, rotationalVelocity * 0.6);
   }
 
   @Override
