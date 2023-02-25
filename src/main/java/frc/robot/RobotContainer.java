@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
@@ -51,14 +50,10 @@ import frc.robot.commands.drive.AutoEngage;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
-import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
-import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
-import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
-import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -329,7 +324,6 @@ public class RobotContainer {
     // if we do this system remember to make the end stop the system incase we let go of the while
     // true button when joystick has a value > 0.0
     // otherwise the system will run at that percent speed until it hits soft/hard limit.
-   
 
     configureButtonBindings();
     configureAutoCommands();
@@ -406,11 +400,11 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    // operatorController.y().whileTrue(new IntakeGrabCone(intake, 1.0));
-    operatorController.povLeft().whileTrue(new IntakeGrabCube(intake, 0.3));
+    operatorController.x().whileTrue(new IntakeGrabCone(intake, 1.0));
+    // operatorController.povLeft().whileTrue(new IntakeGrabCube(intake, 0.3));
 
-    // operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
-    operatorController.povRight().whileTrue(new IntakeScoreCube(intake, 0.5));
+    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    // operatorController.povRight().whileTrue(new IntakeScoreCube(intake, 0.5));
 
     // operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 42.0));
     // operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 48.75));
@@ -422,21 +416,33 @@ public class RobotContainer {
     // operatorController.povUp().onTrue(new StingerSetExtension(stinger, 10));
     // operatorController.povRight().onTrue(new StingerSetExtension(stinger, 25));
 
-    operatorController.leftTrigger().whileTrue(new ParallelCommandGroup(
-      new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
-      new StingerManualControl(stinger, elevator, operatorController::getRightX)
-    ));
+    operatorController
+        .leftTrigger()
+        .whileTrue(
+            new ParallelCommandGroup(
+                new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
+                new StingerManualControl(stinger, elevator, operatorController::getRightX)));
 
-    //operatorController.povUp().onTrue(new ConditionalCommand(new , null, () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
+    // operatorController.povUp().onTrue(new ConditionalCommand(new , null, () ->
+    // RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
-    operatorController.y().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
-    operatorController.x().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
-    operatorController.b().onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger));
-    operatorController.a().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+    // operatorController.y().onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger));
+    // operatorController.x().onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger));
+    // operatorController.b().onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger));
+    // operatorController.a().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+
+    operatorController
+        .y()
+        .onTrue(MechanismPositions.scoreConeHighPosition(elevator, stinger, intake));
 
     operatorController.rightBumper().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-    operatorController.back().onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
-    operatorController.start().onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+
+    operatorController
+        .back()
+        .onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
+    operatorController
+        .start()
+        .onTrue(Commands.run(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
