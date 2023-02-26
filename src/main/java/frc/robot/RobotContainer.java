@@ -324,6 +324,8 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
             drivetrain,
+            elevator,
+            stinger,
             driverController::getLeftY,
             driverController::getLeftX,
             driverController::getRightX));
