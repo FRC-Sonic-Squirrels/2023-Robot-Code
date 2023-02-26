@@ -327,9 +327,18 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
             drivetrain,
+            elevator,
+            stinger,
             driverController::getLeftY,
             driverController::getLeftX,
             driverController::getRightX));
+
+    // leds.setDefaultCommand(
+    //     new ConditionalCommand(
+    //             new LedSetColor(leds, colors.YELLOW),
+    //             new LedSetColor(leds, colors.VIOLET),
+    //             () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
+    //         .repeatedly());
 
     // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
     // positional control
@@ -506,13 +515,15 @@ public class RobotContainer {
     operatorController
         .back()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
-                .alongWith(Commands.runOnce(() -> leds.setColor(colors.VIOLET), leds)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
     operatorController
         .start()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE))
-                .alongWith(Commands.runOnce(() -> leds.setColor(colors.YELLOW), leds)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+
+    driverController
+        .start()
+        .onTrue(Commands.runOnce(() -> drivetrain.resetModulesToAbsolute(), drivetrain));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */

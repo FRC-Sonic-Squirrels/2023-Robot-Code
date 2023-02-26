@@ -30,8 +30,8 @@ import java.util.function.Supplier;
 public class MechanismPositions {
 
   // TODO: find the proper stow and pickup positions based off robot measurements
-  static final double stowHeight = 6;
-  static final double stowExtension = 0;
+  static final double stowHeight = Constants.NODE_DISTANCES.STOW_HEIGHT;
+  static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
   static final double groundPickupExtension = 11;
   static final double substationPickupHeight = 20;
