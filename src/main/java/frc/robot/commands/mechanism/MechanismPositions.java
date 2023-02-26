@@ -119,8 +119,8 @@ public class MechanismPositions {
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        new StingerSetExtension(stinger, groundPickupExtension),
-        new ElevatorSetHeight(elevator, groundPickupHeight));
+        new ElevatorSetHeight(elevator, groundPickupHeight),
+        new StingerSetExtension(stinger, groundPickupExtension));
   }
 
   // public static Command substationPickupPosition(Elevator elevator, Stinger stinger) {

@@ -381,15 +381,15 @@ public class RobotContainer {
                 Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
                 drivetrain::getFieldRelative));
 
-    driverController
-        .a()
-        .onTrue(
-            new ParallelCommandGroup(
-                MechanismPositions.groundPickupPosition(elevator, stinger),
-                new IntakeGrabCube(intake).withTimeout(1)));
+    // driverController
+    //     .a()
+    //     .onTrue(
+    //         new ParallelCommandGroup(
+    //             MechanismPositions.groundPickupPosition(elevator, stinger),
+    //             new IntakeGrabCube(intake).withTimeout(4)));
 
-    driverController.y().onTrue(MechanismPositions.stowPosition(elevator, stinger));
-    // reset gyro to 0 degrees
+    // driverController.y().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    // // reset gyro to 0 degrees
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // // x-stance

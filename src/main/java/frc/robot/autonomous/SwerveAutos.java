@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.team2930.AutoChooserElement;
@@ -145,9 +146,9 @@ public class SwerveAutos {
         new SequentialCommandGroup(new PrintCommand("cone scored"), Commands.waitSeconds(2)));
     eventMap.put(
         "mechIntakeCube",
-        new SequentialCommandGroup(
+        new ParallelCommandGroup(
             MechanismPositions.groundPickupPosition(elevator, stinger),
-            new IntakeGrabCube(intake).withTimeout(1)));
+            new IntakeGrabCube(intake).withTimeout(4)));
     eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
