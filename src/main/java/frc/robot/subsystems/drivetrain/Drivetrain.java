@@ -162,6 +162,15 @@ public class Drivetrain extends SubsystemBase {
     }
 
     SmartDashboard.putData("Field", field);
+
+    Timer.delay(1.0);
+    resetModulesToAbsolute();
+  }
+
+  public void resetModulesToAbsolute() {
+    for (SwerveModule mod : swerveModules) {
+      mod.resetToAbsolute();
+    }
   }
 
   /**
