@@ -381,6 +381,11 @@ public class RobotContainer {
                 Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
                 drivetrain::getFieldRelative));
 
+    driverController
+        .y()
+        .onTrue(Commands.runOnce(() -> vision.disableMaxDistanceAwayForTags(), vision))
+        .onFalse(Commands.runOnce(() -> vision.enableMaxDistanceAwayForTags(), vision));
+
     // driverController
     //     .a()
     //     .onTrue(

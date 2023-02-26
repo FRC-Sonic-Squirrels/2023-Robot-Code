@@ -31,7 +31,7 @@ public class Vision extends SubsystemBase {
   private double lastTimestampLeft;
   private double lastTimestampRight;
 
-  private boolean updatePoseWithVisionReadings = false;
+  private boolean updatePoseWithVisionReadings = true;
   private boolean useMaxValidDistanceAway = true;
 
   private Alert noAprilTagLayoutAlert =
@@ -198,14 +198,20 @@ public class Vision extends SubsystemBase {
               var currentPose =
                   RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
 
-              var deltaPose = robotPose.toPose2d().relativeTo(currentPose);
+              double distance =
+                  currentPose
+                      .getTranslation()
+                      .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
 
-              Logger.getInstance().recordOutput("Vision/Right/deltaPose", deltaPose);
+              Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
 
-              if (Math.abs(deltaPose.getX()) > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS
-                  || Math.abs(deltaPose.getY()) > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
                 continue;
               }
+
+              // FIXME: enable pose updates when we're happy with them
+              // poseEstimator.addVisionMeasurement(robotPose.toPose2d(),
+              // getLatestTimestamp(camera));
             }
 
             RobotOdometry.getInstance()
