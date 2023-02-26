@@ -124,15 +124,15 @@
   ],
   "markers": [
     {
-      "position": 2.0,
+      "position": 1.7454545454545294,
       "names": [
-        "groundPickup"
+        "mechIntakeCube"
       ]
     },
     {
-      "position": 4.0,
+      "position": 2.26909090909079,
       "names": [
-        "scoreCubeHigh"
+        "mechStow"
       ]
     }
   ]

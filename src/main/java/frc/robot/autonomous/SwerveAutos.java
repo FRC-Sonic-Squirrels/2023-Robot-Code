@@ -55,7 +55,7 @@ public class SwerveAutos {
     //
 
     // FIXME: temporarily make this the default command for testing vision
-    // addCommand("left1BallTaxi", () -> left1BallTaxi());
+    // addCommand("Hp1BallTaxi", () -> Hp1BallTaxi());
 
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
@@ -71,16 +71,16 @@ public class SwerveAutos {
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
     addCommand("middle1BallEngage", () -> middle1BallEngage());
-    addCommand("right1BallTaxi", () -> right1BallTaxi());
-    addCommand("right2Ball", () -> right2Ball());
-    addCommand("right2BallEngage", () -> right2BallEngage());
-    // addCommand("right3Ball", () -> right3Ball());
-    // addCommand("right4Ball", () -> right4Ball());
-    addCommand("left1BallTaxi", () -> left1BallTaxi());
-    addCommand("left2Ball", () -> left2Ball());
-    addCommand("left2BallEngage", () -> left2BallEngage());
-    // addCommand("left3Ball", () -> left3Ball());
-    // addCommand("left4Ball", () -> left4Ball());
+    addCommand("Wall1BallTaxi", () -> wall1BallTaxi());
+    addCommand("Wall2Ball", () -> wall2Ball());
+    addCommand("Wall2BallEngage", () -> wall2BallEngage());
+    // addCommand("Wall3Ball", () -> wall3Ball());
+    // addCommand("Wall4Ball", () -> wall4Ball());
+    addCommand("Hp1BallTaxi", () -> Hp1BallTaxi());
+    addCommand("Hp2Ball", () -> Hp2Ball());
+    addCommand("Hp2BallEngage", () -> Hp2BallEngage());
+    // addCommand("Hp3Ball", () -> Hp3Ball());
+    // addCommand("Hp4Ball", () -> Hp4Ball());
   }
 
   /**
@@ -287,7 +287,7 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement testSeq() {
-    PathPlannerTrajectory path = loadPath("2mforward");
+    PathPlannerTrajectory path = loadPath("2mForward");
 
     return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreConeHigh());
   }
@@ -335,68 +335,68 @@ public class SwerveAutos {
   }
 
   public AutoChooserElement middle1BallEngage() {
-    PathPlannerTrajectory path = loadPath("middle1BallEngage");
+    PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
     return scoreCubeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement right1BallTaxi() {
-    PathPlannerTrajectory path = loadPath("right1BallTaxi");
+  public AutoChooserElement wall1BallTaxi() {
+    PathPlannerTrajectory path = loadPath("wallSide1PieceTaxi");
 
     return scoreConeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement right2Ball() {
-    PathPlannerTrajectory path = loadPath("right2Ball");
+  public AutoChooserElement wall2Ball() {
+    PathPlannerTrajectory path = loadPath("wallSide2Piece");
 
-    return right1BallTaxi().setNext(path, false, drivetrain, getEventMap());
+    return wall1BallTaxi().setNext(path, false, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement right2BallEngage() {
-    PathPlannerTrajectory path = loadPath("right2BallEngage");
+  public AutoChooserElement wall2BallEngage() {
+    PathPlannerTrajectory path = loadPath("wallSide2PieceEngage");
 
-    return right2Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall2Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement right3Ball() {
-    PathPlannerTrajectory path = loadPath("right3Ball");
+  public AutoChooserElement wall3Ball() {
+    PathPlannerTrajectory path = loadPath("wallSide3Piece");
 
-    return right2Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall2Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement right4Ball() {
-    PathPlannerTrajectory path = loadPath("right4Ball");
+  public AutoChooserElement wall4Ball() {
+    PathPlannerTrajectory path = loadPath("wallSide4Piece");
 
-    return right3Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall3Ball().setNext(path, false, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement left1BallTaxi() {
-    PathPlannerTrajectory path = loadPath("Left1BallTaxi");
+  public AutoChooserElement Hp1BallTaxi() {
+    PathPlannerTrajectory path = loadPath("HpSide1PieceTaxi");
 
     return scoreConeHigh().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement left2Ball() {
-    PathPlannerTrajectory path = loadPath("left2Ball");
+  public AutoChooserElement Hp2Ball() {
+    PathPlannerTrajectory path = loadPath("HpSide2Piece");
 
-    return left1BallTaxi().setNext(path, true, drivetrain, getEventMap());
+    return Hp1BallTaxi().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement left2BallEngage() {
-    PathPlannerTrajectory path = loadPath("left2BallEngage");
+  public AutoChooserElement Hp2BallEngage() {
+    PathPlannerTrajectory path = loadPath("HpSide2PieceEngage");
 
-    return left2Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp2Ball().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement left3Ball() {
-    PathPlannerTrajectory path = loadPath("left3Ball");
+  public AutoChooserElement Hp3Ball() {
+    PathPlannerTrajectory path = loadPath("HpSide3Piece");
 
-    return left2Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp2Ball().setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement left4Ball() {
-    PathPlannerTrajectory path = loadPath("left4Ball");
+  public AutoChooserElement Hp4Ball() {
+    PathPlannerTrajectory path = loadPath("HpSide4Piece");
 
-    return left3Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp3Ball().setNext(path, true, drivetrain, getEventMap());
   }
 }

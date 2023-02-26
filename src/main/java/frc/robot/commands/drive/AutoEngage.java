@@ -33,7 +33,6 @@ public class AutoEngage extends CommandBase {
 
   private TunableNumber doDrive = new TunableNumber("AutoEngage/EnableCommand", 1);
 
-  
   private DoubleSupplier y_supplier;
   /** Creates a new AutoEngage. */
   public AutoEngage(Drivetrain drivetrain, DoubleSupplier yAxisSup, Boolean flip) {
@@ -62,8 +61,8 @@ public class AutoEngage extends CommandBase {
 
     // drivePower = Math.copySign(drivePower, error);
 
-    if(flip){
-      drivePower*=-1;
+    if (flip) {
+      drivePower *= -1;
     }
     // The robot I referenced when making this needed extra power while in reverse.
     //  // Our robot needed an extra push to drive up in reverse, probably due to weight imbalances
@@ -99,9 +98,9 @@ public class AutoEngage extends CommandBase {
     }
 
     if (timeEngaged.get() >= 0.5) {
-     // drivetrain.enableXstance();
+      // drivetrain.enableXstance();
     } else {
-      //drivetrain.disableXstance();
+      // drivetrain.disableXstance();
     }
   }
 

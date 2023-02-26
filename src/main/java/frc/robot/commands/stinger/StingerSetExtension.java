@@ -101,4 +101,3 @@ public class StingerSetExtension extends CommandBase {
     return Math.abs(stinger.getExtensionInches() - extensionInches) < 0.3;
   }
 }
-
