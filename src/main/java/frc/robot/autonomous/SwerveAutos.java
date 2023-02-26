@@ -326,7 +326,7 @@ public class SwerveAutos {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreConeMidPosition(elevator, stinger, intake)));
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
   private BooleanSupplier mechanismInPos() {
