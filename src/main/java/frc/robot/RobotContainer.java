@@ -60,6 +60,7 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
+import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
@@ -67,8 +68,8 @@ import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
-import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
+import frc.robot.subsystems.stinger.StingerSim;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -279,8 +280,8 @@ public class RobotContainer {
             //         layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
             intake = new Intake(new IntakeIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
-            stinger = new Stinger(new StingerIO() {});
+            elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
@@ -507,7 +508,7 @@ public class RobotContainer {
   public void configureAutoCommands() {
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-    autos = new SwerveAutos(drivetrain, intake);
+    autos = new SwerveAutos(drivetrain, intake, elevator, stinger);
 
     List<String> autoNames = autos.getAutonomousCommandNames();
 

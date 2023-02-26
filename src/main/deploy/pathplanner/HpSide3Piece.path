@@ -2,13 +2,38 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.99,
-        "y": 4.41
+        "x": 1.9,
+        "y": 4.414086773965274
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3238183994199653,
-        "y": 4.562747727492601
+        "x": 2.551821103927515,
+        "y": 4.528441353601679
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 1.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.3179060588890428,
+        "y": 4.644032941912038
+      },
+      "prevControl": {
+        "x": 2.506720315984574,
+        "y": 4.3338142995808795
+      },
+      "nextControl": {
+        "x": 5.22842472218468,
+        "y": 5.374665242911084
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,68 +49,41 @@
     },
     {
       "anchorPoint": {
-        "x": 3.2600965201930423,
-        "y": 4.701842480608039
+        "x": 6.852259753021646,
+        "y": 3.5907338005831497
       },
       "prevControl": {
-        "x": 2.231232126095084,
-        "y": 4.464559822603952
+        "x": 6.17756773316685,
+        "y": 4.791456886765413
       },
       "nextControl": {
-        "x": 6.326228686694178,
-        "y": 5.408971616802007
+        "x": 6.17756773316685,
+        "y": 4.791456886765413
       },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.909437042839849,
-        "y": 2.435752546255449
-      },
-      "prevControl": {
-        "x": 5.7661249036697555,
-        "y": 3.389774869229316
-      },
-      "nextControl": {
-        "x": 5.7661249036697555,
-        "y": 3.389774869229316
-      },
-      "holonomicAngle": -55.30484646876609,
+      "holonomicAngle": -45.00000000000003,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 3.2697314433090425,
-        "y": 4.711477403724039
+        "x": 3.330138700220339,
+        "y": 4.562747727492601
       },
       "prevControl": {
-        "x": 6.360535060585099,
-        "y": 5.3632297849474435
+        "x": 5.1026346845846335,
+        "y": 5.386100700874726
       },
       "nextControl": {
-        "x": 1.7799019126625446,
-        "y": 4.397319642684678
+        "x": 2.774241190401751,
+        "y": 4.3045243680929985
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -101,12 +99,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.0460962075770324,
-        "y": 2.7266832418280225
+        "x": 1.9007064547652628,
+        "y": 4.414086773965274
       },
       "prevControl": {
-        "x": 1.8437628221410307,
-        "y": 4.171921709228035
+        "x": 2.1408510720017158,
+        "y": 4.528441353601679
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -118,21 +116,21 @@
         "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
-        "waitTime": 0
+        "waitTime": 1.0
       }
     }
   ],
   "markers": [
     {
-      "position": 2.0,
+      "position": 2.327272727272727,
       "names": [
-        "groundPickup"
+        "mechIntakeCube"
       ]
     },
     {
-      "position": 4.0,
+      "position": 2.2690909090908065,
       "names": [
-        "scoreCubeHigh"
+        "mechStow"
       ]
     }
   ]
