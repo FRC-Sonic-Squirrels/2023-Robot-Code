@@ -54,6 +54,7 @@ import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.leds.LedSetColor;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -330,6 +331,13 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    leds.setDefaultCommand(
+        new ConditionalCommand(
+                new LedSetColor(leds, colors.YELLOW),
+                new LedSetColor(leds, colors.VIOLET),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
+            .repeatedly());
+
     // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
     // positional control
     // instead of working around it lets just have a button.whileTrue where these are only active if
@@ -497,13 +505,11 @@ public class RobotContainer {
     operatorController
         .back()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
-                .alongWith(Commands.runOnce(() -> leds.setColor(colors.VIOLET), leds)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
     operatorController
         .start()
         .onTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE))
-                .alongWith(Commands.runOnce(() -> leds.setColor(colors.YELLOW), leds)));
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
