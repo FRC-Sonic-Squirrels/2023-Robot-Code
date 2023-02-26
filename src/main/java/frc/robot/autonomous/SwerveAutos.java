@@ -148,7 +148,7 @@ public class SwerveAutos {
         new SequentialCommandGroup(
             MechanismPositions.groundPickupPosition(elevator, stinger),
             new IntakeGrabCube(intake).withTimeout(1)));
-    eventMap.put("mechStow", MechanismPositions.safeZero(elevator, stinger));
+    eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
