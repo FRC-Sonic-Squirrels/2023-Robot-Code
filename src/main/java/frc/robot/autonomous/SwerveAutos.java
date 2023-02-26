@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.robot.commands.auto.FollowPath;
 import frc.robot.commands.drive.AutoEngage;
@@ -85,6 +86,7 @@ public class SwerveAutos {
     addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
     addCommand("Hp3Piece", () -> Hp3Ball());
     addCommand("Hp4Piece", () -> Hp4Ball());
+    addCommand("middleDriveOutEngage", () -> middleDriveOutAndEngage());
   }
 
   /**
@@ -351,6 +353,43 @@ public class SwerveAutos {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
     return scoreCubeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
+  }
+
+  public AutoChooserElement middleDriveOutAndEngage() {
+
+    boolean onBlue = DriverStation.getAlliance() == Alliance.Blue;
+    double forward = onBlue ? 1.0 : -1.0;
+
+    double rotation = onBlue ? 0.0 : 180;
+
+    boolean flipAutoEngage = onBlue ? true : false;
+
+    return scoreConeHigh()
+        .setNext(
+            new SequentialCommandGroup(
+                Commands.runEnd(
+                        () -> drivetrain.drive(forward, 0.0, 0.0),
+                        () -> drivetrain.stop(),
+                        drivetrain)
+                    .until(() -> Math.abs(drivetrain.getGyroPitch()) > 15)
+                    .withTimeout(2),
+                // --
+                Commands.runEnd(
+                        () -> drivetrain.drive(forward, 0.0, 0.0),
+                        () -> drivetrain.stop(),
+                        drivetrain)
+                    .until(
+                        new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.25))
+                    .withTimeout(2.0),
+                // --
+
+                // new DriveWithSetRotation(drivetrain, () -> 0.0, () -> 0.0, (int) rotation)
+                //     .withTimeout(1.5),
+                // --
+                Commands.runOnce(() -> drivetrain.drive(-forward, 0.0, 0.0), drivetrain)
+                    .until(() -> Math.abs(drivetrain.getGyroPitch()) > 10)
+                    .withTimeout(2.0),
+                new AutoEngage(drivetrain, flipAutoEngage)));
   }
 
   public AutoChooserElement middle2BallEngage() {
