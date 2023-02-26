@@ -75,7 +75,7 @@ public class SwerveAutos {
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
     addCommand("middle1PieceEngage", () -> middle1BallEngage());
-    addCommand("middle2PieceEngage", () -> middle2BallEngage());
+    // addCommand("middle2PieceEngage", () -> middle2BallEngage());
     addCommand("Wall1PieceTaxi", () -> wall1BallTaxi());
     addCommand("Wall2Piece", () -> wall2Ball());
     addCommand("Wall2PieceEngage", () -> wall2BallEngage());
@@ -359,12 +359,12 @@ public class SwerveAutos {
 
   public AutoChooserElement middleDriveOutAndEngage() {
 
-    boolean onBlue = DriverStation.getAlliance() == Alliance.Blue;
-    double forward = onBlue ? 1.0 : -1.0;
+    boolean onBlue = DriverStation.getAlliance() == Alliance.Red;
+    double forward = onBlue ? 2.0 : -2.0;
 
     double rotation = onBlue ? 0.0 : 180;
 
-    boolean flipAutoEngage = onBlue ? true : false;
+    boolean flipAutoEngage = onBlue ? false : true;
 
     return scoreConeHigh()
         .setNext(
@@ -380,27 +380,26 @@ public class SwerveAutos {
                         () -> drivetrain.drive(forward, 0.0, 0.0),
                         () -> drivetrain.stop(),
                         drivetrain)
-                    .until(
-                        new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.25))
+                    .until(new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.5))
                     .withTimeout(2.0),
                 // --
 
                 // new DriveWithSetRotation(drivetrain, () -> 0.0, () -> 0.0, (int) rotation)
                 //     .withTimeout(1.5),
                 // --
-                Commands.runOnce(() -> drivetrain.drive(-forward, 0.0, 0.0), drivetrain)
-                    .until(() -> Math.abs(drivetrain.getGyroPitch()) > 10)
+                Commands.run(() -> drivetrain.drive(-forward, 0.0, 0.0), drivetrain)
+                    .until(() -> Math.abs(drivetrain.getGyroPitch()) > 15)
                     .withTimeout(2.0),
                 new AutoEngage(drivetrain, flipAutoEngage)));
   }
 
-  public AutoChooserElement middle2BallEngage() {
-    PathPlannerTrajectory path = loadPath("middle2PieceEngage");
+  // public AutoChooserElement middle2BallEngage() {
+  //   PathPlannerTrajectory path = loadPath("middle2PieceEngage");
 
-    return scoreCubeHigh()
-        .setNext(path, true, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
-  }
+  //   return scoreCubeHigh()
+  //       .setNext(path, true, drivetrain, getEventMap())
+  //       .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+  // }
 
   public AutoChooserElement wall1BallTaxi() {
     PathPlannerTrajectory path = loadPath("wallSide1PieceTaxi");
