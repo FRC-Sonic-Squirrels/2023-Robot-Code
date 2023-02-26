@@ -50,7 +50,9 @@ public class Elevator extends SubsystemBase {
 
     // limit switch
     if (inputs.ElevatorAtLowerLimit) {
-      if (!zeroed) {
+      if (!zeroed
+          || ((inputs.ElevatorTargetHeightInches <= 0.0)
+              && (inputs.ElevatorHeightInches < -0.01))) {
         // only zero height once per time hitting limit switch
         io.resetSensorHeight(0.0);
         zeroed = true;
