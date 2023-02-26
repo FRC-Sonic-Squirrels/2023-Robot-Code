@@ -31,7 +31,7 @@ public class Vision extends SubsystemBase {
   private double lastTimestampLeft;
   private double lastTimestampRight;
 
-  private boolean updatePoseWithVisionReadings = true;
+  private boolean updatePoseWithVisionReadings = false;
   private boolean useMaxValidDistanceAway = true;
 
   private Alert noAprilTagLayoutAlert =
