@@ -54,7 +54,6 @@ import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
-import frc.robot.commands.leds.LedSetColor;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -331,12 +330,12 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    leds.setDefaultCommand(
-        new ConditionalCommand(
-                new LedSetColor(leds, colors.YELLOW),
-                new LedSetColor(leds, colors.VIOLET),
-                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
-            .repeatedly());
+    // leds.setDefaultCommand(
+    //     new ConditionalCommand(
+    //             new LedSetColor(leds, colors.YELLOW),
+    //             new LedSetColor(leds, colors.VIOLET),
+    //             () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
+    //         .repeatedly());
 
     // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
     // positional control
@@ -510,6 +509,10 @@ public class RobotContainer {
         .start()
         .onTrue(
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+
+    driverController
+        .start()
+        .onTrue(Commands.runOnce(() -> drivetrain.resetModulesToAbsolute(), drivetrain));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
