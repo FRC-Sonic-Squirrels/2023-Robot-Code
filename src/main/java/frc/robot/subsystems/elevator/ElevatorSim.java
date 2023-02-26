@@ -43,7 +43,7 @@ public class ElevatorSim implements ElevatorIO {
           false);
 
   ProfiledPIDController controller =
-      new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(20, 40));
+      new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(40, 80));
 
   private boolean closedLoop = false;
   private double targetHeightInches = 0.0;
