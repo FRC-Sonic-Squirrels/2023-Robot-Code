@@ -8,6 +8,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -348,7 +349,7 @@ public class SwerveAutos {
   public AutoChooserElement middle1BallEngage() {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
-    return scoreCubeHigh().setNext(driveAutoEngage(false));
+    return scoreCubeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
   public AutoChooserElement middle2BallEngage() {
@@ -356,7 +357,7 @@ public class SwerveAutos {
 
     return scoreCubeHigh()
         .setNext(path, true, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(true));
+        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
   }
 
   public AutoChooserElement wall1BallTaxi() {
@@ -376,7 +377,7 @@ public class SwerveAutos {
 
     return wall2Ball()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(false));
+        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
   public AutoChooserElement wall3Ball() {
@@ -408,7 +409,7 @@ public class SwerveAutos {
 
     return Hp2Ball()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(false));
+        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
   public AutoChooserElement Hp3Ball() {
