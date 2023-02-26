@@ -3,8 +3,13 @@ package frc.robot.commands.drive;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.team6328.util.TunableNumber;
+import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.stinger.Stinger;
+
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,6 +31,16 @@ public class TeleopSwerve extends CommandBase {
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
 
+  private final Elevator elevator;
+  private final Stinger stinger;
+
+  private final TunableNumber elevatorUpTranslationMuliplier = new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.2);
+  private final TunableNumber elevatorUpRotationalMultiplier = new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.1);
+
+  private final TunableNumber stingerOutTranslationMuliplier = new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.3);
+  private final TunableNumber stingerOutRotationalMultiplier = new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.4);
+
+
   /**
    * Create a new TeleopSwerve command object.
    *
@@ -39,6 +54,8 @@ public class TeleopSwerve extends CommandBase {
    */
   public TeleopSwerve(
       Drivetrain drivetrain,
+      Elevator elevator, 
+      Stinger stinger,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {
@@ -46,6 +63,9 @@ public class TeleopSwerve extends CommandBase {
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
+
+    this.elevator = elevator;
+    this.stinger = stinger;
 
     addRequirements(drivetrain);
   }
@@ -59,10 +79,39 @@ public class TeleopSwerve extends CommandBase {
     double yPercentage = -modifyAxis(translationYSupplier.getAsDouble());
     double rotationPercentage = -modifyAxis(rotationSupplier.getAsDouble());
 
+    double xMultiplier = 1.0; 
+    double yMultiplier = 1.0;
+    //0.6 driver starting preference
+    double rotMultiplier = 0.6; 
+
+    if(elevator.getHeightInches() > Constants.NODE_DISTANCES.STOW_HEIGHT + 5){
+      xMultiplier -= elevatorUpTranslationMuliplier.get();
+      yMultiplier -= elevatorUpTranslationMuliplier.get();
+
+      rotMultiplier -= elevatorUpRotationalMultiplier.get();
+    }
+
+    if(this.stinger.getExtensionInches() > 8){
+      xMultiplier -= stingerOutTranslationMuliplier.get();
+      yMultiplier -= stingerOutTranslationMuliplier.get();
+
+      rotMultiplier -= stingerOutRotationalMultiplier.get();
+    }
+
+    Logger.getInstance().recordOutput("TeleopSwerve/xMultiplier", xMultiplier);
+    Logger.getInstance().recordOutput("TeleopSwerve/yMultiplier", yMultiplier);
+    Logger.getInstance().recordOutput("TeleopSwerve/rotMultiplier", rotMultiplier);
+
+    xPercentage *= xMultiplier;
+    yPercentage *= yMultiplier;
+
+    rotationPercentage *= rotMultiplier;
+
     double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double rotationalVelocity =
         rotationPercentage * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
 
     // because our coordinate frame never changes from the bottom left, the "forward" direction in
     // code is always facing the red alliance wall
@@ -78,7 +127,7 @@ public class TeleopSwerve extends CommandBase {
     Logger.getInstance().recordOutput("TeleopSwerve/yVelocity", yVelocity);
     Logger.getInstance().recordOutput("TeleopSwerve/rotationalVelocity", rotationalVelocity);
 
-    drivetrain.drive(xVelocity, yVelocity, rotationalVelocity * 0.6);
+    drivetrain.drive(xVelocity, yVelocity, rotationalVelocity);
   }
 
   @Override
