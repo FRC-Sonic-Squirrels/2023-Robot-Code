@@ -6,6 +6,9 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.team2930.lib.controller_rumble.ControllerRumbleInterval;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.RobotState.GamePiece;
@@ -20,6 +23,7 @@ import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.stinger.Stinger;
+import java.util.function.Supplier;
 
 /** MechanismPositions */
 // We'll need: low, mid, high, portal pickup, ground pickup
@@ -47,9 +51,7 @@ public class MechanismPositions {
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_LOW,
-            Constants.NODE_DISTANCES.EXTENSION_LOW,
-            false,
-            new InstantCommand()),
+            Constants.NODE_DISTANCES.EXTENSION_LOW),
         new ConditionalCommand(
             new IntakeScoreCone(intake).withTimeout(0.2),
             new IntakeScoreCube(intake).withTimeout(0.2),
@@ -58,55 +60,60 @@ public class MechanismPositions {
   }
 
   public static Command scoreCubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+
     return new SequentialCommandGroup(
-        goToPositionSimple(
+        goToPositionWithSuck(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CUBE,
-            true,
-            new IntakeGrabCube(intake).withTimeout(0.1)),
+            () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
         new IntakeScoreCube(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
   public static Command scoreConeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
     return new SequentialCommandGroup(
-        goToPositionSimple(
+        goToPositionWithSuck(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CONE,
-            true,
-            new IntakeGrabCone(intake).withTimeout(0.2)),
+            () -> intakeGrabConeWithTimeOut(intake, 0.25)),
         new IntakeScoreCone(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
   public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
     return new SequentialCommandGroup(
-        goToPositionSimple(
+        goToPositionWithSuck(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE,
-            true,
-            new IntakeGrabCube(intake).withTimeout(0.1)),
+            () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
         new IntakeScoreCube(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
   public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
     return new SequentialCommandGroup(
-        goToPositionSimple(
+        goToPositionWithSuck(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE,
-            true,
-            new IntakeGrabCone(intake).withTimeout(0.2)),
+            () -> intakeGrabConeWithTimeOut(intake, 0.5)),
         new IntakeScoreCone(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
+  }
+
+  public static Command intakeGrabConeWithTimeOut(Intake intake, double timeOut) {
+    return new IntakeGrabCone(intake).withTimeout(timeOut);
+  }
+
+  public static Command intakeGrabCubeWithTimeOut(Intake intake, double timeOut) {
+    return new IntakeGrabCube(intake).withTimeout(timeOut);
   }
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
@@ -116,14 +123,26 @@ public class MechanismPositions {
         new ElevatorSetHeight(elevator, groundPickupHeight));
   }
 
-  public static Command substationPickupPosition(Elevator elevator, Stinger stinger) {
-    return goToPositionSimple(
-        elevator,
-        stinger,
-        substationPickupHeight,
-        substationPickupExtension,
-        false,
-        new InstantCommand());
+  // public static Command substationPickupPosition(Elevator elevator, Stinger stinger) {
+  //   return goToPositionSimple(
+  //       elevator,
+  //       stinger,
+  //       substationPickupHeight,
+  //       substationPickupExtension,
+  //       false,
+  //       new InstantCommand());
+  // }
+
+  public static Command substationPickupPositionCone(
+      Elevator elevator, Stinger stinger, Intake intake) {
+    return goToPositionSimple(elevator, stinger, 45.2, 0);
+    // .alongWith(new IntakeGrabCone(intake));
+  }
+
+  public static Command substationPickupPositionCube(
+      Elevator elevator, Stinger stinger, Intake intake) {
+    return goToPositionSimple(elevator, stinger, 42, 0);
+    // .alongWith(new IntakeGrabCone(intake));
   }
 
   public static Command stowPosition(Elevator elevator, Stinger stinger) {
@@ -156,21 +175,28 @@ public class MechanismPositions {
     }
   }
 
-  public static Command goToPositionSimple(
+  public static Command goToPositionWithSuck(
       Elevator elevator,
       Stinger stinger,
       double heightInches,
       double extensionInches,
-      boolean suck,
-      Command suckCommand) {
+      Supplier<Command> suckCommandSupplier) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
         // new StingerSetExtension(stinger, 0),
         // new ElevatorSetHeight(elevator, stowHeight),
-        new ElevatorSetHeight(elevator, heightInches),
         new ParallelCommandGroup(
-            new StingerSetExtension(stinger, extensionInches),
-            new ConditionalCommand(suckCommand, new InstantCommand(), () -> suck)));
+            new ElevatorSetHeight(elevator, heightInches), suckCommandSupplier.get()),
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, extensionInches), suckCommandSupplier.get()));
+  }
+
+  public static Command goToPositionSimple(
+      Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
+    return new SequentialCommandGroup(
+        avoidBumper(elevator, stinger),
+        new ElevatorSetHeight(elevator, heightInches),
+        new StingerSetExtension(stinger, extensionInches));
   }
 
   public static Command avoidBumper(Elevator elevator, Stinger stinger) {
@@ -203,10 +229,26 @@ public class MechanismPositions {
         new IntakeScoreCone(intake).withTimeout(0.25));
   }
 
+  public static Command safeZero(
+      Elevator elevator, Stinger stinger, CommandXboxController controllerToRumble) {
+    return new SequentialCommandGroup(
+        avoidBumper(elevator, stinger),
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, 0),
+            new SequentialCommandGroup(
+                new WaitUntilCommand(() -> stinger.getExtensionInches() < 5),
+                rumbleCanMove(controllerToRumble))),
+        new ElevatorSetHeight(elevator, 0));
+  }
+
   public static Command safeZero(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        new StingerSetExtension(stinger, 0),
-        new ElevatorSetHeight(elevator, 0));
+        new StingerSetExtension(stinger, 0.0),
+        new ElevatorSetHeight(elevator, 0.0));
+  }
+
+  public static Command rumbleCanMove(CommandXboxController controller) {
+    return new ControllerRumbleInterval(controller, 3, 0.2, 0.25, 0.8);
   }
 }
