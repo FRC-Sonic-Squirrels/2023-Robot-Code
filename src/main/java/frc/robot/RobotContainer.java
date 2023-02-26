@@ -387,8 +387,8 @@ public class RobotContainer {
     //         Commands.runOnce(intake::retract, intake)
     //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    driverController.x().whileTrue(new AutoEngage(drivetrain, () -> 0, false));
-    driverController.y().whileTrue(new AutoEngage(drivetrain, () -> 0, true));
+    driverController.x().whileTrue(new AutoEngage(drivetrain, false));
+    driverController.y().whileTrue(new AutoEngage(drivetrain, true));
 
     driverController
         .povDown()

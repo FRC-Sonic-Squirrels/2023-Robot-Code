@@ -10,10 +10,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.team2930.AutoChooserElement;
 import frc.robot.commands.auto.FollowPath;
+import frc.robot.commands.drive.AutoEngage;
+import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -23,7 +26,6 @@ import frc.robot.subsystems.stinger.Stinger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class SwerveAutos {
@@ -69,17 +71,18 @@ public class SwerveAutos {
     }
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
-    addCommand("middle1BallEngage", () -> middle1BallEngage());
-    addCommand("Wall1BallTaxi", () -> wall1BallTaxi());
-    addCommand("Wall2Ball", () -> wall2Ball());
-    addCommand("Wall2BallEngage", () -> wall2BallEngage());
-    // addCommand("Wall3Ball", () -> wall3Ball());
-    // addCommand("Wall4Ball", () -> wall4Ball());
-    addCommand("Hp1BallTaxi", () -> Hp1BallTaxi());
-    addCommand("Hp2Ball", () -> Hp2Ball());
-    addCommand("Hp2BallEngage", () -> Hp2BallEngage());
-    // addCommand("Hp3Ball", () -> Hp3Ball());
-    // addCommand("Hp4Ball", () -> Hp4Ball());
+    addCommand("middle1PieceEngage", () -> middle1BallEngage());
+    addCommand("middle2PieceEngage", () -> middle2BallEngage());
+    addCommand("Wall1PieceTaxi", () -> wall1BallTaxi());
+    addCommand("Wall2Piece", () -> wall2Ball());
+    addCommand("Wall2PieceEngage", () -> wall2BallEngage());
+    addCommand("Wall3Piece", () -> wall3Ball());
+    addCommand("Wall4Piece", () -> wall4Ball());
+    addCommand("Hp1PieceTaxi", () -> Hp1BallTaxi());
+    addCommand("Hp2Piece", () -> Hp2Ball());
+    addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
+    addCommand("Hp3Piece", () -> Hp3Ball());
+    addCommand("Hp4Piece", () -> Hp4Ball());
   }
 
   /**
@@ -143,8 +146,8 @@ public class SwerveAutos {
         "mechIntakeCube",
         new SequentialCommandGroup(
             MechanismPositions.groundPickupPosition(elevator, stinger),
-            new IntakeGrabCube(intake).withTimeout(2)));
-    eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
+            new IntakeGrabCube(intake).withTimeout(1)));
+    eventMap.put("mechStow", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
@@ -329,14 +332,31 @@ public class SwerveAutos {
             MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
-  private BooleanSupplier mechanismInPos() {
-    return () -> (elevator.isAtHeight() && stinger.isAtExtension());
+  public AutoChooserElement driveAutoEngage(Boolean flip) {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            new ConditionalCommand(
+                new DriveWithSetRotation(drivetrain, () -> (-0.7), () -> 0, 180)
+                    .until(() -> drivetrain.getGyroPitch() <= -15),
+                new DriveWithSetRotation(drivetrain, () -> 0.7, () -> 0, 0)
+                    .until(() -> drivetrain.getGyroPitch() >= 15),
+                () -> flip),
+            new AutoEngage(drivetrain, flip)));
   }
 
   public AutoChooserElement middle1BallEngage() {
-    PathPlannerTrajectory path = loadPath("middle1PieceEngage");
+    // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
-    return scoreCubeHigh().setNext(path, true, drivetrain, getEventMap());
+    return scoreCubeHigh().setNext(driveAutoEngage(false));
+  }
+
+  public AutoChooserElement middle2BallEngage() {
+    PathPlannerTrajectory path = loadPath("middle2PieceEngage");
+
+    return scoreCubeHigh()
+        .setNext(path, true, drivetrain, getEventMap())
+        .setNext(driveAutoEngage(true));
   }
 
   public AutoChooserElement wall1BallTaxi() {
@@ -354,19 +374,21 @@ public class SwerveAutos {
   public AutoChooserElement wall2BallEngage() {
     PathPlannerTrajectory path = loadPath("wallSide2PieceEngage");
 
-    return wall2Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall2Ball()
+        .setNext(path, false, drivetrain, getEventMap())
+        .setNext(driveAutoEngage(false));
   }
 
   public AutoChooserElement wall3Ball() {
     PathPlannerTrajectory path = loadPath("wallSide3Piece");
 
-    return wall2Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall2Ball().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeMid());
   }
 
   public AutoChooserElement wall4Ball() {
     PathPlannerTrajectory path = loadPath("wallSide4Piece");
 
-    return wall3Ball().setNext(path, false, drivetrain, getEventMap());
+    return wall3Ball().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeHigh());
   }
 
   public AutoChooserElement Hp1BallTaxi() {
@@ -378,24 +400,26 @@ public class SwerveAutos {
   public AutoChooserElement Hp2Ball() {
     PathPlannerTrajectory path = loadPath("HpSide2Piece");
 
-    return Hp1BallTaxi().setNext(path, true, drivetrain, getEventMap());
+    return Hp1BallTaxi().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeHigh());
   }
 
   public AutoChooserElement Hp2BallEngage() {
     PathPlannerTrajectory path = loadPath("HpSide2PieceEngage");
 
-    return Hp2Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp2Ball()
+        .setNext(path, false, drivetrain, getEventMap())
+        .setNext(driveAutoEngage(false));
   }
 
   public AutoChooserElement Hp3Ball() {
     PathPlannerTrajectory path = loadPath("HpSide3Piece");
 
-    return Hp2Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp2Ball().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeMid());
   }
 
   public AutoChooserElement Hp4Ball() {
     PathPlannerTrajectory path = loadPath("HpSide4Piece");
 
-    return Hp3Ball().setNext(path, true, drivetrain, getEventMap());
+    return Hp3Ball().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeHigh());
   }
 }

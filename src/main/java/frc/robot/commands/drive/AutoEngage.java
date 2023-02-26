@@ -35,11 +35,11 @@ public class AutoEngage extends CommandBase {
 
   private DoubleSupplier y_supplier;
   /** Creates a new AutoEngage. */
-  public AutoEngage(Drivetrain drivetrain, DoubleSupplier yAxisSup, Boolean flip) {
+  public AutoEngage(Drivetrain drivetrain, Boolean flip) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     this.flip = flip;
-    y_supplier = yAxisSup;
+    // y_supplier = yAxisSup;
     addRequirements(drivetrain);
   }
 
