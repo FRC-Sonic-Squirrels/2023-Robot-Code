@@ -12,10 +12,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.team2930.AutoChooserElement;
 import frc.robot.commands.auto.FollowPath;
-import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -141,8 +140,11 @@ public class SwerveAutos {
         "scoreCone",
         new SequentialCommandGroup(new PrintCommand("cone scored"), Commands.waitSeconds(2)));
     eventMap.put(
-        "groundPickup",
-        new SequentialCommandGroup(new PrintCommand("object picked up"), Commands.waitSeconds(2)));
+        "mechIntakeCube",
+        new SequentialCommandGroup(
+            MechanismPositions.groundPickupPosition(elevator, stinger),
+            new IntakeGrabCube(intake).withTimeout(2)));
+    eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
@@ -324,10 +326,7 @@ public class SwerveAutos {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreConeMidPosition(elevator, stinger, intake),
-            Commands.waitUntil(mechanismInPos()),
-            new IntakeScoreCube(intake).raceWith(new WaitCommand(0.5)),
-            MechanismPositions.stowPosition(elevator, stinger)));
+            MechanismPositions.scoreConeMidPosition(elevator, stinger, intake)));
   }
 
   private BooleanSupplier mechanismInPos() {
