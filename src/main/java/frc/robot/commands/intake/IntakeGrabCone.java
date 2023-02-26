@@ -14,7 +14,7 @@ public class IntakeGrabCone extends CommandBase {
   double speed;
 
   public IntakeGrabCone(Intake intake) {
-    this(intake, 0.8);
+    this(intake, 1.0);
   }
 
   public IntakeGrabCone(Intake intake, double speed) {
