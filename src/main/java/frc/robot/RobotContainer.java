@@ -66,6 +66,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
 import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.led.LED.colors;
+import frc.robot.subsystems.led.LEDIO;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIOReal;
@@ -158,6 +159,8 @@ public class RobotContainer {
                         BACK_RIGHT_MODULE_STEER_OFFSET),
                     3,
                     MAX_VELOCITY_METERS_PER_SECOND);
+
+            leds = new LED(new LEDIO() {});
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
@@ -278,7 +281,7 @@ public class RobotContainer {
             //     VisionConstants.RIGHT_ROBOT_TO_CAMERA,
             //     new VisionIOSim(
             //         layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
-
+            leds = new LED(new LEDIO() {});
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
