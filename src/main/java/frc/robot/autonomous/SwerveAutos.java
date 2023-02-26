@@ -348,7 +348,7 @@ public class SwerveAutos {
   public AutoChooserElement wall2Ball() {
     PathPlannerTrajectory path = loadPath("wallSide2Piece");
 
-    return wall1BallTaxi().setNext(path, false, drivetrain, getEventMap());
+    return wall1BallTaxi().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeHigh());
   }
 
   public AutoChooserElement wall2BallEngage() {
