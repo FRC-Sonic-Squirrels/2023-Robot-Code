@@ -47,7 +47,6 @@ import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
-import frc.robot.commands.drive.AutoEngage;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -388,8 +387,8 @@ public class RobotContainer {
     //         Commands.runOnce(intake::retract, intake)
     //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
-    driverController.x().whileTrue(new AutoEngage(drivetrain, () -> 0, false));
-    driverController.y().whileTrue(new AutoEngage(drivetrain, () -> 0, true));
+    // driverController.x().whileTrue(new AutoEngage(drivetrain,   () -> 0, false));
+    // driverController.y().whileTrue(new AutoEngage(drivetrain, () -> 0, true));
 
     driverController
         .povDown()
@@ -399,7 +398,7 @@ public class RobotContainer {
                     () -> driverController.getLeftY(),
                     () -> driverController.getLeftX(),
                     180)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     driverController
         .povUp()
@@ -448,7 +447,13 @@ public class RobotContainer {
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
     operatorController.a().onTrue(MechanismPositions.safeZero(elevator, stinger));
-    operatorController.y().onTrue(MechanismPositions.substationPickupPosition(elevator, stinger));
+    operatorController
+        .y()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.substationPickupPositionCone(elevator, stinger, intake),
+                MechanismPositions.substationPickupPositionCube(elevator, stinger, intake),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
     operatorController
         .povUp()
@@ -473,7 +478,7 @@ public class RobotContainer {
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 
     operatorController
-        .leftBumper()
+        .rightBumper()
         .whileTrue(
             new ConditionalCommand(
                 new IntakeGrabCone(intake, 1.0),
