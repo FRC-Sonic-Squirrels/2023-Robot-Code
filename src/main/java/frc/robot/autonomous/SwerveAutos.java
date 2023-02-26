@@ -85,6 +85,8 @@ public class SwerveAutos {
     addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
     addCommand("Hp3Piece", () -> Hp3Ball());
     addCommand("Hp4Piece", () -> Hp4Ball());
+    // addCommand(
+    //     "driveAutoEngage", () -> driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
   }
 
   /**
@@ -344,13 +346,13 @@ public class SwerveAutos {
                 new DriveWithSetRotation(drivetrain, () -> 0.7, () -> 0, 0)
                     .until(() -> drivetrain.getGyroPitch() >= 15),
                 () -> flip),
-            new AutoEngage(drivetrain, flip)));
+            new AutoEngage(drivetrain, !flip)));
   }
 
   public AutoChooserElement middle1BallEngage() {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
-    return scoreCubeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
+    return scoreConeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
   }
 
   public AutoChooserElement middle2BallEngage() {
