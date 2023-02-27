@@ -232,7 +232,8 @@ public class RobotContainer {
             vision =
                 new Vision(
                     new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
-                    new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME));
+                    new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
+                    drivetrain);
 
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
@@ -271,7 +272,8 @@ public class RobotContainer {
                         layout,
                         drivetrain::getPose,
                         VisionConstants.RIGHT_ROBOT_TO_CAMERA,
-                        "rightCameraNetwork"));
+                        "rightCameraNetwork"),
+                    drivetrain);
 
             // new Vision(
             //     VisionConstants.LEFT_ROBOT_TO_CAMERA,

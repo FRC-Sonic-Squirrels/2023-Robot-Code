@@ -14,6 +14,7 @@ import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +41,16 @@ public class Vision extends SubsystemBase {
           "No AprilTag layout file found. Update APRILTAG_FIELD_LAYOUT_PATH in VisionConstants.java",
           AlertType.WARNING);
 
-  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO) {
+  private Drivetrain drivetrain;
+
+  private static double MAX_ALLOWABLE_PITCH = 3;
+  private static double MAX_ALLOWABLE_ROLL = 3;
+
+  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO, Drivetrain drivetrain) {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
+
+    this.drivetrain = drivetrain;
 
     Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", true);
     Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", true);
@@ -117,6 +125,15 @@ public class Vision extends SubsystemBase {
     if (!updatePoseWithVisionReadings) {
       return;
     }
+
+    if (Math.abs(drivetrain.getGyroPitch()) >= MAX_ALLOWABLE_PITCH
+        || Math.abs(drivetrain.getGyroRoll()) >= MAX_ALLOWABLE_ROLL) {
+
+      Logger.getInstance().recordOutput("Vision/ValidGyroAngle", false);
+      return;
+    }
+
+    Logger.getInstance().recordOutput("Vision/ValidGyroAngle", true);
 
     if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
       lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
