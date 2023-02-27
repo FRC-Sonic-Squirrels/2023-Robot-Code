@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.robot.commands.auto.FollowPath;
@@ -315,33 +314,28 @@ public class SwerveAutos {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreConeHighPosition(
-                // FIXME CREATE A VERSION THAT DOESNT NEED CONTROLLER
-                elevator, stinger, intake, new CommandXboxController(1))));
+            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreCubeHigh() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeHighPosition(
-                elevator, stinger, intake, new CommandXboxController(1))));
+            MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreConeMid() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeMidPosition(
-                elevator, stinger, intake, new CommandXboxController(1))));
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreCubeMid() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeMidPosition(
-                elevator, stinger, intake, new CommandXboxController(1))));
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement driveAutoEngage(Boolean flip) {
