@@ -3,6 +3,7 @@ package frc.lib.team3061.vision;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -153,30 +154,30 @@ public class Vision extends SubsystemBase {
 
         String seenTargetsText = String.join(",", seenTargets);
 
+        Pose2d currentPose = RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+        double distance = 0.0;
+
         // REFACTOR IDEA: the switch just defines the robot pose and the "root" logging string
         // then use the root logging string when logging so its separate for each camera
         switch (camera) {
           case LEFT:
             robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
 
+            // var currentPose =
+            // RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+
+            distance =
+                currentPose
+                    .getTranslation()
+                    .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
+
+            Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
+
+            // if distance is too far away from current pose skip estimate
             if (useMaxValidDistanceAway) {
-              var currentPose =
-                  RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
-
-              double distance =
-                  currentPose
-                      .getTranslation()
-                      .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
-
-              Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
-
               if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
                 continue;
               }
-
-              // FIXME: enable pose updates when we're happy with them
-              // poseEstimator.addVisionMeasurement(robotPose.toPose2d(),
-              // getLatestTimestamp(camera));
             }
 
             RobotOdometry.getInstance()
@@ -194,24 +195,21 @@ public class Vision extends SubsystemBase {
             robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
             // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
+            // var currentPose =
+            // RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+
+            distance =
+                currentPose
+                    .getTranslation()
+                    .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
+
+            Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
+
+            // if distance is too far away from current pose skip estimate
             if (useMaxValidDistanceAway) {
-              var currentPose =
-                  RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
-
-              double distance =
-                  currentPose
-                      .getTranslation()
-                      .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
-
-              Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
-
               if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
                 continue;
               }
-
-              // FIXME: enable pose updates when we're happy with them
-              // poseEstimator.addVisionMeasurement(robotPose.toPose2d(),
-              // getLatestTimestamp(camera));
             }
 
             RobotOdometry.getInstance()
