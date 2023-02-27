@@ -37,6 +37,7 @@ public class TunableNumber {
   public TunableNumber(String dashboardKey, double defaultValue) {
     this(dashboardKey);
     setDefault(defaultValue);
+    lastHasChangedValue = defaultValue;
   }
 
   /**

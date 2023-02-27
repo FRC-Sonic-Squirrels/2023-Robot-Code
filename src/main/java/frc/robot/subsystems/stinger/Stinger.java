@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,6 +24,8 @@ public class Stinger extends SubsystemBase {
 
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.Stinger.STINGER_FEEDFORWARD);
+
+  // for simulated use 1.0
   private final TunableNumber kPtunable =
       new TunableNumber("Stinger/kP", Constants.Stinger.STINGER_KP);
   private final TunableNumber kItunable =
@@ -44,6 +47,11 @@ public class Stinger extends SubsystemBase {
     io.setPIDConstraints(
         feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
     setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
+
+    // we use a different kp in sim
+    if (Constants.getMode() == Mode.SIM) {
+      io.setPIDConstraints(feedForwardTunable.get(), 1.0, kItunable.get(), kDtunable.get());
+    }
   }
 
   @Override

@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,6 +24,7 @@ public class Elevator extends SubsystemBase {
   private boolean zeroed = false;
 
   public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
+  // for simulator use kP 2.0
   public final TunableNumber Kp = new TunableNumber("elevator/Kp", Constants.Elevator.P_CONTROLLER);
   public final TunableNumber Ki = new TunableNumber("elevator/Ki", Constants.Elevator.I_CONTROLLER);
   public final TunableNumber Kd = new TunableNumber("elevator/Kd", Constants.Elevator.D_CONTROLLER);
@@ -41,6 +43,11 @@ public class Elevator extends SubsystemBase {
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
     io.setMaxHeightInches(Constants.Elevator.MAX_HEIGHT_INCHES);
     stop();
+
+    // we use a different kp in sim
+    if (Constants.getMode() == Mode.SIM) {
+      io.setPIDConstraints(Kf.get(), 2.0, Ki.get(), Kd.get());
+    }
   }
 
   @Override
