@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleInterval;
+import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.RobotState.GamePiece;
@@ -45,13 +46,18 @@ public class MechanismPositions {
   private MechanismPositions() {}
 
   public static Command scoreLowPosition(
-      Elevator elevator, Stinger stinger, Intake intake, GamePiece gamepiece) {
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      GamePiece gamepiece,
+      CommandXboxController rumbleController) {
     return new SequentialCommandGroup(
         goToPositionSimple(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_LOW,
             Constants.NODE_DISTANCES.EXTENSION_LOW),
+        rumbleButtonConfirmation(rumbleController),
         new ConditionalCommand(
             new IntakeScoreCone(intake).withTimeout(0.2),
             new IntakeScoreCube(intake).withTimeout(0.2),
@@ -59,7 +65,8 @@ public class MechanismPositions {
         safeZero(elevator, stinger));
   }
 
-  public static Command scoreCubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreCubeMidPosition(
+      Elevator elevator, Stinger stinger, Intake intake, CommandXboxController rumbleController) {
 
     return new SequentialCommandGroup(
         goToPositionWithSuck(
@@ -68,11 +75,13 @@ public class MechanismPositions {
             Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CUBE,
             () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
+        rumbleButtonConfirmation(rumbleController),
         new IntakeScoreCube(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
-  public static Command scoreConeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreConeMidPosition(
+      Elevator elevator, Stinger stinger, Intake intake, CommandXboxController rumbleController) {
     return new SequentialCommandGroup(
         goToPositionWithSuck(
             elevator,
@@ -80,11 +89,13 @@ public class MechanismPositions {
             Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CONE,
             () -> intakeGrabConeWithTimeOut(intake, 0.25)),
+        rumbleButtonConfirmation(rumbleController),
         new IntakeScoreCone(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
-  public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreCubeHighPosition(
+      Elevator elevator, Stinger stinger, Intake intake, CommandXboxController rumbleController) {
     return new SequentialCommandGroup(
         goToPositionWithSuck(
             elevator,
@@ -92,11 +103,13 @@ public class MechanismPositions {
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE,
             () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
+        rumbleButtonConfirmation(rumbleController),
         new IntakeScoreCube(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
 
-  public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreConeHighPosition(
+      Elevator elevator, Stinger stinger, Intake intake, CommandXboxController rumbleController) {
     return new SequentialCommandGroup(
         goToPositionWithSuck(
             elevator,
@@ -104,6 +117,7 @@ public class MechanismPositions {
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE,
             () -> intakeGrabConeWithTimeOut(intake, 0.5)),
+        rumbleButtonConfirmation(rumbleController),
         new IntakeScoreCone(intake).withTimeout(0.2),
         safeZero(elevator, stinger));
   }
@@ -250,5 +264,10 @@ public class MechanismPositions {
 
   public static Command rumbleCanMove(CommandXboxController controller) {
     return new ControllerRumbleInterval(controller, 3, 0.2, 0.25, 0.8);
+  }
+
+  public static Command rumbleButtonConfirmation(CommandXboxController controller) {
+    return new ControllerRumbleUntilButtonPress(
+        controller, () -> controller.rightTrigger(0.4).getAsBoolean(), 0.7);
   }
 }
