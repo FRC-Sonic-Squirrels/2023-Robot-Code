@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 import org.littletonrobotics.junction.Logger;
@@ -19,6 +20,8 @@ public class Intake extends SubsystemBase {
 
   private final double OUTTAKE_CONE_INVERT = -INTAKE_CONE_INVERT;
   private final double OUTTAKE_CUBE_INVERT = -INTAKE_CUBE_INVERT;
+
+  private final LinearFilter StallDetectionFilter = LinearFilter.movingAverage(5);
 
   /** Creates a new Intake */
   public Intake(IntakeIO io) {
@@ -54,6 +57,19 @@ public class Intake extends SubsystemBase {
 
   public void outTakeCube(double percent) {
     runIntakePercent(percent * OUTTAKE_CUBE_INVERT);
+  }
+
+  // this needs to be called repeatedly because it uses a filter.
+  // I.E calling this once will not return an accurate result
+  // need to call this in an isFinished or a .until()
+  public boolean isStalled() {
+    var filteredCurrent = StallDetectionFilter.calculate(inputs.intakeStatorCurrent);
+    var velocity = inputs.intakeVelocityRPM;
+
+    double minStallCurrent = 1;
+    double maxStallVelocity = 50;
+
+    return (filteredCurrent >= minStallCurrent) && (velocity <= maxStallVelocity);
   }
 
   public void outtakeConeWithRPM(double speed) {}
