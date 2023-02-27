@@ -335,6 +335,12 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
+    // TODO: TEST THIS TO SEE IF IT WORKS
+    // intake.setDefaultCommand(
+    //     new IntakeAutoGrabDesiredGamePiece(intake)
+    //         .until(() -> intake.isStalled())
+    //         .withTimeout(0.25));
+
     leds.setDefaultCommand(
         new ConditionalCommand(
                 new LedSetColor(leds, colors.YELLOW),
