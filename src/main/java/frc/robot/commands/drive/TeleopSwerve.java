@@ -9,7 +9,6 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.stinger.Stinger;
-
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -34,12 +33,15 @@ public class TeleopSwerve extends CommandBase {
   private final Elevator elevator;
   private final Stinger stinger;
 
-  private final TunableNumber elevatorUpTranslationMuliplier = new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.2);
-  private final TunableNumber elevatorUpRotationalMultiplier = new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.1);
+  private final TunableNumber elevatorUpTranslationMuliplier =
+      new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.75);
+  private final TunableNumber elevatorUpRotationalMultiplier =
+      new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.35);
 
-  private final TunableNumber stingerOutTranslationMuliplier = new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.3);
-  private final TunableNumber stingerOutRotationalMultiplier = new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.4);
-
+  private final TunableNumber stingerOutTranslationMuliplier =
+      new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.05);
+  private final TunableNumber stingerOutRotationalMultiplier =
+      new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.15);
 
   /**
    * Create a new TeleopSwerve command object.
@@ -54,7 +56,7 @@ public class TeleopSwerve extends CommandBase {
    */
   public TeleopSwerve(
       Drivetrain drivetrain,
-      Elevator elevator, 
+      Elevator elevator,
       Stinger stinger,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
@@ -79,19 +81,19 @@ public class TeleopSwerve extends CommandBase {
     double yPercentage = -modifyAxis(translationYSupplier.getAsDouble());
     double rotationPercentage = -modifyAxis(rotationSupplier.getAsDouble());
 
-    double xMultiplier = 1.0; 
+    double xMultiplier = 1.0;
     double yMultiplier = 1.0;
-    //0.6 driver starting preference
-    double rotMultiplier = 0.6; 
+    // 0.6 driver starting preference
+    double rotMultiplier = 0.6;
 
-    if(elevator.getHeightInches() > Constants.NODE_DISTANCES.STOW_HEIGHT + 5){
+    if (elevator.getHeightInches() > Constants.NODE_DISTANCES.STOW_HEIGHT + 5) {
       xMultiplier -= elevatorUpTranslationMuliplier.get();
       yMultiplier -= elevatorUpTranslationMuliplier.get();
 
       rotMultiplier -= elevatorUpRotationalMultiplier.get();
     }
 
-    if(this.stinger.getExtensionInches() > 8){
+    if (this.stinger.getExtensionInches() > 8) {
       xMultiplier -= stingerOutTranslationMuliplier.get();
       yMultiplier -= stingerOutTranslationMuliplier.get();
 
@@ -111,7 +113,6 @@ public class TeleopSwerve extends CommandBase {
     double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double rotationalVelocity =
         rotationPercentage * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-
 
     // because our coordinate frame never changes from the bottom left, the "forward" direction in
     // code is always facing the red alliance wall
