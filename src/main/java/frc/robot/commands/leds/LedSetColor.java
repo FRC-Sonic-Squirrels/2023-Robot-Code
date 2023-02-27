@@ -11,7 +11,9 @@ import frc.robot.subsystems.led.LED.colors;
 public class LedSetColor extends CommandBase {
   /** Creates a new LedSetColor. */
   LED leds;
+
   colors color;
+
   public LedSetColor(LED leds, colors color) {
     this.leds = leds;
     this.color = color;
