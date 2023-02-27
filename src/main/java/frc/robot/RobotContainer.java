@@ -54,6 +54,7 @@ import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.leds.LedSetColor;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -333,12 +334,12 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    // leds.setDefaultCommand(
-    //     new ConditionalCommand(
-    //             new LedSetColor(leds, colors.YELLOW),
-    //             new LedSetColor(leds, colors.VIOLET),
-    //             () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
-    //         .repeatedly());
+    leds.setDefaultCommand(
+        new ConditionalCommand(
+                new LedSetColor(leds, colors.YELLOW),
+                new LedSetColor(leds, colors.VIOLET),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
+            .repeatedly());
 
     // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
     // positional control
@@ -485,22 +486,28 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreConeHighPosition(elevator, stinger, intake),
-                MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake),
+                MechanismPositions.scoreConeHighPosition(
+                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeHighPosition(
+                    elevator, stinger, intake, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .povLeft()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreConeMidPosition(elevator, stinger, intake),
-                MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake),
+                MechanismPositions.scoreConeMidPosition(
+                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeMidPosition(
+                    elevator, stinger, intake, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .povDown()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CONE),
-                MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CUBE),
+                MechanismPositions.scoreLowPosition(
+                    elevator, stinger, intake, GamePiece.CONE, operatorController),
+                MechanismPositions.scoreLowPosition(
+                    elevator, stinger, intake, GamePiece.CUBE, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 
     operatorController
