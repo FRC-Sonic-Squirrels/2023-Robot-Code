@@ -260,17 +260,18 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
-            new Vision(
-                new VisionIOSim(
-                    layout,
-                    drivetrain::getPose,
-                    VisionConstants.LEFT_ROBOT_TO_CAMERA,
-                    "leftCameraNetwork"),
-                new VisionIOSim(
-                    layout,
-                    drivetrain::getPose,
-                    VisionConstants.RIGHT_ROBOT_TO_CAMERA,
-                    "rightCameraNetwork"));
+            vision =
+                new Vision(
+                    new VisionIOSim(
+                        layout,
+                        drivetrain::getPose,
+                        VisionConstants.LEFT_ROBOT_TO_CAMERA,
+                        "leftCameraNetwork"),
+                    new VisionIOSim(
+                        layout,
+                        drivetrain::getPose,
+                        VisionConstants.RIGHT_ROBOT_TO_CAMERA,
+                        "rightCameraNetwork"));
 
             // new Vision(
             //     VisionConstants.LEFT_ROBOT_TO_CAMERA,
