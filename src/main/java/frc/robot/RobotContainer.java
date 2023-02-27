@@ -221,9 +221,6 @@ public class RobotContainer {
                     MAX_VELOCITY_METERS_PER_SECOND);
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
-            // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
-            // VisionIOPhotonVision(CAMERA_NAME));
-            // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
             intake = new Intake(new IntakeIO2023());
@@ -275,16 +272,6 @@ public class RobotContainer {
                         "rightCameraNetwork"),
                     drivetrain);
 
-            // new Vision(
-            //     VisionConstants.LEFT_ROBOT_TO_CAMERA,
-            //     new VisionIOSim(layout, drivetrain::getPose,
-            // VisionConstants.LEFT_ROBOT_TO_CAMERA));
-
-            // TODO: test to see if we can just add a second camera
-            // new Vision(
-            //     VisionConstants.RIGHT_ROBOT_TO_CAMERA,
-            //     new VisionIOSim(
-            //         layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
             leds = new LED(new LEDIO() {});
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorSim());
