@@ -12,6 +12,7 @@ import frc.lib.team2930.lib.controller_rumble.ControllerRumbleInterval;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.elevator.ElevatorFollowCurve;
 import frc.robot.commands.elevator.ElevatorSetHeight;
@@ -91,7 +92,7 @@ public class MechanismPositions {
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CUBE,
-            () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
+            () -> intakeGrabPiece(intake, GamePiece.CUBE, 0.25)),
 
         // --
         confirmationCommand.get(),
@@ -124,7 +125,7 @@ public class MechanismPositions {
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
             Constants.NODE_DISTANCES.EXTENSION_MID_CONE,
-            () -> intakeGrabConeWithTimeOut(intake, 0.25)),
+            () -> intakeGrabPiece(intake, GamePiece.CONE, 0.25)),
         // --
         confirmationCommand.get(),
         // --
@@ -158,7 +159,7 @@ public class MechanismPositions {
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE,
-            () -> intakeGrabCubeWithTimeOut(intake, 0.25)),
+            () -> intakeGrabPiece(intake, GamePiece.CUBE, 0.25)),
         // --
         confirmationCommand.get(),
         // --
@@ -192,7 +193,7 @@ public class MechanismPositions {
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE,
             Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE,
-            () -> intakeGrabConeWithTimeOut(intake, 0.5)),
+            () -> intakeGrabPiece(intake, GamePiece.CONE, 0.5)),
         // --
         confirmationCommand.get(),
         // --
@@ -203,12 +204,19 @@ public class MechanismPositions {
 
   // --------CONE HIGH -------------
 
-  public static Command intakeGrabConeWithTimeOut(Intake intake, double timeOut) {
-    return new IntakeGrabCone(intake).withTimeout(timeOut);
+  public static Command intakeGrabPiece(Intake intake) {
+    return intakeGrabPiece(intake, RobotState.getInstance().getDesiredGamePiece());
   }
 
-  public static Command intakeGrabCubeWithTimeOut(Intake intake, double timeOut) {
-    return new IntakeGrabCube(intake).withTimeout(timeOut);
+  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece) {
+    return new ConditionalCommand(
+        new IntakeGrabCone(intake),
+        new IntakeGrabCube(intake),
+        () -> (gamepiece == GamePiece.CONE));
+  }
+
+  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece, double timeout) {
+    return intakeGrabPiece(intake, gamepiece).withTimeout(timeout);
   }
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {

@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
@@ -395,6 +396,11 @@ public class RobotContainer {
         .y()
         .onTrue(Commands.runOnce(() -> vision.disableMaxDistanceAwayForTags(), vision))
         .onFalse(Commands.runOnce(() -> vision.enableMaxDistanceAwayForTags(), vision));
+
+    driverController
+        .rightBumper()
+        .onTrue(MechanismPositions.intakeGrabPiece(intake))
+        .onFalse(new InstantCommand(() -> intake.stop()));
 
     // driverController
     //     .a()
