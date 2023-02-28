@@ -75,4 +75,8 @@ public class Intake extends SubsystemBase {
   public void outtakeConeWithRPM(double speed) {}
 
   public void intakeConeWithRPM(double speed) {}
+
+  public double getSpeedRPM() {
+    return inputs.intakeVelocityRPM;
+  }
 }
