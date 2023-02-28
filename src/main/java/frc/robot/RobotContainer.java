@@ -43,6 +43,7 @@ import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
+import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
@@ -71,6 +72,7 @@ import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIO;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.stinger.StingerSim;
 import java.io.IOException;
@@ -299,8 +301,12 @@ public class RobotContainer {
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
       // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {});
-      new Elevator(new ElevatorIO() {});
+      elevator = new Elevator(new ElevatorIO() {});
+      stinger = new Stinger(new StingerIO() {});
+
       intake = new Intake(new IntakeIO() {});
+      leds = new LED(new LEDIO() {});
+      vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
