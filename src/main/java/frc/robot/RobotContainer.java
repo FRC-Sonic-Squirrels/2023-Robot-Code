@@ -333,9 +333,12 @@ public class RobotContainer {
 
     // TODO: TEST THIS TO SEE IF IT WORKS
     // intake.setDefaultCommand(
-    //     new IntakeAutoGrabDesiredGamePiece(intake)
-    //         .until(() -> intake.isStalled())
-    //         .withTimeout(0.25));
+    //     new SequentialCommandGroup(
+    //             new WaitCommand(1.5),
+    //             new IntakeAutoGrabDesiredGamePiece(intake)
+    //                 .until(() -> intake.isStalled())
+    //                 .withTimeout(0.25))
+    //         .repeatedly());
 
     leds.setDefaultCommand(
         new ConditionalCommand(

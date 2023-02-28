@@ -209,14 +209,21 @@ public class MechanismPositions {
   }
 
   public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece) {
+    return intakeGrabPiece(intake, gamepiece, 1);
+  }
+
+  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece, double speedRPM) {
+    double speed = speedRPM;
+
     return new ConditionalCommand(
-        new IntakeGrabCone(intake),
-        new IntakeGrabCube(intake),
+        new IntakeGrabCone(intake, speed),
+        new IntakeGrabCube(intake, speed),
         () -> (gamepiece == GamePiece.CONE));
   }
 
-  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece, double timeout) {
-    return intakeGrabPiece(intake, gamepiece).withTimeout(timeout);
+  public static Command intakeGrabPiece(
+      Intake intake, GamePiece gamepiece, double speedRPM, double timeout) {
+    return intakeGrabPiece(intake, gamepiece, speedRPM).withTimeout(timeout);
   }
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
