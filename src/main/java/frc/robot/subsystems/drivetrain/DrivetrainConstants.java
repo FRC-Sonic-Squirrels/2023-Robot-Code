@@ -43,8 +43,6 @@ public final class DrivetrainConstants {
   public static final int PIGEON_ID = 15;
   public static final String PIGEON_CAN_BUS_NAME = "CANivore";
 
-  // FIXME: update robot dimensions
-
   /**
    * The left-to-right distance between the drivetrain wheels
    *
