@@ -180,6 +180,10 @@ public class ElevatorReal2023 implements ElevatorIO {
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
 
+    Logger.getInstance()
+        .recordOutput("Elevator/ActualConstraintVelocity", cruiseVelocityInchesPerSecond);
+    Logger.getInstance()
+        .recordOutput("Elevator/ActualConstraintAcceleration", accelerationInchesPerSecondSquared);
     constraints =
         new TrapezoidProfile.Constraints(
             cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);

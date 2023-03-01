@@ -7,6 +7,7 @@ package frc.robot.commands.elevator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.elevator.Elevator;
+import java.util.function.DoubleSupplier;
 
 public class ElevatorSetHeight extends CommandBase {
   /** Creates a new ElevatorSetHeight. */
@@ -15,64 +16,44 @@ public class ElevatorSetHeight extends CommandBase {
   double targetHeightInches;
   boolean changeMotionProfile = false;
 
-  double motionProfileVelocity;
-  double motionProfileDesiredTime;
+  DoubleSupplier motionProfileVelocity;
+  DoubleSupplier motionProfileDesiredTime;
 
   double debounceSeconds = 0.1;
 
   Trigger isFinishedTrigger;
 
   public ElevatorSetHeight(Elevator elevator, double targetHeightInches) {
-    this(elevator, targetHeightInches, 0.1, false, 0.0, 0.0);
-  }
-
-  public ElevatorSetHeight(Elevator elevator, double targetHeightInches, double debounceSeconds) {
-    this(elevator, targetHeightInches, debounceSeconds, false, 0.0, 0.0);
-  }
-
-  public ElevatorSetHeight(
-      Elevator elevator,
-      double targetHeightInches,
-      double motionProfileVelocity,
-      double motionProfileDesiredTime) {
-
-    this(elevator, targetHeightInches, 0.1, true, motionProfileVelocity, motionProfileDesiredTime);
-  }
-
-  public ElevatorSetHeight(
-      Elevator elevator,
-      double targetHeightInches,
-      double motionProfileVelocity,
-      double motionProfileDesiredTime,
-      double debounceSeconds) {
-
     this(
         elevator,
         targetHeightInches,
-        debounceSeconds,
         true,
-        motionProfileVelocity,
-        motionProfileDesiredTime);
+        elevator::getCruiseVelocity,
+        elevator::getDesiredTimeToSpeed);
+  }
+
+  public ElevatorSetHeight(
+      Elevator elevator,
+      double targetHeightInches,
+      DoubleSupplier motionProfileVelocity,
+      DoubleSupplier motionProfileDesiredTime) {
+
+    this(elevator, targetHeightInches, true, motionProfileVelocity, motionProfileDesiredTime);
   }
 
   private ElevatorSetHeight(
       Elevator elevator,
       double targetHeightInches,
-      double debounce,
       boolean changeMotionProfile,
-      double motionProfileVelocity,
-      double motionProfileDesiredTime) {
+      DoubleSupplier motionProfileVelocity,
+      DoubleSupplier motionProfileDesiredTime) {
 
     this.elevator = elevator;
     this.targetHeightInches = targetHeightInches;
-    this.debounceSeconds = debounce;
 
     this.changeMotionProfile = changeMotionProfile;
     this.motionProfileVelocity = motionProfileVelocity;
     this.motionProfileDesiredTime = motionProfileDesiredTime;
-
-    this.isFinishedTrigger =
-        new Trigger(() -> elevator.isAtHeight(targetHeightInches)).debounce(debounceSeconds);
 
     addRequirements(elevator);
   }
@@ -82,7 +63,8 @@ public class ElevatorSetHeight extends CommandBase {
   public void initialize() {
     if (changeMotionProfile) {
       System.out.println("CHANGING ELEVATOR PID");
-      // elevator.setMotionProfileConstraints(motionProfileVelocity, motionProfileDesiredTime);
+      elevator.setMotionProfileConstraints(
+          motionProfileVelocity.getAsDouble(), motionProfileDesiredTime.getAsDouble());
     }
     elevator.setHeightInches(targetHeightInches);
   }

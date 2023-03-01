@@ -32,6 +32,7 @@ public class Elevator extends SubsystemBase {
   public final TunableNumber cruiseVelocity =
       new TunableNumber(
           "elevator/cruiseVelocity", Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC);
+
   public final TunableNumber desiredTimeToSpeed =
       new TunableNumber("elevator/desiredTimeToSpeed", Constants.Elevator.DESIRED_TIME_TO_SPEED);
 
@@ -136,6 +137,14 @@ public class Elevator extends SubsystemBase {
 
   public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     io.setPIDConstraints(kF, kP, kI, kD);
+  }
+
+  public double getCruiseVelocity() {
+    return cruiseVelocity.get();
+  }
+
+  public double getDesiredTimeToSpeed() {
+    return desiredTimeToSpeed.get();
   }
 
   /**

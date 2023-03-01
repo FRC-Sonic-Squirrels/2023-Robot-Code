@@ -212,12 +212,11 @@ public class MechanismPositions {
     return intakeGrabPiece(intake, gamepiece, 1);
   }
 
-  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece, double speedRPM) {
-    double speed = speedRPM;
+  public static Command intakeGrabPiece(Intake intake, GamePiece gamepiece, double speed) {
 
     return new ConditionalCommand(
-        new IntakeGrabCone(intake, speed),
-        new IntakeGrabCube(intake, speed),
+        new IntakeGrabCone(intake, speed).withTimeout(0.25),
+        new IntakeGrabCube(intake, speed).withTimeout(0.25),
         () -> (gamepiece == GamePiece.CONE));
   }
 
@@ -355,7 +354,8 @@ public class MechanismPositions {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
         new StingerSetExtension(stinger, 0.0),
-        new ElevatorSetHeight(elevator, 0.0));
+        new ElevatorSetHeight(elevator, 8),
+        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
   }
 
   public static Command rumbleCanMove(CommandXboxController controller) {
