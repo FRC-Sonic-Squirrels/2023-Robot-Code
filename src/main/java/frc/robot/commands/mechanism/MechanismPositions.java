@@ -12,6 +12,7 @@ import frc.lib.team2930.lib.controller_rumble.ControllerRumbleInterval;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.NODE_DISTANCES;
 import frc.robot.RobotState;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.elevator.ElevatorFollowCurve;
@@ -154,7 +155,7 @@ public class MechanismPositions {
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
 
     return new SequentialCommandGroup(
-        goToPositionWithSuck(
+        goToPositionParallelWithSuck(
             elevator,
             stinger,
             Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
@@ -188,12 +189,19 @@ public class MechanismPositions {
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
 
     return new SequentialCommandGroup(
-        goToPositionWithSuck(
-            elevator,
-            stinger,
-            Constants.NODE_DISTANCES.HEIGHT_HIGH_CONE,
-            Constants.NODE_DISTANCES.EXTENSION_HIGH_CONE,
-            () -> intakeGrabPiece(intake, GamePiece.CONE, 0.5)),
+        new ElevatorSetHeight(elevator, NODE_DISTANCES.HEIGHT_HIGH_CONE),
+        // --
+        new SequentialCommandGroup(
+            Commands.waitUntil(() -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+            // --
+            new ParallelCommandGroup(
+                new StingerSetExtension(stinger, NODE_DISTANCES.EXTENSION_HIGH_CONE),
+                // --
+                new SequentialCommandGroup(
+                    new WaitUntilCommand(() -> stinger.getExtensionInches() >= 10),
+                    // --
+                    new IntakeScoreCone(intake, 0.1).withTimeout(0.05),
+                    new IntakeGrabCone(intake).withTimeout(0.25)))),
         // --
         confirmationCommand.get(),
         // --
@@ -244,7 +252,7 @@ public class MechanismPositions {
 
   public static Command substationPickupPositionCone(
       Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionSimple(elevator, stinger, 45.2, 0);
+    return goToPositionSimple(elevator, stinger, 47.2, 0);
     // .alongWith(new IntakeGrabCone(intake));
   }
 
@@ -265,7 +273,7 @@ public class MechanismPositions {
         () -> (elevator.getHeightInches() > stowHeight));
   }
 
-  public static Command goToPositionParrellelWithSuck(
+  public static Command goToPositionParallelWithSuck(
       Elevator elevator,
       Stinger stinger,
       double heightInches,
