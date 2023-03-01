@@ -31,27 +31,36 @@ public class ElevatorAddToSetpoint extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    elevator.setForwardSoftLimit(false);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double currentHeight = elevator.getHeightInches();
 
-    if (buttonPress.getAsBoolean() && !moving) {
-      elevator.setHeightInches(currentHeight + offset);
-      moving = true;
-      newTargetHeight = currentHeight + offset;
-    }
+    // if (buttonPress.getAsBoolean() && !moving) {
+    //   elevator.setHeightInches(currentHeight + offset);
+    //   moving = true;
+    //   newTargetHeight = currentHeight + offset;
+    // }
 
-    if (elevator.isAtHeight(newTargetHeight)) {
-      moving = false;
+    // if (elevator.isAtHeight(newTargetHeight)) {
+    //   moving = false;
+    // }
+
+    if (buttonPress.getAsBoolean()) {
+      elevator.setHeightInches(currentHeight + offset);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+
+    elevator.setForwardSoftLimit(true);
+  }
 
   // Returns true when the command should end.
   @Override
