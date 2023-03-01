@@ -6,6 +6,9 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -24,7 +27,7 @@ public class DriveWithSetRotation extends CommandBase {
   // input suppliers from joysticks
   private final DoubleSupplier m_translationXSupplier;
   private final DoubleSupplier m_translationYSupplier;
-  private int m_rotationPOV;
+  private double m_rotationPOV;
 
   // rotation to be held by the robot while driving, in radians
   private double m_setRotationRadians;
@@ -45,14 +48,14 @@ public class DriveWithSetRotation extends CommandBase {
               DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
   /** Creates a new DriveWithSetRotation. */
-  public DriveWithSetRotation(Drivetrain drive, DoubleSupplier x, DoubleSupplier y, int pov) {
+  public DriveWithSetRotation(Drivetrain drive, DoubleSupplier x, DoubleSupplier y, double pov) {
     m_drivetrain = drive;
 
     m_translationXSupplier = x;
     m_translationYSupplier = y;
     m_rotationPOV = pov;
 
-    m_setRotationRadians = 0;
+    // m_setRotationRadians = 0;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -66,6 +69,13 @@ public class DriveWithSetRotation extends CommandBase {
   public void initialize() {
     // resets robot position to its current measured position
     rotationController.reset(m_drivetrain.getPose().getRotation().getRadians());
+
+    m_setRotationRadians = Units.degreesToRadians(m_rotationPOV);
+
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      m_setRotationRadians = Units.degreesToRadians(180) + m_setRotationRadians;
+    }
+
     rotationController.setGoal(m_setRotationRadians);
   }
 
@@ -78,25 +88,9 @@ public class DriveWithSetRotation extends CommandBase {
     double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     // if pov was < 0 that would mean theres no input
-    if (m_rotationPOV >= 0) {
-
-      // angle correction
-      if (m_rotationPOV > 180) {
-        m_rotationPOV = 360 - m_rotationPOV;
-      } else {
-        m_rotationPOV = -m_rotationPOV;
-      }
-
-      if (Math.toRadians(m_rotationPOV) != m_setRotationRadians) {
-
-        // only reset PID is target angle changes
-        m_setRotationRadians = Math.toRadians(m_rotationPOV);
-      }
-    }
 
     double rotationOutput =
-        rotationController.calculate(
-            m_drivetrain.getPose().getRotation().getRadians(), m_setRotationRadians);
+        rotationController.calculate(m_drivetrain.getPose().getRotation().getRadians());
 
     if (Math.abs(rotationOutput) < 0.05) {
       rotationOutput = 0;
