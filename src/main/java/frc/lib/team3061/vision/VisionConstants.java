@@ -20,13 +20,13 @@ public final class VisionConstants {
       new Transform3d(
           new Translation3d(
               Units.inchesToMeters(-0.51), Units.inchesToMeters(10.2), Units.inchesToMeters(22.8)),
-          new Rotation3d(Math.toRadians(5.04), Math.toRadians(8.65), Math.toRadians(30.38)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(30.0)));
 
   public static final Transform3d RIGHT_ROBOT_TO_CAMERA =
       new Transform3d(
           new Translation3d(
               Units.inchesToMeters(-0.51), Units.inchesToMeters(-10.2), Units.inchesToMeters(22.8)),
-          new Rotation3d(Math.toRadians(-5.04), Math.toRadians(8.65), Math.toRadians(-30.38)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(-30.0)));
 
   public static final double MAXIMUM_AMBIGUITY = 0.2;
 
