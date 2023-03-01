@@ -146,8 +146,8 @@ public final class Constants {
     // Arbitrary feed forward voltage is to offset gravity.
     // Holding voltage is between 0.25-0.45 Volts. Convert to percent output.
     public static final double ARBITRARY_FEED_FORWARD = 0.18 / 12.0;
-    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 45.0;
-    public static final double DESIRED_TIME_TO_SPEED = 0.25;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 80.0;
+    public static final double DESIRED_TIME_TO_SPEED = 0.6;
   }
 
   public static final class Stinger {
