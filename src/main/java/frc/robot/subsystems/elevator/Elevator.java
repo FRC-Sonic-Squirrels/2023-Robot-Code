@@ -162,4 +162,8 @@ public class Elevator extends SubsystemBase {
     io.setMotionProfileConstraints(
         cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
   }
+
+  public void setForwardSoftLimit(Boolean value) {
+    io.setActivityOfUpperLimit(value);
+  }
 }

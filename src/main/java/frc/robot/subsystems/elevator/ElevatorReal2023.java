@@ -168,6 +168,8 @@ public class ElevatorReal2023 implements ElevatorIO {
           inchesToTicks(setpoint.position),
           DemandType.ArbitraryFeedForward,
           Constants.Elevator.ARBITRARY_FEED_FORWARD);
+    } else {
+      targetHeightInches = 0.0;
     }
   }
 
@@ -254,5 +256,10 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void setElevatorVoltage(double volts) {
     lead_talon.setVoltage(volts);
+  }
+
+  @Override
+  public void setActivityOfUpperLimit(boolean value) {
+    lead_talon.configForwardSoftLimitEnable(value);
   }
 }

@@ -70,4 +70,6 @@ public interface ElevatorIO {
   public default void resetSensorHeight(double heightInches) {}
 
   public default void setPIDConstraints(double kF, double kP, double kI, double kD) {}
+
+  public default void setActivityOfUpperLimit(boolean value) {}
 }
