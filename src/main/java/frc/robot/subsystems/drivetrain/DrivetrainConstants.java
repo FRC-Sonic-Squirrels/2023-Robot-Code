@@ -19,26 +19,25 @@ public final class DrivetrainConstants {
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 11;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 21;
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 103.8; // 320.2;
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 102.8; // 103.8
 
   // 1
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 22;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 80.2; // 88.3; // 112.6; // 93.3;
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 266.1; // 80.2;
 
   // Module 2
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 4;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 14;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 24;
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET =
-      14.2; // 18.0; // 15.0; // 9.7; // 282.4;
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = 240.2; // 14.2;
 
   // module 3
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 13;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 23;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 201.7; // 202.9 // 329.2;
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 201.9; // 201.7;
 
   public static final int PIGEON_ID = 15;
   public static final String PIGEON_CAN_BUS_NAME = "CANivore";
