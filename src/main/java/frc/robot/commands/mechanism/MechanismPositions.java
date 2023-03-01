@@ -40,7 +40,7 @@ public class MechanismPositions {
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
   private static final TunableNumber elevatorHeightThreshold =
-      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 20);
+      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 40);
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 5);
 
@@ -265,8 +265,12 @@ public class MechanismPositions {
         () -> (elevator.getHeightInches() > stowHeight));
   }
 
-  public static Command goToPosition(
-      Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
+  public static Command goToPositionParrellelWithSuck(
+      Elevator elevator,
+      Stinger stinger,
+      double heightInches,
+      double extensionInches,
+      Supplier<Command> suckCommand) {
     if (elevator.getHeightInches() >= heightInches) {
       return new ParallelCommandGroup(
           new StingerSetExtension(stinger, extensionInches),
@@ -276,11 +280,26 @@ public class MechanismPositions {
               new ElevatorSetHeight(elevator, heightInches)));
     } else {
       return new ParallelCommandGroup(
-          new ElevatorSetHeight(elevator, heightInches),
-          new SequentialCommandGroup(
-              Commands.waitUntil(
-                  () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
-              new StingerSetExtension(stinger, extensionInches)));
+              // new ElevatorSetHeight(elevator, heightInches),
+              // new SequentialCommandGroup(
+              //     Commands.waitUntil(
+              //         () -> (elevator.getHeightInches() >= elevatorAboveBumberHeight)),
+              //     new StingerSetExtension(stinger, 4.5)
+              //         .until(() -> elevator.getHeightInches() >= 29.2),
+              //     // --
+              //     Commands.waitUntil(() -> (elevator.getHeightInches() >= 29.2)),
+              //     new StingerSetExtension(stinger, 10)
+              //         .until(() -> elevator.getHeightInches() >= 40),
+              //     // --
+              //     Commands.waitUntil(
+              //         () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+              //     new StingerSetExtension(stinger, extensionInches))
+              new ElevatorSetHeight(elevator, heightInches),
+              new SequentialCommandGroup(
+                  Commands.waitUntil(
+                      () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                  new StingerSetExtension(stinger, extensionInches)))
+          .alongWith(suckCommand.get());
     }
   }
 
