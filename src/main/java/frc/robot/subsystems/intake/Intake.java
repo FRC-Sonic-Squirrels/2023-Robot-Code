@@ -65,7 +65,7 @@ public class Intake extends SubsystemBase {
   // I.E calling this once will not return an accurate result
   // need to call this in an isFinished or a .until()
   public boolean isStalled() {
-    var filteredCurrent = StallDetectionFilter.calculate(inputs.intakeStatorCurrent);
+    var filteredCurrent = StallDetectionFilter.calculate(Math.abs(inputs.intakeStatorCurrent));
     var velocity = inputs.intakeVelocityRPM;
 
     double minStallCurrent = 1;
