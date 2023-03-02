@@ -245,6 +245,9 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
+    RobotContainer.getInstance().getDrivetrain().disableXstance();
+    RobotContainer.getInstance().getDrivetrain().enableFieldRelative();
+
     // clear autonomous path preview during teleop
     currentAutoName = "";
     SmartDashboard.putString("AutoName", currentAutoName);
