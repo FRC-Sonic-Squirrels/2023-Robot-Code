@@ -394,6 +394,12 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> vision.enableMaxDistanceAwayForTags(), vision));
 
     driverController
+        .a()
+        .onTrue(drivetrain.getDefaultCommand())
+        .onTrue(Commands.runOnce(drivetrain::enableFieldRelative))
+        .onTrue(Commands.runOnce(drivetrain::disableXstance));
+
+    driverController
         .rightBumper()
         .onTrue(MechanismPositions.intakeGrabPiece(intake))
         .onFalse(new InstantCommand(() -> intake.stop()));
