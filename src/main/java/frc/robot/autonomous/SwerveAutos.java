@@ -391,7 +391,8 @@ public class SwerveAutos {
                 Commands.run(() -> drivetrain.drive(-forward, 0.0, 0.0), drivetrain)
                     .until(() -> Math.abs(drivetrain.getGyroPitch()) > 15)
                     .withTimeout(2.0),
-                new AutoEngage(drivetrain, flipAutoEngage)));
+                new AutoEngage(drivetrain, flipAutoEngage)
+                    .handleInterrupt(() -> drivetrain.enableXstance())));
   }
 
   // public AutoChooserElement middle2BallEngage() {
