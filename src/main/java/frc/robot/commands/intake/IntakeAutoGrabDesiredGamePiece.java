@@ -12,8 +12,8 @@ import frc.robot.subsystems.intake.Intake;
 public class IntakeAutoGrabDesiredGamePiece extends ConditionalCommand {
   public IntakeAutoGrabDesiredGamePiece(Intake intake) {
     super(
-        new IntakeGrabCone(intake),
-        new IntakeGrabCube(intake),
+        new IntakeGrabCone(intake, 0.2),
+        new IntakeGrabCube(intake, 0.1),
         () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE);
   }
 }

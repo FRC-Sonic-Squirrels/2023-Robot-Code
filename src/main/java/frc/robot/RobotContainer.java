@@ -52,6 +52,7 @@ import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
+import frc.robot.commands.intake.IntakeAutoGrabDesiredGamePiece;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
@@ -334,11 +335,14 @@ public class RobotContainer {
     // TODO: TEST THIS TO SEE IF IT WORKS
     // intake.setDefaultCommand(
     //     new SequentialCommandGroup(
-    //             new WaitCommand(1.5),
+    //             new WaitCommand(0.5),
     //             new IntakeAutoGrabDesiredGamePiece(intake)
     //                 .until(() -> intake.isStalled())
     //                 .withTimeout(0.25))
     //         .repeatedly());
+
+    intake.setDefaultCommand(
+        new IntakeAutoGrabDesiredGamePiece(intake).withTimeout(0.15).repeatedly());
 
     leds.setDefaultCommand(
         new ConditionalCommand(
