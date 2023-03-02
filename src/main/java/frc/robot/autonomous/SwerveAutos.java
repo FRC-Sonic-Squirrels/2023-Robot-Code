@@ -360,16 +360,22 @@ public class SwerveAutos {
 
   public AutoChooserElement middleDriveOutAndEngage() {
 
-    boolean onBlue = DriverStation.getAlliance() == Alliance.Red;
-    double forward = onBlue ? 2.0 : -2.0;
+    boolean onRed = DriverStation.getAlliance() == Alliance.Red;
+    double forward = onRed ? -2.0 : 2.0;
 
-    double rotation = onBlue ? 0.0 : 180;
+    double rotation = onRed ? 0.0 : 180;
 
-    boolean flipAutoEngage = onBlue ? false : true;
+    boolean flipAutoEngage = onRed ? true : false;
+
+    Pose2d startPose =
+        onRed
+            ? new Pose2d(14.69, 3.29, Rotation2d.fromDegrees(0))
+            : new Pose2d(1.88, 2.18, Rotation2d.fromDegrees(180));
 
     return scoreConeHigh()
         .setNext(
             new SequentialCommandGroup(
+                Commands.runOnce(() -> drivetrain.resetOdometry(startPose), drivetrain),
                 Commands.runEnd(
                         () -> drivetrain.drive(forward, 0.0, 0.0),
                         () -> drivetrain.stop(),

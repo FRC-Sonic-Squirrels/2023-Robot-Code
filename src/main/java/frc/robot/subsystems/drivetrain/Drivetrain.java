@@ -257,6 +257,20 @@ public class Drivetrain extends SubsystemBase {
         new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
   }
 
+  public void resetOdometry(Pose2d pose) {
+    setGyroOffset(pose.getRotation().getDegrees());
+
+    for (int i = 0; i < 4; i++) {
+      swerveModulePositions[i] = swerveModules[i].getPosition();
+    }
+
+    estimatedPoseWithoutGyro = new Pose2d(pose.getTranslation(), pose.getRotation());
+    poseEstimator.resetPosition(
+        this.getRotation(),
+        swerveModulePositions,
+        new Pose2d(pose.getTranslation(), pose.getRotation()));
+  }
+
   /**
    * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
    * rotational directions. The velocities may be specified from either the robot's frame of
