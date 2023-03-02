@@ -409,6 +409,11 @@ public class RobotContainer {
     // // reset gyro to 0 degrees
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
+    driverController
+        .start()
+        .onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain))
+        .onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
+
     // // x-stance
     // driverController.a().onTrue(Commands.runOnce(drivetrain::enableXstance, drivetrain));
     // driverController.a().onFalse(Commands.runOnce(drivetrain::disableXstance, drivetrain));
@@ -544,9 +549,9 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
 
-    driverController
-        .start()
-        .onTrue(Commands.runOnce(() -> drivetrain.resetModulesToAbsolute(), drivetrain));
+    // driverController
+    //     .start()
+    //     .onTrue(Commands.runOnce(() -> drivetrain.resetModulesToAbsolute(), drivetrain));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
