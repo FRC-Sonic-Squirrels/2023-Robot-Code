@@ -75,18 +75,19 @@ public class SwerveAutos {
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
     addCommand("middle1PieceEngage", () -> middle1BallEngage());
+    addCommand("middleDriveOutEngage", () -> middleDriveOutAndEngage());
     // addCommand("middle2PieceEngage", () -> middle2BallEngage());
     addCommand("Wall1PieceTaxi", () -> wall1BallTaxi());
     addCommand("Wall2Piece", () -> wall2Ball());
-    addCommand("Wall2PieceEngage", () -> wall2BallEngage());
-    addCommand("Wall3Piece", () -> wall3Ball());
-    addCommand("Wall4Piece", () -> wall4Ball());
+    // addCommand("Wall2PieceEngage", () -> wall2BallEngage());
+    // addCommand("Wall3Piece", () -> wall3Ball());
+    // addCommand("Wall4Piece", () -> wall4Ball());
     addCommand("Hp1PieceTaxi", () -> Hp1BallTaxi());
     addCommand("Hp2Piece", () -> Hp2Ball());
-    addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
-    addCommand("Hp3Piece", () -> Hp3Ball());
-    addCommand("Hp4Piece", () -> Hp4Ball());
-    addCommand("middleDriveOutEngage", () -> middleDriveOutAndEngage());
+    // addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
+    // addCommand("Hp3Piece", () -> Hp3Ball());
+    // addCommand("Hp4Piece", () -> Hp4Ball());
+
     // addCommand(
     //     "driveAutoEngage", () -> driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
   }
