@@ -32,6 +32,8 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
+
+    Logger.getInstance().recordOutput("Intake/isStalled", isStalled());
   }
 
   /** Run the intake intake at the specified percentage. */
