@@ -30,6 +30,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team3061.gyro.GyroIO;
@@ -38,26 +41,40 @@ import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
+import frc.lib.team3061.vision.Vision;
+import frc.lib.team3061.vision.VisionConstants;
+import frc.lib.team3061.vision.VisionIO;
+import frc.lib.team3061.vision.VisionIOPhotonVision;
+import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
-import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
+import frc.robot.commands.leds.LedSetColor;
+import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorReal2023;
+import frc.robot.subsystems.elevator.ElevatorSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIO2023;
+import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.led.LED.colors;
+import frc.robot.subsystems.led.LEDIO;
+import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.stinger.Stinger;
+import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
+import frc.robot.subsystems.stinger.StingerSim;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +102,8 @@ public class RobotContainer {
   public SwerveAutos autos;
   private Stinger stinger;
   private Elevator elevator;
+  private LED leds;
+  private Vision vision;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -145,6 +164,8 @@ public class RobotContainer {
                     3,
                     MAX_VELOCITY_METERS_PER_SECOND);
 
+            leds = new LED(new LEDIO() {});
+
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
             // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
             // VisionIOPhotonVision(CAMERA_NAME));
@@ -203,12 +224,19 @@ public class RobotContainer {
                     MAX_VELOCITY_METERS_PER_SECOND);
 
             drivetrain = new Drivetrain(gyro, flModule, frModule, blModule, brModule);
-            // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new
-            // VisionIOPhotonVision(CAMERA_NAME));
-            // TODO: add intake when intake is done
             elevator = new Elevator(new ElevatorReal2023());
             stinger = new Stinger(new StingerIOReal());
             intake = new Intake(new IntakeIO2023());
+            leds = new LED(new LEDIOReal());
+
+            vision =
+                new Vision(
+                    new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
+                    new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
+                    drivetrain);
+
+            RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
+            leds.setColor(colors.YELLOW);
 
             break;
           }
@@ -233,19 +261,24 @@ public class RobotContainer {
             } catch (IOException e) {
               layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
             }
-            // new Vision(
-            //     VisionConstants.LEFT_ROBOT_TO_CAMERA,
-            //     new VisionIOSim(layout, drivetrain::getPose,
-            // VisionConstants.LEFT_ROBOT_TO_CAMERA));
+            vision =
+                new Vision(
+                    new VisionIOSim(
+                        layout,
+                        drivetrain::getPose,
+                        VisionConstants.LEFT_ROBOT_TO_CAMERA,
+                        "leftCameraNetwork"),
+                    new VisionIOSim(
+                        layout,
+                        drivetrain::getPose,
+                        VisionConstants.RIGHT_ROBOT_TO_CAMERA,
+                        "rightCameraNetwork"),
+                    drivetrain);
 
-            // TODO: test to see if we can just add a second camera
-            // new Vision(
-            //     VisionConstants.RIGHT_ROBOT_TO_CAMERA,
-            //     new VisionIOSim(
-            //         layout, drivetrain::getPose, VisionConstants.RIGHT_ROBOT_TO_CAMERA));
-
+            leds = new LED(new LEDIO() {});
             intake = new Intake(new IntakeIO() {});
-            elevator = new Elevator(new ElevatorIO() {});
+            elevator = new Elevator(new ElevatorSim());
+            stinger = new Stinger(new StingerSim());
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
@@ -268,8 +301,12 @@ public class RobotContainer {
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
       // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {});
-      new Elevator(new ElevatorIO() {});
+      elevator = new Elevator(new ElevatorIO() {});
+      stinger = new Stinger(new StingerIO() {});
+
       intake = new Intake(new IntakeIO() {});
+      leds = new LED(new LEDIO() {});
+      vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
@@ -288,18 +325,35 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
             drivetrain,
+            elevator,
+            stinger,
             driverController::getLeftY,
             driverController::getLeftX,
             driverController::getRightX));
 
-    // elevator.setDefaultCommand(
-    //     new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
+    // TODO: TEST THIS TO SEE IF IT WORKS
+    // intake.setDefaultCommand(
+    //     new SequentialCommandGroup(
+    //             new WaitCommand(1.5),
+    //             new IntakeAutoGrabDesiredGamePiece(intake)
+    //                 .until(() -> intake.isStalled())
+    //                 .withTimeout(0.25))
+    //         .repeatedly());
 
-    stinger.setDefaultCommand(
-        new StingerManualControl(stinger, elevator, () -> operatorController.getRightX()));
+    leds.setDefaultCommand(
+        new ConditionalCommand(
+                new LedSetColor(leds, colors.YELLOW),
+                new LedSetColor(leds, colors.VIOLET),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)
+            .repeatedly());
 
-    elevator.setDefaultCommand(
-        new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()));
+    // FIX ME: these default commands cause all sorts of headaches when trying to use closed loop
+    // positional control
+    // instead of working around it lets just have a button.whileTrue where these are only active if
+    // that button is pressed.
+    // if we do this system remember to make the end stop the system incase we let go of the while
+    // true button when joystick has a value > 0.0
+    // otherwise the system will run at that percent speed until it hits soft/hard limit.
 
     configureButtonBindings();
     configureAutoCommands();
@@ -334,7 +388,25 @@ public class RobotContainer {
                 Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
                 drivetrain::getFieldRelative));
 
-    // reset gyro to 0 degrees
+    driverController
+        .y()
+        .onTrue(Commands.runOnce(() -> vision.disableMaxDistanceAwayForTags(), vision))
+        .onFalse(Commands.runOnce(() -> vision.enableMaxDistanceAwayForTags(), vision));
+
+    driverController
+        .rightBumper()
+        .onTrue(MechanismPositions.intakeGrabPiece(intake))
+        .onFalse(new InstantCommand(() -> intake.stop()));
+
+    // driverController
+    //     .a()
+    //     .onTrue(
+    //         new ParallelCommandGroup(
+    //             MechanismPositions.groundPickupPosition(elevator, stinger),
+    //             new IntakeGrabCube(intake).withTimeout(4)));
+
+    // driverController.y().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+    // // reset gyro to 0 degrees
     driverController.back().onTrue(Commands.runOnce(drivetrain::zeroGyroscope, drivetrain));
 
     // // x-stance
@@ -353,6 +425,9 @@ public class RobotContainer {
     //         Commands.runOnce(intake::retract, intake)
     //             .andThen(Commands.runOnce(() -> intake.runIntakePercent(0.0), intake)));
 
+    // driverController.x().whileTrue(new AutoEngage(drivetrain,   () -> 0, false));
+    // driverController.y().whileTrue(new AutoEngage(drivetrain, () -> 0, true));
+
     driverController
         .povDown()
         .onTrue(
@@ -361,7 +436,7 @@ public class RobotContainer {
                     () -> driverController.getLeftY(),
                     () -> driverController.getLeftX(),
                     180)
-                .until(() -> Math.abs(driverController.getRightX()) > 0.7));
+                .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     driverController
         .povUp()
@@ -373,23 +448,112 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
+    // operatorController.x().whileTrue(new IntakeGrabCone(intake, 1.0));
+    // operatorController.leftBumper().whileTrue(new IntakeGrabCube(intake, 0.3));
+
+    // operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
+    // operatorController.rightBumper().whileTrue(new IntakeScoreCube(intake, 0.5));
+
+    // operatorController
+    //     .a()
+    //     .onTrue(MechanismPositions.scoreConeMidPosition(elevator, stinger, intake));
+    // operatorController
+    //     .y()
+    //     .onTrue(MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
+    // operatorController
+    //     .povUp()
+    //     .onTrue(MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
+    // operatorController
+    //     .povRight()
+    //     .onTrue(MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CUBE));
+    // operatorController
+    //     .povLeft()
+    //     .onTrue(MechanismPositions.scoreLowPosition(elevator, stinger, intake, GamePiece.CONE));
+
+    operatorController
+        .leftTrigger()
+        .whileTrue(
+            new ParallelCommandGroup(
+                new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
+                new StingerManualControl(stinger, elevator, operatorController::getRightX)));
+
+    // operatorController.povUp().onTrue(new ConditionalCommand(new , null, () ->
+    // RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
+
+    operatorController.x().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+
+    operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
+
+    operatorController.a().onTrue(MechanismPositions.safeZero(elevator, stinger));
     operatorController
         .y()
-        .whileTrue(new IntakeGrabCone(intake, 0.6).beforeStarting(Commands.print("y")));
-    operatorController.x().whileTrue(new IntakeGrabCube(intake, 0.3));
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.substationPickupPositionCone(elevator, stinger, intake),
+                MechanismPositions.substationPickupPositionCube(elevator, stinger, intake),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
-    operatorController.b().whileTrue(new IntakeScoreCone(intake, 0.8));
-    operatorController.a().whileTrue(new IntakeScoreCube(intake, 0.5));
+    operatorController
+        .povUp()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreConeHighPosition(
+                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeHighPosition(
+                    elevator, stinger, intake, operatorController),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .povLeft()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreConeMidPosition(
+                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeMidPosition(
+                    elevator, stinger, intake, operatorController),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .povDown()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.scoreLowPosition(
+                    elevator, stinger, intake, GamePiece.CONE, operatorController),
+                MechanismPositions.scoreLowPosition(
+                    elevator, stinger, intake, GamePiece.CUBE, operatorController),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 
-    operatorController.rightBumper().onTrue(new ElevatorSetHeight(elevator, 20));
-    operatorController.leftBumper().onTrue(new ElevatorSetHeight(elevator, 0));
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeGrabCone(intake, 1.0),
+                new IntakeGrabCube(intake, 0.3),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeScoreCone(intake, 0.8),
+                new IntakeScoreCube(intake, 0.5),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .back()
+        .onTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)));
+    operatorController
+        .start()
+        .onTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+
+    driverController
+        .start()
+        .onTrue(Commands.runOnce(() -> drivetrain.resetModulesToAbsolute(), drivetrain));
   }
 
   /** configureAutoCommands - add autonomous routines to chooser */
   public void configureAutoCommands() {
     autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
-    autos = new SwerveAutos(drivetrain, intake);
+    autos = new SwerveAutos(drivetrain, intake, elevator, stinger);
 
     List<String> autoNames = autos.getAutonomousCommandNames();
 
@@ -442,5 +606,10 @@ public class RobotContainer {
 
   public Drivetrain getDrivetrain() {
     return drivetrain;
+  }
+
+  public void stopAll() {
+    elevator.stop();
+    stinger.stop();
   }
 }

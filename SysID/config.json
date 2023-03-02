@@ -1,0 +1,48 @@
+{
+  "canivore names": [
+    "CANivore",
+    "CANivore"
+  ],
+  "counts per rotation": 2048.0,
+  "encoder canivore name": "rio",
+  "encoder type": "Built-in",
+  "encoding": false,
+  "gearing denominator": 1.0,
+  "gearing numerator": 6.746031746,
+  "gyro": "Pigeon2",
+  "gyro canivore name": "CANivore",
+  "gyro ctor": "15, CANivore\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+  "is drivetrain": true,
+  "motor controllers": [
+    "TalonFX",
+    "TalonFX"
+  ],
+  "number of samples per average": 1,
+  "primary encoder inverted": false,
+  "primary encoder ports": [
+    0,
+    1
+  ],
+  "primary motor ports": [
+    1,
+    4
+  ],
+  "primary motors inverted": [
+    true,
+    false
+  ],
+  "secondary encoder inverted": false,
+  "secondary encoder ports": [
+    2,
+    3
+  ],
+  "secondary motor ports": [
+    2,
+    3
+  ],
+  "secondary motors inverted": [
+    true,
+    false
+  ],
+  "velocity measurement period": 5
+}

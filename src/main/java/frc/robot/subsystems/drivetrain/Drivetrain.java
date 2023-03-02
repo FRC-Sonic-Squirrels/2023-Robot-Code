@@ -162,6 +162,15 @@ public class Drivetrain extends SubsystemBase {
     }
 
     SmartDashboard.putData("Field", field);
+
+    Timer.delay(1.0);
+    resetModulesToAbsolute();
+  }
+
+  public void resetModulesToAbsolute() {
+    for (SwerveModule mod : swerveModules) {
+      mod.resetToAbsolute();
+    }
   }
 
   /**
@@ -366,7 +375,8 @@ public class Drivetrain extends SubsystemBase {
       estimatedPoseWithoutGyro = estimatedPoseWithoutGyro.exp(twist);
     }
 
-    poseEstimator.updateWithTime(this.timer.get(), this.getRotation(), swerveModulePositions);
+    poseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
 
     field.setRobotPose(poseEstimator.getEstimatedPosition());
 
@@ -389,8 +399,12 @@ public class Drivetrain extends SubsystemBase {
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
     Logger.getInstance()
         .recordOutput(
-            "3DCamera",
+            "3DCameraLeft",
             new Pose3d(poseEstimatorPose).transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA));
+    Logger.getInstance()
+        .recordOutput(
+            "3DCameraRight",
+            new Pose3d(poseEstimatorPose).transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
   }
@@ -607,6 +621,18 @@ public class Drivetrain extends SubsystemBase {
         PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
         new PathPoint(
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+  }
+
+  public double getGyroYaw() {
+    return gyroInputs.yaw;
+  }
+
+  public double getGyroPitch() {
+    return gyroInputs.pitch;
+  }
+
+  public double getGyroRoll() {
+    return gyroInputs.roll;
   }
 
   private enum DriveMode {

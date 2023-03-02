@@ -143,7 +143,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        // logger.addDataReceiver(new WPILOGWriter(""));
+        logger.addDataReceiver(new WPILOGWriter("simlogs"));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -158,7 +158,7 @@ public class Robot extends LoggedRobot {
         logger.setReplaySource(new WPILOGReader(path));
 
         // Save replay results to a new log with the "_sim" suffix
-        logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
+        // logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
         break;
     }
 
@@ -204,6 +204,11 @@ public class Robot extends LoggedRobot {
     if (this.isDisabled()) {
       checkForUpdatedAutonomous();
     }
+  }
+
+  @Override
+  public void disabledInit() {
+    robotContainer.stopAll();
   }
 
   /**

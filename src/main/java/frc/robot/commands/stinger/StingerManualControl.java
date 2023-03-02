@@ -36,7 +36,7 @@ public class StingerManualControl extends CommandBase {
 
     double joystickValue = axisController.getAsDouble() * 0.2;
 
-    if (elevator.getHeightInches() < 5) {
+    if (elevator.getHeightInches() < 3) {
       stinger.setPercentOutput(0.0);
       return;
     }

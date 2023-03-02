@@ -12,6 +12,7 @@ public interface ElevatorIO {
   public static class ElevatorIOInputs implements LoggableInputs {
     public double ElevatorHeightInches = 0.0;
     public double ElevatorTargetHeightInches = 0.0;
+    public double ElevatorSetpointInches = 0.0;
     public double ElevatorVelocityInchesPerSecond = 0.0;
     public boolean ElevatorAtLowerLimit = false;
     public boolean ElevatorAtUpperLimit = false;
@@ -23,6 +24,7 @@ public interface ElevatorIO {
     public void toLog(LogTable table) {
       table.put("ElevatorHeightInches", ElevatorHeightInches);
       table.put("ElevatorTargetHeightInches", ElevatorTargetHeightInches);
+      table.put("ElevatorSetpointInches", ElevatorSetpointInches);
       table.put("ElevatorAtLowerLimit", ElevatorAtLowerLimit);
       table.put("ElevatorAtUpperLimit", ElevatorAtUpperLimit);
       table.put("ElevatorVelocityInchesPerSecond", ElevatorVelocityInchesPerSecond);
@@ -61,8 +63,13 @@ public interface ElevatorIO {
 
   public default void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {}
+
+  public default void updateProfilePosition() {}
+
   // reset sensor position
   public default void resetSensorHeight(double heightInches) {}
 
   public default void setPIDConstraints(double kF, double kP, double kI, double kD) {}
+
+  public default void setActivityOfUpperLimit(boolean value) {}
 }

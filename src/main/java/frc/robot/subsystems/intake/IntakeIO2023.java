@@ -18,10 +18,13 @@ public class IntakeIO2023 implements IntakeIO {
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.intakeVelocityRPM = motor.getSelectedSensorVelocity() * 10 * 60 / 2048;
+    // for simplicity's sake just use ticks
+    inputs.intakeVelocityRPM = motor.getSelectedSensorVelocity(); // * 10 * 60 / 2048;
     inputs.intakeAppliedVolts = motor.getMotorOutputVoltage();
     inputs.intakeCurrentAmps = new double[] {motor.getSupplyCurrent()};
     inputs.intakeTempCelsius = new double[] {motor.getTemperature()};
+
+    inputs.intakeStatorCurrent = motor.getStatorCurrent();
   }
 
   @Override

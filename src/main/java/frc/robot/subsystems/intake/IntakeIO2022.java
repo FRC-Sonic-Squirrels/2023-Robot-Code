@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -26,7 +25,7 @@ public class IntakeIO2022 implements IntakeIO {
 
     intakeMotor.configFactoryDefault();
     intakeMotor.setInverted(false);
-    intakeMotor.setNeutralMode(NeutralMode.Coast);
+    // intakeMotor.setNeutralMode(NeutralMode.Coast);
     // intakeMotor.configVoltageCompSaturation(10.0);
     // intakeMotor.enableVoltageCompensation(true);
   }

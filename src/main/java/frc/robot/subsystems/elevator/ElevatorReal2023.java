@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
@@ -11,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.lib.team2930.lib.util.MotorUtils;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
@@ -31,6 +33,17 @@ public class ElevatorReal2023 implements ElevatorIO {
   private static final double ticks2rotations = 1.0 / 2048f;
   private double targetHeightInches = 0.0;
 
+  private TrapezoidProfile.Constraints constraints =
+      new TrapezoidProfile.Constraints(
+          Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC,
+          (Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC
+              / Constants.Elevator.DESIRED_TIME_TO_SPEED));
+  private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile profile = new TrapezoidProfile(constraints, goal);
+
+  private boolean positionControlMode = true;
+
   public ElevatorReal2023() {
     lead_talon.configFactoryDefault();
     follow_talon.configFactoryDefault();
@@ -41,10 +54,10 @@ public class ElevatorReal2023 implements ElevatorIO {
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
     // TODO: PIDF values are set later with setPIDConstraints() from Elevator class?
-    leadConfig.slot0.integralZone = 0.0;
+    leadConfig.slot0.integralZone = inchesToTicks(0.5);
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
-    leadConfig.slot0.allowableClosedloopError = Elevator.toleranceInches / ticks2inches;
+    leadConfig.slot0.allowableClosedloopError = inchesToTicks(Elevator.toleranceInches);
 
     // set config
     lead_talon.configAllSettings(leadConfig);
@@ -80,7 +93,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
     // lead_talon.configPeakOutputForward(0.2);
-    // lead_talon.configPeakOutputReverse(-0.2);
+    lead_talon.configPeakOutputReverse(-0.5);
 
     // NOTE: only effects manual control
     lead_talon.configOpenloopRamp(0.1);
@@ -107,6 +120,7 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     inputs.ElevatorTargetHeightInches = targetHeightInches;
     inputs.ElevatorHeightInches = ticksToInches(lead_talon.getSelectedSensorPosition());
+    inputs.ElevatorSetpointInches = setpoint.position;
     inputs.ElevatorAtUpperLimit =
         (inputs.ElevatorHeightInches >= Constants.Elevator.MAX_HEIGHT_INCHES);
 
@@ -128,6 +142,35 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     Logger.getInstance()
         .recordOutput("elevator/distanceInTicks", lead_talon.getSelectedSensorPosition());
+
+    Logger.getInstance()
+        .recordOutput(
+            "elevator/distanceError", inputs.ElevatorSetpointInches - inputs.ElevatorHeightInches);
+  }
+
+  public void updateProfilePosition() {
+    if (positionControlMode) {
+      if ((targetHeightInches <= 0.0) && (lead_talon.isRevLimitSwitchClosed() == 1)) {
+        // we are on the limit switch and target is zero height, turn off motor
+        positionControlMode = false;
+        setPercent(0.0);
+        return;
+      }
+
+      // update profile
+      profile = new TrapezoidProfile(constraints, goal, setpoint);
+
+      setpoint = profile.calculate(0.02);
+
+      // TODO: maybe zero feed forward when going down? (setpoint < currentheight)
+      lead_talon.set(
+          TalonFXControlMode.Position,
+          inchesToTicks(setpoint.position),
+          DemandType.ArbitraryFeedForward,
+          Constants.Elevator.ARBITRARY_FEED_FORWARD);
+    } else {
+      targetHeightInches = 0.0;
+    }
   }
 
   /**
@@ -139,11 +182,13 @@ public class ElevatorReal2023 implements ElevatorIO {
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
 
-    double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
-    double accelTicksPer100msPerSecond = inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
-
-    lead_talon.configMotionCruiseVelocity(velocityTicksPer100ms);
-    lead_talon.configMotionAcceleration(accelTicksPer100msPerSecond);
+    Logger.getInstance()
+        .recordOutput("Elevator/ActualConstraintVelocity", cruiseVelocityInchesPerSecond);
+    Logger.getInstance()
+        .recordOutput("Elevator/ActualConstraintAcceleration", accelerationInchesPerSecondSquared);
+    constraints =
+        new TrapezoidProfile.Constraints(
+            cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
   }
 
   private double inchesToTicks(double inches) {
@@ -177,11 +222,11 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void resetSensorHeight(double heightInches) {
     lead_talon.setSelectedSensorPosition(inchesToTicks(heightInches));
-    // lead_talon.getSensorCollection().setIntegratedSensorPosition(inchesToTicks(heightInches), 0);
   }
 
   @Override
   public void setPercent(double percent) {
+    positionControlMode = false;
     lead_talon.set(ControlMode.PercentOutput, percent);
   }
 
@@ -196,11 +241,25 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void setHeightInches(double targetHeightInches) {
     this.targetHeightInches = targetHeightInches;
-    lead_talon.set(TalonFXControlMode.MotionMagic, inchesToTicks(targetHeightInches));
+    positionControlMode = true;
+    goal = new TrapezoidProfile.State(targetHeightInches, 0);
+
+    // starting setpoint is our current position and velocity
+    setpoint =
+        new TrapezoidProfile.State(
+            ticksToInches(lead_talon.getSelectedSensorPosition()),
+            ticksToInchesPerSecond(lead_talon.getSelectedSensorVelocity()));
+
+    updateProfilePosition();
   }
 
   @Override
   public void setElevatorVoltage(double volts) {
     lead_talon.setVoltage(volts);
+  }
+
+  @Override
+  public void setActivityOfUpperLimit(boolean value) {
+    lead_talon.configForwardSoftLimitEnable(value);
   }
 }

@@ -5,15 +5,17 @@
 package frc.robot.subsystems.stinger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
 import org.littletonrobotics.junction.Logger;
@@ -34,6 +36,17 @@ public class StingerIOReal implements StingerIO {
   private final double maxExtensionInches = Constants.Stinger.MAX_EXTENSION_INCHES;
   private double targetExtensionInches = 0.0;
 
+  private TrapezoidProfile.Constraints constraints =
+      new TrapezoidProfile.Constraints(
+          Constants.Stinger.CRUISE_VELOCITY_INCHES_PER_SEC,
+          (Constants.Stinger.CRUISE_VELOCITY_INCHES_PER_SEC
+              / Constants.Stinger.DESIRED_TIME_TO_SPEED));
+  private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile profile = new TrapezoidProfile(constraints, goal);
+
+  private boolean positionControlMode = true;
+
   public StingerIOReal() {
     motor.configFactoryDefault();
 
@@ -47,6 +60,7 @@ public class StingerIOReal implements StingerIO {
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
 
     config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2Inches;
+    config.slot0.integralZone = inchesToTicks(0.2);
 
     // set config
     motor.configAllSettings(config);
@@ -58,7 +72,7 @@ public class StingerIOReal implements StingerIO {
     motor.selectProfileSlot(0, 0);
 
     // FIXME: set to Brake mode after testing
-    motor.setNeutralMode(NeutralMode.Coast);
+    motor.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
     motor.configReverseLimitSwitchSource(
@@ -93,13 +107,7 @@ public class StingerIOReal implements StingerIO {
     inputs.StingerTargetExtensionInches = targetExtensionInches;
     inputs.StingerExtensionInches = ticksToInches(motor.getSelectedSensorPosition());
     inputs.StingerAtExtendedLimit = (inputs.StingerExtensionInches >= maxExtensionInches);
-
-    // no physical upper limit switch
-    // if (lead_talon.isFwdLimitSwitchClosed() == 1) {
-    //   inputs.ElevatorAtUpperLimit = true;
-    // } else {
-    //   inputs.ElevatorAtUpperLimit = false;
-    // }
+    inputs.StingerSetpointInches = setpoint.position;
 
     inputs.StingerAppliedVolts = motor.getMotorOutputVoltage();
     inputs.StingerCurrentAmps = new double[] {motor.getSupplyCurrent()};
@@ -111,6 +119,32 @@ public class StingerIOReal implements StingerIO {
     inputs.StingerVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
 
     Logger.getInstance().recordOutput("stinger/distanceInTicks", motor.getSelectedSensorPosition());
+
+    Logger.getInstance()
+        .recordOutput(
+            "stinger/distanceError", inputs.StingerSetpointInches - inputs.StingerExtensionInches);
+  }
+
+  public void updateProfilePosition() {
+    if (positionControlMode) {
+      if ((targetExtensionInches <= 0.0) && (motor.isRevLimitSwitchClosed() == 1)) {
+        // we are on the limit switch and target is zero height, turn off motor
+        positionControlMode = false;
+        setPercent(0.0);
+        return;
+      }
+
+      // update profile
+      profile = new TrapezoidProfile(constraints, goal, setpoint);
+
+      setpoint = profile.calculate(0.02);
+
+      motor.set(
+          TalonFXControlMode.Position,
+          inchesToTicks(setpoint.position),
+          DemandType.ArbitraryFeedForward,
+          Constants.Stinger.ARBITRARY_FEED_FORWARD);
+    }
   }
 
   public void setStingerVoltage(double volts) {
@@ -118,18 +152,31 @@ public class StingerIOReal implements StingerIO {
   }
 
   public void setPercent(double percent) {
+    positionControlMode = false;
     motor.set(ControlMode.PercentOutput, percent);
   }
 
   @Override
   public void setExtensionInches(double extensionInches) {
-    if (extensionInches < 0.0) {
-      extensionInches = 0.0;
-    } else if (extensionInches > maxExtensionInches) {
-      extensionInches = maxExtensionInches;
-    }
-    targetExtensionInches = extensionInches;
-    motor.set(ControlMode.MotionMagic, inchesToTicks(extensionInches));
+    // if (extensionInches < 0.0) {
+    //   extensionInches = 0.0;
+    // } else if (extensionInches > maxExtensionInches) {
+    //   extensionInches = maxExtensionInches;
+    // }
+    // targetExtensionInches = extensionInches;
+    // motor.set(ControlMode.MotionMagic, inchesToTicks(extensionInches));
+
+    this.targetExtensionInches = extensionInches;
+    positionControlMode = true;
+    goal = new TrapezoidProfile.State(targetExtensionInches, 0);
+
+    // starting setpoint is our current position and velocity
+    setpoint =
+        new TrapezoidProfile.State(
+            ticksToInches(motor.getSelectedSensorPosition()),
+            ticksToInchesPerSecond(motor.getSelectedSensorVelocity()));
+
+    updateProfilePosition();
   }
 
   /**
@@ -140,17 +187,9 @@ public class StingerIOReal implements StingerIO {
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double accelerationInchesPerSecondSquared) {
 
-    double velocityTicksPer100ms = inchesToTicksPer100ms(cruiseVelocityInchesPerSecond);
-    double accelTicksPer100msPerSecond = inchesToTicksPer100ms(accelerationInchesPerSecondSquared);
-
-    motor.configMotionCruiseVelocity(velocityTicksPer100ms);
-    motor.configMotionAcceleration(accelTicksPer100msPerSecond);
-
-    // FIXME: temporary for debugging
-    SmartDashboard.putNumber("Stinger Accel INCHES", accelerationInchesPerSecondSquared);
-    SmartDashboard.putNumber("Stinger Velo INCHES", cruiseVelocityInchesPerSecond);
-    SmartDashboard.putNumber("Stinger Accel TICKS", accelTicksPer100msPerSecond);
-    SmartDashboard.putNumber("Stinger Velo TICKS", velocityTicksPer100ms);
+    constraints =
+        new TrapezoidProfile.Constraints(
+            cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
   }
 
   @Override

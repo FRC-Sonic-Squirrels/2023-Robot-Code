@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -18,11 +19,13 @@ public class Stinger extends SubsystemBase {
   // TODO: see if we can change max voltage to 12
   private double MAX_VOLTAGE = 10.0;
 
-  public static double toleranceInches = 0.1;
+  public static double toleranceInches = 0.05;
   private boolean zeroed = false;
 
   private final TunableNumber feedForwardTunable =
       new TunableNumber("Stinger/FeedForward", Constants.Stinger.STINGER_FEEDFORWARD);
+
+  // for simulated use 1.0
   private final TunableNumber kPtunable =
       new TunableNumber("Stinger/kP", Constants.Stinger.STINGER_KP);
   private final TunableNumber kItunable =
@@ -32,8 +35,9 @@ public class Stinger extends SubsystemBase {
 
   private final TunableNumber velocityInchesSecond =
       new TunableNumber(
-          "Stinger/velocity inches per sec", Constants.Stinger.VELOCITY_INCHES_PER_SECOND);
-  private final TunableNumber desiredTime = new TunableNumber("Stinger/desired time", 0.1);
+          "Stinger/velocity inches per sec", Constants.Stinger.CRUISE_VELOCITY_INCHES_PER_SEC);
+  private final TunableNumber desiredTime =
+      new TunableNumber("Stinger/desired time", Constants.Stinger.DESIRED_TIME_TO_SPEED);
 
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {
@@ -43,6 +47,11 @@ public class Stinger extends SubsystemBase {
     io.setPIDConstraints(
         feedForwardTunable.get(), kPtunable.get(), kItunable.get(), kDtunable.get());
     setMotionProfileConstraintsTime(velocityInchesSecond.get(), desiredTime.get());
+
+    // we use a different kp in sim
+    if (Constants.getMode() == Mode.SIM) {
+      io.setPIDConstraints(feedForwardTunable.get(), 1.0, kItunable.get(), kDtunable.get());
+    }
   }
 
   @Override
@@ -73,6 +82,7 @@ public class Stinger extends SubsystemBase {
       // not currently on limit switch, zero again next time we hit limit switch
       zeroed = false;
     }
+    io.updateProfilePosition();
   }
 
   /** Run the Stinger at the specified voltage */

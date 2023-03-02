@@ -29,8 +29,10 @@ public final class Constants {
   public static final String CAN_BUS_NAME = "CANivore";
 
   // FIXME: specify the name of the camera used for detecting AprilTags
-  public static final String LEFT_CAMERA_NAME = "ov9268";
-  public static final String RIGHT_CAMERA_NAME = "ov9268";
+
+  // FIXME: make sure these are the correct names
+  public static final String LEFT_CAMERA_NAME = "LeftCamera";
+  public static final String RIGHT_CAMERA_NAME = "RightCamera";
 
   private static final RobotType ROBOT = RobotType.ROBOT_2023_COMPBOT;
 
@@ -126,22 +128,27 @@ public final class Constants {
     public static final int channel_15_friction_brake = 15;
   }
 
+  public static class PWMPorts {
+    public static final int kBlinkin = 0;
+  }
+
   // TODO: determine whether elevator deserves it's own constants file
   public static class Elevator {
 
-    public static final double MAX_HEIGHT_INCHES = 44.0; // 45.0 max physical
-
-    // TODO: check all values for new robot
-    public static final double elevatorSpeedMultiplier = 1.0;
+    public static final double MAX_HEIGHT_INCHES = 48.6; // 49.1 max physical
 
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
-    public static final double F_CONTROLLER = 0.024427;
-    public static final double P_CONTROLLER = 0.098864;
+    public static final double F_CONTROLLER = 0.0; // jvn velocity 0.024427;
+    public static final double P_CONTROLLER = 0.12; // jvn velocity 0.098864;
     public static final double I_CONTROLLER = 0.0;
     public static final double D_CONTROLLER = 0.0;
 
-    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 10;
-    public static final double DESIRED_TIME_TO_SPEED = 2;
+    // Arbitrary feed forward voltage is to offset gravity.
+    // Holding voltage is between 0.25-0.45 Volts. Convert to percent output.
+    public static final double ARBITRARY_FEED_FORWARD = 0.18 / 12.0;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC =
+        40.0; // 40 is slower but accurate // fast movement but inaccurate is 90.0;
+    public static final double DESIRED_TIME_TO_SPEED = 0.6;
   }
 
   public static final class Stinger {
@@ -150,29 +157,38 @@ public final class Constants {
 
     // TODO: tune PIDF for stinger
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
-    public static final double STINGER_FEEDFORWARD = 0.024705;
-    public static final double STINGER_KP = 0.12711;
+    public static final double STINGER_FEEDFORWARD = 0.0;
+    public static final double STINGER_KP = 0.12;
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
 
-    public static final double VELOCITY_INCHES_PER_SECOND = 40;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 80;
+    public static final double DESIRED_TIME_TO_SPEED = 0.5;
+
+    // Arbitrary feed forward is in percent output (volts/12.0)
+    public static final double ARBITRARY_FEED_FORWARD = 0.0 / 12.0;
   }
 
   // the depth and height of field nodes compared to a robot right in front of them
   public static final class NODE_DISTANCES {
 
     // all these measurements are in INCHES
-    public static final double EXTENSION_LOW = 8; // half the depth of the hybrid node
-    public static final double EXTENSION_MID = 22.75;
-    public static final double EXTENSION_HIGH = 27;
+    public static final double EXTENSION_LOW = 7; // half the depth of the hybrid node
+    public static final double EXTENSION_MID_CUBE = 16.3;
+    public static final double EXTENSION_MID_CONE = 12.5;
+    public static final double EXTENSION_HIGH_CONE = Stinger.MAX_EXTENSION_INCHES;
+    public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES;
 
     // these measurements are 2 inches higher than the actual node heights so the items can make it
     // over
-    public static final double HEIGHT_LOW = 7;
-    public static final double HEIGHT_MID_CUBE = 25.5;
-    public static final double HEIGHT_MID_CONE = 36;
-    public static final double HEIGHT_HIGH_CUBE = 37.5;
-    public static final double HEIGHT_HIGH_CONE = 48;
+    public static final double HEIGHT_LOW = 11;
+    public static final double HEIGHT_MID_CUBE = 30;
+    public static final double HEIGHT_MID_CONE = 37;
+    public static final double HEIGHT_HIGH_CUBE = 45.5;
+    public static final double HEIGHT_HIGH_CONE = Elevator.MAX_HEIGHT_INCHES;
+
+    public static final double STOW_HEIGHT = 6;
+    public static final double STOW_EXTENSION = 0;
   }
 
   public static class Elevator2022 {

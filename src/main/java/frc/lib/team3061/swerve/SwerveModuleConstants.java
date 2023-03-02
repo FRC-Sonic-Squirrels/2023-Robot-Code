@@ -18,8 +18,7 @@ public final class SwerveModuleConstants {
   public static final double MK4I_L2_WHEEL_DIAMETER_METERS = 0.10033;
   public static final double MK4I_L2_WHEEL_CIRCUMFERENCE_THEORETICAL =
       MK4I_L2_WHEEL_DIAMETER_METERS * Math.PI;
-  // FIXME: measure actual cicumference
-  public static final double MK4I_L2_WHEEL_CIRCUMFERENCE = 0.309;
+  public static final double MK4I_L2_WHEEL_CIRCUMFERENCE = 0.309; // measured 2/24/2023 90% tread
 
   public static final double MK4I_L2_DRIVE_GEAR_RATIO =
       1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
@@ -40,7 +39,8 @@ public final class SwerveModuleConstants {
 
   // FIXME: assign these constants to the appropriate swerve module variant
   public static final double WHEEL_DIAMETER_METERS = MK4I_L2_WHEEL_DIAMETER_METERS;
-  public static final double WHEEL_CIRCUMFERENCE = MK4I_L2_WHEEL_CIRCUMFERENCE;
+  // MK4I_L2_WHEEL_CIRCUMFERENCE;
+  public static final double WHEEL_CIRCUMFERENCE = 0.3175; // measured 2/25/2023 at practice field
   public static final double DRIVE_GEAR_RATIO = MK4I_L2_DRIVE_GEAR_RATIO;
   public static final boolean DRIVE_MOTOR_INVERTED = MK4I_L2_DRIVE_MOTOR_INVERTED;
   public static final double ANGLE_GEAR_RATIO = MK4I_L2_ANGLE_GEAR_RATIO;
@@ -82,9 +82,9 @@ public final class SwerveModuleConstants {
 
   /* Drive Motor Characterization Values */
   // divide by 12 to convert from volts to percent output for CTRE
-  public static final double DRIVE_KS = (0.628 / 12);
-  public static final double DRIVE_KV = (2.344 / 12);
-  public static final double DRIVE_KA = (0.435 / 12);
+  public static final double DRIVE_KS = (0.6 / 12); // 0.628 for heavy, 0.53114 light
+  public static final double DRIVE_KV = (2.344 / 12); // 2.344 for heavy, 2.3423 light
+  public static final double DRIVE_KA = (0.35 / 12); // 0.435 for heavy, 0.12817 light
 
   /* Simulated Angle Motor PID Values */
   public static final double SIM_ANGLE_KP = 12.0;

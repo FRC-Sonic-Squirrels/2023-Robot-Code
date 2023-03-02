@@ -28,13 +28,9 @@ public class ElevatorManualControl extends CommandBase {
   public void execute() {
 
     // negative because up on joystick y axis goes negative
-    double elevatorJoyStickValue = controllerAxis.getAsDouble() * 0.2;
+    double elevatorJoyStickValue = deadband(controllerAxis.getAsDouble(), 0.1);
 
-    if (Math.abs(elevatorJoyStickValue) > 0.1) {
-      elevator.setPercentOutput(elevatorJoyStickValue);
-    } else {
-      elevator.setPercentOutput(0.0);
-    }
+    elevator.setPercentOutput((elevatorJoyStickValue * 0.2) + 0.02);
   }
 
   @Override
@@ -45,5 +41,17 @@ public class ElevatorManualControl extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  private static double deadband(double value, double deadband) {
+    if (Math.abs(value) > deadband) {
+      if (value > 0.0) {
+        return (value - deadband) / (1.0 - deadband);
+      } else {
+        return (value + deadband) / (1.0 - deadband);
+      }
+    } else {
+      return 0.0;
+    }
   }
 }
