@@ -191,7 +191,7 @@ public class MechanismPositions {
         stinger,
         intake,
         () -> new InstantCommand(),
-        () -> intakeGrabPiece(intake, GamePiece.CONE, 0.25));
+        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
   }
 
   private static Command scoreConeHighLogic(
@@ -237,6 +237,14 @@ public class MechanismPositions {
     return new ConditionalCommand(
         new IntakeGrabCone(intake, speed).withTimeout(0.25),
         new IntakeGrabCube(intake, speed).withTimeout(0.25),
+        () -> (gamepiece == GamePiece.CONE));
+  }
+
+  public static Command intakeGrabPieceNoTimeout(Intake intake, GamePiece gamepiece, double speed) {
+
+    return new ConditionalCommand(
+        new IntakeGrabCone(intake, speed),
+        new IntakeGrabCube(intake, speed),
         () -> (gamepiece == GamePiece.CONE));
   }
 
