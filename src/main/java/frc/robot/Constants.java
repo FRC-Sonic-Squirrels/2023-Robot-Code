@@ -162,8 +162,8 @@ public final class Constants {
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
 
-    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 80;
-    public static final double DESIRED_TIME_TO_SPEED = 0.5;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 100;
+    public static final double DESIRED_TIME_TO_SPEED = 0.3;
 
     // Arbitrary feed forward is in percent output (volts/12.0)
     public static final double ARBITRARY_FEED_FORWARD = 0.0 / 12.0;
