@@ -88,7 +88,7 @@ public class ElevatorReal2023 implements ElevatorIO {
 
     // JVN calculator suggests 8Amp max
     SupplyCurrentLimitConfiguration currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 10, 25, 0.1);
+        new SupplyCurrentLimitConfiguration(true, 10, 40, 0.2);
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
