@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.stinger.Stinger;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,7 +24,9 @@ import org.littletonrobotics.junction.Logger;
  */
 public class DriveWithSetRotation extends CommandBase {
 
-  private final Drivetrain m_drivetrain;
+  private final Drivetrain drivetrain;
+  private final Elevator elevator;
+  private final Stinger stinger;
 
   // input suppliers from joysticks
   private final DoubleSupplier m_translationXSupplier;
@@ -48,8 +52,16 @@ public class DriveWithSetRotation extends CommandBase {
               DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
   /** Creates a new DriveWithSetRotation. */
-  public DriveWithSetRotation(Drivetrain drive, DoubleSupplier x, DoubleSupplier y, double pov) {
-    m_drivetrain = drive;
+  public DriveWithSetRotation(
+      Drivetrain drive,
+      Elevator elevator,
+      Stinger stinger,
+      DoubleSupplier x,
+      DoubleSupplier y,
+      double pov) {
+    this.drivetrain = drive;
+    this.elevator = elevator;
+    this.stinger = stinger;
 
     m_translationXSupplier = x;
     m_translationYSupplier = y;
@@ -68,7 +80,7 @@ public class DriveWithSetRotation extends CommandBase {
   @Override
   public void initialize() {
     // resets robot position to its current measured position
-    rotationController.reset(m_drivetrain.getPose().getRotation().getRadians());
+    rotationController.reset(drivetrain.getPose().getRotation().getRadians());
 
     m_setRotationRadians = Units.degreesToRadians(m_rotationPOV);
 
@@ -85,18 +97,44 @@ public class DriveWithSetRotation extends CommandBase {
     double xPercentage = -modifyAxis(m_translationXSupplier.getAsDouble());
     double yPercentage = -modifyAxis(m_translationYSupplier.getAsDouble());
 
+    double xMultiplier = 1.0;
+    double yMultiplier = 1.0;
+
+    if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
+        && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
+
+      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+
+    } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
+      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+    }
+
+    Logger.getInstance().recordOutput("DriveWithSetRotation/xMultiplier", xMultiplier);
+    Logger.getInstance().recordOutput("DriveWithSetRotation/yMultiplier", yMultiplier);
+
+    xPercentage *= xMultiplier;
+    yPercentage *= yMultiplier;
+
     double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-    // if pov was < 0 that would mean theres no input
 
     double rotationOutput =
-        rotationController.calculate(m_drivetrain.getPose().getRotation().getRadians());
+        rotationController.calculate(drivetrain.getPose().getRotation().getRadians());
 
-    if (Math.abs(rotationOutput) < 0.05) {
-      rotationOutput = 0;
+    // if (Math.abs(rotationOutput) < 0.05) {
+    //   rotationOutput = 0;
+    // }
+
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      xVelocity *= -1;
+      yVelocity *= -1;
     }
-    m_drivetrain.drive(xVelocity, yVelocity, rotationOutput);
+
+    drivetrain.drive(xVelocity, yVelocity, rotationOutput);
     // m_drivetrain.drive(rotationOutput, pov, rotationOutput);
+
     if (rotationKp.hasChanged()) {
       rotationController.setPID(rotationKp.get(), 0, 0);
     }
@@ -109,7 +147,7 @@ public class DriveWithSetRotation extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.drive(0, 0, 0);
+    drivetrain.drive(0, 0, 0);
     Logger.getInstance().recordOutput("ActiveCommands/DriveWithSetRotation", false);
   }
 

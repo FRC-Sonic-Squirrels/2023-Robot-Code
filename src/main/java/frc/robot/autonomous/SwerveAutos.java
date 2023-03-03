@@ -344,9 +344,9 @@ public class SwerveAutos {
         null,
         new SequentialCommandGroup(
             new ConditionalCommand(
-                new DriveWithSetRotation(drivetrain, () -> (-0.7), () -> 0, 180)
+                new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-0.7), () -> 0, 180)
                     .until(() -> drivetrain.getGyroPitch() <= -15),
-                new DriveWithSetRotation(drivetrain, () -> 0.7, () -> 0, 0)
+                new DriveWithSetRotation(drivetrain, elevator, stinger, () -> 0.7, () -> 0, 0)
                     .until(() -> drivetrain.getGyroPitch() >= 15),
                 () -> flip),
             new AutoEngage(drivetrain, !flip)));

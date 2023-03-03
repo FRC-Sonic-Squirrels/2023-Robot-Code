@@ -3,8 +3,6 @@ package frc.robot.commands.drive;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.lib.team6328.util.TunableNumber;
-import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.elevator.Elevator;
@@ -33,15 +31,15 @@ public class TeleopSwerve extends CommandBase {
   private final Elevator elevator;
   private final Stinger stinger;
 
-  private final TunableNumber elevatorUpTranslationMuliplier =
-      new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.75);
-  private final TunableNumber elevatorUpRotationalMultiplier =
-      new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.35);
+  // private final TunableNumber elevatorUpTranslationMuliplier =
+  //     new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.75);
+  // private final TunableNumber elevatorUpRotationalMultiplier =
+  //     new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.35);
 
-  private final TunableNumber stingerOutTranslationMuliplier =
-      new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.05);
-  private final TunableNumber stingerOutRotationalMultiplier =
-      new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.15);
+  // private final TunableNumber stingerOutTranslationMuliplier =
+  //     new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.05);
+  // private final TunableNumber stingerOutRotationalMultiplier =
+  //     new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.15);
 
   /**
    * Create a new TeleopSwerve command object.
@@ -86,18 +84,18 @@ public class TeleopSwerve extends CommandBase {
     // 0.6 driver starting preference
     double rotMultiplier = 0.6;
 
-    if (elevator.getHeightInches() > Constants.NODE_DISTANCES.STOW_HEIGHT + 5) {
-      xMultiplier -= elevatorUpTranslationMuliplier.get();
-      yMultiplier -= elevatorUpTranslationMuliplier.get();
+    if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
+        && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
 
-      rotMultiplier -= elevatorUpRotationalMultiplier.get();
-    }
+      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
 
-    if (this.stinger.getExtensionInches() > 8) {
-      xMultiplier -= stingerOutTranslationMuliplier.get();
-      yMultiplier -= stingerOutTranslationMuliplier.get();
+      rotMultiplier = drivetrain.elevatorAndstingerOutRotationalMultiplier.get();
+    } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
+      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
 
-      rotMultiplier -= stingerOutRotationalMultiplier.get();
+      rotMultiplier = drivetrain.elevatorUpRotationalMultiplier.get();
     }
 
     Logger.getInstance().recordOutput("TeleopSwerve/xMultiplier", xMultiplier);

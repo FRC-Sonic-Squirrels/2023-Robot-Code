@@ -36,6 +36,7 @@ import frc.lib.team3061.swerve.SwerveModule;
 import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team6328.util.TunableNumber;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -60,6 +61,19 @@ public class Drivetrain extends SubsystemBase {
       new TunableNumber("AutoDrive/TurnKi", AUTO_TURN_I_CONTROLLER);
   private final TunableNumber autoTurnKd =
       new TunableNumber("AutoDrive/TurnKd", AUTO_TURN_D_CONTROLLER);
+
+  public final TunableNumber elevatorUpTranslationMuliplier =
+      new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.25);
+  public final TunableNumber elevatorUpRotationalMultiplier =
+      new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.25);
+
+  public final TunableNumber elevatorAndstingerOutTranslationMuliplier =
+      new TunableNumber("teleopSwerve/ElevatorAndstingerOutTranslationMuliplier", 0.20);
+  public final TunableNumber elevatorAndstingerOutRotationalMultiplier =
+      new TunableNumber("teleopSwerve/ElevatorAndstingerOutRotationalMultiplier", 0.05);
+
+  public static final double ELEVATOR_HEIGHT_SLOW_DOWN = Constants.NODE_DISTANCES.STOW_HEIGHT + 5.0;
+  public static final double STINGER_EXTENSION_SLOW_DOWN = 8.0;
 
   private final PIDController autoXController =
       new PIDController(autoDriveKp.get(), autoDriveKi.get(), autoDriveKd.get());

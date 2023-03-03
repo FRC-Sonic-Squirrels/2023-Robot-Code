@@ -448,8 +448,10 @@ public class RobotContainer {
         .onTrue(
             new DriveWithSetRotation(
                     drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
+                    elevator,
+                    stinger,
+                    driverController::getLeftY,
+                    driverController::getRightX,
                     180)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
@@ -458,8 +460,10 @@ public class RobotContainer {
         .onTrue(
             new DriveWithSetRotation(
                     drivetrain,
-                    () -> driverController.getLeftY(),
-                    () -> driverController.getLeftX(),
+                    elevator,
+                    stinger,
+                    driverController::getLeftY,
+                    driverController::getLeftX,
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
