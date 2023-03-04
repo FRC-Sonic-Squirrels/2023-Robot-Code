@@ -451,7 +451,7 @@ public class RobotContainer {
                     elevator,
                     stinger,
                     driverController::getLeftY,
-                    driverController::getRightX,
+                    driverController::getLeftX,
                     180)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
