@@ -181,7 +181,7 @@ public class MechanismPositions {
         stinger,
         intake,
         () -> rumbleButtonConfirmation(rumbleController),
-        () -> intakeGrabPiece(intake, GamePiece.CONE, 0.25));
+        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
   }
 
   public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
@@ -353,7 +353,7 @@ public class MechanismPositions {
 
   public static Command goToPositionSimple(
       Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
-    if (elevator.getHeightInches() >= heightInches) {
+    if (elevator.getHeightInches() <= heightInches) {
       return new SequentialCommandGroup(
           avoidBumper(elevator, stinger),
           new ElevatorSetHeight(elevator, heightInches),
