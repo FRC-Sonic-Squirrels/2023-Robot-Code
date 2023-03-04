@@ -7,4 +7,6 @@ public interface LEDIO {
 
   //
   public default void setColor(colors color) {}
+
+  public default void log() {}
 }

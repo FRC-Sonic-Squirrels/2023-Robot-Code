@@ -3,6 +3,7 @@ package frc.robot.subsystems.led;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.Constants.PWMPorts;
 import frc.robot.subsystems.led.LED.colors;
+import org.littletonrobotics.junction.Logger;
 
 public class LEDIOReal implements LEDIO {
 
@@ -27,5 +28,10 @@ public class LEDIOReal implements LEDIO {
   @Override
   public void setColor(colors LEDcolor) {
     ledController.set(LEDcolor.colorValue);
+  }
+
+  @Override
+  public void log() {
+    Logger.getInstance().recordOutput("LED/PWM SIGNAL", ledController.get());
   }
 }

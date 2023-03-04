@@ -18,6 +18,11 @@ public class LED extends SubsystemBase {
     setColor(colors.NOTHING);
   }
 
+  @Override
+  public void periodic() {
+    io.log();
+  }
+
   public void setColor(colors color) {
     currentColor = color;
     io.setColor(color);
