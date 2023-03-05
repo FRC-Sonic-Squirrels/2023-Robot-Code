@@ -37,7 +37,7 @@ public final class DrivetrainConstants {
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 13;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 23;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 201.9; // 201.7;
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 249.4; // 201.9; // 201.7;
 
   public static final int PIGEON_ID = 15;
   public static final String PIGEON_CAN_BUS_NAME = "CANivore";
