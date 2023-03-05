@@ -13,7 +13,7 @@ public class IntakeAutoGrabDesiredGamePiece extends ConditionalCommand {
   public IntakeAutoGrabDesiredGamePiece(Intake intake) {
     super(
         new IntakeGrabCone(intake, 0.2),
-        new IntakeGrabCube(intake, 0.1),
+        new IntakeGrabCube(intake, 0.15),
         () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE);
   }
 }

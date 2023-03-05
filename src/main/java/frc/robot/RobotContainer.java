@@ -236,6 +236,8 @@ public class RobotContainer {
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
                     drivetrain);
 
+            // vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
+
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
 
@@ -545,7 +547,7 @@ public class RobotContainer {
         .whileTrue(
             new ConditionalCommand(
                 new IntakeGrabCone(intake, 1.0),
-                new IntakeGrabCube(intake, 0.3),
+                new IntakeGrabCube(intake, 0.4),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .leftBumper()
