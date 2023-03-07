@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-// import frc.lib.team2930.driverassist.GridPositionHandler;
-// import frc.lib.team2930.driverassist.LogicalGridLocation;
+import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.LogicalGridLocation;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
@@ -14,7 +14,7 @@ public class RobotState {
 
   private GamePiece desiredGamePiece;
 
-  // private LogicalGridLocation desiredLogicalGrid;
+  private LogicalGridLocation desiredLogicalGrid;
 
   public static RobotState getInstance() {
     if (instance == null) {
@@ -26,12 +26,12 @@ public class RobotState {
 
   private RobotState() {
     setDesiredGamePiece(GamePiece.CUBE);
-    // setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
+    setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
   }
 
-  // public LogicalGridLocation getDesiredLogicalGrid() {
-  //   return desiredLogicalGrid;
-  // }
+  public LogicalGridLocation getDesiredLogicalGrid() {
+    return desiredLogicalGrid;
+  }
 
   public GamePiece getDesiredGamePiece() {
     return desiredGamePiece;
@@ -42,53 +42,52 @@ public class RobotState {
     desiredGamePiece = gamePiece;
   }
 
-  // public void setDesiredLogicalGrid(LogicalGridLocation gridLocation) {
-  //   Logger.getInstance().recordOutput("RobotState/DesiredLogicalGridLocation",
-  // gridLocation.name());
-  //   desiredLogicalGrid = gridLocation;
-  // }
+  public void setDesiredLogicalGrid(LogicalGridLocation gridLocation) {
+    Logger.getInstance().recordOutput("RobotState/DesiredLogicalGridLocation", gridLocation.name());
+    desiredLogicalGrid = gridLocation;
+  }
 
-  // public void incrementDesiredBay() {
-  //   var gridOrder = GridPositionHandler.logicalGridOrder;
-  //   var currentIndex = getBayIndex(desiredLogicalGrid);
+  public void incrementDesiredBay() {
+    var gridOrder = GridPositionHandler.logicalGridOrder;
+    var currentIndex = getBayIndex(desiredLogicalGrid);
 
-  //   int targetIndex;
+    int targetIndex;
 
-  //   if (currentIndex == gridOrder.length - 1) {
-  //     targetIndex = gridOrder.length - 1;
-  //   } else {
-  //     targetIndex = currentIndex + 1;
-  //   }
+    if (currentIndex == gridOrder.length - 1) {
+      targetIndex = gridOrder.length - 1;
+    } else {
+      targetIndex = currentIndex + 1;
+    }
 
-  //   setDesiredLogicalGrid(gridOrder[targetIndex]);
-  // }
+    setDesiredLogicalGrid(gridOrder[targetIndex]);
+  }
 
-  // public void decrementDesiredBay() {
-  //   var gridOrder = GridPositionHandler.logicalGridOrder;
-  //   var currentIndex = getBayIndex(desiredLogicalGrid);
+  public void decrementDesiredBay() {
+    var gridOrder = GridPositionHandler.logicalGridOrder;
+    var currentIndex = getBayIndex(desiredLogicalGrid);
 
-  //   int targetIndex;
+    int targetIndex;
 
-  //   if (currentIndex == 0) {
-  //     targetIndex = 0;
-  //   } else {
-  //     targetIndex = currentIndex - 1;
-  //   }
+    if (currentIndex == 0) {
+      targetIndex = 0;
+    } else {
+      targetIndex = currentIndex - 1;
+    }
 
-  //   setDesiredLogicalGrid(gridOrder[targetIndex]);
-  // }
+    setDesiredLogicalGrid(gridOrder[targetIndex]);
+  }
 
-  // private int getBayIndex(LogicalGridLocation location) {
-  //   var gridOrder = GridPositionHandler.logicalGridOrder;
+  private int getBayIndex(LogicalGridLocation location) {
+    var gridOrder = GridPositionHandler.logicalGridOrder;
 
-  //   for (int i = 0; i < gridOrder.length; i++) {
-  //     if (location == gridOrder[i]) {
-  //       return i;
-  //     }
-  //   }d
+    for (int i = 0; i < gridOrder.length; i++) {
+      if (location == gridOrder[i]) {
+        return i;
+      }
+    }
 
-  //   return -1;
-  // }
+    return -1;
+  }
 
   public enum GamePiece {
     CONE,
