@@ -41,7 +41,7 @@ public class MechanismPositions {
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
   private static final TunableNumber elevatorHeightThreshold =
-      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 40);
+      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 35);
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 5);
 

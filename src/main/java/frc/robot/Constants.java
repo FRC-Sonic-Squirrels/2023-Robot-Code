@@ -135,7 +135,7 @@ public final class Constants {
   // TODO: determine whether elevator deserves it's own constants file
   public static class Elevator {
 
-    public static final double MAX_HEIGHT_INCHES = 48.6; // 49.1 max physical
+    public static final double MAX_HEIGHT_INCHES = 48.85; // 49.1 max physical
 
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
     public static final double F_CONTROLLER = 0.0; // jvn velocity 0.024427;

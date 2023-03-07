@@ -363,8 +363,6 @@ public class SwerveAutos {
     boolean onRed = DriverStation.getAlliance() == Alliance.Red;
     double forward = onRed ? -2.0 : 2.0;
 
-    double rotation = onRed ? 0.0 : 180;
-
     boolean flipAutoEngage = onRed ? true : false;
 
     Pose2d startPose =
@@ -387,8 +385,9 @@ public class SwerveAutos {
                         () -> drivetrain.drive(forward, 0.0, 0.0),
                         () -> drivetrain.stop(),
                         drivetrain)
-                    .until(new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.5))
-                    .withTimeout(2.0),
+                    .until(
+                        new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.45))
+                    .withTimeout(2.25),
                 // --
 
                 // new DriveWithSetRotation(drivetrain, () -> 0.0, () -> 0.0, (int) rotation)
