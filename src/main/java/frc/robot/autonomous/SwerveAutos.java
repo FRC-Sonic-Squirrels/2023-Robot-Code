@@ -388,8 +388,8 @@ public class SwerveAutos {
                         () -> drivetrain.stop(),
                         drivetrain)
                     .until(
-                        new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.75))
-                    .withTimeout(2.5),
+                        new Trigger(() -> Math.abs(drivetrain.getGyroPitch()) < 3).debounce(0.45))
+                    .withTimeout(2.25),
                 // --
 
                 // new DriveWithSetRotation(drivetrain, () -> 0.0, () -> 0.0, (int) rotation)
