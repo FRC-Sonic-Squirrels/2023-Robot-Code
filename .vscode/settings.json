@@ -35,9 +35,11 @@
     "algs",
     "APRILTAG",
     "auton",
+    "blinkin",
     "Cancoder",
     "CANID",
-    "CANIVOR",
+    "CANIVORE",
+    "chargedup",
     "Closedloop",
     "COMPBOT",
     "CTRE",
@@ -46,12 +48,16 @@
     "gamepad",
     "gradlew",
     "holonomic",
+    "howdybots",
     "Huskie",
     "jama",
     "javac",
+    "LEDIO",
+    "leds",
     "Nivore",
     "odometry",
     "photonvision",
+    "PIDF",
     "rapidreact",
     "reqs",
     "REVPH",
@@ -64,6 +70,7 @@
     "teleop",
     "teleoperated",
     "TRACKWIDTH",
+    "tunables",
     "unconfigured",
     "unpassed",
     "Vandermonde",
@@ -72,5 +79,6 @@
   ],
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
-  }
+  },
+  "wpilib.selectDefaultSimulateExtension": true
 }

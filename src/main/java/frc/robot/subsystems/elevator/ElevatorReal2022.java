@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.team2930.lib.util.MotorUtils;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
-import frc.robot.Constants.CANIVOR_canId;
+import frc.robot.Constants.CanId;
 import org.littletonrobotics.junction.Logger;
 
 // Details on the TalonFX motion profile control can be found here:
@@ -31,10 +31,10 @@ import org.littletonrobotics.junction.Logger;
 // https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/blob/master/Java%20Talon%20FX%20(Falcon%20500)/PositionClosedLoop_AuxFeedForward/src/main/java/frc/robot/Robot.java
 
 public class ElevatorReal2022 implements ElevatorIO {
-  private WPI_TalonFX lead_talon =
-      new WPI_TalonFX(CANIVOR_canId.CANID9_ELEVATOR_LEAD_TALON, CANIVOR_canId.name);
+  // HACK: manually set correct canbus name for 2022 bot
+  private WPI_TalonFX lead_talon = new WPI_TalonFX(CanId.CANID9_ELEVATOR_LEAD_TALON, "CANivore");
   private WPI_TalonFX follow_talon =
-      new WPI_TalonFX(CANIVOR_canId.CANID10_ELEVATOR_FOLLOW_TALON, CANIVOR_canId.name);
+      new WPI_TalonFX(CanId.CANID10_ELEVATOR_FOLLOW_TALON, "CANivore");
   private Solenoid frictionBrakeSolenoid =
       new Solenoid(PneumaticsModuleType.REVPH, Constants.pneumatics.channel_15_friction_brake);
   private final double gearRatio = 0.08229; // 0.074;
@@ -60,11 +60,11 @@ public class ElevatorReal2022 implements ElevatorIO {
   private boolean solenoidEnabled = false;
 
   private final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.ElevatorConstants.P_CONTROLLER);
+      new TunableNumber("elevator/Kp", Constants.Elevator2022.P_CONTROLLER);
   private final TunableNumber Ki =
-      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
+      new TunableNumber("elevator/Ki", Constants.Elevator2022.I_CONTROLLER);
   private final TunableNumber Kd =
-      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
+      new TunableNumber("elevator/Kd", Constants.Elevator2022.D_CONTROLLER);
 
   public ElevatorReal2022() {
     lead_talon.configFactoryDefault();
@@ -121,6 +121,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     lead_talon.configSupplyCurrentLimit(currentLimit);
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
+    // Open loop effects manual control only
     lead_talon.configOpenloopRamp(0.1);
 
     // Reduce CAN traffic where possible

@@ -1,7 +1,12 @@
 package frc.robot.commands.drive;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.stinger.Stinger;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,6 +28,19 @@ public class TeleopSwerve extends CommandBase {
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
 
+  private final Elevator elevator;
+  private final Stinger stinger;
+
+  // private final TunableNumber elevatorUpTranslationMuliplier =
+  //     new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.75);
+  // private final TunableNumber elevatorUpRotationalMultiplier =
+  //     new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.35);
+
+  // private final TunableNumber stingerOutTranslationMuliplier =
+  //     new TunableNumber("teleopSwerve/stingerOutTranslationMuliplier", 0.05);
+  // private final TunableNumber stingerOutRotationalMultiplier =
+  //     new TunableNumber("teleopSwerve/stingerOutRotationalMultiplier", 0.15);
+
   /**
    * Create a new TeleopSwerve command object.
    *
@@ -36,6 +54,8 @@ public class TeleopSwerve extends CommandBase {
    */
   public TeleopSwerve(
       Drivetrain drivetrain,
+      Elevator elevator,
+      Stinger stinger,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {
@@ -43,6 +63,9 @@ public class TeleopSwerve extends CommandBase {
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
+
+    this.elevator = elevator;
+    this.stinger = stinger;
 
     addRequirements(drivetrain);
   }
@@ -56,10 +79,47 @@ public class TeleopSwerve extends CommandBase {
     double yPercentage = -modifyAxis(translationYSupplier.getAsDouble());
     double rotationPercentage = -modifyAxis(rotationSupplier.getAsDouble());
 
-    double xVelocity = xPercentage * drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
-    double yVelocity = yPercentage * drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
+    double xMultiplier = 1.0;
+    double yMultiplier = 1.0;
+    // 0.6 driver starting preference
+    double rotMultiplier = 0.6;
+
+    if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
+        && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
+
+      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+
+      rotMultiplier = drivetrain.elevatorAndstingerOutRotationalMultiplier.get();
+    } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
+      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+
+      rotMultiplier = drivetrain.elevatorUpRotationalMultiplier.get();
+    }
+
+    Logger.getInstance().recordOutput("TeleopSwerve/xMultiplier", xMultiplier);
+    Logger.getInstance().recordOutput("TeleopSwerve/yMultiplier", yMultiplier);
+    Logger.getInstance().recordOutput("TeleopSwerve/rotMultiplier", rotMultiplier);
+
+    xPercentage *= xMultiplier;
+    yPercentage *= yMultiplier;
+
+    rotationPercentage *= rotMultiplier;
+
+    double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+    double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     double rotationalVelocity =
-        rotationPercentage * drivetrain.constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        rotationPercentage * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
+    // because our coordinate frame never changes from the bottom left, the "forward" direction in
+    // code is always facing the red alliance wall
+    // to make up on the joystick away from the red alliance wall we negate it when on the red
+    // alliance
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      xVelocity *= -1;
+      yVelocity *= -1;
+    }
 
     Logger.getInstance().recordOutput("ActiveCommands/TeleopSwerve", true);
     Logger.getInstance().recordOutput("TeleopSwerve/xVelocity", xVelocity);
@@ -85,9 +145,9 @@ public class TeleopSwerve extends CommandBase {
    * @param value
    * @return
    */
-  private double modifyAxis(double value) {
+  private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, drivetrain.constants.DEADBAND);
+    value = deadband(value, DrivetrainConstants.DEADBAND);
 
     // Square the axis
     value = Math.copySign(value * value, value);

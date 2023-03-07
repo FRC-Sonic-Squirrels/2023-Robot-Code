@@ -2,13 +2,38 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 1.05
+        "x": 6.94,
+        "y": 4.62
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9870749613111207,
-        "y": 0.6632565618911548
+        "x": 5.652779301821087,
+        "y": 4.654306373890921
+      },
+      "holonomicAngle": -6.52,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.787557018765963,
+        "y": 4.665666849165367
+      },
+      "prevControl": {
+        "x": 4.450813580657118,
+        "y": 4.654231391201726
+      },
+      "nextControl": {
+        "x": 3.4188293813430186,
+        "y": 4.672024222224383
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -19,44 +44,17 @@
         "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
-        "waitTime": 1.0
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.817953379130723,
-        "y": 1.7496250684370118
+        "x": 1.8892709968016221,
+        "y": 4.4026513160016325
       },
       "prevControl": {
-        "x": 6.166132275203209,
-        "y": 0.2973219070546542
-      },
-      "nextControl": {
-        "x": 6.166132275203209,
-        "y": 0.2973219070546542
-      },
-      "holonomicAngle": 58.840695491655644,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "after",
-        "waitTime": 1.0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.003625576438028,
-        "y": 1.052062132654934
-      },
-      "prevControl": {
-        "x": 2.987074961311122,
-        "y": 0.6632565618911525
+        "x": 3.3030407489386406,
+        "y": 4.423255560796836
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -72,18 +70,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 2.0,
-      "names": [
-        "scoreCubeMid"
-      ]
-    },
-    {
-      "position": 1.0,
-      "names": [
-        "groundPickup"
-      ]
-    }
-  ]
+  "markers": []
 }

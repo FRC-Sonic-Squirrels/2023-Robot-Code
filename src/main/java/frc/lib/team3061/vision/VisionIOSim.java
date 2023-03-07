@@ -17,12 +17,11 @@ import org.photonvision.SimVisionTarget;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionIOSim implements VisionIO {
-  private static final String CAMERA_NAME = "simCamera";
   private static final double DIAGONAL_FOV = 70; // FOV in degrees
   private static final int IMG_WIDTH = 1280; // image width in px
   private static final int IMG_HEIGHT = 720; // image heigh in px
   private static final double MIN_TARGET_AREA = 1000.0; // change if width/height changes
-  private final PhotonCamera camera = new PhotonCamera(CAMERA_NAME);
+  private final PhotonCamera camera;
 
   private double lastTimestamp = 0;
   private PhotonPipelineResult lastResult = new PhotonPipelineResult();
@@ -32,12 +31,18 @@ public class VisionIOSim implements VisionIO {
   private AprilTagFieldLayout layout;
 
   public VisionIOSim(
-      AprilTagFieldLayout layout, Supplier<Pose2d> poseSupplier, Transform3d robotToCamera) {
+      AprilTagFieldLayout layout,
+      Supplier<Pose2d> poseSupplier,
+      Transform3d robotToCamera,
+      String networkName) {
+
+    this.camera = new PhotonCamera(networkName);
+
     this.poseSupplier = poseSupplier;
     this.layout = layout;
     this.simVision =
         new SimVisionSystem(
-            CAMERA_NAME,
+            networkName,
             DIAGONAL_FOV,
             robotToCamera, // .inverse(),
             9000,
@@ -54,7 +59,7 @@ public class VisionIOSim implements VisionIO {
      * and https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/subsystems/vision/VisionIOPhotonVision.java
      */
     DoubleArraySubscriber targetPoseSub =
-        inst.getTable("/photonvision/" + CAMERA_NAME)
+        inst.getTable("/photonvision/" + networkName)
             .getDoubleArrayTopic("targetPose")
             .subscribe(new double[0]);
 

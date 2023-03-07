@@ -3,15 +3,18 @@ package frc.lib.team3061.vision;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +32,28 @@ public class Vision extends SubsystemBase {
 
   private double lastTimestampLeft;
   private double lastTimestampRight;
-  private SwerveDrivePoseEstimator poseEstimator;
+
+  private boolean updatePoseWithVisionReadings = true;
+  private boolean useMaxValidDistanceAway = true;
 
   private Alert noAprilTagLayoutAlert =
       new Alert(
           "No AprilTag layout file found. Update APRILTAG_FIELD_LAYOUT_PATH in VisionConstants.java",
           AlertType.WARNING);
 
-  public Vision(SwerveDrivePoseEstimator poseEstimator, VisionIO L_VisionIO, VisionIO R_VisionIO) {
+  private Drivetrain drivetrain;
+
+  private static double MAX_ALLOWABLE_PITCH = 3;
+  private static double MAX_ALLOWABLE_ROLL = 3;
+
+  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO, Drivetrain drivetrain) {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
-    this.poseEstimator = poseEstimator;
+
+    this.drivetrain = drivetrain;
+
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", true);
+    Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", true);
 
     try {
       layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
@@ -108,6 +122,19 @@ public class Vision extends SubsystemBase {
     //      }
     //    }
 
+    if (!updatePoseWithVisionReadings) {
+      return;
+    }
+
+    if (Math.abs(drivetrain.getGyroPitch()) >= MAX_ALLOWABLE_PITCH
+        || Math.abs(drivetrain.getGyroRoll()) >= MAX_ALLOWABLE_ROLL) {
+
+      Logger.getInstance().recordOutput("Vision/ValidGyroAngle", false);
+      return;
+    }
+
+    Logger.getInstance().recordOutput("Vision/ValidGyroAngle", true);
+
     if (lastTimestampLeft < getLatestTimestamp(Camera.LEFT)) {
       lastTimestampLeft = getLatestTimestamp(Camera.LEFT);
       updatePose(Camera.LEFT);
@@ -143,10 +170,37 @@ public class Vision extends SubsystemBase {
         Pose3d robotPose;
 
         String seenTargetsText = String.join(",", seenTargets);
+
+        Pose2d currentPose = RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+        double distance = 0.0;
+
+        // REFACTOR IDEA: the switch just defines the robot pose and the "root" logging string
+        // then use the root logging string when logging so its separate for each camera
         switch (camera) {
           case LEFT:
             robotPose = cameraPose.transformBy(VisionConstants.LEFT_ROBOT_TO_CAMERA.inverse());
-            // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+
+            // var currentPose =
+            // RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+
+            distance =
+                currentPose
+                    .getTranslation()
+                    .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
+
+            Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
+
+            // if distance is too far away from current pose skip estimate
+            if (useMaxValidDistanceAway) {
+              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+                continue;
+              }
+            }
+
+            // FIXME
+            // RobotOdometry.getInstance()
+            //     .getPoseEstimator()
+            //     .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
@@ -158,6 +212,27 @@ public class Vision extends SubsystemBase {
           case RIGHT:
             robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
             // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+
+            // var currentPose =
+            // RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+
+            distance =
+                currentPose
+                    .getTranslation()
+                    .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
+
+            Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
+
+            // if distance is too far away from current pose skip estimate
+            if (useMaxValidDistanceAway) {
+              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+                continue;
+              }
+            }
+
+            // RobotOdometry.getInstance()
+            //     .getPoseEstimator()
+            //     .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);
@@ -236,5 +311,25 @@ public class Vision extends SubsystemBase {
         && target.getPoseAmbiguity() != -1
         && target.getPoseAmbiguity() < VisionConstants.MAXIMUM_AMBIGUITY
         && layout.getTagPose(target.getFiducialId()).isPresent();
+  }
+
+  public void enableMaxDistanceAwayForTags() {
+    Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", true);
+    useMaxValidDistanceAway = true;
+  }
+
+  public void disableMaxDistanceAwayForTags() {
+    Logger.getInstance().recordOutput("Vision/useMaxValidDistanceAway", false);
+    useMaxValidDistanceAway = false;
+  }
+
+  public void enableUpdatePoseWithVisionReadings() {
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", true);
+    updatePoseWithVisionReadings = true;
+  }
+
+  public void disableUpdatePoseWithVisionReadings() {
+    Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", false);
+    updatePoseWithVisionReadings = false;
   }
 }

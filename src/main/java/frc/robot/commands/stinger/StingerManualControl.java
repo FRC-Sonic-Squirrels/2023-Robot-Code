@@ -5,6 +5,7 @@
 package frc.robot.commands.stinger;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.stinger.Stinger;
 import java.util.function.DoubleSupplier;
 
@@ -12,13 +13,15 @@ public class StingerManualControl extends CommandBase {
 
   private Stinger stinger;
   private DoubleSupplier axisController;
+  private Elevator elevator;
 
   /** Creates a new StingerManualControl. */
-  public StingerManualControl(Stinger stinger, DoubleSupplier axisController) {
+  public StingerManualControl(Stinger stinger, Elevator elevator, DoubleSupplier axisController) {
 
     this.stinger = stinger;
     this.axisController = axisController;
 
+    this.elevator = elevator;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(stinger);
   }
@@ -31,7 +34,12 @@ public class StingerManualControl extends CommandBase {
   @Override
   public void execute() {
 
-    double joystickValue = axisController.getAsDouble();
+    double joystickValue = axisController.getAsDouble() * 0.2;
+
+    if (elevator.getHeightInches() < 3) {
+      stinger.setPercentOutput(0.0);
+      return;
+    }
 
     // dead zone
     if (Math.abs(joystickValue) > 0.1) {

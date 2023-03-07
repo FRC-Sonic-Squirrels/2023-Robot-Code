@@ -18,6 +18,8 @@ public interface IntakeIO {
     public double[] intakeCurrentAmps = new double[] {};
     public double[] intakeTempCelsius = new double[] {};
 
+    public double intakeStatorCurrent = 0.0;
+
     public void toLog(LogTable table) {
       table.put("solenoid state", solenoid);
 
@@ -25,6 +27,8 @@ public interface IntakeIO {
       table.put("IntakeAppliedVolts", intakeAppliedVolts);
       table.put("IntakeCurrentAmps", intakeCurrentAmps);
       table.put("IntakeTempCelsius", intakeTempCelsius);
+
+      table.put("IntakeStatorCurrent", intakeStatorCurrent);
     }
 
     public void fromLog(LogTable table) {
@@ -34,6 +38,8 @@ public interface IntakeIO {
       intakeAppliedVolts = table.getDouble("IntakeAppliedVolts", intakeAppliedVolts);
       intakeCurrentAmps = table.getDoubleArray("IntakeCurrentAmps", intakeCurrentAmps);
       intakeTempCelsius = table.getDoubleArray("IntakeTempCelsius", intakeTempCelsius);
+
+      intakeStatorCurrent = table.getDouble("IntakeStatorCurrent", intakeStatorCurrent);
     }
   }
 

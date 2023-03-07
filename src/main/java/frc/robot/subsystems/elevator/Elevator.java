@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,35 +18,37 @@ import org.littletonrobotics.junction.Logger;
 public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputs inputs = new ElevatorIOInputs();
-  // TODO: check whether this is 12 or not
+  // TODO: limiting to 10V for manual control is a safe starting point
   private double MAX_VOLTAGE = 10.0;
-  public static final double toleranceInches = 0.05;
-  // TODO: check real height
-  public static final double maxHeightInches = 20.0;
+  public static final double toleranceInches = 0.025;
   private boolean zeroed = false;
-  private boolean maxed = false;
 
-  public final TunableNumber Kf =
-      new TunableNumber("elevator/Kf", Constants.ElevatorConstants.F_CONTROLLER);
-  public final TunableNumber Kp =
-      new TunableNumber("elevator/tunableKp", Constants.ElevatorConstants.P_CONTROLLER);
-  public final TunableNumber Ki =
-      new TunableNumber("elevator/Ki", Constants.ElevatorConstants.I_CONTROLLER);
-  public final TunableNumber Kd =
-      new TunableNumber("elevator/Kd", Constants.ElevatorConstants.D_CONTROLLER);
+  public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
+  // for simulator use kP 2.0
+  public final TunableNumber Kp = new TunableNumber("elevator/Kp", Constants.Elevator.P_CONTROLLER);
+  public final TunableNumber Ki = new TunableNumber("elevator/Ki", Constants.Elevator.I_CONTROLLER);
+  public final TunableNumber Kd = new TunableNumber("elevator/Kd", Constants.Elevator.D_CONTROLLER);
 
   public final TunableNumber cruiseVelocity =
-      new TunableNumber("elevator/cruiseVelocity", Constants.ElevatorConstants.CRUISE_VELOCITY);
-  public final TunableNumber desiredTimeToSpeed =
       new TunableNumber(
-          "elevator/desiredTimeToSpeed", Constants.ElevatorConstants.DESIRED_TIME_TO_SPEED);
+          "elevator/cruiseVelocity", Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC);
+
+  public final TunableNumber desiredTimeToSpeed =
+      new TunableNumber("elevator/desiredTimeToSpeed", Constants.Elevator.DESIRED_TIME_TO_SPEED);
 
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
     setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+    // TODO: load different PIDF values for different IO classes
     io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
-    io.setMaxHeightInches(maxHeightInches);
+    io.setMaxHeightInches(Constants.Elevator.MAX_HEIGHT_INCHES);
+    stop();
+
+    // we use a different kp in sim
+    if (Constants.getMode() == Mode.SIM) {
+      io.setPIDConstraints(Kf.get(), 2.0, Ki.get(), Kd.get());
+    }
   }
 
   @Override
@@ -55,7 +58,9 @@ public class Elevator extends SubsystemBase {
 
     // limit switch
     if (inputs.ElevatorAtLowerLimit) {
-      if (!zeroed) {
+      if (!zeroed
+          || ((inputs.ElevatorTargetHeightInches <= 0.0)
+              && (inputs.ElevatorHeightInches < -0.01))) {
         // only zero height once per time hitting limit switch
         io.resetSensorHeight(0.0);
         zeroed = true;
@@ -65,24 +70,14 @@ public class Elevator extends SubsystemBase {
       zeroed = false;
     }
 
-    // No physical upper limit switch
-    // if (inputs.ElevatorAtUpperLimit) {
-    //   if (!maxed) {
-    //     // only zero height once per time hitting limit switch
-    //     // TODO: add method to reset to max height in io
-    //     io.resetSensorHeight(maxHeightInches);
-    //     maxed = true;
-    //   }
-    // } else {
-    //   // not currently on limit switch, zero again next time we hit limit switch
-    //   maxed = false;
-    // }
-
+    // FIXME: add Izone to tuneable parameters
     if (Kf.hasChanged() || Kp.hasChanged() || Ki.hasChanged() || Kd.hasChanged())
       io.setPIDConstraints(Kf.get(), Kp.get(), Ki.get(), Kd.get());
 
     if (cruiseVelocity.hasChanged() || desiredTimeToSpeed.hasChanged())
       setMotionProfileConstraints(cruiseVelocity.get(), desiredTimeToSpeed.get());
+
+    io.updateProfilePosition();
   }
 
   /** Run the Elevator at the specified voltage */
@@ -92,7 +87,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeightInches(double targetHeightInches) {
-    MathUtil.clamp(targetHeightInches, 0, maxHeightInches);
+    MathUtil.clamp(targetHeightInches, 0, Constants.Elevator.MAX_HEIGHT_INCHES);
 
     io.setHeightInches(targetHeightInches);
   }
@@ -144,7 +139,21 @@ public class Elevator extends SubsystemBase {
     io.setPIDConstraints(kF, kP, kI, kD);
   }
 
-  // FIXME: change meters to inches
+  public double getCruiseVelocity() {
+    return cruiseVelocity.get();
+  }
+
+  public double getDesiredTimeToSpeed() {
+    return desiredTimeToSpeed.get();
+  }
+
+  /**
+   * setMotionProfileConstraints() - set the trapezoidal max velocity and acceleration constraints
+   * in inches per second.
+   *
+   * @param cruiseVelocityInchesPerSecond max velocity
+   * @param desiredTimeSeconds how long to reach max velocity in seconds
+   */
   public void setMotionProfileConstraints(
       double cruiseVelocityInchesPerSecond, double desiredTimeSeconds) {
 
@@ -152,5 +161,9 @@ public class Elevator extends SubsystemBase {
 
     io.setMotionProfileConstraints(
         cruiseVelocityInchesPerSecond, accelerationInchesPerSecondSquared);
+  }
+
+  public void setForwardSoftLimit(Boolean value) {
+    io.setActivityOfUpperLimit(value);
   }
 }

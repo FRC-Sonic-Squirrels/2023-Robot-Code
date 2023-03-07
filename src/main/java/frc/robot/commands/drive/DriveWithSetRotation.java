@@ -6,9 +6,15 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.stinger.Stinger;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -18,12 +24,14 @@ import org.littletonrobotics.junction.Logger;
  */
 public class DriveWithSetRotation extends CommandBase {
 
-  private final Drivetrain m_drivetrain;
+  private final Drivetrain drivetrain;
+  private final Elevator elevator;
+  private final Stinger stinger;
 
   // input suppliers from joysticks
   private final DoubleSupplier m_translationXSupplier;
   private final DoubleSupplier m_translationYSupplier;
-  private int m_rotationPOV;
+  private double m_rotationPOV;
 
   // rotation to be held by the robot while driving, in radians
   private double m_setRotationRadians;
@@ -34,26 +42,32 @@ public class DriveWithSetRotation extends CommandBase {
   private final TunableNumber toleranceDegrees =
       new TunableNumber("Drive/DriveSetRotation/toleranceDegrees", TOLERANCE_DEGREES_DEFAULT_VALUE);
   // PID controller to maintain fixed rotation, with P being a TunableNumber
-  private ProfiledPIDController rotationController;
+  private ProfiledPIDController rotationController =
+      new ProfiledPIDController(
+          rotationKp.get(),
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+              DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
   /** Creates a new DriveWithSetRotation. */
-  public DriveWithSetRotation(Drivetrain drive, DoubleSupplier x, DoubleSupplier y, int pov) {
-    m_drivetrain = drive;
+  public DriveWithSetRotation(
+      Drivetrain drive,
+      Elevator elevator,
+      Stinger stinger,
+      DoubleSupplier x,
+      DoubleSupplier y,
+      double pov) {
+    this.drivetrain = drive;
+    this.elevator = elevator;
+    this.stinger = stinger;
 
     m_translationXSupplier = x;
     m_translationYSupplier = y;
     m_rotationPOV = pov;
 
-    m_setRotationRadians = 0;
-
-    rotationController =
-        new ProfiledPIDController(
-            rotationKp.get(),
-            0,
-            0,
-            new TrapezoidProfile.Constraints(
-                drive.constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                drive.constants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
+    // m_setRotationRadians = 0;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -66,7 +80,14 @@ public class DriveWithSetRotation extends CommandBase {
   @Override
   public void initialize() {
     // resets robot position to its current measured position
-    rotationController.reset(m_drivetrain.getPose().getRotation().getRadians());
+    rotationController.reset(drivetrain.getPose().getRotation().getRadians());
+
+    m_setRotationRadians = Units.degreesToRadians(m_rotationPOV);
+
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      m_setRotationRadians = Units.degreesToRadians(180) + m_setRotationRadians;
+    }
+
     rotationController.setGoal(m_setRotationRadians);
   }
 
@@ -76,34 +97,44 @@ public class DriveWithSetRotation extends CommandBase {
     double xPercentage = -modifyAxis(m_translationXSupplier.getAsDouble());
     double yPercentage = -modifyAxis(m_translationYSupplier.getAsDouble());
 
-    double xVelocity = xPercentage * m_drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
-    double yVelocity = yPercentage * m_drivetrain.constants.MAX_VELOCITY_METERS_PER_SECOND;
-    // if pov was < 0 that would mean theres no input
-    if (m_rotationPOV >= 0) {
+    double xMultiplier = 1.0;
+    double yMultiplier = 1.0;
 
-      // angle correction
-      if (m_rotationPOV > 180) {
-        m_rotationPOV = 360 - m_rotationPOV;
-      } else {
-        m_rotationPOV = -m_rotationPOV;
-      }
+    if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
+        && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
 
-      if (Math.toRadians(m_rotationPOV) != m_setRotationRadians) {
+      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
 
-        // only reset PID is target angle changes
-        m_setRotationRadians = Math.toRadians(m_rotationPOV);
-      }
+    } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
+      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
     }
+
+    Logger.getInstance().recordOutput("DriveWithSetRotation/xMultiplier", xMultiplier);
+    Logger.getInstance().recordOutput("DriveWithSetRotation/yMultiplier", yMultiplier);
+
+    xPercentage *= xMultiplier;
+    yPercentage *= yMultiplier;
+
+    double xVelocity = xPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+    double yVelocity = yPercentage * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
 
     double rotationOutput =
-        rotationController.calculate(
-            m_drivetrain.getPose().getRotation().getRadians(), m_setRotationRadians);
+        rotationController.calculate(drivetrain.getPose().getRotation().getRadians());
 
-    if (Math.abs(rotationOutput) < 0.05) {
-      rotationOutput = 0;
+    // if (Math.abs(rotationOutput) < 0.05) {
+    //   rotationOutput = 0;
+    // }
+
+    if (DriverStation.getAlliance() == Alliance.Red) {
+      xVelocity *= -1;
+      yVelocity *= -1;
     }
-    m_drivetrain.drive(xVelocity, yVelocity, rotationOutput);
+
+    drivetrain.drive(xVelocity, yVelocity, rotationOutput);
     // m_drivetrain.drive(rotationOutput, pov, rotationOutput);
+
     if (rotationKp.hasChanged()) {
       rotationController.setPID(rotationKp.get(), 0, 0);
     }
@@ -116,13 +147,13 @@ public class DriveWithSetRotation extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.drive(0, 0, 0);
+    drivetrain.drive(0, 0, 0);
     Logger.getInstance().recordOutput("ActiveCommands/DriveWithSetRotation", false);
   }
 
-  private double modifyAxis(double value) {
+  private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, m_drivetrain.constants.DEADBAND);
+    value = deadband(value, DrivetrainConstants.DEADBAND);
 
     // Square the axis
     value = Math.copySign(value * value, value);
