@@ -27,12 +27,7 @@ public enum LogicalGridLocation {
     this.redPhysical = redPhysical;
   }
 
-  public void log(Strpackage frc.lib.team2930.driverassist;
-  
-  public class LogicalGridPosition {
-    
-  }
-  ing ROOT) {
+  public void log(String ROOT) {
     bluePhysical.log(ROOT);
     redPhysical.log(ROOT);
   }
