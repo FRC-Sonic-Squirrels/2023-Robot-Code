@@ -6,6 +6,7 @@ package frc.lib.team3061.gyro;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.sensors.Pigeon2;
+import org.littletonrobotics.junction.Logger;
 
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 gyro;
@@ -24,5 +25,9 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.yaw = gyro.getYaw();
     inputs.pitch = gyro.getPitch();
     inputs.roll = gyro.getRoll();
+
+    Logger.getInstance().recordOutput("gyro/Yaw", gyro.getYaw());
+    Logger.getInstance().recordOutput("gyro/Pitch", gyro.getPitch());
+    Logger.getInstance().recordOutput("gyro/Roll", gyro.getRoll());
   }
 }

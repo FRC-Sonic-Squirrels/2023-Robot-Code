@@ -79,13 +79,22 @@ public class MechanismPositions {
         elevator, stinger, intake, () -> rumbleButtonConfirmation(rumbleController));
   }
 
-  public static Command scoreCubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreCubeMidPosition(
+      Elevator elevator, Stinger stinger, Intake intake, boolean doZero) {
 
-    return scoreCubeMidLogic(elevator, stinger, intake, () -> new InstantCommand());
+    return scoreCubeMidLogic(elevator, stinger, intake, () -> new InstantCommand(), doZero);
+  }
+
+  public static Command scoreCubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+    return scoreConeMidLogic(elevator, stinger, intake, () -> new InstantCommand());
   }
 
   private static Command scoreCubeMidLogic(
-      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      Supplier<Command> confirmationCommand,
+      boolean doZero) {
 
     return new SequentialCommandGroup(
         goToPositionWithSuck(
@@ -99,7 +108,12 @@ public class MechanismPositions {
         confirmationCommand.get(),
         // --
         new IntakeScoreCube(intake).withTimeout(0.2),
-        safeZero(elevator, stinger));
+        new ConditionalCommand(safeZero(elevator, stinger), new InstantCommand(), () -> doZero));
+  }
+
+  private static Command scoreCubeMidLogic(
+      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+    return scoreCubeMidLogic(elevator, stinger, intake, confirmationCommand, true);
   }
 
   // --------CUBE MID -------------
@@ -113,13 +127,22 @@ public class MechanismPositions {
         elevator, stinger, intake, () -> rumbleButtonConfirmation(rumbleController));
   }
 
-  public static Command scoreConeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreConeMidPosition(
+      Elevator elevator, Stinger stinger, Intake intake, boolean doZero) {
 
-    return scoreConeMidLogic(elevator, stinger, intake, () -> new InstantCommand());
+    return scoreConeMidLogic(elevator, stinger, intake, () -> new InstantCommand(), doZero);
+  }
+
+  public static Command scoreConeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+    return scoreConeMidPosition(elevator, stinger, intake);
   }
 
   private static Command scoreConeMidLogic(
-      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      Supplier<Command> confirmationCommand,
+      boolean doZero) {
     return new SequentialCommandGroup(
         goToPositionWithSuck(
             elevator,
@@ -132,7 +155,12 @@ public class MechanismPositions {
         // --
         new IntakeScoreCone(intake).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger));
+        new ConditionalCommand(safeZero(elevator, stinger), new InstantCommand(), () -> doZero));
+  }
+
+  private static Command scoreConeMidLogic(
+      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+    return scoreConeMidLogic(elevator, stinger, intake, confirmationCommand, true);
   }
 
   // --------CONE MID -------------
@@ -146,13 +174,22 @@ public class MechanismPositions {
         elevator, stinger, intake, () -> rumbleButtonConfirmation(rumbleController));
   }
 
-  public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreCubeHighPosition(
+      Elevator elevator, Stinger stinger, Intake intake, Boolean doZero) {
 
-    return scoreCubeHighLogic(elevator, stinger, intake, () -> new InstantCommand());
+    return scoreCubeHighLogic(elevator, stinger, intake, () -> new InstantCommand(), doZero);
+  }
+
+  public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+    return scoreConeHighPosition(elevator, stinger, intake);
   }
 
   private static Command scoreCubeHighLogic(
-      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      Supplier<Command> confirmationCommand,
+      boolean doZero) {
 
     return new SequentialCommandGroup(
         goToPositionParallelWithSuck(
@@ -166,7 +203,12 @@ public class MechanismPositions {
         // --
         new IntakeScoreCube(intake).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger));
+        new ConditionalCommand(safeZero(elevator, stinger), new InstantCommand(), () -> doZero));
+  }
+
+  private static Command scoreCubeHighLogic(
+      Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
+    return scoreCubeHighLogic(elevator, stinger, intake, confirmationCommand, true);
   }
 
   // --------CUBE HIGH -------------
@@ -184,14 +226,20 @@ public class MechanismPositions {
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
   }
 
-  public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command scoreConeHighPosition(
+      Elevator elevator, Stinger stinger, Intake intake, Boolean doZero) {
 
     return scoreConeHighLogic(
         elevator,
         stinger,
         intake,
         () -> new InstantCommand(),
-        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
+        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25),
+        doZero);
+  }
+
+  public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+    return scoreConeHighPosition(elevator, stinger, intake);
   }
 
   private static Command scoreConeHighLogic(
@@ -199,7 +247,8 @@ public class MechanismPositions {
       Stinger stinger,
       Intake intake,
       Supplier<Command> confirmationCommand,
-      Supplier<Command> suckCommand) {
+      Supplier<Command> suckCommand,
+      Boolean doZero) {
 
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -219,9 +268,17 @@ public class MechanismPositions {
         // --
         new IntakeScoreCone(intake).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger));
+        new ConditionalCommand(safeZero(elevator, stinger), new InstantCommand(), () -> doZero));
   }
 
+  private static Command scoreConeHighLogic(
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      Supplier<Command> confirmationCommand,
+      Supplier<Command> suckCommand) {
+    return scoreConeHighLogic(elevator, stinger, intake, confirmationCommand, suckCommand, true);
+  }
   // --------CONE HIGH -------------
 
   public static Command intakeGrabPiece(Intake intake) {
