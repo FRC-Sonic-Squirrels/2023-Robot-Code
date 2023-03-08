@@ -77,8 +77,6 @@ import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.stinger.StingerSim;
 import frc.robot.subsystems.streamdeck.Streamdeck;
-import frc.robot.subsystems.streamdeck.Streamdeck.StreamDeckLocation;
-import frc.robot.subsystems.streamdeck.StreamdeckReal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -251,10 +249,7 @@ public class RobotContainer {
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
 
-            streamdeckSubsystem =
-                new Streamdeck(
-                    new StreamdeckReal(StreamDeckLocation.LEFT),
-                    new StreamdeckReal(StreamDeckLocation.RIGHT));
+            streamdeckSubsystem = new Streamdeck();
             break;
           }
 
@@ -299,10 +294,7 @@ public class RobotContainer {
 
             DriverStation.silenceJoystickConnectionWarning(true);
 
-            streamdeckSubsystem =
-                new Streamdeck(
-                    new StreamdeckReal(StreamDeckLocation.LEFT),
-                    new StreamdeckReal(StreamDeckLocation.RIGHT));
+            streamdeckSubsystem = new Streamdeck();
             break;
           }
         default:

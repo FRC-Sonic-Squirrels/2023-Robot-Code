@@ -2,8 +2,6 @@ package frc.lib.team2930.driverassist;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class GridPositionHandler {
   // private static GridPositionHandler instance;
@@ -18,7 +16,7 @@ public class GridPositionHandler {
   // private GridPositionHandler() {}
 
   // public static final String ROOT_TABLE = "DriverAssist/GridPositionAuto";
-   public static final double FIELD_WIDTH_METERS = 8.02;
+  public static final double FIELD_WIDTH_METERS = 8.02;
 
   public static final LogicalGridLocation[] logicalGridOrder = {
     LogicalGridLocation.LOGICAL_BAY_1,
@@ -53,7 +51,8 @@ public class GridPositionHandler {
   //   }
   // }
 
-  // public static DesiredGridEntrance getClosestEntranceSide(Pose2d currentPose, Alliance alliance) {
+  // public static DesiredGridEntrance getClosestEntranceSide(Pose2d currentPose, Alliance alliance)
+  // {
   //   var y = currentPose.getY();
 
   //   if (alliance == Alliance.Blue) {

@@ -8,6 +8,7 @@
   },
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/MainMech": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Ungrouped/PIDController[10]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[11]": "PIDController",
@@ -29,6 +30,8 @@
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
+      "/SmartDashboard/leftCameraNetwork Sim Field": "Field2d",
+      "/SmartDashboard/rightCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/simCamera Sim Field": "Field2d",
       "/SmartDashboard/test Auto routines": "String Chooser"
     },
@@ -40,10 +43,53 @@
       }
     }
   },
+  "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "retained": {
+      "SmartDashboard": {
+        "open": true,
+        "streamdeck": {
+          "open": true
+        }
+      }
+    },
+    "transitory": {
+      "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
+        ".recording": {
+          "open": true
+        }
+      },
+      "SmartDashboard": {
+        "Alerts": {
+          "open": true
+        },
+        "open": true,
+        "streamdeck": {
+          "open": true
+        }
+      }
+    }
+  },
   "NetworkTables Info": {
     "Clients": {
       "open": true
     },
-    "visible": true
+    "Connections": {
+      "open": true
+    },
+    "NT3@127.0.0.1:52741": {
+      "open": true
+    },
+    "Server": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    }
   }
 }
