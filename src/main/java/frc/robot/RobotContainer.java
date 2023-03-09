@@ -518,27 +518,23 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreConeHighPosition(
-                    elevator, stinger, intake, operatorController),
-                MechanismPositions.scoreCubeHighPosition(
-                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreConeHigh(elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeHigh(elevator, stinger, intake, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .povLeft()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreConeMidPosition(
-                    elevator, stinger, intake, operatorController),
-                MechanismPositions.scoreCubeMidPosition(
-                    elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreConeMid(elevator, stinger, intake, operatorController),
+                MechanismPositions.scoreCubeMid(elevator, stinger, intake, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
     operatorController
         .povDown()
         .onTrue(
             new ConditionalCommand(
-                MechanismPositions.scoreLowPosition(
+                MechanismPositions.scoreLow(
                     elevator, stinger, intake, GamePiece.CONE, operatorController),
-                MechanismPositions.scoreLowPosition(
+                MechanismPositions.scoreLow(
                     elevator, stinger, intake, GamePiece.CUBE, operatorController),
                 () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 

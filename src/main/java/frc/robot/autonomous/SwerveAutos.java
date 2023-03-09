@@ -22,6 +22,7 @@ import frc.robot.commands.auto.FollowPathWithEvents;
 import frc.robot.commands.drive.AutoEngage;
 import frc.robot.commands.drive.DriveWithSetRotation;
 import frc.robot.commands.intake.IntakeGrabCube;
+import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -73,22 +74,22 @@ public class SwerveAutos {
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
       addCommand("forwardLeft", () -> forwardLeft());
     }
-    addCommand("scoreCone", () -> scoreConeHigh(true));
-    addCommand("scoreCube", () -> scoreCubeHigh(true));
+    addCommand("scoreCone", () -> scoreConeHigh());
+    addCommand("scoreCube", () -> scoreCubeHigh());
     addCommand("middle1PieceEngage", () -> middle1BallEngage());
     addCommand("middleDriveOutEngage", () -> middleDriveOutEngage(false));
-    addCommand("middleDriveOutEngageCube", () -> middleDriveOutEngage(true));
+    addCommand("middleDriveOutEngageWithCube", () -> middleDriveOutEngage(true));
     // addCommand("middle2PieceEngage", () -> middle2BallEngage());
     addCommand("Wall1PieceTaxi", () -> wall1BallTaxi());
     addCommand("Wall2Piece", () -> wall2Ball(true));
-    // addCommand("Wall2PieceEngage", () -> wall2BallEngage());
-    // addCommand("Wall3Piece", () -> wall3Ball(true));
-    // addCommand("Wall4Piece", () -> wall4Ball());
+    addCommand("Wall2PieceEngage", () -> wall2BallEngage());
+    addCommand("Wall3Piece", () -> wall3Ball(true));
+    addCommand("Wall4Piece", () -> wall4Ball());
     addCommand("Hp1PieceTaxi", () -> Hp1BallTaxi());
     addCommand("Hp2Piece", () -> Hp2Ball(true));
-    // addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
-    // addCommand("Hp3Piece", () -> Hp3Ball(true));
-    // addCommand("Hp4Piece", () -> Hp4Ball());
+    addCommand("Hp2PieceEngage", () -> Hp2BallEngage());
+    addCommand("Hp3Piece", () -> Hp3Ball(true));
+    addCommand("Hp4Piece", () -> Hp4Ball());
 
     // addCommand(
     //     "driveAutoEngage", () -> driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
@@ -158,6 +159,8 @@ public class SwerveAutos {
             new IntakeGrabCube(intake).withTimeout(4)));
     eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
+    eventMap.put(
+        "mechHighCube", MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
@@ -304,7 +307,7 @@ public class SwerveAutos {
   public AutoChooserElement testSeq() {
     PathPlannerTrajectory path = loadPath("2mForward");
 
-    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreConeHigh(true));
+    return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreConeHigh());
   }
 
   // ======================= COMPETITION Autonomous Routines ========================
@@ -314,37 +317,61 @@ public class SwerveAutos {
   // with a new trajectory. Actions are performed from the supplied EventMap and
   // triggered by event markers set with PathPlanner.
   //
-  public AutoChooserElement scoreConeHigh(boolean doZero) {
+
+  // Mech Score Commands:
+  public AutoChooserElement scoreConeHigh() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake, doZero)));
+            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake)));
   }
 
-  public AutoChooserElement scoreCubeHigh(boolean doZero) {
+  public AutoChooserElement scoreCubeHigh() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake, doZero)));
+            MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake)));
   }
 
-  public AutoChooserElement scoreConeMid(boolean doZero) {
+  public AutoChooserElement scoreConeMid() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake, doZero)));
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
-  public AutoChooserElement scoreCubeMid(boolean doZero) {
+  public AutoChooserElement scoreCubeMid() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake, doZero)));
+            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
   }
 
-  public AutoChooserElement autoEngage(Boolean flip) {
+  // Intake score commands:
+  public AutoChooserElement scoreCone(boolean goUp, boolean goDown) {
     return new AutoChooserElement(
-        null, new SequentialCommandGroup(new AutoEngage(drivetrain, flip)));
+        null,
+        new SequentialCommandGroup(
+            new ConditionalCommand(
+                MechanismPositions.scoreConeHighPosition(elevator, stinger, intake),
+                new InstantCommand(),
+                () -> goUp),
+            new IntakeScoreCube(intake).withTimeout(0.2),
+            new ConditionalCommand(
+                getEventMap().get("mechZero"), new InstantCommand(), () -> goDown)));
+  }
+
+  public AutoChooserElement scoreCube(boolean goUp, boolean goDown) {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            new ConditionalCommand(
+                MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake),
+                new InstantCommand(),
+                () -> goUp),
+            new IntakeScoreCube(intake).withTimeout(0.2),
+            new ConditionalCommand(
+                getEventMap().get("mechZero"), new InstantCommand(), () -> goDown)));
   }
 
   public AutoChooserElement driveAutoEngage(Boolean flip) {
@@ -363,8 +390,12 @@ public class SwerveAutos {
   public AutoChooserElement middle1BallEngage() {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
-    return scoreConeHigh(true)
-        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+    return scoreConeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+  }
+
+  public AutoChooserElement autoEngage(Boolean flip) {
+    return new AutoChooserElement(
+        null, new SequentialCommandGroup(new AutoEngage(drivetrain, flip)));
   }
 
   public AutoChooserElement middleDriveOutEngage(boolean grabCube) {
@@ -381,7 +412,7 @@ public class SwerveAutos {
 
     PathPlannerTrajectory pieceGrabPath = loadPath("middleGrabPiece");
 
-    return scoreConeHigh(false)
+    return scoreCone(true, false)
         .setNext(
             new SequentialCommandGroup(
                 new SequentialCommandGroup(
@@ -432,15 +463,15 @@ public class SwerveAutos {
   public AutoChooserElement wall1BallTaxi() {
     PathPlannerTrajectory path = loadPath("wallSide1PieceTaxi");
 
-    return scoreConeHigh(false).setNext(path, true, drivetrain, getEventMap());
+    return scoreCone(true, false).setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement wall2Ball(boolean endPath) {
+  public AutoChooserElement wall2Ball(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("wallSide2Piece");
 
     return wall1BallTaxi()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeHigh(endPath));
+        .setNext(scoreCube(false, isLastPath));
   }
 
   public AutoChooserElement wall2BallEngage() {
@@ -451,12 +482,12 @@ public class SwerveAutos {
         .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
-  public AutoChooserElement wall3Ball(boolean endPath) {
+  public AutoChooserElement wall3Ball(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("wallSide3Piece");
 
     return wall2Ball(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeMid(true));
+        .setNext(scoreCube(false, isLastPath));
   }
 
   public AutoChooserElement wall4Ball() {
@@ -464,21 +495,21 @@ public class SwerveAutos {
 
     return wall3Ball(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeHigh(true));
+        .setNext(scoreCube(false, true));
   }
 
   public AutoChooserElement Hp1BallTaxi() {
     PathPlannerTrajectory path = loadPath("HpSide1PieceTaxi");
 
-    return scoreConeHigh(false).setNext(path, true, drivetrain, getEventMap());
+    return scoreCone(true, false).setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement Hp2Ball(boolean endPath) {
+  public AutoChooserElement Hp2Ball(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("HpSide2Piece");
 
     return Hp1BallTaxi()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeHigh(endPath));
+        .setNext(scoreCube(false, isLastPath));
   }
 
   public AutoChooserElement Hp2BallEngage() {
@@ -486,15 +517,15 @@ public class SwerveAutos {
 
     return Hp2Ball(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Blue));
+        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
-  public AutoChooserElement Hp3Ball(boolean endPath) {
+  public AutoChooserElement Hp3Ball(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("HpSide3Piece");
 
     return Hp2Ball(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeMid(endPath));
+        .setNext(scoreCube(false, isLastPath));
   }
 
   public AutoChooserElement Hp4Ball() {
@@ -502,6 +533,6 @@ public class SwerveAutos {
 
     return Hp3Ball(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreCubeHigh(true));
+        .setNext(scoreCube(false, true));
   }
 }

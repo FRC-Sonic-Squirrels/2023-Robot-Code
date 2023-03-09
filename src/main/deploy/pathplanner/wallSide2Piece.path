@@ -51,6 +51,12 @@
       "names": [
         "mechStow"
       ]
+    },
+    {
+      "position": 0.5018181818181577,
+      "names": [
+        "mechHighCube"
+      ]
     }
   ]
 }

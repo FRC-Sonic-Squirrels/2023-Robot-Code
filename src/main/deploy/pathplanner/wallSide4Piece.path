@@ -115,6 +115,12 @@
       "names": [
         "mechZero"
       ]
+    },
+    {
+      "position": 2.116363636363549,
+      "names": [
+        "mechHighCube"
+      ]
     }
   ]
 }
