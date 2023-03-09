@@ -432,7 +432,7 @@ public class MechanismPositions {
   public static Command safeZero(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        goToPositionCurve(elevator, stinger, 8, 0, () -> new InstantCommand()),
+        goToPositionSimple(elevator, stinger, 8, 0),
         new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
   }
 
