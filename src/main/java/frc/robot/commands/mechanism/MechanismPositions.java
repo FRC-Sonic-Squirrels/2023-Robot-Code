@@ -1,5 +1,6 @@
 package frc.robot.commands.mechanism;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -45,7 +46,12 @@ public class MechanismPositions {
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 5);
 
+  public static Timer movementTimer = new Timer();
+
   private MechanismPositions() {}
+
+  // TODO: figure out where to log this
+  // Logger.getInstance().recordOutput("MechPosCommand/movementTimer", movementTimer.get());
 
   // -------- SCORE LOW -------------
   public static Command scoreLow(
@@ -310,35 +316,40 @@ public class MechanismPositions {
       double extensionInches,
       Supplier<Command> suckCommand) {
 
-    return new ConditionalCommand(
-            new ParallelCommandGroup(
-                new StingerSetExtension(stinger, extensionInches),
-                new SequentialCommandGroup(
-                    Commands.waitUntil(
-                        () -> (stinger.getExtensionInches() <= stingerExtensionThreshold.get())),
-                    new ElevatorSetHeight(elevator, heightInches))),
-            new ParallelCommandGroup(
-                // new ElevatorSetHeight(elevator, heightInches),
-                // new SequentialCommandGroup(
-                //     Commands.waitUntil(
-                //         () -> (elevator.getHeightInches() >= elevatorAboveBumberHeight)),
-                //     new StingerSetExtension(stinger, 4.5)
-                //         .until(() -> elevator.getHeightInches() >= 29.2),
-                //     // --
-                //     Commands.waitUntil(() -> (elevator.getHeightInches() >= 29.2)),
-                //     new StingerSetExtension(stinger, 10)
-                //         .until(() -> elevator.getHeightInches() >= 40),
-                //     // --
-                //     Commands.waitUntil(
-                //         () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
-                //     new StingerSetExtension(stinger, extensionInches))
-                new ElevatorSetHeight(elevator, heightInches),
-                new SequentialCommandGroup(
-                    Commands.waitUntil(
-                        () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
-                    new StingerSetExtension(stinger, extensionInches))),
-            () -> elevator.getHeightInches() >= heightInches)
-        .raceWith(suckCommand.get());
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> movementTimer.reset()),
+        new InstantCommand(() -> movementTimer.start()),
+        new ConditionalCommand(
+                new ParallelCommandGroup(
+                    new StingerSetExtension(stinger, extensionInches),
+                    new SequentialCommandGroup(
+                        Commands.waitUntil(
+                            () ->
+                                (stinger.getExtensionInches() <= stingerExtensionThreshold.get())),
+                        new ElevatorSetHeight(elevator, heightInches))),
+                new ParallelCommandGroup(
+                    // new ElevatorSetHeight(elevator, heightInches),
+                    // new SequentialCommandGroup(
+                    //     Commands.waitUntil(
+                    //         () -> (elevator.getHeightInches() >= elevatorAboveBumberHeight)),
+                    //     new StingerSetExtension(stinger, 4.5)
+                    //         .until(() -> elevator.getHeightInches() >= 29.2),
+                    //     // --
+                    //     Commands.waitUntil(() -> (elevator.getHeightInches() >= 29.2)),
+                    //     new StingerSetExtension(stinger, 10)
+                    //         .until(() -> elevator.getHeightInches() >= 40),
+                    //     // --
+                    //     Commands.waitUntil(
+                    //         () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                    //     new StingerSetExtension(stinger, extensionInches))
+                    new ElevatorSetHeight(elevator, heightInches),
+                    new SequentialCommandGroup(
+                        Commands.waitUntil(
+                            () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                        new StingerSetExtension(stinger, extensionInches))),
+                () -> elevator.getHeightInches() >= heightInches)
+            .raceWith(suckCommand.get()),
+        new InstantCommand(() -> movementTimer.stop()));
   }
 
   public static Command goToPositionWithSuck(
@@ -347,40 +358,48 @@ public class MechanismPositions {
       double heightInches,
       double extensionInches,
       Supplier<Command> suckCommandSupplier) {
-    if (elevator.getHeightInches() >= heightInches) {
-      return new SequentialCommandGroup(
-          avoidBumper(elevator, stinger),
-          // new StingerSetExtension(stinger, 0),
-          // new ElevatorSetHeight(elevator, stowHeight),
-          new ParallelCommandGroup(
-              new StingerSetExtension(stinger, extensionInches), suckCommandSupplier.get()),
-          new ParallelCommandGroup(
-              new ElevatorSetHeight(elevator, heightInches), suckCommandSupplier.get()));
-    } else {
-      return new SequentialCommandGroup(
-          avoidBumper(elevator, stinger),
-          // new StingerSetExtension(stinger, 0),
-          // new ElevatorSetHeight(elevator, stowHeight),
-          new ParallelCommandGroup(
-              new ElevatorSetHeight(elevator, heightInches), suckCommandSupplier.get()),
-          new ParallelCommandGroup(
-              new StingerSetExtension(stinger, extensionInches), suckCommandSupplier.get()));
-    }
+
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> movementTimer.reset()),
+        new InstantCommand(() -> movementTimer.start()),
+        new ConditionalCommand(
+            new SequentialCommandGroup(
+                avoidBumper(elevator, stinger),
+                // new StingerSetExtension(stinger, 0),
+                // new ElevatorSetHeight(elevator, stowHeight),
+                new ParallelCommandGroup(
+                    new StingerSetExtension(stinger, extensionInches), suckCommandSupplier.get()),
+                new ParallelCommandGroup(
+                    new ElevatorSetHeight(elevator, heightInches), suckCommandSupplier.get())),
+            new SequentialCommandGroup(
+                avoidBumper(elevator, stinger),
+                // new StingerSetExtension(stinger, 0),
+                // new ElevatorSetHeight(elevator, stowHeight),
+                new ParallelCommandGroup(
+                    new ElevatorSetHeight(elevator, heightInches), suckCommandSupplier.get()),
+                new ParallelCommandGroup(
+                    new StingerSetExtension(stinger, extensionInches), suckCommandSupplier.get())),
+            () -> (elevator.getHeightInches() >= heightInches)),
+        new InstantCommand(() -> movementTimer.stop()));
   }
 
   public static Command goToPositionSimple(
       Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
 
-    return new ConditionalCommand(
-        new SequentialCommandGroup(
-            // avoidBumper(elevator, stinger),
-            new ElevatorSetHeight(elevator, heightInches),
-            new StingerSetExtension(stinger, extensionInches)),
-        new SequentialCommandGroup(
-            // avoidBumper(elevator, stinger),
-            new StingerSetExtension(stinger, extensionInches),
-            new ElevatorSetHeight(elevator, heightInches)),
-        () -> (elevator.getHeightInches() <= heightInches));
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> movementTimer.reset()),
+        new InstantCommand(() -> movementTimer.start()),
+        new ConditionalCommand(
+            new SequentialCommandGroup(
+                // avoidBumper(elevator, stinger),
+                new ElevatorSetHeight(elevator, heightInches),
+                new StingerSetExtension(stinger, extensionInches)),
+            new SequentialCommandGroup(
+                // avoidBumper(elevator, stinger),
+                new StingerSetExtension(stinger, extensionInches),
+                new ElevatorSetHeight(elevator, heightInches)),
+            () -> (elevator.getHeightInches() <= heightInches)),
+        new InstantCommand(() -> movementTimer.stop()));
   }
 
   public static Command avoidBumper(Elevator elevator, Stinger stinger) {
@@ -398,11 +417,15 @@ public class MechanismPositions {
       double heightInches,
       double extensionInches,
       Supplier<Command> suckCommand) {
-    return new ConditionalCommand(
-            new ElevatorFollowCurve(elevator, stinger, extensionInches),
-            new StingerFollowCurve(elevator, stinger, heightInches),
-            () -> elevator.getHeightInches() >= heightInches)
-        .raceWith(suckCommand.get());
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> movementTimer.reset()),
+        new InstantCommand(() -> movementTimer.start()),
+        new ConditionalCommand(
+                new ElevatorFollowCurve(elevator, stinger, extensionInches),
+                new StingerFollowCurve(elevator, stinger, heightInches),
+                () -> elevator.getHeightInches() >= heightInches)
+            .raceWith(suckCommand.get()),
+        new InstantCommand(() -> movementTimer.stop()));
   }
 
   public static Command testScoreConeHigh(Elevator elevator, Stinger stinger, Intake intake) {
