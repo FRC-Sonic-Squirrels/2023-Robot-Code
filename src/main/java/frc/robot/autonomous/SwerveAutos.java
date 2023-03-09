@@ -61,7 +61,7 @@ public class SwerveAutos {
     //
 
     // FIXME: temporarily make this the default command for testing vision
-    // addCommand("hp1BallTaxi", () -> hp1BallTaxi());
+    // addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
 
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
@@ -76,20 +76,22 @@ public class SwerveAutos {
     }
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
-    addCommand("middle1PieceEngage", () -> middle1BallEngage());
+    addCommand("middle1PieceEngage", () -> middle1PieceEngage());
     addCommand("middleDriveOutEngage", () -> middleDriveOutEngage(false));
     addCommand("middleDriveOutEngageWithCube", () -> middleDriveOutEngage(true));
-    // addCommand("middle2PieceEngage", () -> middle2BallEngage());
-    addCommand("wall1PieceTaxi", () -> wall1BallTaxi());
-    addCommand("wall2Piece", () -> wall2Ball(true));
-    addCommand("wall2PieceEngage", () -> wall2BallEngage());
-    addCommand("wall3Piece", () -> wall3Ball(true));
-    addCommand("wall4Piece", () -> wall4Ball());
-    addCommand("hp1PieceTaxi", () -> hp1BallTaxi());
-    addCommand("hp2Piece", () -> hp2Ball(true));
-    addCommand("hp2PieceEngage", () -> hp2BallEngage());
-    addCommand("hp3Piece", () -> hp3Ball(true));
-    addCommand("hp4Piece", () -> hp4Ball());
+    // addCommand("middle2PieceEngage", () -> middle2PieceEngage());
+    addCommand("wall1PieceTaxi", () -> wall1PieceTaxi());
+    addCommand("wall2Piece", () -> wall2Piece(true));
+    addCommand("wall2PieceEngage", () -> wall2PieceEngage());
+    addCommand("wall2.5PieceEngage", () -> wall25PieceEngage());
+    addCommand("wall3Piece", () -> wall3Piece(true));
+    addCommand("wall4Piece", () -> wall4Piece());
+    addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
+    addCommand("hp2Piece", () -> hp2Piece(true));
+    addCommand("hp2PieceEngage", () -> hp2PieceEngage());
+    addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
+    addCommand("hp3Piece", () -> hp3Piece(true));
+    addCommand("hp4Piece", () -> hp4Piece());
 
     // addCommand(
     //     "driveAutoEngage", () -> driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
@@ -387,7 +389,7 @@ public class SwerveAutos {
             new AutoEngage(drivetrain, !flip)));
   }
 
-  public AutoChooserElement middle1BallEngage() {
+  public AutoChooserElement middle1PieceEngage() {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
     return scoreConeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
@@ -452,7 +454,7 @@ public class SwerveAutos {
                     .alongWith(MechanismPositions.safeZero(elevator, stinger))));
   }
 
-  // public AutoChooserElement middle2BallEngage() {
+  // public AutoChooserElement middle2PieceEngage() {
   //   PathPlannerTrajectory path = loadPath("middle2PieceEngage");
 
   //   return scoreCubeHigh()
@@ -460,82 +462,94 @@ public class SwerveAutos {
   //       .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
   // }
 
-  public AutoChooserElement wall1BallTaxi() {
+  public AutoChooserElement wall1PieceTaxi() {
     PathPlannerTrajectory path = loadPath("wall1PieceTaxi");
 
     return scoreCone(true, false).setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement wall2Ball(boolean isLastPath) {
+  public AutoChooserElement wall2Piece(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("wall2Piece");
 
-    return wall1BallTaxi()
+    return wall1PieceTaxi()
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, isLastPath));
   }
 
-  public AutoChooserElement wall2BallEngage() {
+  public AutoChooserElement wall2PieceEngage() {
     PathPlannerTrajectory path = loadPath("wall2PieceEngage");
 
-    return wall2Ball(false)
+    return wall2Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
-  // public AutoChooserElement wall25BallEngage(){
-  //   PathPlannerTrajectory path = loadPath("wall2.5PieceEngage")
-  // }
+  public AutoChooserElement wall25PieceEngage() {
+    PathPlannerTrajectory path = loadPath("wall2.5PieceEngage");
 
-  public AutoChooserElement wall3Ball(boolean isLastPath) {
+    return wall2Piece(false)
+        .setNext(path, false, drivetrain, getEventMap())
+        .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Red));
+  }
+
+  public AutoChooserElement wall3Piece(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("wall3Piece");
 
-    return wall2Ball(false)
+    return wall2Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, isLastPath));
   }
 
-  public AutoChooserElement wall4Ball() {
+  public AutoChooserElement wall4Piece() {
     PathPlannerTrajectory path = loadPath("wall4Piece");
 
-    return wall3Ball(false)
+    return wall3Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, true));
   }
 
-  public AutoChooserElement hp1BallTaxi() {
+  public AutoChooserElement hp1PieceTaxi() {
     PathPlannerTrajectory path = loadPath("hp1PieceTaxi");
 
     return scoreCone(true, false).setNext(path, true, drivetrain, getEventMap());
   }
 
-  public AutoChooserElement hp2Ball(boolean isLastPath) {
+  public AutoChooserElement hp2Piece(boolean isLastPath) {
     PathPlannerTrajectory path = loadPath("hp2Piece");
 
-    return hp1BallTaxi()
+    return hp1PieceTaxi()
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, isLastPath));
   }
 
-  public AutoChooserElement hp2BallEngage() {
+  public AutoChooserElement hp2PieceEngage() {
     PathPlannerTrajectory path = loadPath("hp2PieceEngage");
 
-    return hp2Ball(false)
+    return hp2Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
+        .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Blue));
   }
 
-  public AutoChooserElement hp3Ball(boolean isLastPath) {
-    PathPlannerTrajectory path = loadPath("hpce");
+  public AutoChooserElement hp25PieceEngage() {
+    PathPlannerTrajectory path = loadPath("hp2.5PieceEngage");
 
-    return hp2Ball(false)
+    return hp2Piece(false)
+        .setNext(path, false, drivetrain, getEventMap())
+        .setNext(autoEngage(DriverStation.getAlliance() == Alliance.Red));
+  }
+
+  public AutoChooserElement hp3Piece(boolean isLastPath) {
+    PathPlannerTrajectory path = loadPath("hp3Piece");
+
+    return hp2Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, isLastPath));
   }
 
-  public AutoChooserElement hp4Ball() {
+  public AutoChooserElement hp4Piece() {
     PathPlannerTrajectory path = loadPath("hp4Piece");
 
-    return hp3Ball(false)
+    return hp3Piece(false)
         .setNext(path, false, drivetrain, getEventMap())
         .setNext(scoreCube(false, true));
   }

@@ -370,17 +370,17 @@ public class MechanismPositions {
 
   public static Command goToPositionSimple(
       Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
-    if (elevator.getHeightInches() <= heightInches) {
-      return new SequentialCommandGroup(
-          avoidBumper(elevator, stinger),
-          new ElevatorSetHeight(elevator, heightInches),
-          new StingerSetExtension(stinger, extensionInches));
-    } else {
-      return new SequentialCommandGroup(
-          avoidBumper(elevator, stinger),
-          new StingerSetExtension(stinger, extensionInches),
-          new ElevatorSetHeight(elevator, heightInches));
-    }
+
+    return new ConditionalCommand(
+        new SequentialCommandGroup(
+            // avoidBumper(elevator, stinger),
+            new ElevatorSetHeight(elevator, heightInches),
+            new StingerSetExtension(stinger, extensionInches)),
+        new SequentialCommandGroup(
+            // avoidBumper(elevator, stinger),
+            new StingerSetExtension(stinger, extensionInches),
+            new ElevatorSetHeight(elevator, heightInches)),
+        () -> (elevator.getHeightInches() <= heightInches));
   }
 
   public static Command avoidBumper(Elevator elevator, Stinger stinger) {
