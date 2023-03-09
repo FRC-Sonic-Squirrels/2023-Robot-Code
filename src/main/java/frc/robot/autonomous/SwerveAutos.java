@@ -163,6 +163,7 @@ public class SwerveAutos {
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put(
         "mechHighCube", MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
+    eventMap.put("mechMidCube", MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
