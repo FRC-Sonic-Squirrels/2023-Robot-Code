@@ -393,12 +393,16 @@ public class MechanismPositions {
   }
 
   public static Command goToPositionCurve(
-      Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
-    if (elevator.getHeightInches() >= heightInches) {
-      return new ElevatorFollowCurve(elevator, stinger, extensionInches);
-    } else {
-      return new StingerFollowCurve(elevator, stinger, heightInches);
-    }
+      Elevator elevator,
+      Stinger stinger,
+      double heightInches,
+      double extensionInches,
+      Supplier<Command> suckCommand) {
+    return new ConditionalCommand(
+            new ElevatorFollowCurve(elevator, stinger, extensionInches),
+            new StingerFollowCurve(elevator, stinger, heightInches),
+            () -> elevator.getHeightInches() >= heightInches)
+        .raceWith(suckCommand.get());
   }
 
   public static Command testScoreConeHigh(Elevator elevator, Stinger stinger, Intake intake) {
@@ -428,8 +432,7 @@ public class MechanismPositions {
   public static Command safeZero(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        new StingerSetExtension(stinger, 0.0),
-        new ElevatorSetHeight(elevator, 8),
+        goToPositionCurve(elevator, stinger, 8, 0, () -> new InstantCommand()),
         new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
   }
 
