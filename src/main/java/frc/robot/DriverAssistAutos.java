@@ -349,7 +349,7 @@ public class DriverAssistAutos {
     // }
 
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, false),
+        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, true),
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
