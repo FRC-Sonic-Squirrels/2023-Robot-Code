@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.lib.team2930.lib.util.Rotation2dUtils;
+import frc.robot.Constants;
 
 public class GridPositionHandler {
   private static GridPositionHandler instance;
@@ -129,6 +131,15 @@ public class GridPositionHandler {
     return false;
   }
 
+  public static boolean shouldFollowEntranceCheckpoint(
+      Pose2d currentPose, Pose2d checkpointPose, Alliance alliance) {
+    if (alliance == Alliance.Red) {
+      return currentPose.getX() < checkpointPose.getX();
+    } else {
+      return currentPose.getX() > checkpointPose.getX();
+    }
+  }
+
   public static class PoseAndHeading {
     public final Pose2d pose;
     public final Rotation2d heading;
@@ -141,6 +152,15 @@ public class GridPositionHandler {
     public PoseAndHeading() {
       this.pose = new Pose2d();
       this.heading = new Rotation2d();
+    }
+
+    public static PoseAndHeading flipForRed(PoseAndHeading bluePAH) {
+      return new PoseAndHeading(
+          new Pose2d(
+              Constants.FIELD_DIMENSIONS.FIELD_LENGTH_METERS - bluePAH.pose.getX(),
+              bluePAH.pose.getY(),
+              Rotation2dUtils.flipCosine(bluePAH.pose.getRotation())),
+          Rotation2dUtils.flipCosine(bluePAH.heading));
     }
   }
 

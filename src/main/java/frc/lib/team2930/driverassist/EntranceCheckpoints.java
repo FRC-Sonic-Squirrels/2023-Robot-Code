@@ -59,14 +59,16 @@ public enum EntranceCheckpoints {
 
     for (int i = 0; i < blueCheckpoints.length; i++) {
       var blueCheckpoint = blueCheckpoints[i];
-      var bluePose = blueCheckpoint.pose;
-      var blueHeading = blueCheckpoint.heading;
+      //   var bluePose = blueCheckpoint.pose;
+      //   var blueHeading = blueCheckpoint.heading;
 
-      var redCheckpoint =
-          new PoseAndHeading(
-              new Pose2d(
-                  bluePose.getX(), FIELD_WIDTH_METERS - bluePose.getY(), bluePose.getRotation()),
-              blueHeading);
+      var redCheckpoint = PoseAndHeading.flipForRed(blueCheckpoint);
+      //   var redCheckpoint =
+      //       new PoseAndHeading(
+      //           new Pose2d(
+      //               bluePose.getX(), FIELD_WIDTH_METERS - bluePose.getY(),
+      // bluePose.getRotation()),
+      //           blueHeading);
 
       this.orderOutsideIn[i] = redCheckpoint;
     }

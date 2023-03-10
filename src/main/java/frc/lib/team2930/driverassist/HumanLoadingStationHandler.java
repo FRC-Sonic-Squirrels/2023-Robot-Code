@@ -2,7 +2,6 @@ package frc.lib.team2930.driverassist;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
 import java.util.ArrayList;
@@ -78,29 +77,29 @@ public class HumanLoadingStationHandler {
   }
 
   private HumanLoadingStationHandler(HumanLoadingStationHandler blueToFlip) {
-    this.finalPickupPose = flipForRed(blueToFlip.finalPickupPose);
+    this.finalPickupPose = PoseAndHeading.flipForRed(blueToFlip.finalPickupPose);
 
     ArrayList<PoseAndHeading> checkpointsList = new ArrayList<PoseAndHeading>();
 
     for (PoseAndHeading poseAndHeading : blueToFlip.checkpointsOutsideIn) {
-      var flipped = flipForRed(poseAndHeading);
+      var flipped = PoseAndHeading.flipForRed(poseAndHeading);
       checkpointsList.add(flipped);
     }
 
     this.checkpointsOutsideIn = checkpointsList.toArray(new PoseAndHeading[0]);
   }
 
-  private static PoseAndHeading flipForRed(PoseAndHeading toFlip) {
-    var oldPose = toFlip.pose;
+  // private static PoseAndHeading flipForRed(PoseAndHeading toFlip) {
+  //   var oldPose = toFlip.pose;
 
-    Pose2d newPose =
-        new Pose2d(
-            oldPose.getX(),
-            GridPositionHandler.FIELD_WIDTH_METERS - oldPose.getY(),
-            oldPose.getRotation());
+  //   Pose2d newPose =
+  //       new Pose2d(
+  //           oldPose.getX(),
+  //           GridPositionHandler.FIELD_WIDTH_METERS - oldPose.getY(),
+  //           oldPose.getRotation());
 
-    return new PoseAndHeading(newPose, toFlip.heading);
-  }
+  //   return new PoseAndHeading(newPose, toFlip.heading);
+  // }
 
   public static PoseAndHeading[] getCheckpointSequenceForAlliance(
       LoadingStationLocation location, Alliance alliance) {
@@ -126,16 +125,26 @@ public class HumanLoadingStationHandler {
   }
 
   public static PoseAndHeading[] checkpointsToFollow(
-      Translation2d currentPose, PoseAndHeading[] sequence) {
+      Pose2d currentPose, PoseAndHeading[] sequence, Alliance currentAlliance) {
 
     ArrayList<PoseAndHeading> checkpoints = new ArrayList<PoseAndHeading>();
     for (PoseAndHeading poseAndHeading : sequence) {
-      if (currentPose.getX() < poseAndHeading.pose.getX()) {
+      if (shouldFollowCheckpoint(currentPose, poseAndHeading.pose, currentAlliance)) {
+
         checkpoints.add(poseAndHeading);
       }
     }
 
     return checkpoints.toArray(new PoseAndHeading[0]);
+  }
+
+  private static boolean shouldFollowCheckpoint(
+      Pose2d currentPose, Pose2d checkpointPose, Alliance alliance) {
+    if (alliance == Alliance.Red) {
+      return currentPose.getX() > checkpointPose.getX();
+    } else {
+      return currentPose.getX() < checkpointPose.getX();
+    }
   }
 
   public static PoseAndHeading getFinalPoseForLocationAndAlliance(

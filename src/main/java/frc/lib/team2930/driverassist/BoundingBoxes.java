@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
+import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -81,8 +82,12 @@ public enum BoundingBoxes {
     for (int i = 0; i < newPoints.length; i++) {
       Translation2d bluePoint = blueToFlip.points[i];
 
-      Translation2d redPoint =
-          new Translation2d(bluePoint.getX(), FIELD_WIDTH_METERS - bluePoint.getY());
+      // Translation2d redPoint =
+      //     new Translation2d(bluePoint.getX(), FIELD_WIDTH_METERS - bluePoint.getY());
+
+      var redPoint =
+          new Translation2d(
+              Constants.FIELD_DIMENSIONS.FIELD_LENGTH_METERS - bluePoint.getX(), bluePoint.getY());
 
       newPoints[i] = redPoint;
     }

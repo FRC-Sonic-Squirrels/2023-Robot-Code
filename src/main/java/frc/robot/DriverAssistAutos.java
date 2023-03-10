@@ -136,7 +136,8 @@ public class DriverAssistAutos {
       for (PoseAndHeading checkPoint : entranceCheckpoints.getOrderOutsideIn()) {
         // this adds the checkpoints to the list of points if their position comes in between the
         // current position and the target
-        if (currentPose.getX() > checkPoint.pose.getX()) {
+        if (GridPositionHandler.shouldFollowEntranceCheckpoint(
+            currentPose, checkPoint.pose, alliance)) {
           // FIX ME
           // points.add(EntranceCheckpoints.toPathPoint(checkPoint));
           points.add(
@@ -273,7 +274,7 @@ public class DriverAssistAutos {
     // find checkpoints we care about
 
     var checkpointsToFollow =
-        HumanLoadingStationHandler.checkpointsToFollow(currentPose.getTranslation(), rawSequence);
+        HumanLoadingStationHandler.checkpointsToFollow(currentPose, rawSequence, alliance);
 
     for (int i = 0; i < checkpointsToFollow.length - 1; i++) {
       Logger.getInstance()
@@ -318,11 +319,19 @@ public class DriverAssistAutos {
 
     List<PathPoint> retractingPathPoints = new ArrayList<>();
 
+    var lastCheckpoint = rawSequence[rawSequence.length - 1];
+
     retractingPathPoints.add(
         new PathPoint(
-            rawSequence[rawSequence.length - 1].pose.getTranslation(),
-            Rotation2d.fromDegrees(180),
-            Rotation2d.fromDegrees(0)));
+            lastCheckpoint.pose.getTranslation(),
+            lastCheckpoint.heading,
+            lastCheckpoint.pose.getRotation()));
+
+    // retractingPathPoints.add(
+    //     new PathPoint(
+    //         rawSequence[rawSequence.length - 1].pose.getTranslation(),
+    //         Rotation2d.fromDegrees(180),
+    //         Rotation2d.fromDegrees(0)));
 
     // then go to final score position
 

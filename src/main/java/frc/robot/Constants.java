@@ -154,4 +154,9 @@ public final class Constants {
     public static final double HEIGHT_HIGH_CUBE = 37.5;
     public static final double HEIGHT_HIGH_CONE = 48;
   }
+
+  public static final class FIELD_DIMENSIONS {
+    // FIXME: I think this number is slightly off
+    public static final double FIELD_LENGTH_METERS = 16.4592;
+  }
 }
