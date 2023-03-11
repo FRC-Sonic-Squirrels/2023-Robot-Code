@@ -165,7 +165,7 @@ public class SwerveAutos {
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put(
         "mechHighCube", MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
-    eventMap.put("mechMidCube", MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake));
+    eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
@@ -327,8 +327,7 @@ public class SwerveAutos {
   public AutoChooserElement scoreConeHigh() {
     return new AutoChooserElement(
         null,
-        new SequentialCommandGroup(
-            MechanismPositions.scoreConeHighPosition(elevator, stinger, intake)));
+        new SequentialCommandGroup(MechanismPositions.coneHighPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreCubeHigh() {
@@ -341,15 +340,13 @@ public class SwerveAutos {
   public AutoChooserElement scoreConeMid() {
     return new AutoChooserElement(
         null,
-        new SequentialCommandGroup(
-            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
+        new SequentialCommandGroup(MechanismPositions.cubeMidPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreCubeMid() {
     return new AutoChooserElement(
         null,
-        new SequentialCommandGroup(
-            MechanismPositions.scoreCubeMidPosition(elevator, stinger, intake)));
+        new SequentialCommandGroup(MechanismPositions.cubeMidPosition(elevator, stinger, intake)));
   }
 
   // Intake score commands:
@@ -359,8 +356,8 @@ public class SwerveAutos {
         new SequentialCommandGroup(
             new ConditionalCommand(
                 new ConditionalCommand(
-                    MechanismPositions.scoreConeHighPosition(elevator, stinger, intake),
-                    MechanismPositions.scoreConeHighPosition(elevator, stinger, intake),
+                    MechanismPositions.coneHighPosition(elevator, stinger, intake),
+                    MechanismPositions.coneHighPosition(elevator, stinger, intake),
                     () -> gamepiece.equals(GamePiece.CONE)),
                 new InstantCommand(),
                 () -> goUp),
