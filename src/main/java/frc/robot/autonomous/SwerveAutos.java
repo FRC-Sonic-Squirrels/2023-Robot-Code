@@ -163,8 +163,7 @@ public class SwerveAutos {
             new IntakeGrabCube(intake).withTimeout(4)));
     eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
-    eventMap.put(
-        "mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
+    eventMap.put("mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
     eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
@@ -333,8 +332,7 @@ public class SwerveAutos {
   public AutoChooserElement scoreCubeHigh() {
     return new AutoChooserElement(
         null,
-        new SequentialCommandGroup(
-            MechanismPositions.cubeHighPosition(elevator, stinger, intake)));
+        new SequentialCommandGroup(MechanismPositions.cubeHighPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreConeMid() {
@@ -356,7 +354,19 @@ public class SwerveAutos {
         new SequentialCommandGroup(
             new ConditionalCommand(
                 MechanismPositions.coneHighPosition(elevator, stinger, intake),
-                MechanismPositions.coneHighPosition(elevator, stinger, intake),
+                MechanismPositions.cubeHighPosition(elevator, stinger, intake),
+                () -> gamepiece.equals(GamePiece.CONE)),
+            new IntakeScoreCube(intake).withTimeout(0.2),
+            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
+  }
+
+  public AutoChooserElement scoreMid(GamePiece gamepiece) {
+    return new AutoChooserElement(
+        null,
+        new SequentialCommandGroup(
+            new ConditionalCommand(
+                MechanismPositions.coneMidPosition(elevator, stinger, intake),
+                MechanismPositions.cubeMidPosition(elevator, stinger, intake),
                 () -> gamepiece.equals(GamePiece.CONE)),
             new IntakeScoreCube(intake).withTimeout(0.2),
             getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
@@ -484,7 +494,7 @@ public class SwerveAutos {
 
     return wall2Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(scoreMid(GamePiece.CUBE));
   }
 
   public AutoChooserElement wall4Piece() {
@@ -530,7 +540,7 @@ public class SwerveAutos {
 
     return hp2Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(scoreMid(GamePiece.CUBE));
   }
 
   public AutoChooserElement hp4Piece() {
