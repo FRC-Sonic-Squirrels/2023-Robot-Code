@@ -37,7 +37,10 @@ import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
+
 
 /**
  * This subsystem models the robot's drivetrain mechanism. It consists of a four MK4 swerve modules,
@@ -120,6 +123,8 @@ public class Drivetrain extends SubsystemBase {
 
   private DriveMode driveMode = DriveMode.NORMAL;
   private double characterizationVoltage = 0.0;
+
+  private Translation2d driverFieldRelativeInput = new Translation2d(0.0, 0.0);
 
   /** Constructs a new DrivetrainSubsystem object. */
   public Drivetrain(
@@ -308,6 +313,7 @@ public class Drivetrain extends SubsystemBase {
 
     switch (driveMode) {
       case NORMAL:
+        driverFieldRelativeInput = new Translation2d(xVelocity, yVelocity);
         if (isFieldRelative) {
           chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -336,6 +342,7 @@ public class Drivetrain extends SubsystemBase {
         break;
 
       case CHARACTERIZATION:
+        driverFieldRelativeInput = new Translation2d(0.0, 0.0);
         // In characterization mode, drive at the specified voltage (and turn to zero degrees)
         for (SwerveModule swerveModule : swerveModules) {
           swerveModule.setVoltageForCharacterization(characterizationVoltage);
@@ -343,6 +350,7 @@ public class Drivetrain extends SubsystemBase {
         break;
 
       case X:
+        driverFieldRelativeInput = new Translation2d(0.0, 0.0);
         this.setXStance();
 
         break;
@@ -435,6 +443,11 @@ public class Drivetrain extends SubsystemBase {
             new Pose3d(poseEstimatorPose).transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
     Logger.getInstance().recordOutput("SwerveModuleStates", states);
     Logger.getInstance().recordOutput(SUBSYSTEM_NAME + "/gyroOffset", this.gyroOffset);
+
+    var speeds = KINEMATICS.toChassisSpeeds(states);
+
+    Logger.getInstance().recordOutput("Odometry/xvel", speeds.vxMetersPerSecond);
+    Logger.getInstance().recordOutput("Odometry/yvel", speeds.vyMetersPerSecond);
   }
 
   /**
@@ -567,6 +580,20 @@ public class Drivetrain extends SubsystemBase {
     return chassisSpeeds;
   }
 
+  public ChassisSpeeds getModuleChassisSpeeds() {
+    SwerveModuleState[] states = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = swerveModules[i].getState();
+      swerveModulePositions[i] = swerveModules[i].getPosition();
+    }
+
+    return KINEMATICS.toChassisSpeeds(states);
+  }
+
+  public Translation2d getDriverFieldRelativeInput() {
+    return driverFieldRelativeInput;
+  }
+
   /**
    * Puts the drivetrain into the x-stance orientation. In this orientation the wheels are aligned
    * to make an 'X'. This makes it more difficult for other robots to push the robot, which is
@@ -641,7 +668,15 @@ public class Drivetrain extends SubsystemBase {
     return driveVelocityAverage / 4.0;
   }
 
+  /**
+   * Uses the max drivetrain velocity when generating the path
+   *
+   * @param targetPose
+   * @return
+   */
   public PathPlannerTrajectory generateOnTheFlyTrajectory(Pose2d targetPose) {
+
+    //
     return PathPlanner.generatePath(
         new PathConstraints(
             DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
@@ -649,6 +684,36 @@ public class Drivetrain extends SubsystemBase {
         PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
         new PathPoint(
             targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+  }
+
+  public PathPlannerTrajectory generateOnTheFlyTrajectory(
+      Pose2d targetPose, double driveVelocityConstraint, double angularVelocityConstant) {
+    var path =
+        PathPlanner.generatePath(
+            new PathConstraints(driveVelocityConstraint, angularVelocityConstant),
+            PathPoint.fromCurrentHolonomicState(this.getPose(), this.getCurrentChassisSpeeds()),
+            new PathPoint(
+                targetPose.getTranslation(), Rotation2d.fromDegrees(0), targetPose.getRotation()));
+
+    return path;
+  }
+
+  public PathPlannerTrajectory generateOnTheFlyTrajectory(
+      List<Pose2d> targetPoses, double driveVelocityConstraint, double angularVelocityConstant) {
+
+    ArrayList<PathPoint> points = new ArrayList<PathPoint>();
+
+    points.add(PathPoint.fromCurrentHolonomicState(getPose(), chassisSpeeds));
+
+    for (Pose2d pos : targetPoses) {
+      points.add(new PathPoint(pos.getTranslation(), pos.getRotation()));
+    }
+
+    var path =
+        PathPlanner.generatePath(
+            new PathConstraints(driveVelocityConstraint, angularVelocityConstant), points);
+
+    return path;
   }
 
   public double getGyroYaw() {

@@ -204,4 +204,9 @@ public final class Constants {
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 40;
     public static final double DESIRED_TIME_TO_SPEED = 0.1;
   }
+
+  public static class FIELD_DIMENSIONS {
+    //FIXME: This is wrong 
+    public static double FIELD_LENGTH_METERS = 16.4592;
+  }
 }

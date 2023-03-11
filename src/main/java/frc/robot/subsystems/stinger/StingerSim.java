@@ -18,7 +18,9 @@ public class StingerSim implements StingerIO {
   private static final double carriageMass = 4.0; // kg
 
   private static final double minExtension = Units.inchesToMeters(0.0);
+
   private static final double maxExtension = Units.inchesToMeters(30); // 47
+
 
   // distance per pulse = (distance per revolution) / (pulses per revolution)
   //  = (Pi * D) / ppr
@@ -32,6 +34,7 @@ public class StingerSim implements StingerIO {
 
   ProfiledPIDController controller =
       new ProfiledPIDController(1.0, 0.0, 0.0, new Constraints(40, 80));
+
 
   private boolean closedLoop = false;
   private double targetHeightInches = 0.0;
