@@ -172,7 +172,7 @@ public class MechanismPositions {
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
 
     return new SequentialCommandGroup(
-        scoreCubeHighPosition(elevator, stinger, intake),
+        cubeHighPosition(elevator, stinger, intake),
         // --
         confirmationCommand.get(),
         // --
@@ -181,13 +181,13 @@ public class MechanismPositions {
         safeZero(elevator, stinger));
   }
 
-  public static Command scoreCubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command cubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
     return goToPositionParallelWithSuck(
         elevator,
         stinger,
         Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
         Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE,
-        () -> intakeGrabPiece(intake, GamePiece.CUBE, 0.25));
+        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CUBE, 0.25));
   }
 
   // --------CUBE HIGH -------------
@@ -226,7 +226,7 @@ public class MechanismPositions {
         NODE_DISTANCES.HEIGHT_HIGH_CONE,
         NODE_DISTANCES.EXTENSION_HIGH_CONE,
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
-  }
+    }
 
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
   // {

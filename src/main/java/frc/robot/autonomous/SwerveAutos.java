@@ -164,7 +164,7 @@ public class SwerveAutos {
     eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put(
-        "mechHighCube", MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake));
+        "mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
     eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
@@ -334,7 +334,7 @@ public class SwerveAutos {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake)));
+            MechanismPositions.cubeHighPosition(elevator, stinger, intake)));
   }
 
   public AutoChooserElement scoreConeMid() {

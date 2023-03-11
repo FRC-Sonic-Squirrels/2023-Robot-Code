@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,7 +24,7 @@ public class ElevatorSim implements ElevatorIO {
   private static final double kCarriageMass = 4.0; // kg
 
   private static final double kMinElevatorHeight = Units.inchesToMeters(0.0);
-  private static final double kMaxElevatorHeight = Units.inchesToMeters(24 * 2); // 24*2
+  private static final double kMaxElevatorHeight = Units.inchesToMeters(Constants.Elevator.MAX_HEIGHT_INCHES + 1); // 24*2
 
   // distance per pulse = (distance per revolution) / (pulses per revolution)
   //  = (Pi * D) / ppr

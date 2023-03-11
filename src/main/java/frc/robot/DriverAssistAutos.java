@@ -25,6 +25,7 @@ import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.GenerateAndFollowPath;
+import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
@@ -387,17 +388,18 @@ public class DriverAssistAutos {
         || desiredBay == LogicalGridLocation.LOGICAL_BAY_5
         || desiredBay == LogicalGridLocation.LOGICAL_BAY_8) {
 
-      mechanismCommand = MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake);
+      mechanismCommand = MechanismPositions.cubeHighPosition(elevator, stinger, intake);
       intakeCommand = new IntakeScoreCube(intake);
     } else {
-      mechanismCommand = MechanismPositions.scoreConeHighPosition(elevator, stinger, intake);
+      mechanismCommand = MechanismPositions.coneHighPosition(elevator, stinger, intake);
       intakeCommand = new IntakeScoreCone(intake);
     }
 
-    return mechanismCommand
-        .andThen(intakeCommand)
-        .andThen(Commands.waitSeconds(0.4))
-        .andThen(new IntakeStop(intake))
+    return mechanismCommand 
+        //FIX ME add confirmation logic
+        .andThen(intakeCommand).withTimeout(0.3)
+        //.andThen(Commands.waitSeconds(0.4))
+        //.andThen(new IntakeStop(intake))
         .andThen(MechanismPositions.stowPosition(elevator, stinger));
   }
 
