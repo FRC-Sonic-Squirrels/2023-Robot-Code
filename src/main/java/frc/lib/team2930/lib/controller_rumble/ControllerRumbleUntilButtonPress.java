@@ -12,10 +12,12 @@ public class ControllerRumbleUntilButtonPress extends CommandBase {
 
   /** Rumble the controller until the specified button is pressed */
   public ControllerRumbleUntilButtonPress(
-      CommandXboxController controller, BooleanSupplier rumbleSupplier, double rumbleStrength) {
+      CommandXboxController controller,
+      BooleanSupplier buttonPressSupplier,
+      double rumbleStrength) {
     this.controller = controller;
     this.rumbleStrength = rumbleStrength;
-    this.rumbleSupplier = rumbleSupplier;
+    this.rumbleSupplier = buttonPressSupplier;
   }
 
   // Called when the command is initially scheduled.

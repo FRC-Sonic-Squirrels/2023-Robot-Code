@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.drive;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -191,7 +191,7 @@ public class GenerateAndFollowPath extends CommandBase {
 
     this.trajectory = PathPlanner.generatePath(this.pathConstraints, pathPoints);
 
-    Trajectory displayTrajectory = decimateTrajectory(trajectory, 10);
+    Trajectory displayTrajectory = decimateTrajectory(trajectory, 30);
 
     SmartDashboard.putData("PPSwerveControllerCommand_field", this.field);
     this.field.getObject("traj").setTrajectory(displayTrajectory);

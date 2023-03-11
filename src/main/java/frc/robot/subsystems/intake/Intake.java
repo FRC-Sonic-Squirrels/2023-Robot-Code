@@ -65,13 +65,16 @@ public class Intake extends SubsystemBase {
   // I.E calling this once will not return an accurate result
   // need to call this in an isFinished or a .until()
   public boolean isStalled() {
-    var filteredCurrent = StallDetectionFilter.calculate(Math.abs(inputs.intakeStatorCurrent));
-    var velocity = inputs.intakeVelocityRPM;
+    // var filteredCurrent = StallDetectionFilter.calculate(Math.abs(inputs.intakeStatorCurrent));
+    // var velocity = inputs.intakeVelocityRPM;
 
-    double minStallCurrent = 1;
-    double maxStallVelocity = 50;
+    // double minStallCurrent = 1;
+    // double maxStallVelocity = 50;
 
-    return (filteredCurrent >= minStallCurrent) && (velocity <= maxStallVelocity);
+    // return (filteredCurrent >= minStallCurrent) && (velocity <= maxStallVelocity);
+
+    // FIXME:
+    return false;
   }
 
   public void outtakeConeWithRPM(double speed) {}

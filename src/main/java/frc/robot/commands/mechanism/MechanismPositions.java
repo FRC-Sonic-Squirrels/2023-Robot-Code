@@ -226,7 +226,7 @@ public class MechanismPositions {
         NODE_DISTANCES.HEIGHT_HIGH_CONE,
         NODE_DISTANCES.EXTENSION_HIGH_CONE,
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
-    }
+  }
 
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
   // {
@@ -391,6 +391,7 @@ public class MechanismPositions {
         new InstantCommand(() -> movementTimer.start()),
         new ConditionalCommand(
             new SequentialCommandGroup(
+                // FIXME: not having aviod bumper seems scary
                 // avoidBumper(elevator, stinger),
                 new ElevatorSetHeight(elevator, heightInches),
                 new StingerSetExtension(stinger, extensionInches)),
@@ -398,6 +399,7 @@ public class MechanismPositions {
                 // avoidBumper(elevator, stinger),
                 new StingerSetExtension(stinger, extensionInches),
                 new ElevatorSetHeight(elevator, heightInches)),
+            // FIXME: i think this is wrong gpk had weird behavior
             () -> (elevator.getHeightInches() <= heightInches)),
         new InstantCommand(() -> movementTimer.stop()));
   }
@@ -457,6 +459,11 @@ public class MechanismPositions {
         avoidBumper(elevator, stinger),
         goToPositionSimple(elevator, stinger, 8, 0),
         new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
+  }
+
+  public static Command safeStowPosition(Elevator elevator, Stinger stinger) {
+    return new SequentialCommandGroup(
+        avoidBumper(elevator, stinger), goToPositionSimple(elevator, stinger, 8.0, 0.0));
   }
 
   public static Command rumbleCanMove(CommandXboxController controller) {
