@@ -24,8 +24,7 @@ import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLo
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.robot.RobotState.GamePiece;
-import frc.robot.commands.GenerateAndFollowPath;
-import frc.robot.commands.elevator.ElevatorSetHeight;
+import frc.robot.commands.drive.GenerateAndFollowPath;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
@@ -395,11 +394,12 @@ public class DriverAssistAutos {
       intakeCommand = new IntakeScoreCone(intake);
     }
 
-    return mechanismCommand 
-        //FIX ME add confirmation logic
-        .andThen(intakeCommand).withTimeout(0.3)
-        //.andThen(Commands.waitSeconds(0.4))
-        //.andThen(new IntakeStop(intake))
+    return mechanismCommand
+        // FIX ME add confirmation logic
+        .andThen(intakeCommand)
+        .withTimeout(0.3)
+        // .andThen(Commands.waitSeconds(0.4))
+        // .andThen(new IntakeStop(intake))
         .andThen(MechanismPositions.stowPosition(elevator, stinger));
   }
 
@@ -414,8 +414,8 @@ public class DriverAssistAutos {
       intakeCommand = new IntakeGrabCube(intake);
     }
 
-    //FIXME: 
-    return intakeCommand;//.andThen(MechanismPositions.substationPickupPosition(elevator));
+    // FIXME:
+    return intakeCommand; // .andThen(MechanismPositions.substationPickupPosition(elevator));
   }
 
   public Command getRetractSequenceForHumanPlayerStation() {
