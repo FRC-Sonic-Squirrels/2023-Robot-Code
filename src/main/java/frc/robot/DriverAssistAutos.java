@@ -23,18 +23,23 @@ import frc.lib.team2930.driverassist.HumanLoadingStationHandler;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
+import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.drive.GenerateAndFollowPath;
+import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.intake.IntakeStop;
+import frc.robot.commands.leds.LedSetColorNoEnd;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.stinger.Stinger;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +51,9 @@ public class DriverAssistAutos {
   private Intake intake;
   private Elevator elevator;
   private Stinger stinger;
+  private LED leds;
 
-  private CommandXboxController controller;
+  private CommandXboxController driverController;
 
   private static PathConstraints constraints =
       new PathConstraints(
@@ -59,12 +65,14 @@ public class DriverAssistAutos {
       Intake intake,
       Elevator elevator,
       Stinger stinger,
+      LED leds,
       CommandXboxController controller) {
     this.drivetrain = drivetrain;
     this.intake = intake;
     this.elevator = elevator;
     this.stinger = stinger;
-    this.controller = controller;
+    this.leds = leds;
+    this.driverController = controller;
   }
 
   public Command driveToLogicalBayClosestEntrance(
@@ -247,7 +255,7 @@ public class DriverAssistAutos {
         new GenerateAndFollowPath(
             drivetrain, points, constraints, firstPose, !shouldSkipEntranceCheckpoints),
         // Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
-        scoringSequence);
+        scoringSequence.raceWith(defaultDriveCommandFactory()));
   }
 
   public Command humanPlayerStation(
@@ -394,12 +402,15 @@ public class DriverAssistAutos {
       intakeCommand = new IntakeScoreCone(intake);
     }
 
+    intakeCommand = intakeCommand.withTimeout(0.3);
+
     return mechanismCommand
         // FIX ME add confirmation logic
+        .andThen(
+            new LedSetColorNoEnd(leds, colors.RED_STROBE)
+                .asProxy()
+                .raceWith(driverConfirmationCommand()))
         .andThen(intakeCommand)
-        .withTimeout(0.3)
-        // .andThen(Commands.waitSeconds(0.4))
-        // .andThen(new IntakeStop(intake))
         .andThen(MechanismPositions.stowPosition(elevator, stinger));
   }
 
@@ -424,9 +435,25 @@ public class DriverAssistAutos {
 
   // replace with better implementation of controller rumble
   public Command errorRumbleControllerCommand() {
+    // FIX ME use one of the fancy rumble command to make this a recognizable pattern
     return new SequentialCommandGroup(
-        new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
+        new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
         Commands.waitSeconds(0.5),
-        new InstantCommand(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+        new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+  }
+
+  public Command driverConfirmationCommand() {
+    return new ControllerRumbleUntilButtonPress(
+        driverController, () -> driverController.y().getAsBoolean(), 0.5);
+  }
+
+  private Command defaultDriveCommandFactory() {
+    return new TeleopSwerve(
+        drivetrain,
+        elevator,
+        stinger,
+        driverController::getLeftY,
+        driverController::getLeftX,
+        driverController::getRightX);
   }
 }

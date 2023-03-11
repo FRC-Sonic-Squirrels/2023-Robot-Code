@@ -24,13 +24,6 @@ import static frc.robot.subsystems.drivetrain.DrivetrainConstants.MAX_VELOCITY_M
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_CAN_BUS_NAME;
 import static frc.robot.subsystems.drivetrain.DrivetrainConstants.PIGEON_ID;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -87,6 +80,11 @@ import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
 import frc.robot.subsystems.stinger.StingerSim;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -114,8 +112,6 @@ public class RobotContainer {
 
   private DriverAssistAutos driverAssist;
   public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
-
- 
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -337,8 +333,8 @@ public class RobotContainer {
      * and the left joystick's x axis specifies the velocity in the y direction.
      */
 
-     driverAssist = new DriverAssistAutos(drivetrain, intake, elevator, stinger, operatorController);
-
+    driverAssist =
+        new DriverAssistAutos(drivetrain, intake, elevator, stinger, leds, driverController);
 
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
@@ -401,13 +397,14 @@ public class RobotContainer {
     // FIXME: UNCOMMENT button bindings
 
     // toggle between Field and Robot centric driving
-    driverController
-        .b()
-        .toggleOnTrue(
-            Commands.either(
-                Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
-                Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
-                drivetrain::getFieldRelative));
+    // we should not ever need robot relative in this game
+    // driverController
+    //     .b()
+    //     .toggleOnTrue(
+    //         Commands.either(
+    //             Commands.runOnce(drivetrain::disableFieldRelative, drivetrain),
+    //             Commands.runOnce(drivetrain::enableFieldRelative, drivetrain),
+    //             drivetrain::getFieldRelative));
 
     driverController
         .y()
@@ -577,104 +574,104 @@ public class RobotContainer {
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
 
     driverController
-            .leftTrigger()
-            .onTrue(
-                    new InstantCommand(
-                            () -> {
-                              var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
+        .leftTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
-                              var cmd =
-                                      driverAssist.driveToLogicalBaySpecificEntrance(
-                                              RobotState.getInstance().getDesiredLogicalGrid(),
-                                              DesiredGridEntrance.LEFT,
-                                              scoringSequence); // some command
+                  var cmd =
+                      driverAssist.driveToLogicalBaySpecificEntrance(
+                          RobotState.getInstance().getDesiredLogicalGrid(),
+                          DesiredGridEntrance.LEFT,
+                          scoringSequence); // some command
 
-                              Command currentCmd = drivetrain.getCurrentCommand();
+                  Command currentCmd = drivetrain.getCurrentCommand();
 
-                              if (currentCmd instanceof OverrideDrivetrainStop) {
-                                ((OverrideDrivetrainStop) currentCmd).overideStop();
-                              }
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
 
-                              cmd.schedule();
-                            }));
-
-    driverController
-            .rightTrigger()
-            .onTrue(
-                    new InstantCommand(
-                            () -> {
-                              var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
-
-                              var cmd =
-                                      driverAssist.driveToLogicalBaySpecificEntrance(
-                                              RobotState.getInstance().getDesiredLogicalGrid(),
-                                              DesiredGridEntrance.RIGHT,
-                                              scoringSequence); // some command
-
-                              Command currentCmd = drivetrain.getCurrentCommand();
-
-                              if (currentCmd instanceof OverrideDrivetrainStop) {
-                                ((OverrideDrivetrainStop) currentCmd).overideStop();
-                              }
-
-                              cmd.schedule();
-                            }));
+                  cmd.schedule();
+                }));
 
     driverController
-            .leftBumper()
-            .onTrue(
-                    new InstantCommand(
-                            () -> {
-                              // make intake spin
-                              var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
-                              // stop intake spinning
-                              var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
+        .rightTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
-                              var cmd =
-                                      driverAssist.humanPlayerStation(
-                                              LoadingStationLocation.LEFT, pickUpSequence, retractSequence);
+                  var cmd =
+                      driverAssist.driveToLogicalBaySpecificEntrance(
+                          RobotState.getInstance().getDesiredLogicalGrid(),
+                          DesiredGridEntrance.RIGHT,
+                          scoringSequence); // some command
 
-                              Command currentCmd = drivetrain.getCurrentCommand();
+                  Command currentCmd = drivetrain.getCurrentCommand();
 
-                              if (currentCmd instanceof OverrideDrivetrainStop) {
-                                ((OverrideDrivetrainStop) currentCmd).overideStop();
-                              }
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
 
-                              cmd.schedule();
-                            }));
+                  cmd.schedule();
+                }));
 
     driverController
-            .rightBumper()
-            .onTrue(
-                    new InstantCommand(
-                            () -> {
-                              // make intake spin
-                              var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
-                              // stop intake spinning
-                              var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
+        .leftBumper()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  // make intake spin
+                  var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
+                  // stop intake spinning
+                  var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
 
-                              var cmd =
-                                      driverAssist.humanPlayerStation(
-                                              LoadingStationLocation.RIGHT, pickUpSequence, retractSequence);
+                  var cmd =
+                      driverAssist.humanPlayerStation(
+                          LoadingStationLocation.LEFT, pickUpSequence, retractSequence);
 
-                              Command currentCmd = drivetrain.getCurrentCommand();
+                  Command currentCmd = drivetrain.getCurrentCommand();
 
-                              if (currentCmd instanceof OverrideDrivetrainStop) {
-                                ((OverrideDrivetrainStop) currentCmd).overideStop();
-                              }
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
 
-                              cmd.schedule();
-                            }));
+                  cmd.schedule();
+                }));
+
+    driverController
+        .rightBumper()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  // make intake spin
+                  var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
+                  // stop intake spinning
+                  var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
+
+                  var cmd =
+                      driverAssist.humanPlayerStation(
+                          LoadingStationLocation.RIGHT, pickUpSequence, retractSequence);
+
+                  Command currentCmd = drivetrain.getCurrentCommand();
+
+                  if (currentCmd instanceof OverrideDrivetrainStop) {
+                    ((OverrideDrivetrainStop) currentCmd).overideStop();
+                  }
+
+                  cmd.schedule();
+                }));
 
     driverController.b().onTrue(drivetrain.getDefaultCommand());
 
     driverController
-            .povRight()
-            .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
+        .povRight()
+        .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
 
     driverController
-            .povLeft()
-            .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
+        .povLeft()
+        .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
 
     // driverController
     //     .start()
