@@ -348,28 +348,34 @@ public class SwerveAutos {
   }
 
   // Intake score commands:
-  public AutoChooserElement score(GamePiece gamepiece) {
+  public AutoChooserElement score(boolean goUp, GamePiece gamepiece) {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
             new ConditionalCommand(
-                MechanismPositions.coneHighPosition(elevator, stinger, intake),
-                MechanismPositions.cubeHighPosition(elevator, stinger, intake),
-                () -> gamepiece.equals(GamePiece.CONE)),
+                new ConditionalCommand(
+                    MechanismPositions.coneHighPosition(elevator, stinger, intake),
+                    MechanismPositions.cubeHighPosition(elevator, stinger, intake),
+                    () -> (gamepiece == GamePiece.CONE)),
+                new InstantCommand(),
+                () -> goUp),
             new IntakeScoreCube(intake).withTimeout(0.2),
-            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
+            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 20)));
   }
 
-  public AutoChooserElement scoreMid(GamePiece gamepiece) {
+  public AutoChooserElement scoreMid(boolean goUp, GamePiece gamepiece) {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
             new ConditionalCommand(
-                MechanismPositions.coneMidPosition(elevator, stinger, intake),
-                MechanismPositions.cubeMidPosition(elevator, stinger, intake),
-                () -> gamepiece.equals(GamePiece.CONE)),
+                new ConditionalCommand(
+                    MechanismPositions.coneMidPosition(elevator, stinger, intake),
+                    MechanismPositions.cubeMidPosition(elevator, stinger, intake),
+                    () -> (gamepiece == GamePiece.CONE)),
+                new InstantCommand(),
+                () -> goUp),
             new IntakeScoreCube(intake).withTimeout(0.2),
-            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
+            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 20)));
   }
 
   public AutoChooserElement driveAutoEngage(Boolean flip) {
@@ -410,7 +416,7 @@ public class SwerveAutos {
 
     PathPlannerTrajectory pieceGrabPath = loadPath("middleGrabPiece");
 
-    return score(GamePiece.CONE)
+    return score(true, GamePiece.CONE)
         .setNext(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> drivetrain.resetOdometry(startPose), drivetrain),
@@ -462,7 +468,7 @@ public class SwerveAutos {
   public AutoChooserElement wall1PieceTaxi() {
     PathPlannerTrajectory path = loadPath("wall1PieceTaxi");
 
-    return score(GamePiece.CONE).setNext(path, true, drivetrain, getEventMap());
+    return score(true, GamePiece.CONE).setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement wall2Piece() {
@@ -470,7 +476,7 @@ public class SwerveAutos {
 
     return wall1PieceTaxi()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(score(false, GamePiece.CUBE));
   }
 
   public AutoChooserElement wall2PieceEngage() {
@@ -494,7 +500,7 @@ public class SwerveAutos {
 
     return wall2Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreMid(GamePiece.CUBE));
+        .setNext(scoreMid(false, GamePiece.CUBE));
   }
 
   public AutoChooserElement wall4Piece() {
@@ -502,13 +508,13 @@ public class SwerveAutos {
 
     return wall3Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(score(false, GamePiece.CUBE));
   }
 
   public AutoChooserElement hp1PieceTaxi() {
     PathPlannerTrajectory path = loadPath("hp1PieceTaxi");
 
-    return score(GamePiece.CONE).setNext(path, true, drivetrain, getEventMap());
+    return score(true, GamePiece.CONE).setNext(path, true, drivetrain, getEventMap());
   }
 
   public AutoChooserElement hp2Piece() {
@@ -516,7 +522,7 @@ public class SwerveAutos {
 
     return hp1PieceTaxi()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(score(false, GamePiece.CUBE));
   }
 
   public AutoChooserElement hp2PieceEngage() {
@@ -540,7 +546,7 @@ public class SwerveAutos {
 
     return hp2Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(scoreMid(GamePiece.CUBE));
+        .setNext(scoreMid(false, GamePiece.CUBE));
   }
 
   public AutoChooserElement hp4Piece() {
@@ -548,6 +554,6 @@ public class SwerveAutos {
 
     return hp3Piece()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(GamePiece.CUBE));
+        .setNext(score(false, GamePiece.CUBE));
   }
 }
