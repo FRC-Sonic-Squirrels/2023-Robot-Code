@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9,
-        "y": 1.05
+        "x": 1.8778355388379817,
+        "y": 0.503160150400186
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8870749613111206,
-        "y": 0.6632565618911548
+        "x": 3.1014295409475277,
+        "y": 0.8576593472730435
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -19,47 +19,45 @@
         "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
-        "waitTime": 1.0
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.817953379130723,
-        "y": 1.7496250684370118
+        "x": 5.274166554039242,
+        "y": 0.7890465994912005
       },
       "prevControl": {
-        "x": 6.166132275203209,
-        "y": 0.2973219070546542
+        "x": 4.782441861602696,
+        "y": 0.7547402256002796
       },
       "nextControl": {
-        "x": 6.166132275203209,
-        "y": 0.2973219070546542
+        "x": 5.858750014024381,
+        "y": 0.8298314920483021
       },
-      "holonomicAngle": 58.840695491655644,
-      "isReversal": true,
+      "holonomicAngle": 6.952957468173886,
+      "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "groundPickup"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "after",
-        "waitTime": 1.0
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 1.9121419127289037,
-        "y": 1.052062132654934
+        "x": 7.115275286185379,
+        "y": 0.9377075530185282
       },
       "prevControl": {
-        "x": 2.895591297601998,
-        "y": 0.6632565618911525
+        "x": 5.445698423493851,
+        "y": 0.8004820574548427
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 6.5198017516570514,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -74,15 +72,9 @@
   ],
   "markers": [
     {
-      "position": 0.7272727272727272,
+      "position": 0.6690909090909162,
       "names": [
         "mechIntakeCube"
-      ]
-    },
-    {
-      "position": 1.265454545454478,
-      "names": [
-        "mechStow"
       ]
     }
   ]

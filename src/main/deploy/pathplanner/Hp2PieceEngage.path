@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 7.12,
-        "y": 0.94
+        "x": 1.83,
+        "y": 4.41
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.612115135785193,
-        "y": 0.5145956083638271
+        "x": 2.335253857383606,
+        "y": 3.2819764355648537
       },
-      "holonomicAngle": 6.52,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,12 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.9121419127289037,
-        "y": 1.0634975906185762
+        "x": 3.2615259524384945,
+        "y": 3.2591055196375724
       },
       "prevControl": {
-        "x": 2.5904595090217284,
-        "y": 0.4802892344729063
+        "x": 2.152286529965356,
+        "y": 3.224799145746651
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -39,18 +39,11 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.0,
-      "names": [
-        "mechStow"
-      ]
-    }
-  ]
+  "markers": []
 }

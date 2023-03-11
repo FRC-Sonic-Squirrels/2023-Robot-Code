@@ -89,6 +89,7 @@ public class FollowPath extends PPSwerveControllerCommand {
    */
   @Override
   public void end(boolean interrupted) {
+    this.drivetrain.drive(0, 0, 0);
     this.drivetrain.stop();
     super.end(interrupted);
   }

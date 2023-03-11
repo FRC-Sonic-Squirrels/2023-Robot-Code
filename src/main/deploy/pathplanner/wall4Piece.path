@@ -1,0 +1,120 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.9007064547652628,
+        "y": 1.040626674691294
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.483630373822802,
+        "y": -0.3867434381088476
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.955178874694411,
+        "y": 3.1904927718557285
+      },
+      "prevControl": {
+        "x": 6.634986051712475,
+        "y": 2.378575256437246
+      },
+      "nextControl": {
+        "x": 6.634986051712475,
+        "y": 2.378575256437246
+      },
+      "holonomicAngle": 60.545310170180684,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "groundPickup"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.346689315347246,
+        "y": 0.8004820574548427
+      },
+      "prevControl": {
+        "x": 5.2398601801483204,
+        "y": -0.12579003760004795
+      },
+      "nextControl": {
+        "x": 2.045660020700395,
+        "y": 0.8968590253062061
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.8892709968016221,
+        "y": 2.7330744533101043
+      },
+      "prevControl": {
+        "x": 2.5296566427654965,
+        "y": 2.893170864801073
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.6545454545454547,
+      "names": [
+        "mechIntakeCube"
+      ]
+    },
+    {
+      "position": 1.025454545454573,
+      "names": [
+        "mechStow"
+      ]
+    },
+    {
+      "position": 2.116363636363549,
+      "names": [
+        "mechHighCube"
+      ]
+    }
+  ]
+}

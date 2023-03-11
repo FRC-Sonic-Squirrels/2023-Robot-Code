@@ -2,52 +2,48 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 1.0
+        "x": 1.9121419127289037,
+        "y": 1.052062132654934
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0000000000000018,
-        "y": 1.0
+        "x": 2.1751574458926375,
+        "y": 1.5323513671278401
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "event1"
-        ],
-        "executionBehavior": "parallel",
+        "names": [],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
-        "waitTime": 0
+        "waitTime": 1.0
       }
     },
     {
       "anchorPoint": {
-        "x": 4.0,
-        "y": 1.0
+        "x": 3.0442522511293237,
+        "y": 2.207043386982637
       },
       "prevControl": {
-        "x": 3.0,
-        "y": 1.0
+        "x": 1.8549646229107004,
+        "y": 2.241349760873558
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "event2"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": [{ "name": "extendIntake", "position": 0}, {"name":"retractIntake", "position":1}]
+  "markers": []
 }

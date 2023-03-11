@@ -122,15 +122,21 @@
   ],
   "markers": [
     {
-      "position": 2.327272727272727,
+      "position": 1.5127272727273091,
       "names": [
         "mechIntakeCube"
       ]
     },
     {
-      "position": 2.2690909090908065,
+      "position": 2.036363636363644,
       "names": [
         "mechStow"
+      ]
+    },
+    {
+      "position": 2.6763636363635026,
+      "names": [
+        "mechMidCube"
       ]
     }
   ]
