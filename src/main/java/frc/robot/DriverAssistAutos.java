@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.driverassist.EntranceCheckpoints;
 import frc.lib.team2930.driverassist.GridPositionHandler;
@@ -32,6 +33,7 @@ import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.intake.IntakeStop;
+import frc.robot.commands.leds.LedSetColorForSeconds;
 import frc.robot.commands.leds.LedSetColorNoEnd;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -370,19 +372,28 @@ public class DriverAssistAutos {
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
-        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
-        pickupSequence,
-        new GenerateAndFollowPath(drivetrain, secondPathPoints, constraints, finalPose.pose, false),
-        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
-        Commands.waitSeconds(0.4),
+
+        humanPlayerStationElevatorUp(),
+
+        // TODO: do we want this automated or human input?
+        // new GenerateAndFollowPath(drivetrain, secondPathPoints, constraints, finalPose.pose,
+        // false),
+        defaultDriveCommandFactory()
+            .alongWith(new IntakeGrabCone(intake))
+            .alongWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())
+            .raceWith(new WaitUntilCommand(() -> intake.isStalled()))
+            .raceWith(driverConfirmationCommand()),
+
+        // -- this can become back away and safe distance and then immediately give driver control
         new GenerateAndFollowPath(
             drivetrain,
             retractingPathPoints,
             constraints,
             rawSequence[rawSequence.length - 1].pose,
             false),
-        Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
-        retractSequence);
+        retractSequence
+            .alongWith(ledsSignalGoodToGo().asProxy())
+            .alongWith(defaultDriveCommandFactory()));
   }
 
   public Command getScoringSequenceForGridPositionAuto() {
@@ -411,7 +422,13 @@ public class DriverAssistAutos {
                 .asProxy()
                 .raceWith(driverConfirmationCommand()))
         .andThen(intakeCommand)
-        .andThen(MechanismPositions.stowPosition(elevator, stinger));
+        .andThen(
+            MechanismPositions.stowPosition(elevator, stinger)
+                .deadlineWith(ledsSignalGoodToGo().asProxy()));
+  }
+
+  private Command humanPlayerStationElevatorUp() {
+    return MechanismPositions.substationPickupPositionCone(elevator, stinger, intake);
   }
 
   public Command getPickUpSequenceForHumanPlayerStation() {
@@ -445,6 +462,11 @@ public class DriverAssistAutos {
   public Command driverConfirmationCommand() {
     return new ControllerRumbleUntilButtonPress(
         driverController, () -> driverController.y().getAsBoolean(), 0.5);
+  }
+
+  private Command ledsSignalGoodToGo() {
+    // FIXME: replace with GREEN STROBE
+    return new LedSetColorForSeconds(leds, colors.GREEN, 0.5);
   }
 
   private Command defaultDriveCommandFactory() {
