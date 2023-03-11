@@ -97,12 +97,6 @@
   ],
   "markers": [
     {
-      "position": 0.0,
-      "names": [
-        "mechZero"
-      ]
-    },
-    {
       "position": 0.8945454545454412,
       "names": [
         "mechIntakeCube"

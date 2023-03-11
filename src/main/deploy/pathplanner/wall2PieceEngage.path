@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.461043894983652,
-        "y": 1.097803964509497
+        "x": 2.1751574458926375,
+        "y": 1.5323513671278401
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -28,8 +28,8 @@
         "y": 2.207043386982637
       },
       "prevControl": {
-        "x": 1.774916417165216,
-        "y": 2.4700589201463705
+        "x": 1.8549646229107004,
+        "y": 2.241349760873558
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -45,12 +45,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.0,
-      "names": [
-        "mechZero"
-      ]
-    }
-  ]
+  "markers": []
 }
