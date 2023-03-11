@@ -360,7 +360,7 @@ public class SwerveAutos {
                 new InstantCommand(),
                 () -> goUp),
             new IntakeScoreCube(intake).withTimeout(0.2),
-            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 20)));
+            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
   }
 
   public AutoChooserElement scoreMid(boolean goUp, GamePiece gamepiece) {
@@ -375,7 +375,7 @@ public class SwerveAutos {
                 new InstantCommand(),
                 () -> goUp),
             new IntakeScoreCube(intake).withTimeout(0.2),
-            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 20)));
+            getEventMap().get("mechZero").until(() -> elevator.getHeightInches() <= 30)));
   }
 
   public AutoChooserElement driveAutoEngage(Boolean flip) {
