@@ -387,10 +387,10 @@ public class DriverAssistAutos {
         || desiredBay == LogicalGridLocation.LOGICAL_BAY_5
         || desiredBay == LogicalGridLocation.LOGICAL_BAY_8) {
 
-      mechanismCommand = MechanismPositions.scoreCubeHighPosition(elevator, stinger);
+      mechanismCommand = MechanismPositions.scoreCubeHighPosition(elevator, stinger, intake);
       intakeCommand = new IntakeScoreCube(intake);
     } else {
-      mechanismCommand = MechanismPositions.scoreConeHighPosition(elevator, stinger);
+      mechanismCommand = MechanismPositions.scoreConeHighPosition(elevator, stinger, intake);
       intakeCommand = new IntakeScoreCone(intake);
     }
 
@@ -412,7 +412,8 @@ public class DriverAssistAutos {
       intakeCommand = new IntakeGrabCube(intake);
     }
 
-    return intakeCommand.andThen(MechanismPositions.substationPickupPosition(elevator));
+    //FIXME: 
+    return intakeCommand;//.andThen(MechanismPositions.substationPickupPosition(elevator));
   }
 
   public Command getRetractSequenceForHumanPlayerStation() {
