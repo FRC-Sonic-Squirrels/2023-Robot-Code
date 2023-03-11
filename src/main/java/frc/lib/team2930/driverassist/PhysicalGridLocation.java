@@ -3,6 +3,7 @@ package frc.lib.team2930.driverassist;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.team2930.driverassist.GridPositionHandler.PoseAndHeading;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public enum PhysicalGridLocation {
@@ -81,7 +82,9 @@ public enum PhysicalGridLocation {
   public final PoseAndHeading lineup;
   public final PoseAndHeading score;
 
-  private static final double FIELD_WIDTH_METERS = GridPositionHandler.FIELD_WIDTH_METERS;
+  //   private static final double FIELD_WIDTH_METERS = GridPositionHandler.FIELD_WIDTH_METERS;
+
+  private static final double FIELD_LENGTH_METERS = Constants.FIELD_DIMENSIONS.FIELD_LENGTH_METERS;
 
   private PhysicalGridLocation(PoseAndHeading lineup, PoseAndHeading score) {
     this.lineup = lineup;
@@ -89,25 +92,28 @@ public enum PhysicalGridLocation {
   }
 
   private PhysicalGridLocation(PhysicalGridLocation blueToFlip) {
-    var blueLineup = blueToFlip.lineup;
+    // var blueLineup = blueToFlip.lineup;
 
-    this.lineup =
-        new PoseAndHeading(
-            new Pose2d(
-                blueLineup.pose.getX(),
-                FIELD_WIDTH_METERS - blueLineup.pose.getY(),
-                blueLineup.pose.getRotation()),
-            blueLineup.heading);
+    // this.lineup =
+    //     new PoseAndHeading(
+    //         new Pose2d(
+    //             blueLineup.pose.getX(),
+    //             FIELD_WIDTH_METERS - blueLineup.pose.getY(),
+    //             blueLineup.pose.getRotation()),
+    //         blueLineup.heading);
 
-    var blueScore = blueToFlip.score;
+    // var blueScore = blueToFlip.score;
 
-    this.score =
-        new PoseAndHeading(
-            new Pose2d(
-                blueScore.pose.getX(),
-                FIELD_WIDTH_METERS - blueScore.pose.getY(),
-                blueScore.pose.getRotation()),
-            blueScore.heading);
+    // this.score =
+    //     new PoseAndHeading(
+    //         new Pose2d(
+    //             blueScore.pose.getX(),
+    //             FIELD_WIDTH_METERS - blueScore.pose.getY(),
+    //             blueScore.pose.getRotation()),
+    //         blueScore.heading);
+
+    this.lineup = PoseAndHeading.flipForRed(blueToFlip.lineup);
+    this.score = PoseAndHeading.flipForRed(blueToFlip.score);
   }
 
   public void log(String ROOT) {

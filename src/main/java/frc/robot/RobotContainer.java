@@ -44,8 +44,6 @@ import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.Vision;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
-import frc.lib.team3061.vision.VisionIOPhotonVision;
-import frc.lib.team3061.vision.VisionIOSim;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
@@ -105,6 +103,13 @@ public class RobotContainer {
   private Elevator elevator;
   private LED leds;
   private Vision vision;
+
+  private DriverAssistAutos driverAssist;
+  public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
+  public SwerveAutos autos;
+  private Stinger stinger;
+  private Elevator elevator;
+  private Wrist wrist;
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
@@ -303,10 +308,10 @@ public class RobotContainer {
       SwerveModule brModule =
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {});
+      // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {}, new VisionIO() {});
+      new Elevator(new ElevatorIO() {});
       elevator = new Elevator(new ElevatorIO() {});
       stinger = new Stinger(new StingerIO() {});
-
       intake = new Intake(new IntakeIO() {});
       leds = new LED(new LEDIO() {});
       vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
@@ -325,6 +330,7 @@ public class RobotContainer {
      * direction. This is why the left joystick's y axis specifies the velocity in the x direction
      * and the left joystick's x axis specifies the velocity in the y direction.
      */
+
     drivetrain.setDefaultCommand(
         new TeleopSwerve(
             drivetrain,
@@ -564,6 +570,106 @@ public class RobotContainer {
         .start()
         .onTrue(
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
+
+    driverController
+            .leftTrigger()
+            .onTrue(
+                    new InstantCommand(
+                            () -> {
+                              var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
+
+                              var cmd =
+                                      driverAssist.driveToLogicalBaySpecificEntrance(
+                                              RobotState.getInstance().getDesiredLogicalGrid(),
+                                              DesiredGridEntrance.LEFT,
+                                              scoringSequence); // some command
+
+                              Command currentCmd = drivetrain.getCurrentCommand();
+
+                              if (currentCmd instanceof OverrideDrivetrainStop) {
+                                ((OverrideDrivetrainStop) currentCmd).overideStop();
+                              }
+
+                              cmd.schedule();
+                            }));
+
+    driverController
+            .rightTrigger()
+            .onTrue(
+                    new InstantCommand(
+                            () -> {
+                              var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
+
+                              var cmd =
+                                      driverAssist.driveToLogicalBaySpecificEntrance(
+                                              RobotState.getInstance().getDesiredLogicalGrid(),
+                                              DesiredGridEntrance.RIGHT,
+                                              scoringSequence); // some command
+
+                              Command currentCmd = drivetrain.getCurrentCommand();
+
+                              if (currentCmd instanceof OverrideDrivetrainStop) {
+                                ((OverrideDrivetrainStop) currentCmd).overideStop();
+                              }
+
+                              cmd.schedule();
+                            }));
+
+    driverController
+            .leftBumper()
+            .onTrue(
+                    new InstantCommand(
+                            () -> {
+                              // make intake spin
+                              var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
+                              // stop intake spinning
+                              var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
+
+                              var cmd =
+                                      driverAssist.humanPlayerStation(
+                                              LoadingStationLocation.LEFT, pickUpSequence, retractSequence);
+
+                              Command currentCmd = drivetrain.getCurrentCommand();
+
+                              if (currentCmd instanceof OverrideDrivetrainStop) {
+                                ((OverrideDrivetrainStop) currentCmd).overideStop();
+                              }
+
+                              cmd.schedule();
+                            }));
+
+    driverController
+            .rightBumper()
+            .onTrue(
+                    new InstantCommand(
+                            () -> {
+                              // make intake spin
+                              var pickUpSequence = driverAssist.getPickUpSequenceForHumanPlayerStation();
+                              // stop intake spinning
+                              var retractSequence = driverAssist.getRetractSequenceForHumanPlayerStation();
+
+                              var cmd =
+                                      driverAssist.humanPlayerStation(
+                                              LoadingStationLocation.RIGHT, pickUpSequence, retractSequence);
+
+                              Command currentCmd = drivetrain.getCurrentCommand();
+
+                              if (currentCmd instanceof OverrideDrivetrainStop) {
+                                ((OverrideDrivetrainStop) currentCmd).overideStop();
+                              }
+
+                              cmd.schedule();
+                            }));
+
+    driverController.b().onTrue(drivetrain.getDefaultCommand());
+
+    driverController
+            .povRight()
+            .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
+
+    driverController
+            .povLeft()
+            .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
 
     // driverController
     //     .start()
