@@ -95,6 +95,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController driverAssistController = new CommandXboxController(2);
   /* Driver Buttons */
   // these triggers are now directly detected
   // zeroGyro is assigned to back
@@ -625,13 +626,18 @@ public class RobotContainer {
                   cmd.schedule();
                 }));
 
-    driverController
+    driverAssistController
         .povRight()
         .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
 
-    driverController
+    driverAssistController
         .povLeft()
         .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
+
+    driverAssistController
+        .y()
+        .onTrue(Commands.run(() -> vision.disableMaxDistanceAwayForTags(), vision))
+        .onFalse(Commands.run(() -> vision.enableMaxDistanceAwayForTags(), vision));
 
     // driverController
     //     .start()
