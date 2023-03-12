@@ -25,6 +25,7 @@ import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLo
 import frc.lib.team2930.driverassist.LogicalGridLocation;
 import frc.lib.team2930.driverassist.PhysicalGridLocation;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.drive.GenerateAndFollowPath;
 import frc.robot.commands.drive.TeleopSwerve;
@@ -56,7 +57,13 @@ public class DriverAssistAutos {
 
   private CommandXboxController driverController;
 
-  private static PathConstraints constraints = new PathConstraints(1.5, 1.0);
+  private static TunableNumber normalVel = new TunableNumber("driverassist/normalVel", 0.75);
+  private static TunableNumber normalAccel = new TunableNumber("driverassist/normalAccel", 0.75);
+
+  private static TunableNumber elevatorUpVel =
+      new TunableNumber("driverassist/elevatorUpVel", 0.75);
+  private static TunableNumber elevatorUpAccel =
+      new TunableNumber("driverassist/elevatorUpAccell", 0.75);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
@@ -251,7 +258,11 @@ public class DriverAssistAutos {
     // grid which would lead to the robot crashing irl
     return new SequentialCommandGroup(
         new GenerateAndFollowPath(
-            drivetrain, points, constraints, firstPose, !shouldSkipEntranceCheckpoints),
+            drivetrain,
+            points,
+            new PathConstraints(normalVel.get(), normalAccel.get()),
+            firstPose,
+            !shouldSkipEntranceCheckpoints),
         // Commands.runOnce(() -> drivetrain.drive(0, 0, 0), drivetrain),
         scoringSequence.raceWith(defaultDriveCommandFactory()));
   }
@@ -364,7 +375,12 @@ public class DriverAssistAutos {
     // }
 
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(drivetrain, pointsToFollow, constraints, firstPose, true),
+        new GenerateAndFollowPath(
+            drivetrain,
+            pointsToFollow,
+            new PathConstraints(normalVel.get(), normalAccel.get()),
+            firstPose,
+            true),
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
@@ -384,7 +400,7 @@ public class DriverAssistAutos {
         new GenerateAndFollowPath(
             drivetrain,
             retractingPathPoints,
-            constraints,
+            new PathConstraints(elevatorUpVel.get(), elevatorUpAccel.get()),
             rawSequence[rawSequence.length - 1].pose,
             false),
         retractSequence
