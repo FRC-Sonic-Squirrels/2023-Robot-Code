@@ -82,6 +82,12 @@
       "names": [
         "mechStow"
       ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "mechZero"
+      ]
     }
   ]
 }

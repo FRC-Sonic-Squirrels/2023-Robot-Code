@@ -42,9 +42,9 @@ public class MechanismPositions {
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
   private static final TunableNumber elevatorHeightThreshold =
-      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 35);
+      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 20);
   private static final TunableNumber stingerExtensionThreshold =
-      new TunableNumber("MechPosCommand/stingerExtensionThreshold", 5);
+      new TunableNumber("MechPosCommand/stingerExtensionThreshold", 20);
 
   public static Timer movementTimer = new Timer();
 
@@ -216,7 +216,7 @@ public class MechanismPositions {
         // --
         new IntakeScoreCone(intake).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger));
+        safeZero(elevator, stinger).deadlineWith(new IntakeScoreCone(intake).withTimeout(0.5)));
   }
 
   public static Command coneHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
@@ -278,7 +278,7 @@ public class MechanismPositions {
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
-        avoidBumper(elevator, stinger),
+        // avoidBumper(elevator, stinger),
         new ElevatorSetHeight(elevator, groundPickupHeight),
         new StingerSetExtension(stinger, groundPickupExtension));
   }
@@ -350,6 +350,25 @@ public class MechanismPositions {
                 () -> elevator.getHeightInches() >= heightInches)
             .raceWith(suckCommand.get()),
         new InstantCommand(() -> movementTimer.stop()));
+  }
+
+  public static Command goToPositionParallel(
+      Elevator elevator, Stinger stinger, double heightInches, double extensionInches) {
+
+    return new ConditionalCommand(
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, extensionInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (stinger.getExtensionInches() <= stingerExtensionThreshold.get())),
+                new ElevatorSetHeight(elevator, heightInches))),
+        new ParallelCommandGroup(
+            new ElevatorSetHeight(elevator, heightInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                new StingerSetExtension(stinger, extensionInches))),
+        () -> elevator.getHeightInches() >= heightInches);
   }
 
   public static Command goToPositionWithSuck(
@@ -458,6 +477,13 @@ public class MechanismPositions {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
         goToPositionSimple(elevator, stinger, 8, 0),
+        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
+  }
+
+  public static Command aggressiveZero(Elevator elevator, Stinger stinger) {
+    return new SequentialCommandGroup(
+        avoidBumper(elevator, stinger),
+        goToPositionParallel(elevator, stinger, 8, 0),
         new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
   }
 

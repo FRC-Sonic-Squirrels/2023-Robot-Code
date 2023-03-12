@@ -8,6 +8,7 @@
   },
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/MainMech": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Ungrouped/PIDController[10]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[11]": "PIDController",
@@ -29,6 +30,8 @@
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
+      "/SmartDashboard/leftCameraNetwork Sim Field": "Field2d",
+      "/SmartDashboard/rightCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/simCamera Sim Field": "Field2d",
       "/SmartDashboard/test Auto routines": "String Chooser"
     },

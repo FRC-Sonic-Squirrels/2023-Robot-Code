@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6731920606698356,
-        "y": 4.822537827932798
+        "x": 3.17420806270184,
+        "y": 4.723865162016039
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.7646861028386813,
-        "y": 4.688537765092648
+        "x": 5.951268188250662,
+        "y": 4.509144018288037
       },
       "prevControl": {
-        "x": 2.400087819998447,
-        "y": 4.745994534896447
+        "x": 5.1507861307958205,
+        "y": 4.593766407218977
       },
       "nextControl": {
-        "x": 4.85105460938454,
-        "y": 4.642795933238086
+        "x": 6.6196259578492445,
+        "y": 4.4384890540733295
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -7.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,37 +49,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.937423115930398,
-        "y": 4.722844138983571
+        "x": 7.082132878551472,
+        "y": 4.365996589136035
       },
       "prevControl": {
-        "x": 5.136941058475556,
-        "y": 4.807466527914511
-      },
-      "nextControl": {
-        "x": 6.60578088552898,
-        "y": 4.652189174768863
-      },
-      "holonomicAngle": -10.007979801441332,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 7.035227080439896,
-        "y": 4.608489559347165
-      },
-      "prevControl": {
-        "x": 6.513770197297884,
-        "y": 4.656518482794455
+        "x": 6.56067599540946,
+        "y": 4.414025512583326
       },
       "nextControl": null,
       "holonomicAngle": -6.51980175165692,
@@ -97,7 +72,7 @@
   ],
   "markers": [
     {
-      "position": 1.345454545454547,
+      "position": 0.5454545454545454,
       "names": [
         "mechIntakeCube"
       ]

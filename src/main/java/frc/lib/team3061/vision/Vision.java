@@ -198,9 +198,9 @@ public class Vision extends SubsystemBase {
             }
 
             // FIXME
-            // RobotOdometry.getInstance()
-            //     .getPoseEstimator()
-            //     .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            RobotOdometry.getInstance()
+                .getPoseEstimator()
+                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
@@ -230,9 +230,9 @@ public class Vision extends SubsystemBase {
               }
             }
 
-            // RobotOdometry.getInstance()
-            //     .getPoseEstimator()
-            //     .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            RobotOdometry.getInstance()
+                .getPoseEstimator()
+                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
             Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);

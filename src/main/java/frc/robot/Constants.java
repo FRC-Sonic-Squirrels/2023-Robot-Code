@@ -34,7 +34,7 @@ public final class Constants {
   public static final String LEFT_CAMERA_NAME = "LeftCamera";
   public static final String RIGHT_CAMERA_NAME = "RightCamera";
 
-  private static final RobotType ROBOT = RobotType.ROBOT_SIMBOT;
+  private static final RobotType ROBOT = RobotType.ROBOT_2023_COMPBOT;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -206,7 +206,7 @@ public final class Constants {
   }
 
   public static class FIELD_DIMENSIONS {
-    //FIXME: This is wrong 
+    // FIXME: This is wrong
     public static double FIELD_LENGTH_METERS = 16.4592;
   }
 }

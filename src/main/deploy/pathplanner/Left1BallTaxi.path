@@ -76,6 +76,12 @@
       "names": [
         "groundPickup"
       ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "event"
+      ]
     }
   ]
 }

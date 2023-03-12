@@ -37,7 +37,6 @@ import frc.robot.commands.leds.LedSetColorForSeconds;
 import frc.robot.commands.leds.LedSetColorNoEnd;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.led.LED;
@@ -57,10 +56,7 @@ public class DriverAssistAutos {
 
   private CommandXboxController driverController;
 
-  private static PathConstraints constraints =
-      new PathConstraints(
-          DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
-          DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.75);
+  private static PathConstraints constraints = new PathConstraints(1.5, 1.0);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
