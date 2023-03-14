@@ -6,6 +6,7 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,7 +22,14 @@ public class Intake extends SubsystemBase {
   private final double OUTTAKE_CONE_INVERT = -INTAKE_CONE_INVERT;
   private final double OUTTAKE_CUBE_INVERT = -INTAKE_CUBE_INVERT;
 
-  private final LinearFilter StallDetectionFilter = LinearFilter.movingAverage(5);
+  private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
+  private final LinearFilter velocityFilter = LinearFilter.movingAverage(5);
+
+  private TunableNumber velocityThreshold = new TunableNumber("intake/velocityThreshold", 10);
+  private TunableNumber currentThreshold = new TunableNumber("intake/currentThreshold", 2);
+
+  private double filteredVelocity = 0.0;
+  private double filteredStatorCurrent = 0.0;
 
   /** Creates a new Intake */
   public Intake(IntakeIO io) {
@@ -32,6 +40,9 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
+
+    filteredVelocity = velocityFilter.calculate(inputs.intakeVelocityRPM);
+    filteredStatorCurrent = currentFilter.calculate(inputs.intakeStatorCurrent);
 
     Logger.getInstance().recordOutput("Intake/isStalled", isStalled());
   }
@@ -73,8 +84,10 @@ public class Intake extends SubsystemBase {
 
     // return (filteredCurrent >= minStallCurrent) && (velocity <= maxStallVelocity);
 
-    // FIXME:
-    return false;
+    // FIXME: need to check these numbers
+
+    return (filteredVelocity <= velocityThreshold.get()
+        && filteredStatorCurrent >= currentThreshold.get());
   }
 
   public void outtakeConeWithRPM(double speed) {}
