@@ -16,6 +16,7 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class SnapToGrid extends CommandBase {
@@ -69,9 +70,14 @@ public class SnapToGrid extends CommandBase {
               DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
               DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
-  public SnapToGrid(Drivetrain drive) {
+  private DoubleSupplier xSupplier;
+  private TunableNumber driverInputPercent =
+      new TunableNumber("snapToGrid/driverInputPercent", 0.0);
+
+  public SnapToGrid(Drivetrain drive, DoubleSupplier xSupplier) {
     // Use addRequirements,() here to declare subsystem dependencies.
     this.drive = drive;
+    this.xSupplier = xSupplier;
   }
 
   // Called when the command is initially scheduled.
@@ -147,6 +153,8 @@ public class SnapToGrid extends CommandBase {
       rotationController.setGoal(targetPose.getRotation().getRadians());
     }
     rotationOutput = rotationController.calculate(drive.getPose().getRotation().getRadians());
+
+    xVel += xSupplier.getAsDouble() * driverInputPercent.get();
 
     Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
     Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
