@@ -98,8 +98,7 @@ public class SwerveAutos {
     addCommand("hp3Piece", () -> hp3Piece());
     addCommand("hp4Piece", () -> hp4Piece());
 
-    addCommand(
-        "driveAutoEngage", () -> driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+    addCommand("driveAutoEngage", () -> driveAutoEngage());
 
     addCommand("test score cone fast", () -> score(true, GamePiece.CONE));
   }
@@ -397,31 +396,47 @@ public class SwerveAutos {
                 .until(() -> elevator.getHeightInches() <= 30)));
   }
 
-  public AutoChooserElement driveAutoEngage(Boolean flip) {
+  public AutoChooserElement driveAutoEngage() {
     return new AutoChooserElement(
         null,
         new SequentialCommandGroup(
-            new ConditionalCommand(
-                    new DriveWithSetRotation(
-                            drivetrain, elevator, stinger, () -> (-0.7), () -> 0, 180)
-                        .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5),
-                    new DriveWithSetRotation(drivetrain, elevator, stinger, () -> 0.7, () -> 0, 0)
-                        .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5),
-                    () -> flip)
+            Commands.print(
+                "----------------------------DRIVE AUTO ENGAGE ALLIINCE: "
+                    + DriverStation.getAlliance()
+                    + "-----------"),
+            // new ConditionalCommand(
+            //         new DriveWithSetRotation(
+            //                 drivetrain, elevator, stinger, () -> (-0.5), () -> 0, 180)
+            //             .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5),
+            //         new DriveWithSetRotation(drivetrain, elevator, stinger, () -> 0.5, () -> 0,
+            // 180)
+            //             .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5),
+            //         () -> DriverStation.getAlliance() == Alliance.Red)
+
+            // !!!!!!NEGATIVE NUMBER FOR X VELOCITY BECAUSE JOYSTICK VALUE
+            new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-0.8), () -> 0, 180)
+                .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5)
                 .withTimeout(1.5),
+            // new ConditionalCommand(
+            //         new DriveWithSetRotation(
+            //             drivetrain, elevator, stinger, () -> (-1.5), () -> 0, 180),
+            //         new DriveWithSetRotation(
+            //             drivetrain, elevator, stinger, () -> 1.5, () -> 0, 180),
+            //         () -> DriverStation.getAlliance() == Alliance.Red)
+
+            new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-1.5), () -> 0, 180)
+                .withTimeout(0.175),
             new ConditionalCommand(
-                    new DriveWithSetRotation(
-                        drivetrain, elevator, stinger, () -> (-1.5), () -> 0, 180),
-                    new DriveWithSetRotation(drivetrain, elevator, stinger, () -> 1.5, () -> 0, 0),
-                    () -> flip)
-                .withTimeout(0.15),
-            new AutoEngage(drivetrain, flip)));
+                    new AutoEngage(drivetrain, true),
+                    new AutoEngage(drivetrain, false),
+                    () -> DriverStation.getAlliance() == Alliance.Red)
+                .handleInterrupt(() -> drivetrain.setXStance())));
   }
 
   public AutoChooserElement middle1PieceEngage() {
     // PathPlannerTrajectory path = loadPath("middle1PieceEngage");
 
-    return scoreConeHigh().setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+    return scoreConeHigh().setNext(driveAutoEngage());
   }
 
   public AutoChooserElement autoEngage(Boolean flip) {
@@ -514,9 +529,7 @@ public class SwerveAutos {
   public AutoChooserElement wall2PieceEngage() {
     PathPlannerTrajectory path = loadPath("wall2PieceEngage");
 
-    return wall2Piece()
-        .setNext(path, false, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Blue));
+    return wall2Piece().setNext(path, false, drivetrain, getEventMap()).setNext(driveAutoEngage());
   }
 
   public AutoChooserElement wall25PieceEngage() {
@@ -564,9 +577,7 @@ public class SwerveAutos {
   public AutoChooserElement hp2PieceEngage() {
     PathPlannerTrajectory path = loadPath("Hp2PieceEngage");
 
-    return hp2Piece()
-        .setNext(path, false, drivetrain, getEventMap())
-        .setNext(driveAutoEngage(DriverStation.getAlliance() == Alliance.Red));
+    return hp2Piece().setNext(path, false, drivetrain, getEventMap()).setNext(driveAutoEngage());
   }
 
   public AutoChooserElement hp25PieceEngage() {
