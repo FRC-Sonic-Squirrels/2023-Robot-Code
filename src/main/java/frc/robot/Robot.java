@@ -90,7 +90,7 @@ public class Robot extends LoggedRobot {
           trajectory = new Trajectory();
         }
 
-        robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
+        // robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
 
         Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
         Logger.getInstance()
@@ -105,6 +105,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
+    SmartDashboard.putNumber("auto time taken", -1);
     final String GIT_DIRTY = "GitDirty";
 
     // from AdvantageKit Robot Configuration docs
@@ -209,6 +210,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.stopAll();
+    robotContainer.vision.disableMaxDistanceAwayForTags();
   }
 
   /**
@@ -217,14 +219,23 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
+    double startTimeAuto = System.currentTimeMillis();
+    robotContainer.vision.enableMaxDistanceAwayForTags();
     autonomousCommand = null;
     checkDSUpdate();
     checkForUpdatedAutonomous();
+
+    // updatePoseForAuto();
+
     if (currentAutoElement != null) {
       autonomousCommand = currentAutoElement.getCommand();
     }
 
     // schedule the autonomous command
+
+    var endTime = System.currentTimeMillis();
+
+    SmartDashboard.putNumber("auto time taken", endTime - startTimeAuto);
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
     } else {
@@ -240,6 +251,8 @@ public class Robot extends LoggedRobot {
      * autonomous to continue until interrupted by another command, remove this line or comment it
      * out.
      */
+
+    robotContainer.vision.enableMaxDistanceAwayForTags();
 
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
@@ -260,5 +273,15 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+  }
+
+  private void updatePoseForAuto() {
+    currentAutoElement = currentAutoSupplier.get();
+
+    if (currentAutoElement.getTrajectory() == null) {
+      return;
+    }
+
+    robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
   }
 }
