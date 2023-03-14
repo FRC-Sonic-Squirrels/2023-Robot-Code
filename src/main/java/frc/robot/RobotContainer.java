@@ -109,7 +109,7 @@ public class RobotContainer {
   private Stinger stinger;
   private Elevator elevator;
   private LED leds;
-  private Vision vision;
+  public Vision vision;
 
   private DriverAssistAutos driverAssist;
   public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
@@ -537,7 +537,7 @@ public class RobotContainer {
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
 
     driverController
-        .leftTrigger()
+        .leftTrigger(0.8)
         .onTrue(
             new InstantCommand(
                 () -> {
@@ -559,7 +559,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .rightTrigger()
+        .rightTrigger(0.8)
         .onTrue(
             new InstantCommand(
                 () -> {
