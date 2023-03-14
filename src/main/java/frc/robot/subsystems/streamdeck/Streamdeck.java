@@ -13,29 +13,31 @@ import java.util.Objects;
 
 public class Streamdeck extends SubsystemBase {
 
-  StreamdeckReal Deck = new StreamdeckReal();
-  boolean overrideCone = false;
-  boolean overrideCube = false;
+		StreamdeckReal Deck = new StreamdeckReal();
+		boolean overrideCone = false;
+		boolean overrideCube = false;
 
-  public Streamdeck() {
-    Commands.print("CREATED").schedule();
-  }
+		public Streamdeck() {
+				Commands.print("CREATED").schedule();
+		}
 
-  @Override
-  public void periodic() {
-    if (Deck.ifControlButtonsPressed()) {
-      if (Objects.equals(Deck.getControlButtonPressed(), "0_0")) {
-        if (Deck.ifTargetingButtonsValid()) {
-          if (Deck.getDesiredFromButton(Deck.getTargetingButtonPressed()) != RobotState.getInstance().getDesiredLogicalGrid()) {
-            Deck.setDesiredFromButton(Deck.getTargetingButtonPressed());
-          }
-        }
-      }
-    }
-    overrideCone = Objects.equals(Deck.getControlButtonPressed(), "1_0");
-    overrideCube = Objects.equals(Deck.getControlButtonPressed(), "2_0");
+		@Override
+		public void periodic() {
+				if (Deck.ifControlButtonsPressed()) {
+						if (Objects.equals(Deck.getControlButtonPressed(), "0_0")) {
+								if (Deck.ifTargetingButtonsValid()) {
+										if (Deck.getDesiredFromButton(Deck.getTargetingButtonPressed()) != RobotState.getInstance().getDesiredLogicalGrid()) {
+												Deck.setDesiredFromButton(Deck.getTargetingButtonPressed());
+										}
+								}
+						}
+				}
+				overrideCone = Objects.equals(Deck.getControlButtonPressed(), "1_0");
+				overrideCube = Objects.equals(Deck.getControlButtonPressed(), "2_0");
 
-    SmartDashboard.putBoolean("Override Cone", overrideCone);
-    SmartDashboard.putBoolean("Override Cube", overrideCube);
-  }
+				SmartDashboard.putBoolean("Override Cone", overrideCone);
+				SmartDashboard.putBoolean("Override Cube", overrideCube);
+				// post the desired location to the dashboard
+				SmartDashboard.putString("Desired Location", RobotState.getInstance().getDesiredLogicalGrid().toString());
+		}
 }
