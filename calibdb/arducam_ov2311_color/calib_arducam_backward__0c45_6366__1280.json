@@ -1,0 +1,35 @@
+{
+    "camera": "Arducam Backward (0c45:6366)",
+    "platform": "Macintosh; Intel Mac OS X 10_15_7",
+    "avg_reprojection_error": 0.3448300533110101,
+    "camera_matrix": [
+        [
+            879.0720598169321,
+            0,
+            604.9212300278572
+        ],
+        [
+            0,
+            879.1507505285007,
+            389.16742755726875
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "distortion_coefficients": [
+        -0.05910651726620547,
+        0.04721812350044875,
+        0.0023418721710541947,
+        0.00018013724744152414,
+        0.1608556267669461
+    ],
+    "distortion_model": "rectilinear",
+    "img_size": [
+        1280,
+        720
+    ],
+    "calibration_time": "Sat, 25 Feb 2023 04:51:03 GMT"
+}
