@@ -279,6 +279,10 @@ public class MechanismPositions {
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
+        new ConditionalCommand(
+            new ElevatorSetHeight(elevator, 4),
+            new InstantCommand(),
+            () -> (elevator.getHeightInches() <= elevatorAboveBumberHeight)),
         new StingerSetExtension(stinger, groundPickupExtension),
         new ElevatorSetHeight(elevator, groundPickupHeight));
   }

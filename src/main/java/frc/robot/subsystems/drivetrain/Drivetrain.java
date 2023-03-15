@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
-
 /**
  * This subsystem models the robot's drivetrain mechanism. It consists of a four MK4 swerve modules,
  * each with two motors and an encoder. It also consists of a Pigeon which is used to measure the

@@ -25,6 +25,8 @@ public class IntakeIO2023 implements IntakeIO {
     inputs.intakeTempCelsius = new double[] {motor.getTemperature()};
 
     inputs.intakeStatorCurrent = motor.getStatorCurrent();
+
+    // Logger.getInstance().recordOutput("Intake/filteredStatorCurrent", motor.getcurrent);
   }
 
   @Override

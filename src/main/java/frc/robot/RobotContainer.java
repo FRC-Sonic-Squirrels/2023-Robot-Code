@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team2930.driverassist.GridPositionHandler;
 import frc.lib.team2930.driverassist.GridPositionHandler.DesiredGridEntrance;
@@ -63,6 +64,7 @@ import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.leds.LedSetColor;
+import frc.robot.commands.leds.LedSetColorNoEnd;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.stinger.StingerManualControl;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -478,7 +480,18 @@ public class RobotContainer {
                 new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
                 new StingerManualControl(stinger, elevator, operatorController::getRightX)));
 
-    operatorController.x().onTrue(MechanismPositions.groundPickupPosition(elevator, stinger));
+    operatorController
+        .x()
+        .onTrue(
+            MechanismPositions.groundPickupPosition(elevator, stinger)
+                .alongWith(
+                    Commands.runOnce(
+                        () -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)))
+                .andThen(Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                .deadlineWith(new IntakeGrabCube(intake))
+                .andThen(
+                    MechanismPositions.stowPosition(elevator, stinger)
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())));
 
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 

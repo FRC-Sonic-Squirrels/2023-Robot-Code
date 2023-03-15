@@ -170,3 +170,6 @@ simgui.json
 
 # .wpilog files
 Log*.wpilog
+
+# include PhotonVision config files
+!PhotonVision/*.zip
