@@ -74,6 +74,7 @@ public class SwerveAutos {
     if (!DriverStation.isFMSAttached()) {
       // only add test paths when not connected to FMS
       addCommand("Test Sim Vision", () -> testSimVision());
+      addCommand("Test Cross Field and Back", () -> testCrossFieldAndBack());
       addCommand("Test Sequential", () -> testSeq());
       addCommand("2m Forward", () -> testPath2mForward());
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
@@ -322,7 +323,23 @@ public class SwerveAutos {
   public AutoChooserElement testSimVision() {
     PathPlannerTrajectory path = loadPath("TestSimVision");
 
-    return doNothing().setNext(path, true, drivetrain, getEventMap());
+    return new AutoChooserElement(
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+
+    // return doNothing().setNext(path, true, drivetrain, getEventMap());
+  }
+
+  public AutoChooserElement testCrossField() {
+    PathPlannerTrajectory path = loadPath("TestCrossField");
+
+    return new AutoChooserElement(
+        path, new SequentialCommandGroup(new FollowPath(path, drivetrain, true)));
+  }
+
+  public AutoChooserElement testCrossFieldAndBack() {
+    PathPlannerTrajectory path = loadPath("TestCrossFieldReturn");
+
+    return testCrossField().setNext(path, false, drivetrain, getEventMap());
   }
 
   // ======================= COMPETITION Autonomous Routines ========================

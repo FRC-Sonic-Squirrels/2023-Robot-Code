@@ -40,6 +40,16 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/leftCameraNetwork Sim Field": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/rightCameraNetwork Sim Field": {
+        "window": {
+          "visible": true
+        }
       }
     }
   }
