@@ -73,6 +73,7 @@ public class SwerveAutos {
 
     if (!DriverStation.isFMSAttached()) {
       // only add test paths when not connected to FMS
+      addCommand("Test Sim Vision", () -> testSimVision());
       addCommand("Test Sequential", () -> testSeq());
       addCommand("2m Forward", () -> testPath2mForward());
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
@@ -318,6 +319,12 @@ public class SwerveAutos {
     return doNothing().setNext(path, true, drivetrain, getEventMap()).setNext(scoreConeHigh());
   }
 
+  public AutoChooserElement testSimVision() {
+    PathPlannerTrajectory path = loadPath("TestSimVision");
+
+    return doNothing().setNext(path, true, drivetrain, getEventMap());
+  }
+
   // ======================= COMPETITION Autonomous Routines ========================
   //
   // Commands are built on preceding commands and are constructed using function
@@ -401,7 +408,7 @@ public class SwerveAutos {
         null,
         new SequentialCommandGroup(
             Commands.print(
-                "----------------------------DRIVE AUTO ENGAGE ALLIINCE: "
+                "----------------------------DRIVE AUTO ENGAGE ALLIANCE: "
                     + DriverStation.getAlliance()
                     + "-----------"),
             // new ConditionalCommand(

@@ -46,6 +46,7 @@
     "DEADBAND",
     "Feedforward",
     "gamepad",
+    "gamepiece",
     "gradlew",
     "holonomic",
     "howdybots",
