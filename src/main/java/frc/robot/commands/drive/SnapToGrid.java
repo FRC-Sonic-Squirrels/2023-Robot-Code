@@ -24,28 +24,28 @@ public class SnapToGrid extends CommandBase {
   private final Drivetrain drive;
 
   private static final Pose2d[] bluePos = {
-    new Pose2d(1.88, 0.55, new Rotation2d(Math.toRadians(180))), // CONE
-    new Pose2d(1.88, 1.10, new Rotation2d(Math.toRadians(180))), // CUBE
-    new Pose2d(1.88, 1.66, new Rotation2d(Math.toRadians(180))), // CONE
-    new Pose2d(1.88, 2.21, new Rotation2d(Math.toRadians(180))), // CONE
-    new Pose2d(1.88, 2.76, new Rotation2d(Math.toRadians(180))), // CUBE
-    new Pose2d(1.88, 3.33, new Rotation2d(Math.toRadians(180))), // CONE
-    new Pose2d(1.88, 3.88, new Rotation2d(Math.toRadians(180))), // CONE
-    new Pose2d(1.88, 4.44, new Rotation2d(Math.toRadians(180))), // CUBE
-    new Pose2d(1.88, 5.02, new Rotation2d(Math.toRadians(180)))
-  }; // CONE
+    new Pose2d(1.93, 0.51, new Rotation2d(Math.toRadians(180))), // CONE /\   WALL SIDE
+    new Pose2d(1.93, 1.08, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(1.93, 1.62, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(1.93, 2.18, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(1.93, 2.74, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(1.93, 3.31, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(1.93, 3.86, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(1.93, 4.42, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(1.93, 4.98, new Rotation2d(Math.toRadians(180))) // CONE /\   HUMAN PLAYER SIDE
+  };
 
   private static final Pose2d[] redPos = {
-    new Pose2d(14.69, 0.55, new Rotation2d(Math.toRadians(0))), // CONE
-    new Pose2d(14.69, 1.10, new Rotation2d(Math.toRadians(0))), // CUBE
-    new Pose2d(14.69, 1.66, new Rotation2d(Math.toRadians(0))), // CONE
-    new Pose2d(14.69, 2.21, new Rotation2d(Math.toRadians(0))), // CONE
-    new Pose2d(14.69, 2.76, new Rotation2d(Math.toRadians(0))), // CUBE
-    new Pose2d(14.69, 3.33, new Rotation2d(Math.toRadians(0))), // CONE
-    new Pose2d(14.69, 3.88, new Rotation2d(Math.toRadians(0))), // CONE
-    new Pose2d(14.69, 4.44, new Rotation2d(Math.toRadians(0))), // CUBE
-    new Pose2d(14.69, 5.02, new Rotation2d(Math.toRadians(0)))
-  }; // CONE
+    new Pose2d(14.64, 0.51, new Rotation2d(Math.toRadians(0))), // CONE /\   WALL SIDE
+    new Pose2d(14.64, 1.08, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(14.64, 1.62, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(14.64, 2.18, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(14.64, 2.74, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(14.64, 3.31, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(14.64, 3.86, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(14.64, 4.42, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(14.64, 4.98, new Rotation2d(Math.toRadians(0))) // CONE /\   HUMAN PLAYER SIDE
+  };
 
   private static final int[] cubeIndex = {1, 4, 7};
   private static final int[] coneIndex = {0, 2, 3, 5, 6, 8};
@@ -129,25 +129,16 @@ public class SnapToGrid extends CommandBase {
 
     Logger.getInstance().recordOutput("snapToGrid/targetPos", targetPose);
 
-    if (targetPose.getX() > drive.getPose().getX()) {
-      xVel = 1 * xKp.get();
-    } else {
-      xVel = -1 * xKp.get();
-    }
+    xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get();
+    yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get();
 
-    if (targetPose.getY() > drive.getPose().getY()) {
-      yVel = 1 * yKp.get();
-    } else {
-      yVel = -1 * yKp.get();
-    }
+    // if (Math.abs(targetPose.getX() - drive.getPose().getX()) < 0.05) {
+    //   xVel = 0;
+    // }
 
-    if (Math.abs(targetPose.getX() - drive.getPose().getX()) < 0.05) {
-      xVel = 0;
-    }
-
-    if (Math.abs(targetPose.getY() - drive.getPose().getY()) < 0.05) {
-      yVel = 0;
-    }
+    // if (Math.abs(targetPose.getY() - drive.getPose().getY()) < 0.05) {
+    //   yVel = 0;
+    // }
 
     if (rotationController.getGoal().position != targetPose.getRotation().getRadians()) {
       rotationController.setGoal(targetPose.getRotation().getRadians());
