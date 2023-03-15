@@ -25,8 +25,8 @@ public class Intake extends SubsystemBase {
   private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
   private final LinearFilter velocityFilter = LinearFilter.movingAverage(5);
 
-  private TunableNumber velocityThreshold = new TunableNumber("intake/velocityThreshold", 10);
-  private TunableNumber currentThreshold = new TunableNumber("intake/currentThreshold", 2);
+  private TunableNumber velocityThreshold = new TunableNumber("intake/velocityThreshold", 200);
+  private TunableNumber currentThreshold = new TunableNumber("intake/currentThreshold", 100);
 
   private double filteredVelocity = 0.0;
   private double filteredStatorCurrent = 0.0;
@@ -41,8 +41,12 @@ public class Intake extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
 
-    filteredVelocity = velocityFilter.calculate(inputs.intakeVelocityRPM);
+    filteredVelocity = velocityFilter.calculate(Math.abs(inputs.intakeVelocityRPM));
     filteredStatorCurrent = currentFilter.calculate(inputs.intakeStatorCurrent);
+
+    Logger.getInstance().recordOutput("Intake/filteredStatorCurrent", filteredStatorCurrent);
+
+    Logger.getInstance().recordOutput("Intake/filteredVelocity", filteredVelocity);
 
     Logger.getInstance().recordOutput("Intake/isStalled", isStalled());
   }
@@ -87,7 +91,7 @@ public class Intake extends SubsystemBase {
     // FIXME: need to check these numbers
 
     return (filteredVelocity <= velocityThreshold.get()
-        && filteredStatorCurrent >= currentThreshold.get());
+        && (filteredStatorCurrent >= currentThreshold.get() || filteredStatorCurrent <= -2));
   }
 
   public void outtakeConeWithRPM(double speed) {}
