@@ -17,6 +17,7 @@ import frc.robot.autonomous.SwerveAutos;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -146,12 +147,21 @@ public class Vision extends SubsystemBase {
   }
 
   private void updatePose(Camera camera) {
-    // TODO: test to see if we only need the best target rather than every target:
-    // getLatestResult(camera).getBestTarget()
-    List<String> seenTargets = new ArrayList<>();
-    for (PhotonTrackedTarget target : getLatestResult(camera).getTargets()) {
+
+    List<PhotonTrackedTarget> targets = getLatestResult(camera).getTargets();
+    Collections.sort(targets, new TargetComparator());
+
+    String debugTargetSort = "";
+    for (PhotonTrackedTarget target : targets) {
+      if (!debugTargetSort.equals("")) {
+        debugTargetSort += ", ";
+      }
+      debugTargetSort += target.getPoseAmbiguity();
+    }
+    System.out.println(debugTargetSort);
+
+    for (PhotonTrackedTarget target : targets) {
       if (isValidTarget(target)) {
-        seenTargets.add(Integer.toString(target.getFiducialId()));
         // photon camera to target
         Transform3d cameraToTarget = target.getBestCameraToTarget();
         // the raw json position of target
@@ -168,8 +178,6 @@ public class Vision extends SubsystemBase {
         Pose3d cameraPose = tagPose.transformBy(cameraToTarget.inverse());
         // camera might not be in the center of the robot
         Pose3d robotPose;
-
-        String seenTargetsText = String.join(",", seenTargets);
 
         Pose2d currentPose = RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
         double distance = 0.0;
@@ -189,43 +197,47 @@ public class Vision extends SubsystemBase {
                     .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
 
             Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
-
-            // if distance is too far away from current pose skip estimate
-            if (useMaxValidDistanceAway) {
-              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
-                continue;
-              }
-            }
-
-            // FIXME
-            RobotOdometry.getInstance()
-                .getPoseEstimator()
-                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
-
+            Logger.getInstance().recordOutput("Vision/Left/TargetCount", targets.size());
+            Logger.getInstance().recordOutput("Vision/Left/Ambiguity", target.getPoseAmbiguity());
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
             Logger.getInstance().recordOutput("Vision/Left/RobotPose", robotPose.toPose2d());
 
-            Logger.getInstance().recordOutput("Vision/Left/SeenTargets", seenTargetsText);
+            // if distance is too far away from current pose skip estimate
+            if (useMaxValidDistanceAway) {
+              if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+                Logger.getInstance().recordOutput("Vision/Left/Updated", false);
+                continue;
+              }
+            }
+
+            // FIXME: comment out this line to disable vision updates
+            RobotOdometry.getInstance()
+                .getPoseEstimator()
+                .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
+            Logger.getInstance().recordOutput("Vision/Left/Updated", true);
+
             break;
 
           case RIGHT:
             robotPose = cameraPose.transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA.inverse());
-            // poseEstimator.addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
-
-            // var currentPose =
-            // RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
 
             distance =
                 currentPose
                     .getTranslation()
                     .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
 
+            Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
+            Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);
+            Logger.getInstance().recordOutput("Vision/Right/RobotPose", robotPose.toPose2d());
             Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
+            Logger.getInstance().recordOutput("Vision/Right/TargetCount", targets.size());
+            Logger.getInstance().recordOutput("Vision/Right/Ambiguity", target.getPoseAmbiguity());
 
             // if distance is too far away from current pose skip estimate
             if (useMaxValidDistanceAway) {
               if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
+                Logger.getInstance().recordOutput("Vision/Right/Updated", false);
                 continue;
               }
             }
@@ -234,15 +246,16 @@ public class Vision extends SubsystemBase {
                 .getPoseEstimator()
                 .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
 
-            Logger.getInstance().recordOutput("Vision/Right/TagPose", tagPose);
-            Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);
-            Logger.getInstance().recordOutput("Vision/Right/RobotPose", robotPose.toPose2d());
+            Logger.getInstance().recordOutput("Vision/Right/Updated", true);
 
-            Logger.getInstance().recordOutput("Vision/Right/SeenTargets", seenTargetsText);
             break;
           default:
             robotPose = null;
+            break;
         }
+
+        // only use the first, best result
+        break;
       }
     }
   }
@@ -331,5 +344,19 @@ public class Vision extends SubsystemBase {
   public void disableUpdatePoseWithVisionReadings() {
     Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", false);
     updatePoseWithVisionReadings = false;
+  }
+}
+
+class TargetComparator implements java.util.Comparator<PhotonTrackedTarget> {
+  @Override
+  public int compare(PhotonTrackedTarget a, PhotonTrackedTarget b) {
+    double ambiguityDiff = a.getPoseAmbiguity() - b.getPoseAmbiguity();
+    if (ambiguityDiff < 0.0) {
+      return -1;
+    }
+    if (ambiguityDiff > 0.0) {
+      return 1;
+    }
+    return 0;
   }
 }

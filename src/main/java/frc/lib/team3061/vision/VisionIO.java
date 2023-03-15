@@ -1,12 +1,10 @@
 package frc.lib.team3061.vision;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 public interface VisionIO {
   public static class VisionIOInputs implements LoggableInputs {
@@ -23,13 +21,13 @@ public interface VisionIO {
       table.put("hasNewResult", hasNewResult);
 
       // log targets in a human-readable way
-      List<PhotonTrackedTarget> targets = lastResult.getTargets();
-      String[] stringifiedTargets = new String[targets.size()];
+      // List<PhotonTrackedTarget> targets = lastResult.getTargets();
+      // String[] stringifiedTargets = new String[targets.size()];
 
-      for (int i = 0; i < targets.size(); i++) {
-        stringifiedTargets[i] = targets.get(i).toString();
-      }
-      table.put("stringifiedTargets", stringifiedTargets);
+      // for (int i = 0; i < targets.size(); i++) {
+      //   stringifiedTargets[i] = targets.get(i).toString();
+      // }
+      // table.put("stringifiedTargets", stringifiedTargets);
     }
 
     public void fromLog(LogTable table) {
