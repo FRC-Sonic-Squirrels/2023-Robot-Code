@@ -185,7 +185,7 @@ public final class Constants {
     public static final double HEIGHT_LOW = 11;
     public static final double HEIGHT_MID_CUBE = 30;
     public static final double HEIGHT_MID_CONE = 37;
-    public static final double HEIGHT_HIGH_CUBE = 45.5;
+    public static final double HEIGHT_HIGH_CUBE = 46.5;
     public static final double HEIGHT_HIGH_CONE = Elevator.MAX_HEIGHT_INCHES;
 
     public static final double STOW_HEIGHT = 6;

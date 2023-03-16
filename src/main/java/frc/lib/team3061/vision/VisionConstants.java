@@ -28,7 +28,7 @@ public final class VisionConstants {
               Units.inchesToMeters(-0.51), Units.inchesToMeters(-10.2), Units.inchesToMeters(22.8)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(-30.0)));
 
-  public static final double MAXIMUM_AMBIGUITY = 0.15;
+  public static final double MAXIMUM_AMBIGUITY = 0.08;
 
   public static final double MAX_VALID_DISTANCE_AWAY_METERS = 1;
 }

@@ -95,7 +95,7 @@ public class SwerveAutos {
     addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
     addCommand("hp2Piece", () -> hp2Piece());
     addCommand("hp2PieceEngage", () -> hp2PieceEngage());
-    addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
+    // addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
     addCommand("hp3Piece", () -> hp3Piece());
     addCommand("hp4Piece", () -> hp4Piece());
 
@@ -373,7 +373,7 @@ public class SwerveAutos {
                 () -> goUp),
             new ConditionalCommand(
                 new IntakeScoreCone(intake).withTimeout(0.4),
-                new IntakeScoreCube(intake).withTimeout(0.2),
+                new IntakeScoreCube(intake, 0.75).withTimeout(0.2),
                 () -> (gamepiece == GamePiece.CONE)),
             MechanismPositions.aggressiveZero(elevator, stinger)
                 .until(() -> elevator.getHeightInches() <= 40)
@@ -421,9 +421,9 @@ public class SwerveAutos {
             //         () -> DriverStation.getAlliance() == Alliance.Red)
 
             // !!!!!!NEGATIVE NUMBER FOR X VELOCITY BECAUSE JOYSTICK VALUE
-            new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-0.8), () -> 0, 180)
+            new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-1.2), () -> 0, 180)
                 .until(() -> Math.abs(drivetrain.getGyroPitch()) >= 13.5)
-                .withTimeout(1.5),
+                .withTimeout(0.95),
             // new ConditionalCommand(
             //         new DriveWithSetRotation(
             //             drivetrain, elevator, stinger, () -> (-1.5), () -> 0, 180),
@@ -432,7 +432,7 @@ public class SwerveAutos {
             //         () -> DriverStation.getAlliance() == Alliance.Red)
 
             new DriveWithSetRotation(drivetrain, elevator, stinger, () -> (-1.5), () -> 0, 180)
-                .withTimeout(0.175),
+                .withTimeout(0.25), // 0.175
             new ConditionalCommand(
                     new AutoEngage(drivetrain, true),
                     new AutoEngage(drivetrain, false),

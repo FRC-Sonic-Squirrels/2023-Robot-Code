@@ -158,7 +158,6 @@ public class Vision extends SubsystemBase {
       }
       debugTargetSort += target.getPoseAmbiguity();
     }
-    System.out.println(debugTargetSort);
 
     for (PhotonTrackedTarget target : targets) {
       if (isValidTarget(target)) {
