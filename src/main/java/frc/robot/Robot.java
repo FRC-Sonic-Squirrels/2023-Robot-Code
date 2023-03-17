@@ -90,7 +90,8 @@ public class Robot extends LoggedRobot {
           trajectory = new Trajectory();
         }
 
-        // robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
+        // FIXME: need to be careful setting odometry, especially when switching from auto to teleop
+        //  robotContainer.getDrivetrain().resetOdometry(currentAutoElement.getInitialState());
 
         Logger.getInstance().recordOutput("Odometry/autonTrajectory", trajectory);
         Logger.getInstance()
@@ -238,6 +239,9 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putNumber("auto time taken", endTime - startTimeAuto);
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
+
+      // reset autonomous so if we call autonInit() again, the auto command gets regenerated
+      currentAutoName = "";
     } else {
       System.out.println("WARNING: null Autonomous Command");
     }

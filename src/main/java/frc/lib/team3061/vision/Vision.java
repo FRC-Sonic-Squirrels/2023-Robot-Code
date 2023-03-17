@@ -148,16 +148,11 @@ public class Vision extends SubsystemBase {
 
   private void updatePose(Camera camera) {
 
+    boolean updated = false;
+
+    // sort the list with smallest Ambiguity first
     List<PhotonTrackedTarget> targets = getLatestResult(camera).getTargets();
     Collections.sort(targets, new TargetComparator());
-
-    String debugTargetSort = "";
-    for (PhotonTrackedTarget target : targets) {
-      if (!debugTargetSort.equals("")) {
-        debugTargetSort += ", ";
-      }
-      debugTargetSort += target.getPoseAmbiguity();
-    }
 
     for (PhotonTrackedTarget target : targets) {
       if (isValidTarget(target)) {
@@ -196,7 +191,6 @@ public class Vision extends SubsystemBase {
                     .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
 
             Logger.getInstance().recordOutput("Vision/Left/distFromRobot", distance);
-            Logger.getInstance().recordOutput("Vision/Left/TargetCount", targets.size());
             Logger.getInstance().recordOutput("Vision/Left/Ambiguity", target.getPoseAmbiguity());
             Logger.getInstance().recordOutput("Vision/Left/TagPose", tagPose);
             Logger.getInstance().recordOutput("Vision/Left/CameraPose", cameraPose);
@@ -205,16 +199,14 @@ public class Vision extends SubsystemBase {
             // if distance is too far away from current pose skip estimate
             if (useMaxValidDistanceAway) {
               if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
-                Logger.getInstance().recordOutput("Vision/Left/Updated", false);
                 continue;
               }
             }
 
-            // FIXME: comment out this line to disable vision updates
+            updated = true;
             RobotOdometry.getInstance()
                 .getPoseEstimator()
                 .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
-            Logger.getInstance().recordOutput("Vision/Left/Updated", true);
 
             break;
 
@@ -230,22 +222,19 @@ public class Vision extends SubsystemBase {
             Logger.getInstance().recordOutput("Vision/Right/CameraPose", cameraPose);
             Logger.getInstance().recordOutput("Vision/Right/RobotPose", robotPose.toPose2d());
             Logger.getInstance().recordOutput("Vision/Right/distFromRobot", distance);
-            Logger.getInstance().recordOutput("Vision/Right/TargetCount", targets.size());
             Logger.getInstance().recordOutput("Vision/Right/Ambiguity", target.getPoseAmbiguity());
 
             // if distance is too far away from current pose skip estimate
             if (useMaxValidDistanceAway) {
               if (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS) {
-                Logger.getInstance().recordOutput("Vision/Right/Updated", false);
                 continue;
               }
             }
 
+            updated = true;
             RobotOdometry.getInstance()
                 .getPoseEstimator()
                 .addVisionMeasurement(robotPose.toPose2d(), getLatestTimestamp(camera));
-
-            Logger.getInstance().recordOutput("Vision/Right/Updated", true);
 
             break;
           default:
@@ -256,6 +245,16 @@ public class Vision extends SubsystemBase {
         // only use the first, best result
         break;
       }
+    }
+    switch (camera) {
+      case LEFT:
+        Logger.getInstance().recordOutput("Vision/Left/Updated", updated);
+        Logger.getInstance().recordOutput("Vision/Left/TargetCount", targets.size());
+        break;
+      case RIGHT:
+        Logger.getInstance().recordOutput("Vision/Right/Updated", updated);
+        Logger.getInstance().recordOutput("Vision/Right/TargetCount", targets.size());
+        break;
     }
   }
 
