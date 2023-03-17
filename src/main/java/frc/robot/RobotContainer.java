@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team2930.driverassist.GridPositionHandler;
-import frc.lib.team2930.driverassist.GridPositionHandler.DesiredGridEntrance;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -98,7 +97,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
-  private final CommandXboxController driverAssistController = new CommandXboxController(2);
+  //   private final CommandXboxController driverAssistController = new CommandXboxController(2);
   /* Driver Buttons */
   // these triggers are now directly detected
   // zeroGyro is assigned to back
@@ -460,8 +459,6 @@ public class RobotContainer {
                     0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
-    driverController.x().whileTrue(new SnapToGrid(drivetrain, driverController::getLeftY));
-
     // TODO: test this to see if it works
     // driverController
     //     .x()
@@ -552,49 +549,54 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)));
 
-    driverController
-        .leftTrigger(0.8)
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
+    operatorController
+        .povRight()
+        .onTrue(Commands.run(() -> vision.disableMaxDistanceAwayForTags(), vision))
+        .onFalse(Commands.run(() -> vision.enableMaxDistanceAwayForTags(), vision));
 
-                  var cmd =
-                      driverAssist.driveToLogicalBaySpecificEntrance(
-                          RobotState.getInstance().getDesiredLogicalGrid(),
-                          DesiredGridEntrance.LEFT,
-                          scoringSequence); // some command
+    // driverController
+    //     .leftTrigger(0.8)
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
-                  Command currentCmd = drivetrain.getCurrentCommand();
+    //               var cmd =
+    //                   driverAssist.driveToLogicalBaySpecificEntrance(
+    //                       RobotState.getInstance().getDesiredLogicalGrid(),
+    //                       DesiredGridEntrance.LEFT,
+    //                       scoringSequence); // some command
 
-                  if (currentCmd instanceof OverrideDrivetrainStop) {
-                    ((OverrideDrivetrainStop) currentCmd).overideStop();
-                  }
+    //               Command currentCmd = drivetrain.getCurrentCommand();
 
-                  cmd.schedule();
-                }));
+    //               if (currentCmd instanceof OverrideDrivetrainStop) {
+    //                 ((OverrideDrivetrainStop) currentCmd).overideStop();
+    //               }
 
-    driverController
-        .rightTrigger(0.8)
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
+    //               cmd.schedule();
+    //             }));
 
-                  var cmd =
-                      driverAssist.driveToLogicalBaySpecificEntrance(
-                          RobotState.getInstance().getDesiredLogicalGrid(),
-                          DesiredGridEntrance.RIGHT,
-                          scoringSequence); // some command
+    // driverController
+    //     .rightTrigger(0.8)
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var scoringSequence = driverAssist.getScoringSequenceForGridPositionAuto();
 
-                  Command currentCmd = drivetrain.getCurrentCommand();
+    //               var cmd =
+    //                   driverAssist.driveToLogicalBaySpecificEntrance(
+    //                       RobotState.getInstance().getDesiredLogicalGrid(),
+    //                       DesiredGridEntrance.RIGHT,
+    //                       scoringSequence); // some command
 
-                  if (currentCmd instanceof OverrideDrivetrainStop) {
-                    ((OverrideDrivetrainStop) currentCmd).overideStop();
-                  }
+    //               Command currentCmd = drivetrain.getCurrentCommand();
 
-                  cmd.schedule();
-                }));
+    //               if (currentCmd instanceof OverrideDrivetrainStop) {
+    //                 ((OverrideDrivetrainStop) currentCmd).overideStop();
+    //               }
+
+    //               cmd.schedule();
+    //             }));
 
     driverController
         .leftBumper()
@@ -642,18 +644,22 @@ public class RobotContainer {
                   cmd.schedule();
                 }));
 
-    driverAssistController
-        .povRight()
-        .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
+    driverController
+        .leftTrigger(0.5)
+        .whileTrue(new SnapToGrid(drivetrain, driverController::getLeftY));
 
-    driverAssistController
-        .povLeft()
-        .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
+    // driverAssistController
+    //     .povRight()
+    //     .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
 
-    driverAssistController
-        .y()
-        .onTrue(Commands.run(() -> vision.disableMaxDistanceAwayForTags(), vision))
-        .onFalse(Commands.run(() -> vision.enableMaxDistanceAwayForTags(), vision));
+    // driverAssistController
+    //     .povLeft()
+    //     .onTrue(Commands.runOnce(() -> RobotState.getInstance().decrementDesiredBay()));
+
+    // driverAssistController
+    //     .y()
+    //     .onTrue(Commands.run(() -> vision.disableMaxDistanceAwayForTags(), vision))
+    //     .onFalse(Commands.run(() -> vision.enableMaxDistanceAwayForTags(), vision));
 
     // driverController
     //     .start()

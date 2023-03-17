@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -57,13 +58,15 @@ public class DriverAssistAutos {
 
   private CommandXboxController driverController;
 
-  private static TunableNumber normalVel = new TunableNumber("driverassist/normalVel", 0.75);
-  private static TunableNumber normalAccel = new TunableNumber("driverassist/normalAccel", 0.75);
+  private static TunableNumber normalVel = new TunableNumber("driverassist/normalVel", 4.0);
+  private static TunableNumber normalAccel = new TunableNumber("driverassist/normalAccel", 3.5);
 
   private static TunableNumber elevatorUpVel =
       new TunableNumber("driverassist/elevatorUpVel", 0.75);
   private static TunableNumber elevatorUpAccel =
       new TunableNumber("driverassist/elevatorUpAccell", 0.75);
+
+  private static TunableNumber driveBackSpeed = new TunableNumber("driverassist/driveBackSpeed", 3);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
@@ -397,15 +400,21 @@ public class DriverAssistAutos {
             .raceWith(driverConfirmationCommand()),
 
         // -- this can become back away and safe distance and then immediately give driver control
-        new GenerateAndFollowPath(
-            drivetrain,
-            retractingPathPoints,
-            new PathConstraints(elevatorUpVel.get(), elevatorUpAccel.get()),
-            rawSequence[rawSequence.length - 1].pose,
-            false),
-        retractSequence
-            .alongWith(ledsSignalGoodToGo().asProxy())
-            .alongWith(defaultDriveCommandFactory()));
+        // new GenerateAndFollowPath(
+        //     drivetrain,
+        //     retractingPathPoints,
+        //     new PathConstraints(elevatorUpVel.get(), elevatorUpAccel.get()),
+        //     rawSequence[rawSequence.length - 1].pose,
+        //     false),
+        new ConditionalCommand(
+                Commands.run(() -> drivetrain.drive(driveBackSpeed.get(), 0.0, 0.0), drivetrain),
+                Commands.run(() -> drivetrain.drive(-driveBackSpeed.get(), 0.0, 0.0), drivetrain),
+                () -> DriverStation.getAlliance() == Alliance.Red)
+            .withTimeout(0.3)
+            .alongWith(
+                new SequentialCommandGroup(
+                    Commands.waitSeconds(0.2), retractSequence.withTimeout(0.1)))
+            .alongWith(ledsSignalGoodToGo().asProxy()));
   }
 
   public Command getScoringSequenceForGridPositionAuto() {

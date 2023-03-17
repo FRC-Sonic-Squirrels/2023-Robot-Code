@@ -55,8 +55,8 @@ public class SnapToGrid extends CommandBase {
 
   private Pose2d targetPose = new Pose2d(1000.0, 1000.0, new Rotation2d(0.0));
 
-  private TunableNumber xKp = new TunableNumber("snapToGrid/xKp", 0.8);
-  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 1.2);
+  private TunableNumber xKp = new TunableNumber("snapToGrid/xKp", 4.0);
+  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 4.0);
 
   private TunableNumber rotationKp = new TunableNumber("snapToGrid/rotationKp", 4.9);
   private double rotationOutput;
