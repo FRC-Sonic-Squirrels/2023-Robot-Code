@@ -11,6 +11,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -425,6 +427,51 @@ public class Drivetrain extends SubsystemBase {
     }
     if (autoTurnKp.hasChanged() || autoTurnKi.hasChanged() || autoTurnKd.hasChanged()) {
       autoThetaController.setPID(autoTurnKp.get(), autoTurnKi.get(), autoTurnKd.get());
+    }
+
+    // if out of bounds, clamp to field
+    if (poseEstimator.getEstimatedPosition().getY() <= 0.43) {
+      poseEstimator.resetPosition(
+          this.getRotation(),
+          swerveModulePositions,
+          new Pose2d(
+              poseEstimator.getEstimatedPosition().getX(),
+              0.46,
+              poseEstimator.getEstimatedPosition().getRotation()));
+    }
+
+    if (poseEstimator.getEstimatedPosition().getY() > 7.59) {
+      poseEstimator.resetPosition(
+          this.getRotation(),
+          swerveModulePositions,
+          new Pose2d(
+              poseEstimator.getEstimatedPosition().getX(),
+              7.56,
+              poseEstimator.getEstimatedPosition().getRotation()));
+    }
+
+    if (DriverStation.getAlliance() == Alliance.Blue) {
+      if (poseEstimator.getEstimatedPosition().getX() > 15.82
+          || poseEstimator.getEstimatedPosition().getX() < 1.81) {
+        poseEstimator.resetPosition(
+            this.getRotation(),
+            swerveModulePositions,
+            new Pose2d(
+                MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 1.81, 15.82),
+                poseEstimator.getEstimatedPosition().getY(),
+                poseEstimator.getEstimatedPosition().getRotation()));
+      }
+    } else {
+      if (poseEstimator.getEstimatedPosition().getX() > 14.71
+          || poseEstimator.getEstimatedPosition().getX() < 0.71) {
+        poseEstimator.resetPosition(
+            this.getRotation(),
+            swerveModulePositions,
+            new Pose2d(
+                MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 0.71, 14.71),
+                poseEstimator.getEstimatedPosition().getY(),
+                poseEstimator.getEstimatedPosition().getRotation()));
+      }
     }
 
     // log poses, 3D geometry, and swerve module states, gyro offset
