@@ -83,26 +83,26 @@ public class SwerveAutos {
     }
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());
-    addCommand("middle1PieceEngage", () -> middle1PieceEngage());
+    // addCommand("middle1PieceEngage", () -> middle1PieceEngage());
     addCommand("middleDriveOutEngage", () -> middleDriveOutEngage(false));
-    addCommand("middleEngageWithCube", () -> middleDriveOutEngage(true));
+    // addCommand("middleEngageWithCube", () -> middleDriveOutEngage(true));
     // addCommand("middle2PieceEngage", () -> middle2PieceEngage());
     addCommand("wall1PieceTaxi", () -> wall1PieceTaxi());
     addCommand("wall2Piece", () -> wall2Piece());
     addCommand("wall2PieceEngage", () -> wall2PieceEngage());
-    addCommand("wall2.5PieceEngage", () -> wall25PieceEngage());
+    // addCommand("wall2.5PieceEngage", () -> wall25PieceEngage());
     addCommand("wall3Piece", () -> wall3Piece());
-    addCommand("wall4Piece", () -> wall4Piece());
+    // addCommand("wall4Piece", () -> wall4Piece());
     addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
     addCommand("hp2Piece", () -> hp2Piece());
     addCommand("hp2PieceEngage", () -> hp2PieceEngage());
     // addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
     addCommand("hp3Piece", () -> hp3Piece());
-    addCommand("hp4Piece", () -> hp4Piece());
+    // addCommand("hp4Piece", () -> hp4Piece());
 
     addCommand("driveAutoEngage", () -> driveAutoEngage());
 
-    addCommand("test score cone fast", () -> score(true, GamePiece.CONE));
+    // addCommand("test score cone fast", () -> score(true, GamePiece.CONE));
   }
 
   /**
