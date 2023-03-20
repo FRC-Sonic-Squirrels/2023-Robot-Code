@@ -30,6 +30,7 @@
       "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
+      "/SmartDashboard/Robot Pose Field": "Field2d",
       "/SmartDashboard/leftCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/rightCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/simCamera Sim Field": "Field2d",
@@ -37,6 +38,11 @@
     },
     "windows": {
       "/SmartDashboard/Auto Routine": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Robot Pose Field": {
         "window": {
           "visible": true
         }
@@ -50,6 +56,16 @@
         "window": {
           "visible": true
         }
+      }
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "SmartDashboard": {
+        "Robot Pose Field": {
+          "open": true
+        },
+        "open": true
       }
     }
   }

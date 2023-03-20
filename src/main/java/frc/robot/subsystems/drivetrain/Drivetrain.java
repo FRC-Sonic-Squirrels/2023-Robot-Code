@@ -28,8 +28,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.gyro.GyroIO;
@@ -51,7 +49,7 @@ import org.littletonrobotics.junction.Logger;
 public class Drivetrain extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-  private final Field2d field = new Field2d();
+  // private final Field2d field = new Field2d();
 
   private final TunableNumber autoDriveKp =
       new TunableNumber("AutoDrive/DriveKp", AUTO_DRIVE_P_CONTROLLER);
@@ -181,7 +179,7 @@ public class Drivetrain extends SubsystemBase {
       tab.add("Disable XStance", new InstantCommand(this::disableXstance));
     }
 
-    SmartDashboard.putData("Field", field);
+    // SmartDashboard.putData("Robot Pose Field", field);
 
     Timer.delay(1.0);
     resetModulesToAbsolute();
@@ -415,8 +413,6 @@ public class Drivetrain extends SubsystemBase {
     poseEstimator.updateWithTime(
         Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
 
-    field.setRobotPose(poseEstimator.getEstimatedPosition());
-
     // update the brake mode based on the robot's velocity and state (enabled/disabled)
     updateBrakeMode();
 
@@ -440,19 +436,19 @@ public class Drivetrain extends SubsystemBase {
               poseEstimator.getEstimatedPosition().getRotation()));
     }
 
-    if (poseEstimator.getEstimatedPosition().getY() > 7.59) {
+    if (poseEstimator.getEstimatedPosition().getY() > 8.35) {
       poseEstimator.resetPosition(
           this.getRotation(),
           swerveModulePositions,
           new Pose2d(
               poseEstimator.getEstimatedPosition().getX(),
-              7.56,
+              7.73,
               poseEstimator.getEstimatedPosition().getRotation()));
     }
 
     if (DriverStation.getAlliance() == Alliance.Blue) {
       if (poseEstimator.getEstimatedPosition().getX() > 15.82
-          || poseEstimator.getEstimatedPosition().getX() < 1.81) {
+          || poseEstimator.getEstimatedPosition().getX() < 0.9) {
         poseEstimator.resetPosition(
             this.getRotation(),
             swerveModulePositions,
@@ -462,7 +458,7 @@ public class Drivetrain extends SubsystemBase {
                 poseEstimator.getEstimatedPosition().getRotation()));
       }
     } else {
-      if (poseEstimator.getEstimatedPosition().getX() > 14.71
+      if (poseEstimator.getEstimatedPosition().getX() > 15.6
           || poseEstimator.getEstimatedPosition().getX() < 0.71) {
         poseEstimator.resetPosition(
             this.getRotation(),
@@ -494,6 +490,9 @@ public class Drivetrain extends SubsystemBase {
 
     Logger.getInstance().recordOutput("Odometry/xvel", speeds.vxMetersPerSecond);
     Logger.getInstance().recordOutput("Odometry/yvel", speeds.vyMetersPerSecond);
+
+    // field.setRobotPose(poseEstimator.getEstimatedPosition());
+    //  SmartDashboard.putData(field);
   }
 
   /**

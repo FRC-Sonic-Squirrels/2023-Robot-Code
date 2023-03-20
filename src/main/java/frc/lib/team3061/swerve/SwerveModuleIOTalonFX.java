@@ -3,6 +3,7 @@ package frc.lib.team3061.swerve;
 import static frc.lib.team3061.swerve.SwerveModuleConstants.*;
 import static frc.robot.Constants.*;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -20,6 +21,7 @@ import frc.lib.team254.drivers.TalonFXFactory;
 import frc.lib.team3061.util.CANDeviceFinder;
 import frc.lib.team3061.util.CANDeviceId.CANDeviceType;
 import frc.lib.team6328.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * Implementation of the SwerveModuleIO interface for MK4 Swerve Modules with two Falcon 500 motors
@@ -40,6 +42,8 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   private SimpleMotorFeedforward feedForward;
   private double angleOffsetDeg;
 
+  private int moduleNumber;
+
   /**
    * Make a new SwerveModuleIOTalonFX object.
    *
@@ -52,6 +56,7 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   public SwerveModuleIOTalonFX(
       int moduleNumber, int driveMotorID, int angleMotorID, int canCoderID, double angleOffsetDeg) {
 
+    this.moduleNumber = moduleNumber;
     this.angleOffsetDeg = angleOffsetDeg;
 
     this.feedForward = new SimpleMotorFeedforward(DRIVE_KS, DRIVE_KV, DRIVE_KA);
@@ -180,6 +185,12 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
       mAngleMotor.config_kI(SLOT_INDEX, turnKi.get());
       mAngleMotor.config_kD(SLOT_INDEX, turnKd.get());
     }
+
+    boolean driveError = mDriveMotor.getLastError().equals(ErrorCode.OK);
+    boolean steerError = mAngleMotor.getLastError().equals(ErrorCode.OK);
+
+    Logger.getInstance().recordOutput("Swerve Errors/" + moduleNumber + "/drive", driveError);
+    Logger.getInstance().recordOutput("Swerve Errors/" + moduleNumber + "/steer", steerError);
   }
 
   /** Run the drive motor at the specified percentage of full power. */

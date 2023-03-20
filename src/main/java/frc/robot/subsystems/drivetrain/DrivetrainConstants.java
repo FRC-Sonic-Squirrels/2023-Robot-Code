@@ -40,7 +40,7 @@ public final class DrivetrainConstants {
   public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 311.9; // 250.0; // 201.9; // 201.7;
 
   public static final int PIGEON_ID = 15;
-  public static final String PIGEON_CAN_BUS_NAME = "CANivore";
+  public static final String PIGEON_CAN_BUS_NAME = "";
 
   /**
    * The left-to-right distance between the drivetrain wheels
