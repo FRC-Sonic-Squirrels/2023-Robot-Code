@@ -177,6 +177,11 @@ public class DriveWithSetRotation extends CommandBase {
   @Override
   public boolean isFinished() {
 
+    if (!drivetrain.getGyroConnected()) {
+      DriverStation.reportWarning("NO IMU/GYRO, drive with set rotation disabled.", false);
+      return true;
+    }
+
     return false;
   }
 }

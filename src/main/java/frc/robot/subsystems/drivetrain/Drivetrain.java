@@ -761,6 +761,10 @@ public class Drivetrain extends SubsystemBase {
     return path;
   }
 
+  public boolean getGyroConnected() {
+    return gyroInputs.connected;
+  }
+
   public double getGyroYaw() {
     return gyroInputs.yaw;
   }
