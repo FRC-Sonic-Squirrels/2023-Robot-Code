@@ -77,8 +77,8 @@ public class ElevatorSim implements ElevatorIO {
     // RoboRioSim.setVInVoltage(
     //     BatterySim.calculateDefaultBatteryLoadedVoltage(simElevator.getCurrentDrawAmps()));
 
-    Logger.getInstance().recordOutput("elevator/controlEffort", controlEffort);
-    Logger.getInstance().recordOutput("elevator/actual controller kp", controller.getP());
+    Logger.getInstance().recordOutput("Elevator/controlEffort", controlEffort);
+    Logger.getInstance().recordOutput("Elevator/actual controller kp", controller.getP());
 
     inputs.ElevatorHeightInches = Units.metersToInches(simElevator.getPositionMeters());
     currentHeightInches = Units.metersToInches(simElevator.getPositionMeters());

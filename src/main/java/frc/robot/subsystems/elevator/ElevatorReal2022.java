@@ -60,11 +60,11 @@ public class ElevatorReal2022 implements ElevatorIO {
   private boolean solenoidEnabled = false;
 
   private final TunableNumber Kp =
-      new TunableNumber("elevator/Kp", Constants.Elevator2022.P_CONTROLLER);
+      new TunableNumber("Elevator/Kp", Constants.Elevator2022.P_CONTROLLER);
   private final TunableNumber Ki =
-      new TunableNumber("elevator/Ki", Constants.Elevator2022.I_CONTROLLER);
+      new TunableNumber("Elevator/Ki", Constants.Elevator2022.I_CONTROLLER);
   private final TunableNumber Kd =
-      new TunableNumber("elevator/Kd", Constants.Elevator2022.D_CONTROLLER);
+      new TunableNumber("Elevator/Kd", Constants.Elevator2022.D_CONTROLLER);
 
   public ElevatorReal2022() {
     lead_talon.configFactoryDefault();
@@ -304,10 +304,10 @@ public class ElevatorReal2022 implements ElevatorIO {
     inputs.ElevatorVelocityInchesPerSecond = ticks2distance * 10.0 * sensorVelocity;
     inputs.ElevatorVelocityRPM = sensorVelocity * 10.0 * ticks2rotation;
 
-    Logger.getInstance().recordOutput("elevator/ElevatorUpperSoftLimit", maxExtensionInches);
-    Logger.getInstance().recordOutput("elevator/ElevatorHeightTicks", sensorPosition);
+    Logger.getInstance().recordOutput("Elevator/ElevatorUpperSoftLimit", maxExtensionInches);
+    Logger.getInstance().recordOutput("Elevator/ElevatorHeightTicks", sensorPosition);
     Logger.getInstance()
-        .recordOutput("elevator/ElevatorUpperSoftLimitTicks", inchesToTicks(maxExtensionInches));
+        .recordOutput("Elevator/ElevatorUpperSoftLimitTicks", inchesToTicks(maxExtensionInches));
   }
 
   // @Override

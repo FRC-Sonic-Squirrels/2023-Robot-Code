@@ -81,14 +81,14 @@ public class SimulatedMechanism extends SubsystemBase {
 
   public void setElevatorLengthInches(double lengthInches) {
     Logger.getInstance()
-        .recordOutput("elevator/lengthMeters set", elevatorMinLengthInches + lengthInches);
+        .recordOutput("Elevator/lengthMeters set", elevatorMinLengthInches + lengthInches);
     elevatorLength = elevatorMinLengthInches + lengthInches;
-    Logger.getInstance().recordOutput("elevator/lengthMeters set after math", elevatorLength);
+    Logger.getInstance().recordOutput("Elevator/lengthMeters set after math", elevatorLength);
   }
 
   public void setStingerLengthInches(double lengthInches) {
     Logger.getInstance()
-        .recordOutput("elevator/stinger set", stingerMinLengthInches + lengthInches);
+        .recordOutput("Elevator/stinger set", stingerMinLengthInches + lengthInches);
     stingerlength = stingerMinLengthInches + lengthInches;
   }
 

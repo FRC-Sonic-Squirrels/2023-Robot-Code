@@ -141,11 +141,11 @@ public class ElevatorReal2023 implements ElevatorIO {
     inputs.ElevatorVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
 
     Logger.getInstance()
-        .recordOutput("elevator/distanceInTicks", lead_talon.getSelectedSensorPosition());
+        .recordOutput("Elevator/distanceInTicks", lead_talon.getSelectedSensorPosition());
 
     Logger.getInstance()
         .recordOutput(
-            "elevator/distanceError", inputs.ElevatorSetpointInches - inputs.ElevatorHeightInches);
+            "Elevator/distanceError", inputs.ElevatorSetpointInches - inputs.ElevatorHeightInches);
   }
 
   public void updateProfilePosition() {

@@ -23,18 +23,18 @@ public class Elevator extends SubsystemBase {
   public static final double toleranceInches = 0.025;
   private boolean zeroed = false;
 
-  public final TunableNumber Kf = new TunableNumber("elevator/Kf", Constants.Elevator.F_CONTROLLER);
+  public final TunableNumber Kf = new TunableNumber("Elevator/Kf", Constants.Elevator.F_CONTROLLER);
   // for simulator use kP 2.0
-  public final TunableNumber Kp = new TunableNumber("elevator/Kp", Constants.Elevator.P_CONTROLLER);
-  public final TunableNumber Ki = new TunableNumber("elevator/Ki", Constants.Elevator.I_CONTROLLER);
-  public final TunableNumber Kd = new TunableNumber("elevator/Kd", Constants.Elevator.D_CONTROLLER);
+  public final TunableNumber Kp = new TunableNumber("Elevator/Kp", Constants.Elevator.P_CONTROLLER);
+  public final TunableNumber Ki = new TunableNumber("Elevator/Ki", Constants.Elevator.I_CONTROLLER);
+  public final TunableNumber Kd = new TunableNumber("Elevator/Kd", Constants.Elevator.D_CONTROLLER);
 
   public final TunableNumber cruiseVelocity =
       new TunableNumber(
-          "elevator/cruiseVelocity", Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC);
+          "Elevator/cruiseVelocity", Constants.Elevator.CRUISE_VELOCITY_INCHES_PER_SEC);
 
   public final TunableNumber desiredTimeToSpeed =
-      new TunableNumber("elevator/desiredTimeToSpeed", Constants.Elevator.DESIRED_TIME_TO_SPEED);
+      new TunableNumber("Elevator/desiredTimeToSpeed", Constants.Elevator.DESIRED_TIME_TO_SPEED);
 
   public Elevator(ElevatorIO io) {
     this.io = io;

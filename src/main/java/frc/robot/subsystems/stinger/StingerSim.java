@@ -59,8 +59,8 @@ public class StingerSim implements StingerIO {
 
     mechanism.setStingerLengthInches(Units.metersToInches(simStinger.getPositionMeters()));
 
-    Logger.getInstance().recordOutput("stinger/controlEffort", controlEffort);
-    Logger.getInstance().recordOutput("stinger/actual controller kp", controller.getP());
+    Logger.getInstance().recordOutput("Stinger/controlEffort", controlEffort);
+    Logger.getInstance().recordOutput("Stinger/actual controller kp", controller.getP());
 
     inputs.StingerExtensionInches = Units.metersToInches(simStinger.getPositionMeters());
     currentExtensionInches = Units.metersToInches(simStinger.getPositionMeters());

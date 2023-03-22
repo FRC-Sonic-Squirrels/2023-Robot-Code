@@ -118,11 +118,11 @@ public class StingerIOReal implements StingerIO {
     inputs.StingerVelocityInchesPerSecond = ticksToInchesPerSecond(sensorVelocity);
     inputs.StingerVelocityRPM = sensorVelocity * 10.0 * ticks2rotations / 60.0;
 
-    Logger.getInstance().recordOutput("stinger/distanceInTicks", motor.getSelectedSensorPosition());
+    Logger.getInstance().recordOutput("Stinger/distanceInTicks", motor.getSelectedSensorPosition());
 
     Logger.getInstance()
         .recordOutput(
-            "stinger/distanceError", inputs.StingerSetpointInches - inputs.StingerExtensionInches);
+            "Stinger/distanceError", inputs.StingerSetpointInches - inputs.StingerExtensionInches);
   }
 
   public void updateProfilePosition() {
