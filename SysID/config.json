@@ -11,13 +11,13 @@
   "gearing numerator": 6.746031746,
   "gyro": "Pigeon2",
   "gyro canivore name": "CANivore",
-  "gyro ctor": "15, CANivore\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+  "gyro ctor": "15, CANivore",
   "is drivetrain": true,
   "motor controllers": [
     "TalonFX",
     "TalonFX"
   ],
-  "number of samples per average": 1,
+  "number of samples per average": 5,
   "primary encoder inverted": false,
   "primary encoder ports": [
     0,
@@ -44,5 +44,5 @@
     true,
     false
   ],
-  "velocity measurement period": 5
+  "velocity measurement period": 100
 }
