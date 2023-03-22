@@ -306,7 +306,7 @@ public class Drivetrain extends SubsystemBase {
    *
    * @param translationXSupplier the desired velocity in the x direction (m/s)
    * @param translationYSupplier the desired velocity in the y direction (m/s)
-   * @param rotationSupplier the desired rotational velcoity (rad/s)
+   * @param rotationSupplier the desired rotational velocity (rad/s)
    */
   public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
 
