@@ -15,11 +15,11 @@ import org.littletonrobotics.junction.AutoLog;
  * multiple subsystems. Since it doesn't have a periodic method like a subsystem, it is important
  * that its updateInputs method is called just once via another periodic method. (This requires some
  * coordination, and, in this library, it is invoked via the drivetrain subsystem's periodic
- * mehtod.)
+ * method.)
  *
  * <p>There is not a simulated version of this interface. Instead, the drivetrain supports
- * determining the robot's rotation from the gryo when connected and via the swwerve module
- * positions when not connected.
+ * determining the robot's rotation from the gyro when connected and via the swerve module positions
+ * when not connected.
  */
 public interface GyroIO {
   @AutoLog
