@@ -62,7 +62,7 @@ public class ElevatorSetHeight extends CommandBase {
   @Override
   public void initialize() {
     if (changeMotionProfile) {
-      System.out.println("CHANGING ELEVATOR PID");
+      // System.out.println("CHANGING ELEVATOR PID");
       elevator.setMotionProfileConstraints(
           motionProfileVelocity.getAsDouble(), motionProfileDesiredTime.getAsDouble());
     }
