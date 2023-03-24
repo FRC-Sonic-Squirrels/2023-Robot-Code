@@ -3,6 +3,7 @@ package frc.lib.team3061.vision;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.photonvision.PhotonCamera;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -42,4 +43,8 @@ public interface VisionIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(VisionIOInputs inputs) {}
+
+  public default PhotonCamera getCamera() {
+    return null;
+  }
 }
