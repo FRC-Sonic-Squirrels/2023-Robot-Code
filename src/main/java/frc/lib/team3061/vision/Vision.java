@@ -14,7 +14,6 @@ import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
-import frc.robot.Robot;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.io.IOException;
@@ -86,10 +85,10 @@ public class Vision extends SubsystemBase {
             new Pose3d().transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
 
     PoseStrategy strategy = PoseStrategy.MULTI_TAG_PNP;
-    if (Robot.isSimulation()) {
-      // MULTI_TAG_PNP doesn't work in simulation
-      strategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
-    }
+    // if (Robot.isSimulation()) {
+    //   // MULTI_TAG_PNP doesn't work in simulation
+    //   strategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
+    // }
 
     lastTimestamp.put("Left", 0.0);
     lastTimestamp.put("Right", 0.0);
@@ -103,6 +102,14 @@ public class Vision extends SubsystemBase {
         new PhotonPoseEstimator(
             layout, strategy, R_VisionIO.getCamera(), VisionConstants.RIGHT_ROBOT_TO_CAMERA);
     rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+
+    // FIXME: the camera object is not getting set
+    if (R_VisionIO.getCamera() == null) {
+      System.out.println("NO RIGHT CAMERA");
+    }
+    if (L_VisionIO.getCamera() == null) {
+      System.out.println("NO LEFT CAMERA");
+    }
   }
 
   @Override
@@ -177,7 +184,7 @@ public class Vision extends SubsystemBase {
       EstimatedRobotPose estimatedRobotPose = null;
 
       photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-      result = photonPoseEstimator.update(cameraResult);
+      result = photonPoseEstimator.update(); // cameraResult);
       if (result.isPresent()) {
         estimatedRobotPose = result.get();
       }
@@ -214,13 +221,13 @@ public class Vision extends SubsystemBase {
     }
 
     if (robotPose != null) {
-      Logger.getInstance().recordOutput("Vision/" + name + "/DistanceFromRobot", distance);
-      Logger.getInstance().recordOutput("Vision/" + name + "/RobotPose", robotPose.toPose2d());
-
       distance =
           prevEstimatedRobotPose
               .getTranslation()
               .getDistance(new Translation2d(robotPose.getX(), robotPose.getY()));
+
+      Logger.getInstance().recordOutput("Vision/" + name + "/DistanceFromRobot", distance);
+      Logger.getInstance().recordOutput("Vision/" + name + "/RobotPose", robotPose.toPose2d());
 
       // distance from vision estimate to last position estimate
       if ((useMaxValidDistanceAway)
