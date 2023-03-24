@@ -20,15 +20,6 @@ public interface VisionIO {
 
       table.put("lastTimestamp", lastTimestamp);
       table.put("hasNewResult", hasNewResult);
-
-      // log targets in a human-readable way
-      // List<PhotonTrackedTarget> targets = lastResult.getTargets();
-      // String[] stringifiedTargets = new String[targets.size()];
-
-      // for (int i = 0; i < targets.size(); i++) {
-      //   stringifiedTargets[i] = targets.get(i).toString();
-      // }
-      // table.put("stringifiedTargets", stringifiedTargets);
     }
 
     public void fromLog(LogTable table) {
