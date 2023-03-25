@@ -184,7 +184,7 @@ public class Vision extends SubsystemBase {
       EstimatedRobotPose estimatedRobotPose = null;
 
       photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-      result = photonPoseEstimator.update(); // cameraResult);
+      result = photonPoseEstimator.update(cameraResult);
       if (result.isPresent()) {
         estimatedRobotPose = result.get();
       }
