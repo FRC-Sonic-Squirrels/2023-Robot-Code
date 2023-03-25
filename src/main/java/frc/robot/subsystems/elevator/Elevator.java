@@ -166,4 +166,8 @@ public class Elevator extends SubsystemBase {
   public void setForwardSoftLimit(Boolean value) {
     io.setActivityOfUpperLimit(value);
   }
+
+  public double getTargetHeightInches() {
+    return inputs.ElevatorTargetHeightInches;
+  }
 }

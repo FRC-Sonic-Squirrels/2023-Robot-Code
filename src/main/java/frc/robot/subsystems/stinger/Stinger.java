@@ -151,4 +151,8 @@ public class Stinger extends SubsystemBase {
   public void setPercentOutput(double percent) {
     io.setPercent(percent);
   }
+
+  public double getTargetExtensionInches() {
+    return inputs.StingerTargetExtensionInches;
+  }
 }
