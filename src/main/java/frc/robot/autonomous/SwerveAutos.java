@@ -25,10 +25,14 @@ import frc.robot.commands.auto.FollowPath;
 import frc.robot.commands.auto.FollowPathWithEvents;
 import frc.robot.commands.drive.AutoEngage;
 import frc.robot.commands.drive.DriveWithSetRotation;
+import frc.robot.commands.drive.FeedForwardCharacterization;
+import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
+import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
 import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.mechanism.MechanismPositions;
+import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -110,6 +114,19 @@ public class SwerveAutos {
 
     addCommand("driveAutoEngage", () -> driveAutoEngage());
 
+    addCommand(
+        "Characterization",
+        () ->
+            new AutoChooserElement(
+                null,
+                new SequentialCommandGroup(
+                    new FeedForwardCharacterization(
+                        drivetrain,
+                        true,
+                        new FeedForwardCharacterizationData("swerve data"),
+                        drivetrain::runCharacterizationVolts,
+                        drivetrain::getCharacterizationVelocity))));
+
     // addCommand("test score cone fast", () -> score(true, GamePiece.CONE));
   }
 
@@ -180,7 +197,11 @@ public class SwerveAutos {
     eventMap.put("mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
     eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
     eventMap.put("mechYeet", MechanismPositions.yeetCube(elevator, stinger, intake));
-    eventMap.put("mechYeetPrep", new InstantCommand(() -> elevator.setHeightInches(15)));
+    eventMap.put(
+        "mechYeetPrep",
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, 0),
+            new ElevatorSetHeight(elevator, MechanismPositions.yeetElevatorHeight.get())));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
