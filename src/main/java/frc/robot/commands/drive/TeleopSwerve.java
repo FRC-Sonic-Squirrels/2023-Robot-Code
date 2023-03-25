@@ -86,14 +86,25 @@ public class TeleopSwerve extends CommandBase implements OverrideDrivetrainStop 
     // 0.6 driver starting preference
     double rotMultiplier = 0.6;
 
-    if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
+    boolean isElevatorTargetHeightZero = elevator.getTargetHeightInches() < 10.1;
+    boolean isStingerTargetExtensionZero = stinger.getTargetExtensionInches() < 0.1;
+
+    Logger.getInstance()
+        .recordOutput("TeleopSwerve/isElevatorHeightZero", isElevatorTargetHeightZero);
+    Logger.getInstance()
+        .recordOutput("TeleopSwerve/isStingerHeightZero", isStingerTargetExtensionZero);
+
+    if (!isElevatorTargetHeightZero
+        && !isStingerTargetExtensionZero
+        && (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
         && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
 
       xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
       yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
 
       rotMultiplier = drivetrain.elevatorAndstingerOutRotationalMultiplier.get();
-    } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
+    } else if (!isElevatorTargetHeightZero
+        && elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
       xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
       yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
 
