@@ -58,8 +58,8 @@ public class DriverAssistAutos {
 
   private CommandXboxController driverController;
 
-  private static TunableNumber normalVel = new TunableNumber("driverassist/normalVel", 4.0);
-  private static TunableNumber normalAccel = new TunableNumber("driverassist/normalAccel", 3.5);
+  private static TunableNumber normalVel = new TunableNumber("driverassist/normalVel", 4.5);
+  private static TunableNumber normalAccel = new TunableNumber("driverassist/normalAccel", 4.0);
 
   private static TunableNumber elevatorUpVel =
       new TunableNumber("driverassist/elevatorUpVel", 0.75);
