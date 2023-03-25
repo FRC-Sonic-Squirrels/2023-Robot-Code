@@ -3,6 +3,7 @@ package frc.lib.team3061.vision;
 import java.util.ArrayList;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.photonvision.PhotonCamera;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -19,15 +20,6 @@ public interface VisionIO {
 
       table.put("lastTimestamp", lastTimestamp);
       table.put("hasNewResult", hasNewResult);
-
-      // log targets in a human-readable way
-      // List<PhotonTrackedTarget> targets = lastResult.getTargets();
-      // String[] stringifiedTargets = new String[targets.size()];
-
-      // for (int i = 0; i < targets.size(); i++) {
-      //   stringifiedTargets[i] = targets.get(i).toString();
-      // }
-      // table.put("stringifiedTargets", stringifiedTargets);
     }
 
     public void fromLog(LogTable table) {
@@ -42,4 +34,9 @@ public interface VisionIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(VisionIOInputs inputs) {}
+
+  public default PhotonCamera getCamera() {
+    System.out.println("------default getCamera() == null  ------------");
+    return null;
+  }
 }

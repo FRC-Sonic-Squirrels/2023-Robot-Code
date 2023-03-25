@@ -91,4 +91,9 @@ public class VisionIOSim implements VisionIO {
           new SimVisionTarget(tag.pose, Units.inchesToMeters(6), Units.inchesToMeters(6), tag.ID));
     }
   }
+
+  @Override
+  public PhotonCamera getCamera() {
+    return camera;
+  }
 }

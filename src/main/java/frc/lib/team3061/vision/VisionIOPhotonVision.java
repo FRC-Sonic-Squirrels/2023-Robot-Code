@@ -51,4 +51,9 @@ public class VisionIOPhotonVision implements VisionIO {
 
     noCameraConnectedAlert.set(!camera.isConnected());
   }
+
+  @Override
+  public PhotonCamera getCamera() {
+    return camera;
+  }
 }
