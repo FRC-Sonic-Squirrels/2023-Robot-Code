@@ -46,12 +46,12 @@ public class MechanismPositions {
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 20);
 
-  private static final TunableNumber yeetElevatorHeight =
+  public static final TunableNumber yeetElevatorHeight =
       new TunableNumber("yeet/elevatorHeight", 20);
-  private static final TunableNumber yeetStingerExtension =
+  public static final TunableNumber yeetStingerExtension =
       new TunableNumber("yeet/stingerExtension", 25);
   private static final TunableNumber yeetStingerThreshold =
-      new TunableNumber("yeet/stingerThreshold", 20);
+      new TunableNumber("yeet/stingerThreshold", 15);
 
   public static Timer movementTimer = new Timer();
 
@@ -72,7 +72,7 @@ public class MechanismPositions {
         rumbleButtonConfirmation(rumbleController),
         new ConditionalCommand(
             new IntakeScoreCone(intake).withTimeout(0.2),
-            new IntakeScoreCube(intake).withTimeout(0.2),
+            new IntakeScoreCube(intake, 1.0).withTimeout(0.3),
             () -> gamepiece == GamePiece.CONE),
         safeZero(elevator, stinger));
   }
@@ -183,9 +183,9 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake).withTimeout(0.2),
+        new IntakeScoreCube(intake, 0.8).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger));
+        aggressiveZero(elevator, stinger));
   }
 
   public static Command cubeHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
@@ -223,7 +223,8 @@ public class MechanismPositions {
         // --
         new IntakeScoreCone(intake).withTimeout(0.2),
         // --
-        safeZero(elevator, stinger).deadlineWith(new IntakeScoreCone(intake).withTimeout(0.5)));
+        aggressiveZero(elevator, stinger)
+            .deadlineWith(new IntakeScoreCone(intake).withTimeout(0.5)));
   }
 
   public static Command coneHighPosition(Elevator elevator, Stinger stinger, Intake intake) {
@@ -232,7 +233,7 @@ public class MechanismPositions {
         stinger,
         NODE_DISTANCES.HEIGHT_HIGH_CONE,
         NODE_DISTANCES.EXTENSION_HIGH_CONE,
-        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
+        () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.8));
   }
 
   public static Command yeetCube(Elevator elevator, Stinger stinger, Intake intake) {
@@ -240,7 +241,7 @@ public class MechanismPositions {
         new ElevatorSetHeight(elevator, yeetElevatorHeight.get()),
         new StingerSetExtension(stinger, yeetStingerExtension.get()),
         new WaitUntilCommand(() -> (stinger.getExtensionInches() >= yeetStingerThreshold.get()))
-            .andThen(new IntakeScoreCube(intake, 0.8).withTimeout(0.4)));
+            .andThen(new IntakeScoreCube(intake, 1).withTimeout(0.4)));
   }
 
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
