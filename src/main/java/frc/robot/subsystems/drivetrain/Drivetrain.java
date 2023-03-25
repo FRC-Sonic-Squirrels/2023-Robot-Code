@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.gyro.GyroIO;
@@ -49,7 +51,7 @@ import org.littletonrobotics.junction.Logger;
 public class Drivetrain extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-  // private final Field2d field = new Field2d();
+  private final Field2d field = new Field2d();
 
   private final TunableNumber autoDriveKp =
       new TunableNumber("AutoDrive/DriveKp", AUTO_DRIVE_P_CONTROLLER);
@@ -65,14 +67,15 @@ public class Drivetrain extends SubsystemBase {
       new TunableNumber("AutoDrive/TurnKd", AUTO_TURN_D_CONTROLLER);
 
   public final TunableNumber elevatorUpTranslationMuliplier =
-      new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.25);
+      new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.35);
   public final TunableNumber elevatorUpRotationalMultiplier =
       new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.25);
 
   public final TunableNumber elevatorAndstingerOutTranslationMuliplier =
-      new TunableNumber("teleopSwerve/ElevatorAndstingerOutTranslationMuliplier", 0.20);
+      new TunableNumber("teleopSwerve/ElevatorAndstingerOutTranslationMuliplier", 0.25);
+
   public final TunableNumber elevatorAndstingerOutRotationalMultiplier =
-      new TunableNumber("teleopSwerve/ElevatorAndstingerOutRotationalMultiplier", 0.05);
+      new TunableNumber("teleopSwerve/ElevatorAndstingerOutRotationalMultiplier", 0.1);
 
   public static final double ELEVATOR_HEIGHT_SLOW_DOWN = Constants.NODE_DISTANCES.STOW_HEIGHT + 5.0;
   public static final double STINGER_EXTENSION_SLOW_DOWN = 8.0;
@@ -179,7 +182,7 @@ public class Drivetrain extends SubsystemBase {
       tab.add("Disable XStance", new InstantCommand(this::disableXstance));
     }
 
-    // SmartDashboard.putData("Robot Pose Field", field);
+    SmartDashboard.putData("Robot Pose Field", field);
 
     Timer.delay(1.0);
     resetModulesToAbsolute();
@@ -491,7 +494,7 @@ public class Drivetrain extends SubsystemBase {
     Logger.getInstance().recordOutput("Odometry/xvel", speeds.vxMetersPerSecond);
     Logger.getInstance().recordOutput("Odometry/yvel", speeds.vyMetersPerSecond);
 
-    // field.setRobotPose(poseEstimator.getEstimatedPosition());
+    field.setRobotPose(poseEstimator.getEstimatedPosition());
     //  SmartDashboard.putData(field);
   }
 
