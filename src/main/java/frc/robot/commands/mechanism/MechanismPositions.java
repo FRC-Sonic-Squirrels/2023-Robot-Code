@@ -237,10 +237,10 @@ public class MechanismPositions {
 
   public static Command yeetCube(Elevator elevator, Stinger stinger, Intake intake) {
     return new ParallelCommandGroup(
-        goToPositionParallel(
-            elevator, stinger, yeetElevatorHeight.get(), yeetStingerExtension.get()),
+        new ElevatorSetHeight(elevator, yeetElevatorHeight.get()),
+        new StingerSetExtension(stinger, yeetStingerExtension.get()),
         new WaitUntilCommand(() -> (stinger.getExtensionInches() >= yeetStingerThreshold.get()))
-            .andThen(new IntakeScoreCube(intake).withTimeout(0.4)));
+            .andThen(new IntakeScoreCube(intake, 0.8).withTimeout(0.4)));
   }
 
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
