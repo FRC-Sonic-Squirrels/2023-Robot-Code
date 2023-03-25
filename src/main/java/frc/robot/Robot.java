@@ -160,7 +160,7 @@ public class Robot extends LoggedRobot {
         logger.setReplaySource(new WPILOGReader(path));
 
         // Save replay results to a new log with the "_sim" suffix
-        // logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
+        logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(path, "_sim")));
         break;
     }
 

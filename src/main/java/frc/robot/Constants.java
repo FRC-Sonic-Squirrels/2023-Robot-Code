@@ -28,9 +28,6 @@ public final class Constants {
 
   public static final String CAN_BUS_NAME = "CANivore";
 
-  // FIXME: specify the name of the camera used for detecting AprilTags
-
-  // FIXME: make sure these are the correct names
   public static final String LEFT_CAMERA_NAME = "LeftCamera";
   public static final String RIGHT_CAMERA_NAME = "RightCamera";
 
