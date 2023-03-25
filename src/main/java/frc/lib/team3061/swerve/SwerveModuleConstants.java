@@ -40,7 +40,8 @@ public final class SwerveModuleConstants {
   // FIXME: assign these constants to the appropriate swerve module variant
   public static final double WHEEL_DIAMETER_METERS = MK4I_L2_WHEEL_DIAMETER_METERS;
   // MK4I_L2_WHEEL_CIRCUMFERENCE;
-  public static final double WHEEL_CIRCUMFERENCE = 0.3175; // measured 2/25/2023 at practice field
+  public static final double WHEEL_CIRCUMFERENCE =
+      0.308; // 0.3175; // measured 2/25/2023 at practice field
   public static final double DRIVE_GEAR_RATIO = MK4I_L2_DRIVE_GEAR_RATIO;
   public static final boolean DRIVE_MOTOR_INVERTED = MK4I_L2_DRIVE_MOTOR_INVERTED;
   public static final double ANGLE_GEAR_RATIO = MK4I_L2_ANGLE_GEAR_RATIO;
