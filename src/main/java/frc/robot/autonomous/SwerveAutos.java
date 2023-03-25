@@ -80,6 +80,13 @@ public class SwerveAutos {
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
       addCommand("forwardLeft", () -> forwardLeft());
+      addCommand(
+          "Yeet",
+          () ->
+              new AutoChooserElement(
+                  null,
+                  new SequentialCommandGroup(getEventMap().get("mechYeet"))
+                      .andThen(MechanismPositions.safeZero(elevator, stinger))));
     }
     addCommand("scoreCone", () -> scoreConeHigh());
     addCommand("scoreCube", () -> scoreCubeHigh());

@@ -239,8 +239,7 @@ public class MechanismPositions {
     return new ParallelCommandGroup(
         goToPositionParallel(
             elevator, stinger, yeetElevatorHeight.get(), yeetStingerExtension.get()),
-        new WaitUntilCommand(
-                () -> (stinger.getExtensionInches() >= stingerExtensionThreshold.get()))
+        new WaitUntilCommand(() -> (stinger.getExtensionInches() >= yeetStingerThreshold.get()))
             .andThen(new IntakeScoreCube(intake).withTimeout(0.4)));
   }
 
