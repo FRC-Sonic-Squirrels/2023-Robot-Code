@@ -36,6 +36,7 @@ public interface VisionIO {
   public default void updateInputs(VisionIOInputs inputs) {}
 
   public default PhotonCamera getCamera() {
+    System.out.println("------default getCamera() == null  ------------");
     return null;
   }
 }

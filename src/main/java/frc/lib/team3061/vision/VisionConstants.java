@@ -30,5 +30,5 @@ public final class VisionConstants {
 
   public static final double MAXIMUM_AMBIGUITY = 0.08;
 
-  public static final double MAX_VALID_DISTANCE_AWAY_METERS = 1.5;
+  public static final double MAX_VALID_DISTANCE_AWAY_METERS = 4.0;
 }
