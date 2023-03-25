@@ -46,6 +46,13 @@ public class MechanismPositions {
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 20);
 
+  private static final TunableNumber yeetElevatorHeight =
+      new TunableNumber("yeet/elevatorHeight", 20);
+  private static final TunableNumber yeetStingerExtension =
+      new TunableNumber("yeet/stingerExtension", 25);
+  private static final TunableNumber yeetStingerThreshold =
+      new TunableNumber("yeet/stingerThreshold", 20);
+
   public static Timer movementTimer = new Timer();
 
   private MechanismPositions() {}
@@ -228,6 +235,15 @@ public class MechanismPositions {
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.25));
   }
 
+  public static Command yeetCube(Elevator elevator, Stinger stinger, Intake intake) {
+    return new ParallelCommandGroup(
+        goToPositionParallel(
+            elevator, stinger, yeetElevatorHeight.get(), yeetStingerExtension.get()),
+        new WaitUntilCommand(
+                () -> (stinger.getExtensionInches() >= stingerExtensionThreshold.get()))
+            .andThen(new IntakeScoreCube(intake).withTimeout(0.4)));
+  }
+
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
   // {
   //   return new SequentialCommandGroup(
@@ -246,6 +262,10 @@ public class MechanismPositions {
   // }
 
   // --------CONE HIGH -------------
+
+  private static Command WaitUntilCommand(boolean b) {
+    return null;
+  }
 
   public static Command intakeGrabPiece(Intake intake) {
     return intakeGrabPiece(intake, RobotState.getInstance().getDesiredGamePiece());

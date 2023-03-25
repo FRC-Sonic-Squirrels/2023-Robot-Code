@@ -98,6 +98,7 @@ public class SwerveAutos {
     addCommand("hp2PieceEngage", () -> hp2PieceEngage());
     // addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
     addCommand("hp3Piece", () -> hp3Piece());
+    addCommand("hp3PieceYeet", () -> hp3PieceYeet());
     // addCommand("hp4Piece", () -> hp4Piece());
 
     addCommand("driveAutoEngage", () -> driveAutoEngage());
@@ -171,6 +172,8 @@ public class SwerveAutos {
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put("mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
     eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
+    eventMap.put("mechYeet", MechanismPositions.yeetCube(elevator, stinger, intake));
+    eventMap.put("mechYeetPrep", new InstantCommand(() -> elevator.setHeightInches(15)));
     eventMap.put(
         "engage", new SequentialCommandGroup(new PrintCommand("engaged"), Commands.waitSeconds(2)));
     eventMap.put(
@@ -420,6 +423,11 @@ public class SwerveAutos {
                 .until(() -> elevator.getHeightInches() <= 30)));
   }
 
+  public AutoChooserElement mechAggerssiveZero() {
+    return new AutoChooserElement(
+        null, new SequentialCommandGroup(MechanismPositions.aggressiveZero(elevator, stinger)));
+  }
+
   public AutoChooserElement driveAutoEngage() {
     return new AutoChooserElement(
         null,
@@ -616,6 +624,14 @@ public class SwerveAutos {
     PathPlannerTrajectory path = loadPath("Hp3Piece");
 
     return hp2Piece().setNext(path, false, drivetrain, getEventMap()).setNext(scoreCubeMid());
+  }
+
+  public AutoChooserElement hp3PieceYeet() {
+    PathPlannerTrajectory path = loadPath("Hp3PieceYeet");
+
+    return hp1PieceTaxi()
+        .setNext(path, false, drivetrain, getEventMap())
+        .setNext(score(true, GamePiece.CUBE));
   }
 
   public AutoChooserElement hp4Piece() {
