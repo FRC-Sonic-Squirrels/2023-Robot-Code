@@ -246,8 +246,6 @@ public class RobotContainer {
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
                     drivetrain);
 
-            // vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
-
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
 
@@ -313,8 +311,6 @@ public class RobotContainer {
       SwerveModule brModule =
           new SwerveModule(new SwerveModuleIO() {}, 3, MAX_VELOCITY_METERS_PER_SECOND);
       drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
-      // new Vision(VisionConstants.LEFT_ROBOT_TO_CAMERA, new VisionIO() {}, new VisionIO() {});
-      new Elevator(new ElevatorIO() {});
       elevator = new Elevator(new ElevatorIO() {});
       stinger = new Stinger(new StingerIO() {});
       intake = new Intake(new IntakeIO() {});
@@ -392,7 +388,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Debug Swerve Commands
-    // useful dont delete these
+    // useful don't delete these
     // driverController.a().whileTrue(Commands.run(() -> drivetrain.drive(-1, 0, 0), drivetrain));
     // driverController.b().whileTrue(Commands.run(() -> drivetrain.drive(0, -1, 0), drivetrain));
     // driverController.x().whileTrue(Commands.run(() -> drivetrain.drive(0, 1, 0), drivetrain));
