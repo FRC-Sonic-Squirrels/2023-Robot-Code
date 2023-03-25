@@ -244,6 +244,7 @@ public class RobotContainer {
                 new Vision(
                     new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
+                    new VisionIOPhotonVision(Constants.BACK_CAMERA_NAME),
                     drivetrain);
 
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
@@ -284,6 +285,11 @@ public class RobotContainer {
                         drivetrain::getPose,
                         VisionConstants.RIGHT_ROBOT_TO_CAMERA,
                         "rightCameraNetwork"),
+                    new VisionIOSim(
+                        layout,
+                        drivetrain::getPose,
+                        VisionConstants.BACK_ROBOT_TO_CAMERA,
+                        "backCameraNetwork"),
                     drivetrain);
 
             leds = new LED(new LEDIO() {});
@@ -315,7 +321,7 @@ public class RobotContainer {
       stinger = new Stinger(new StingerIO() {});
       intake = new Intake(new IntakeIO() {});
       leds = new LED(new LEDIO() {});
-      vision = new Vision(new VisionIO() {}, new VisionIO() {}, drivetrain);
+      vision = new Vision(new VisionIO() {}, new VisionIO() {}, new VisionIO() {}, drivetrain);
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration

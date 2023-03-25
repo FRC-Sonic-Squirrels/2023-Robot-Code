@@ -15,7 +15,7 @@ public final class VisionConstants {
   // to get field layout call this:
   //    AprilTagFields.k2023ChargedUp.loadAprilTagFieldLayout();
 
-  // FIXME: update this with the real transform from the robot to the camera
+  // Transform from the robot to each camera
   public static final Transform3d LEFT_ROBOT_TO_CAMERA =
       new Transform3d(
           new Translation3d(
@@ -28,7 +28,13 @@ public final class VisionConstants {
               Units.inchesToMeters(-0.51), Units.inchesToMeters(-10.2), Units.inchesToMeters(22.8)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(-30.0)));
 
+  public static final Transform3d BACK_ROBOT_TO_CAMERA =
+      new Transform3d(
+          new Translation3d(
+              Units.inchesToMeters(-2.7), Units.inchesToMeters(0.0), Units.inchesToMeters(33.42)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(10.0), Math.toRadians(180.0)));
+
   public static final double MAXIMUM_AMBIGUITY = 0.08;
 
-  public static final double MAX_VALID_DISTANCE_AWAY_METERS = 4.0;
+  public static final double MAX_VALID_DISTANCE_AWAY_METERS = 3.0;
 }

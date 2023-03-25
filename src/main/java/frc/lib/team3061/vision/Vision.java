@@ -30,14 +30,19 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class Vision extends SubsystemBase {
   private VisionIO L_VisionIO;
   private VisionIO R_VisionIO;
+  private VisionIO B_VisionIO;
+
   private final VisionIOInputs ioLeft = new VisionIOInputs();
   private final VisionIOInputs ioRight = new VisionIOInputs();
+  private final VisionIOInputs ioBack = new VisionIOInputs();
+
   private AprilTagFieldLayout layout;
 
   private HashMap<String, Double> lastTimestamp = new HashMap<>();
 
   PhotonPoseEstimator leftPhotonPoseEstimator;
   PhotonPoseEstimator rightPhotonPoseEstimator;
+  PhotonPoseEstimator backPhotonPoseEstimator;
 
   private boolean updatePoseWithVisionReadings = true;
   private boolean useMaxValidDistanceAway = true;
@@ -52,9 +57,11 @@ public class Vision extends SubsystemBase {
   private static double MAX_ALLOWABLE_PITCH = 3;
   private static double MAX_ALLOWABLE_ROLL = 3;
 
-  public Vision(VisionIO L_VisionIO, VisionIO R_VisionIO, Drivetrain drivetrain) {
+  public Vision(
+      VisionIO L_VisionIO, VisionIO R_VisionIO, VisionIO B_VisionIO, Drivetrain drivetrain) {
     this.L_VisionIO = L_VisionIO;
     this.R_VisionIO = R_VisionIO;
+    this.B_VisionIO = B_VisionIO;
 
     this.drivetrain = drivetrain;
 
@@ -83,6 +90,10 @@ public class Vision extends SubsystemBase {
         .recordOutput(
             "Vision/RightCameraConstant",
             new Pose3d().transformBy(VisionConstants.RIGHT_ROBOT_TO_CAMERA));
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/BackCameraConstant",
+            new Pose3d().transformBy(VisionConstants.BACK_ROBOT_TO_CAMERA));
 
     PoseStrategy strategy = PoseStrategy.MULTI_TAG_PNP;
     // if (Robot.isSimulation()) {
@@ -92,6 +103,7 @@ public class Vision extends SubsystemBase {
 
     lastTimestamp.put("Left", 0.0);
     lastTimestamp.put("Right", 0.0);
+    lastTimestamp.put("Back", 0.0);
 
     leftPhotonPoseEstimator =
         new PhotonPoseEstimator(
@@ -103,7 +115,12 @@ public class Vision extends SubsystemBase {
             layout, strategy, R_VisionIO.getCamera(), VisionConstants.RIGHT_ROBOT_TO_CAMERA);
     rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
 
-    // FIXME: the camera object is not getting set
+    backPhotonPoseEstimator =
+        new PhotonPoseEstimator(
+            layout, strategy, B_VisionIO.getCamera(), VisionConstants.BACK_ROBOT_TO_CAMERA);
+    rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+
+    // NOTE: the camera object is not getting set in SIM or REPLAY
     if (R_VisionIO.getCamera() == null) {
       System.out.println("NO RIGHT CAMERA");
     }
@@ -117,8 +134,11 @@ public class Vision extends SubsystemBase {
 
     L_VisionIO.updateInputs(ioLeft);
     R_VisionIO.updateInputs(ioRight);
+    B_VisionIO.updateInputs(ioBack);
+
     Logger.getInstance().processInputs("Vision/Left", ioLeft);
     Logger.getInstance().processInputs("Vision/Right", ioRight);
+    Logger.getInstance().processInputs("Vision/Back", ioBack);
 
     if (!updatePoseWithVisionReadings) {
       return;
@@ -141,6 +161,8 @@ public class Vision extends SubsystemBase {
         rightPhotonPoseEstimator,
         VisionConstants.RIGHT_ROBOT_TO_CAMERA,
         "Right");
+    updatePose(
+        B_VisionIO, ioBack, backPhotonPoseEstimator, VisionConstants.BACK_ROBOT_TO_CAMERA, "Back");
   }
 
   private void updatePose(
@@ -231,7 +253,7 @@ public class Vision extends SubsystemBase {
 
       // distance from vision estimate to last position estimate
       if ((useMaxValidDistanceAway)
-          && (distance > VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS)) {
+          && (distance > (VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS * targetsSeen))) {
         // no update
       } else {
         // we passed all the checks, update the pose
