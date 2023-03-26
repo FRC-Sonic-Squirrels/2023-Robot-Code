@@ -680,6 +680,12 @@ public class RobotContainer {
             new SnapToGrid(drivetrain)
                 .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
 
+    driverController
+        .rightTrigger(0.5)
+        .onTrue(
+            MechanismPositions.yeetCube(elevator, stinger, intake)
+                .andThen(MechanismPositions.safeZero(elevator, stinger)));
+
     // driverAssistController
     //     .povRight()
     //     .onTrue(Commands.runOnce(() -> RobotState.getInstance().incrementDesiredBay()));
