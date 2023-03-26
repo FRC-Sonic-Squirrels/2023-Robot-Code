@@ -57,8 +57,8 @@ public class SnapToGrid extends CommandBase {
   private static final int[] cubeIndex = {1, 4, 7};
   private static final int[] coneIndex = {0, 2, 3, 5, 6, 8};
 
-  // private double xVel = 0;
-  // private double yVel = 0;
+  private double xVel = 0;
+  private double yVel = 0;
 
   private Pose2d targetPose = new Pose2d(1000.0, 1000.0, new Rotation2d(0.0));
 
@@ -94,6 +94,10 @@ public class SnapToGrid extends CommandBase {
   private static TunableNumber midPointOffset =
       new TunableNumber("snapToGrid/midPointOffsetMeters", 0.3);
   private static double actualMidPointOffset;
+
+  private static double feedForward = 0.2;
+  private static double xFeedForward;
+  private static double yFeedForward;
 
   public static Timer runTime = new Timer();
 
@@ -188,8 +192,28 @@ public class SnapToGrid extends CommandBase {
     Logger.getInstance().recordOutput("snapToGrid/targetPos", targetPose);
     Logger.getInstance().recordOutput("snapToGrid/trajectory", trajectory);
 
-    // xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get();
-    // yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get();
+    // if (drive.getPose().getX() <= targetPose.getX()) {
+    //   xFeedForward = feedForward;
+    // } else {
+    //   xFeedForward = -feedForward;
+    // }
+
+    // if (drive.getPose().getY() <= targetPose.getY()) {
+    //   yFeedForward = feedForward;
+    // } else {
+    //   yFeedForward = -feedForward;
+    // }
+
+    // xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get() + xFeedForward;
+
+    // yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get() + yFeedForward;
+
+    // if (Math.abs(drive.getPose().getX() - targetPose.getX()) <= 0.05) {
+    //   xVel = 0;
+    // }
+    // if (Math.abs(drive.getPose().getY() - targetPose.getY()) <= 0.05) {
+    //   yVel = 0;
+    // }
 
     // if (rotationController.getGoal().position != targetPose.getRotation().getRadians()) {
     //   rotationController.setGoal(targetPose.getRotation().getRadians());
@@ -208,6 +232,9 @@ public class SnapToGrid extends CommandBase {
     // Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
     // Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
     // Logger.getInstance().recordOutput("snapToGrid/rotationalOutput", rotationOutput);
+
+    // drive.drive(
+    //     xVel, yVel, rotationController.calculate(drive.getPose().getRotation().getRadians()));
     drive.drive(
         driveController.calculate(
             drive.getPose(), trajectory.sample(runTime.get()), targetPose.getRotation()));
