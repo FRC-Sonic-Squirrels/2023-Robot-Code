@@ -674,7 +674,11 @@ public class RobotContainer {
                   cmd.schedule();
                 }));
 
-    driverController.leftTrigger(0.5).whileTrue(new SnapToGrid(drivetrain));
+    driverController
+        .leftTrigger(0.5)
+        .whileTrue(
+            new SnapToGrid(drivetrain)
+                .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
 
     // driverAssistController
     //     .povRight()
