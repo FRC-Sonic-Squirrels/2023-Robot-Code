@@ -357,6 +357,26 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
+   * Controls the drivetrain to move the robot with the chassisSpeeds.
+   *
+   * @param chassisSpeeds the desired speeds of the chassis
+   */
+  public void drive(ChassisSpeeds chassisSpeeds) {
+    Logger.getInstance().recordOutput("Drivetrain/chassisSpeedVx", chassisSpeeds.vxMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/chassisSpeedVy", chassisSpeeds.vyMetersPerSecond);
+    Logger.getInstance()
+        .recordOutput("Drivetrain/chassisSpeedVo", chassisSpeeds.omegaRadiansPerSecond);
+
+    SwerveModuleState[] swerveModuleStates =
+        KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_VELOCITY_METERS_PER_SECOND);
+
+    for (SwerveModule swerveModule : swerveModules) {
+      swerveModule.setDesiredState(swerveModuleStates[swerveModule.getModuleNumber()], true, false);
+    }
+  }
+
+  /**
    * Stops the motion of the robot. Since the motors are in break mode, the robot will stop soon
    * after this method is invoked.
    */
