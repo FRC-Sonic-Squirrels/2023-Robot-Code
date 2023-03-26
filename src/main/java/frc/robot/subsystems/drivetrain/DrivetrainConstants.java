@@ -92,6 +92,7 @@ public final class DrivetrainConstants {
           / SwerveModuleConstants.DRIVE_GEAR_RATIO
           * SwerveModuleConstants.WHEEL_CIRCUMFERENCE;
 
+  public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
   /**
    * The maximum angular velocity of the robot in radians per second.
    *

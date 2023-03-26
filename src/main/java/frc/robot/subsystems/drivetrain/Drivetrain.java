@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.team2930.simPractice.driverView;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOInputsAutoLogged;
 import frc.lib.team3061.swerve.SwerveModule;
@@ -39,6 +40,7 @@ import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotType;
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -360,6 +362,26 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
+   * Controls the drivetrain to move the robot with the chassisSpeeds.
+   *
+   * @param chassisSpeeds the desired speeds of the chassis
+   */
+  public void drive(ChassisSpeeds chassisSpeeds) {
+    Logger.getInstance().recordOutput("Drivetrain/chassisSpeedVx", chassisSpeeds.vxMetersPerSecond);
+    Logger.getInstance().recordOutput("Drivetrain/chassisSpeedVy", chassisSpeeds.vyMetersPerSecond);
+    Logger.getInstance()
+        .recordOutput("Drivetrain/chassisSpeedVo", chassisSpeeds.omegaRadiansPerSecond);
+
+    SwerveModuleState[] swerveModuleStates =
+        KINEMATICS.toSwerveModuleStates(chassisSpeeds, centerGravity);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_VELOCITY_METERS_PER_SECOND);
+
+    for (SwerveModule swerveModule : swerveModules) {
+      swerveModule.setDesiredState(swerveModuleStates[swerveModule.getModuleNumber()], true, false);
+    }
+  }
+
+  /**
    * Stops the motion of the robot. Since the motors are in break mode, the robot will stop soon
    * after this method is invoked.
    */
@@ -493,6 +515,11 @@ public class Drivetrain extends SubsystemBase {
 
     Logger.getInstance().recordOutput("Odometry/xvel", speeds.vxMetersPerSecond);
     Logger.getInstance().recordOutput("Odometry/yvel", speeds.vyMetersPerSecond);
+
+    if (Constants.getRobot() == RobotType.ROBOT_SIMBOT)
+      Logger.getInstance()
+          .recordOutput(
+              "driverView/viewPose3d", driverView.getInstance().getDriverPose(this.getPose()));
 
     field.setRobotPose(poseEstimator.getEstimatedPosition());
     //  SmartDashboard.putData(field);

@@ -4,19 +4,26 @@
 
 package frc.robot.commands.drive;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.RobotState;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
-import java.util.function.DoubleSupplier;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class SnapToGrid extends CommandBase {
@@ -56,10 +63,18 @@ public class SnapToGrid extends CommandBase {
   private Pose2d targetPose = new Pose2d(1000.0, 1000.0, new Rotation2d(0.0));
 
   private TunableNumber xKp = new TunableNumber("snapToGrid/xKp", 4.0);
-  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 4.0);
+  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 6.0);
+
+  private TunableNumber xKi = new TunableNumber("snapToGrid/xKi", 0.5);
+  private TunableNumber yKi = new TunableNumber("snapToGrid/yKi", 0.5);
+
+  private TunableNumber xKd = new TunableNumber("snapToGrid/xKi", 0);
+  private TunableNumber yKd = new TunableNumber("snapToGrid/yKi", 0);
 
   private TunableNumber rotationKp = new TunableNumber("snapToGrid/rotationKp", 4.9);
-  private double rotationOutput;
+  // private double rotationOutput;
+
+  private Trajectory trajectory;
 
   private ProfiledPIDController rotationController =
       new ProfiledPIDController(
@@ -70,29 +85,51 @@ public class SnapToGrid extends CommandBase {
               DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
               DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
-  private DoubleSupplier xSupplier;
-  private TunableNumber driverInputPercent =
-      new TunableNumber("snapToGrid/driverInputPercent", 0.0);
+  private PIDController xController = new PIDController(xKp.get(), xKi.get(), xKd.get());
+  private PIDController yController = new PIDController(yKp.get(), yKi.get(), yKd.get());
 
-  public SnapToGrid(Drivetrain drive, DoubleSupplier xSupplier) {
+  private HolonomicDriveController driveController =
+      new HolonomicDriveController(xController, yController, rotationController);
+
+  private static TunableNumber midPointOffset =
+      new TunableNumber("snapToGrid/midPointOffsetMeters", 0.3);
+  private static double actualMidPointOffset;
+
+  private static double feedForward = 0.2;
+  private static double xFeedForward;
+  private static double yFeedForward;
+
+  public static Timer runTime = new Timer();
+
+  // private ProfiledPIDController xController =
+  //     new ProfiledPIDController(
+  //         xKp.get(),
+  //         xKi.get(),
+  //         0,
+  //         new TrapezoidProfile.Constraints(
+  //             DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+  //             DrivetrainConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED * 0.9));
+
+  // private ProfiledPIDController yController =
+  //     new ProfiledPIDController(
+  //         yKp.get(),
+  //         yKi.get(),
+  //         0,
+  //         new TrapezoidProfile.Constraints(
+  //             DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+  //             DrivetrainConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED * 0.9));
+
+  public SnapToGrid(Drivetrain drive) {
     // Use addRequirements,() here to declare subsystem dependencies.
     this.drive = drive;
-    this.xSupplier = xSupplier;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    rotationController.reset(drive.getPose().getRotation().getRadians());
-    rotationController.enableContinuousInput(-Math.PI, Math.PI);
-    rotationController.setTolerance(2);
-    rotationController.setGoal(targetPose.getRotation().getRadians());
+    runTime.reset();
     targetPose = new Pose2d(10000.0, 10000.0, new Rotation2d(0));
-  }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
     if (DriverStation.getAlliance() == Alliance.Blue) {
       if (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CUBE) {
         for (int i = 0; i <= 2; i++) {
@@ -109,6 +146,7 @@ public class SnapToGrid extends CommandBase {
           }
         }
       }
+      actualMidPointOffset = midPointOffset.get();
     } else {
       if (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CUBE) {
         for (int i = 0; i <= 2; i++) {
@@ -125,32 +163,81 @@ public class SnapToGrid extends CommandBase {
           }
         }
       }
+      actualMidPointOffset = -midPointOffset.get();
     }
 
+    trajectory =
+        TrajectoryGenerator.generateTrajectory(
+            drive.getPose(),
+            List.of(new Translation2d(targetPose.getX() + actualMidPointOffset, targetPose.getY())),
+            targetPose,
+            new TrajectoryConfig(
+                DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                DrivetrainConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED));
+
+    rotationController.reset(drive.getPose().getRotation().getRadians());
+    rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    rotationController.setTolerance(2);
+    rotationController.setGoal(targetPose.getRotation().getRadians());
+    xController.reset();
+    xController.setTolerance(0.01);
+    yController.reset();
+    yController.setTolerance(0.01);
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    runTime.start();
     Logger.getInstance().recordOutput("snapToGrid/targetPos", targetPose);
+    Logger.getInstance().recordOutput("snapToGrid/trajectory", trajectory);
 
-    xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get();
-    yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get();
-
-    // if (Math.abs(targetPose.getX() - drive.getPose().getX()) < 0.05) {
-    //   xVel = 0;
+    // if (drive.getPose().getX() <= targetPose.getX()) {
+    //   xFeedForward = feedForward;
+    // } else {
+    //   xFeedForward = -feedForward;
     // }
 
-    // if (Math.abs(targetPose.getY() - drive.getPose().getY()) < 0.05) {
+    // if (drive.getPose().getY() <= targetPose.getY()) {
+    //   yFeedForward = feedForward;
+    // } else {
+    //   yFeedForward = -feedForward;
+    // }
+
+    // xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get() + xFeedForward;
+
+    // yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get() + yFeedForward;
+
+    // if (Math.abs(drive.getPose().getX() - targetPose.getX()) <= 0.05) {
+    //   xVel = 0;
+    // }
+    // if (Math.abs(drive.getPose().getY() - targetPose.getY()) <= 0.05) {
     //   yVel = 0;
     // }
 
-    if (rotationController.getGoal().position != targetPose.getRotation().getRadians()) {
-      rotationController.setGoal(targetPose.getRotation().getRadians());
-    }
-    rotationOutput = rotationController.calculate(drive.getPose().getRotation().getRadians());
+    // if (rotationController.getGoal().position != targetPose.getRotation().getRadians()) {
+    //   rotationController.setGoal(targetPose.getRotation().getRadians());
+    // }
+    // if (xController.getGoal().position != targetPose.getX()) {
+    //   xController.setGoal(targetPose.getX());
+    // }
+    // if (yController.getGoal().position != targetPose.getY()) {
+    //   yController.setGoal(targetPose.getY());
+    // }
 
-    xVel += xSupplier.getAsDouble() * driverInputPercent.get();
+    // rotationOutput = rotationController.calculate(drive.getPose().getRotation().getRadians());
+    // xVel = xController.calculate(drive.getPose().getX(), targetPose.getX());
+    // yVel = yController.calculate(drive.getPose().getY(), targetPose.getY());
 
-    Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
-    Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
-    Logger.getInstance().recordOutput("snapToGrid/rotationalOutput", rotationOutput);
-    drive.drive(xVel, yVel, rotationOutput);
+    // Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
+    // Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
+    // Logger.getInstance().recordOutput("snapToGrid/rotationalOutput", rotationOutput);
+
+    // drive.drive(
+    //     xVel, yVel, rotationController.calculate(drive.getPose().getRotation().getRadians()));
+    drive.drive(
+        driveController.calculate(
+            drive.getPose(), trajectory.sample(runTime.get()), targetPose.getRotation()));
 
     Logger.getInstance().recordOutput("ActiveCommands/SnapToGrid", true);
   }
@@ -158,6 +245,7 @@ public class SnapToGrid extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    runTime.stop();
     drive.drive(0, 0, 0);
     Logger.getInstance().recordOutput("ActiveCommands/SnapToGrid", false);
   }

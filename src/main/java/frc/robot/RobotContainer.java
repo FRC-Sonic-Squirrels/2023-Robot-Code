@@ -670,9 +670,7 @@ public class RobotContainer {
                   cmd.schedule();
                 }));
 
-    driverController
-        .leftTrigger(0.5)
-        .whileTrue(new SnapToGrid(drivetrain, driverController::getLeftY));
+    driverController.leftTrigger(0.5).whileTrue(new SnapToGrid(drivetrain));
 
     // driverAssistController
     //     .povRight()
