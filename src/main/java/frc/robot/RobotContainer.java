@@ -671,6 +671,11 @@ public class RobotContainer {
                 }));
 
     driverController.leftTrigger(0.5).whileTrue(new SnapToGrid(drivetrain));
+    driverController
+        .rightTrigger(0.5)
+        .onTrue(
+            MechanismPositions.yeetCube(elevator, stinger, intake)
+                .andThen(MechanismPositions.safeZero(elevator, stinger)));
 
     // driverAssistController
     //     .povRight()
