@@ -51,6 +51,7 @@ import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
@@ -119,6 +120,10 @@ public class RobotContainer {
 
   // use AdvantageKit's LoggedDashboardChooser instead of SendableChooser to ensure accurate logging
   private LoggedDashboardChooser<Supplier<AutoChooserElement>> autoChooser;
+
+  private TunableNumber yeetHeight = new TunableNumber("yeet/elevatorHeightTeleop", 35);
+  private TunableNumber yeetExtensionThreshold =
+      new TunableNumber("yeet/stingerExtensionThresholdTeleop", 15);
 
   // RobotContainer singleton
   private static RobotContainer robotContainer = new RobotContainer();
@@ -430,7 +435,7 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(drivetrain::disableXstance));
 
     // Certified oh crap button
-    driverController.b().onTrue(MechanismPositions.safeStowPosition(elevator, stinger));
+    // driverController.b().onTrue(MechanismPositions.safeStowPosition(elevator, stinger));
 
     // driverController.y().onTrue(MechanismPositions.stowPosition(elevator, stinger));
     // // reset gyro to 0 degrees
@@ -474,7 +479,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    -45)
+                    -90)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     driverController
@@ -486,7 +491,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    45)
+                    90)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     // TODO: test this to see if it works
@@ -681,10 +686,15 @@ public class RobotContainer {
                 .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
 
     driverController
-        .rightTrigger(0.5)
+        .b()
         .onTrue(
-            MechanismPositions.yeetCube(elevator, stinger, intake)
-                .andThen(MechanismPositions.safeZero(elevator, stinger)));
+            MechanismPositions.yeetCubeTeleop(
+                    elevator,
+                    stinger,
+                    intake,
+                    () -> yeetHeight.get(),
+                    () -> yeetExtensionThreshold.get())
+                .andThen(MechanismPositions.aggressiveZero(elevator, stinger)));
 
     // driverAssistController
     //     .povRight()

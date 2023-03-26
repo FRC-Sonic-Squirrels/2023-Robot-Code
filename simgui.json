@@ -31,6 +31,7 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
       "/SmartDashboard/Robot Pose Field": "Field2d",
+      "/SmartDashboard/backCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/leftCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/rightCameraNetwork Sim Field": "Field2d",
       "/SmartDashboard/simCamera Sim Field": "Field2d",
