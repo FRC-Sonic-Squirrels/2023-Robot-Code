@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AutoChooserElement;
 import frc.lib.team2930.driverassist.GridPositionHandler;
+import frc.lib.team2930.driverassist.HumanLoadingStationHandler;
 import frc.lib.team2930.driverassist.HumanLoadingStationHandler.LoadingStationLocation;
 import frc.lib.team3061.gyro.GyroIO;
 import frc.lib.team3061.gyro.GyroIOPigeon2;
@@ -379,6 +380,9 @@ public class RobotContainer {
 
     configureButtonBindings();
     configureAutoCommands();
+
+    HumanLoadingStationHandler.logAllHumanLoadingStationDriverAssist();
+    GridPositionHandler.logAllGridPositionDriverAssist();
   }
 
   /**
