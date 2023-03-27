@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 7.11,
-        "y": 4.44
+        "x": 7.12,
+        "y": 0.94
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.237563046554665,
-        "y": 4.580717732864038
+        "x": 6.234745022985052,
+        "y": 0.8462238893094033
       },
-      "holonomicAngle": -6.52,
+      "holonomicAngle": 6.52,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.847000979716245,
-        "y": 4.609347218694437
+        "x": 4.67952273992993,
+        "y": 0.7661756835639195
       },
       "prevControl": {
-        "x": 4.734515040458653,
-        "y": 4.781124133676839
+        "x": 5.845939452221272,
+        "y": 0.7318693096729987
       },
       "nextControl": {
-        "x": 4.734515040458653,
-        "y": 4.781124133676839
+        "x": 5.845939452221272,
+        "y": 0.7318693096729987
       },
-      "holonomicAngle": -174.28940686250044,
+      "holonomicAngle": 156.11872398239097,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -49,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 7.039188649805871,
-        "y": 3.4355382996480284
+        "x": 6.898001584876209,
+        "y": 1.9783342277098246
       },
       "prevControl": {
-        "x": 5.468365134814638,
-        "y": 5.069685663112921
+        "x": 6.257615938912335,
+        "y": 1.3265131237823107
       },
       "nextControl": null,
-      "holonomicAngle": -48.12213046211583,
+      "holonomicAngle": 43.9583733239899,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -78,13 +78,13 @@
       ]
     },
     {
-      "position": 0.5890909090909251,
+      "position": 0.509090909090913,
       "names": [
         "mechYeet"
       ]
     },
     {
-      "position": 1.0690909090909222,
+      "position": 1.076363636363629,
       "names": [
         "mechIntakeCube"
       ]
