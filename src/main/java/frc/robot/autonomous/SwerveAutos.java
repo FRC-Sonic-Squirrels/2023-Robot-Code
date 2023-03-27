@@ -200,7 +200,7 @@ public class SwerveAutos {
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put("mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
     eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
-    eventMap.put("mechYeet", MechanismPositions.yeetCube(elevator, stinger, intake));
+    eventMap.put("mechYeet", MechanismPositions.yeetCubeAuto(elevator, stinger, intake));
     eventMap.put(
         "mechYeetPrep",
         new ParallelCommandGroup(
@@ -428,7 +428,7 @@ public class SwerveAutos {
                 new IntakeScoreCube(intake, 0.75).withTimeout(0.2),
                 () -> (gamepiece == GamePiece.CONE)),
             MechanismPositions.aggressiveZero(elevator, stinger)
-                .until(() -> elevator.getHeightInches() <= 40)
+                .until(() -> elevator.getHeightInches() <= 45)
                 .deadlineWith(
                     new ConditionalCommand(
                         new IntakeScoreCone(intake).withTimeout(0.5),

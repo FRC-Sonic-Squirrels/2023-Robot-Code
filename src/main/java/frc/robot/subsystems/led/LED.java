@@ -44,6 +44,7 @@ public class LED extends SubsystemBase {
     RAINBOW(-0.99),
     SCANNER_COLOR1(-0.01),
     SCANNER_COLOR2(0.19),
+    WHITE_STROBE(-0.05),
     NOTHING(0.0);
 
     public final double colorValue;

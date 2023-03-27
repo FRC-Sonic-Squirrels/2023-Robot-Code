@@ -41,14 +41,19 @@ public enum BoundingBoxes {
       new Translation2d(3.35, 4.0)),
 
   BLUE_HP_STATION_ACTIVATION_AREA(
-      new Translation2d(5, 8.02),
-      new Translation2d(16.54, 8.02),
-      new Translation2d(16.54, 5.6),
-      new Translation2d(13, 5.6),
-      new Translation2d(13, 4.25),
-      new Translation2d(11.7, 4.25),
-      new Translation2d(11.7, 0),
-      new Translation2d(5, 0)),
+      // new Translation2d(5, 8.02),
+      // new Translation2d(16.54, 8.02),
+      // new Translation2d(16.54, 5.6),
+      // new Translation2d(13, 5.6),
+      // new Translation2d(13, 4.25),
+      // new Translation2d(11.7, 4.25),
+      // new Translation2d(11.7, 0),
+      // new Translation2d(5, 0)
+
+      new Translation2d(9.5, 8.25),
+      new Translation2d(16.74, 8.25),
+      new Translation2d(16.74, 5.3),
+      new Translation2d(9.5, 5.3)),
 
   // -------------RED---------------
 

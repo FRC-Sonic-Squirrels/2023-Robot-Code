@@ -33,10 +33,12 @@ public class HumanLoadingStationHandler {
               new Pose2d(15.7, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)),
 
           // checkpoints
-          new PoseAndHeading(
-              new Pose2d(10.35, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)),
-          new PoseAndHeading(
-              new Pose2d(12.75, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)),
+          // new PoseAndHeading(
+          //     new Pose2d(10.35, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)),
+          // Rotation2d.fromDegrees(0)),
+          // new PoseAndHeading(
+          //     new Pose2d(12.75, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)),
+          // Rotation2d.fromDegrees(0)),
           new PoseAndHeading(
               new Pose2d(LAST_CHECKPOINT_X, LEFT_SIDE_Y, Rotation2d.fromDegrees(0)),
               Rotation2d.fromDegrees(0))
@@ -50,12 +52,12 @@ public class HumanLoadingStationHandler {
               new Pose2d(15.7, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)),
 
           // checkpoints
-          new PoseAndHeading(
-              new Pose2d(10.35, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)),
-              Rotation2d.fromDegrees(0)),
-          new PoseAndHeading(
-              new Pose2d(12.75, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)),
-              Rotation2d.fromDegrees(0)),
+          // new PoseAndHeading(
+          //     new Pose2d(10.35, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)),
+          //     Rotation2d.fromDegrees(0)),
+          // new PoseAndHeading(
+          //     new Pose2d(12.75, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)),
+          //     Rotation2d.fromDegrees(0)),
           new PoseAndHeading(
               new Pose2d(LAST_CHECKPOINT_X, RIGHT_SIDE_Y, Rotation2d.fromDegrees(0)),
               Rotation2d.fromDegrees(0))

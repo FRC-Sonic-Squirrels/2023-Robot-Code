@@ -30,6 +30,7 @@ import frc.lib.team6328.util.TunableNumber;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.drive.GenerateAndFollowPath;
 import frc.robot.commands.drive.TeleopSwerve;
+import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
@@ -67,6 +68,9 @@ public class DriverAssistAutos {
       new TunableNumber("driverassist/elevatorUpAccell", 0.75);
 
   private static TunableNumber driveBackSpeed = new TunableNumber("driverassist/driveBackSpeed", 3);
+
+  private static TunableNumber elevatorSlowUpPrepHeight =
+      new TunableNumber("driverassist/elevatorUpSlowPrepHeight", 20);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
@@ -379,11 +383,13 @@ public class DriverAssistAutos {
 
     return new SequentialCommandGroup(
         new GenerateAndFollowPath(
-            drivetrain,
-            pointsToFollow,
-            new PathConstraints(normalVel.get(), normalAccel.get()),
-            firstPose,
-            true),
+                drivetrain,
+                pointsToFollow,
+                new PathConstraints(normalVel.get(), normalAccel.get()),
+                firstPose,
+                true)
+            .deadlineWith(
+                elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
@@ -414,7 +420,7 @@ public class DriverAssistAutos {
             .alongWith(
                 new SequentialCommandGroup(
                     Commands.waitSeconds(0.2), retractSequence.withTimeout(0.1)))
-            .alongWith(ledsSignalGoodToGo().asProxy()));
+            .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
   }
 
   public Command getScoringSequenceForGridPositionAuto() {
@@ -498,5 +504,9 @@ public class DriverAssistAutos {
         driverController::getLeftY,
         driverController::getLeftX,
         driverController::getRightX);
+  }
+
+  private Command elevatorUpSlowPrep() {
+    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 15, () -> 0.75);
   }
 }

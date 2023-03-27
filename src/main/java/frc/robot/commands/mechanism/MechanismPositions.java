@@ -27,6 +27,7 @@ import frc.robot.commands.stinger.StingerSetExtension;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.stinger.Stinger;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 /** MechanismPositions */
@@ -183,7 +184,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake, 0.8).withTimeout(0.2),
+        new IntakeScoreCube(intake, 1.0).withTimeout(0.2),
         // --
         aggressiveZero(elevator, stinger));
   }
@@ -236,12 +237,26 @@ public class MechanismPositions {
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.8));
   }
 
-  public static Command yeetCube(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command yeetCubeAuto(Elevator elevator, Stinger stinger, Intake intake) {
     return new ParallelCommandGroup(
         new ElevatorSetHeight(elevator, yeetElevatorHeight.get()),
         new StingerSetExtension(stinger, yeetStingerExtension.get()),
         new WaitUntilCommand(() -> (stinger.getExtensionInches() >= yeetStingerThreshold.get()))
-            .andThen(new IntakeScoreCube(intake, 1).withTimeout(0.4)));
+            .andThen(new IntakeScoreCube(intake, 1).withTimeout(3)));
+  }
+
+  public static Command yeetCubeTeleop(
+      Elevator elevator,
+      Stinger stinger,
+      Intake intake,
+      DoubleSupplier elevatorHeight,
+      DoubleSupplier stingerExtensionThreshold) {
+    return new ParallelCommandGroup(
+        new ElevatorSetHeight(elevator, elevatorHeight.getAsDouble()),
+        new StingerSetExtension(stinger, 25),
+        new WaitUntilCommand(
+                () -> (stinger.getExtensionInches() >= stingerExtensionThreshold.getAsDouble()))
+            .andThen(new IntakeScoreCube(intake, 1).withTimeout(0.8)));
   }
 
   // public static Command scoreConeHighPosition(Elevator elevator, Stinger stinger, Intake intake)
