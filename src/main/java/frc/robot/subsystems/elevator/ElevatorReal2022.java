@@ -138,7 +138,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 47);
     follow_talon.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 201);
 
-    brakeOn();
+    toggleBrake(true);
     resetSensorHeight(0.0);
 
     // // set soft limit on forward movement (down)
@@ -258,16 +258,9 @@ public class ElevatorReal2022 implements ElevatorIO {
     lead_talon.set(ControlMode.PercentOutput, percent);
   }
 
-  /** brakeOn() turns on the brake. */
   @Override
-  public void brakeOff() {
-    frictionBrakeSolenoid.set(!solenoidEnabled);
-  }
-
-  /** brakeOff() turns off the brake. */
-  @Override
-  public void brakeOn() {
-    frictionBrakeSolenoid.set(solenoidEnabled);
+  public void toggleBrake(boolean state) {
+    frictionBrakeSolenoid.set(state);
   }
 
   @Override

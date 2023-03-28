@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,6 +35,10 @@ public class Robot extends LoggedRobot {
   private AutoChooserElement currentAutoElement = null;
   private String currentAutoName = "";
   private RobotContainer robotContainer;
+
+  // Initializes a DigitalInput on DIO 0
+  private DigitalInput brakeModeInput = new DigitalInput(0);
+
   Alliance alliance = Alliance.Invalid;
 
   private final Alert logReceiverQueueAlert =
@@ -212,6 +217,8 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     robotContainer.stopAll();
     robotContainer.vision.disableMaxDistanceAwayForTags();
+
+    if (brakeModeInput.get()) {}
   }
 
   /**
@@ -270,6 +277,17 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putString("AutoName", currentAutoName);
     Logger.getInstance().recordOutput("Odometry/autonTrajectory", new Trajectory());
     Logger.getInstance().recordOutput("Odometry/startPose", new Pose2d());
+  }
+
+  @Override
+  public void disabledPeriodic() {
+    if (brakeModeInput.get()) {
+      robotContainer.getStinger().toggleBrake(false);
+      robotContainer.getElevator().toggleBrake(false);
+    } else {
+      robotContainer.getStinger().toggleBrake(true);
+      robotContainer.getElevator().toggleBrake(true);
+    }
   }
 
   /** This method is invoked at the start of the test period. */

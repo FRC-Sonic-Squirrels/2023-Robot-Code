@@ -262,4 +262,15 @@ public class ElevatorReal2023 implements ElevatorIO {
   public void setActivityOfUpperLimit(boolean value) {
     lead_talon.configForwardSoftLimitEnable(value);
   }
+
+  @Override
+  public void toggleBrake(boolean state) {
+    if (state == true) {
+      lead_talon.setNeutralMode(NeutralMode.Brake);
+      follow_talon.setNeutralMode(NeutralMode.Brake);
+    } else {
+      lead_talon.setNeutralMode(NeutralMode.Coast);
+      follow_talon.setNeutralMode(NeutralMode.Coast);
+    }
+  }
 }

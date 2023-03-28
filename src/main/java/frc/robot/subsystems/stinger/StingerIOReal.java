@@ -235,4 +235,13 @@ public class StingerIOReal implements StingerIO {
   private double ticksToInchesPerSecond(double ticksPer100ms) {
     return ticksToInches(ticksPer100ms) * 10;
   }
+
+  @Override
+  public void toggleBrake(boolean state) {
+    if (state == true) {
+      motor.setNeutralMode(NeutralMode.Brake);
+    } else {
+      motor.setNeutralMode(NeutralMode.Coast);
+    }
+  }
 }

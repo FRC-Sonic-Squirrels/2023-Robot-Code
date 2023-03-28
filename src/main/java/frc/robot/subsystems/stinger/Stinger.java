@@ -155,4 +155,8 @@ public class Stinger extends SubsystemBase {
   public double getTargetExtensionInches() {
     return inputs.StingerTargetExtensionInches;
   }
+
+  public void toggleBrake(boolean state) {
+    io.toggleBrake(state);
+  }
 }

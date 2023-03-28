@@ -170,4 +170,8 @@ public class Elevator extends SubsystemBase {
   public double getTargetHeightInches() {
     return inputs.ElevatorTargetHeightInches;
   }
+
+  public void toggleBrake(boolean state) {
+    io.toggleBrake(state);
+  }
 }

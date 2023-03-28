@@ -75,4 +75,6 @@ public interface StingerIO {
   public default void updateProfilePosition() {}
 
   public default void setPIDConstraints(double feedForward, double kP, double kI, double kD) {}
+
+  public default void toggleBrake(boolean state) {}
 }

@@ -55,9 +55,7 @@ public interface ElevatorIO {
 
   public default void setHeightInches(double targetHeightInches) {}
 
-  public default void brakeOff() {}
-
-  public default void brakeOn() {}
+  public default void toggleBrake(boolean state) {}
 
   public default void setMaxHeightInches(double inches) {}
 
