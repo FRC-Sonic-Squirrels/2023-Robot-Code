@@ -30,7 +30,7 @@ public interface GyroIO {
     public double yaw = 0.0;
     public double pitch = 0.0;
     public double roll = 0.0;
-    public double[] gravityVector;
+    public double[] gravityVector = {0.0, 0.0, 0.0};
   }
 
   /**
