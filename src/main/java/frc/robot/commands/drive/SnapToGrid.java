@@ -25,15 +25,15 @@ public class SnapToGrid extends CommandBase {
   private final Drivetrain drive;
 
   private static final Pose2d[] bluePos = {
-    new Pose2d(1.93, 0.51, new Rotation2d(Math.toRadians(180))), // CONE /\   WALL SIDE
-    new Pose2d(1.93, 1.08, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 1.62, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 2.18, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 2.74, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 3.31, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 3.86, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 4.42, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 4.98, new Rotation2d(Math.toRadians(180))) // CONE /\   HUMAN PLAYER SIDE
+    new Pose2d(2.15, 0.51, new Rotation2d(Math.toRadians(180))), // CONE /\   WALL SIDE
+    new Pose2d(2.15, 1.08, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(2.15, 1.62, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(2.15, 2.18, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(2.15, 2.74, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(2.15, 3.31, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(2.15, 3.86, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(2.15, 4.42, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(2.15, 4.98, new Rotation2d(Math.toRadians(180))) // CONE /\   HUMAN PLAYER SIDE
   };
 
   private static final Pose2d[] redPos = {
@@ -62,10 +62,12 @@ public class SnapToGrid extends CommandBase {
   private TunableNumber xKi = new TunableNumber("snapToGrid/xKi", 0.5);
   private TunableNumber yKi = new TunableNumber("snapToGrid/yKi", 0.5);
 
-  private TunableNumber xKd = new TunableNumber("snapToGrid/xKi", 0);
-  private TunableNumber yKd = new TunableNumber("snapToGrid/yKi", 0);
+  private TunableNumber xKd = new TunableNumber("snapToGrid/xKd", 0);
+  private TunableNumber yKd = new TunableNumber("snapToGrid/yKd", 0);
 
   private TunableNumber rotationKp = new TunableNumber("snapToGrid/rotationKp", 4.9);
+
+  private TunableNumber mindiffY = new TunableNumber("snapToGrid/mindiffy", 0.2);
   // private double rotationOutput;
 
   // private Trajectory trajectory;
@@ -224,6 +226,18 @@ public class SnapToGrid extends CommandBase {
     // rotationOutput = rotationController.calculate(drive.getPose().getRotation().getRadians());
     xVel = xController.calculate(drive.getPose().getX(), targetPose.getX());
     yVel = yController.calculate(drive.getPose().getY(), targetPose.getY());
+
+    var currentPose = drive.getPose();
+
+    var distanceY = targetPose.getY() - currentPose.getY();
+    var distanceX = targetPose.getX() - currentPose.getX();
+
+    Logger.getInstance().recordOutput("snapToGrid/deltaY", Math.abs(distanceY));
+    Logger.getInstance().recordOutput("snapToGrid/deltaX", Math.abs(distanceX));
+
+    if (Math.abs(distanceY) < mindiffY.get()) {
+      xVel = xController.calculate(drive.getPose().getX(), 1.85);
+    }
 
     Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
     Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
