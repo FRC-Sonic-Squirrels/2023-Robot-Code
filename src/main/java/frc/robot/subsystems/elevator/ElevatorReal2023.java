@@ -242,6 +242,7 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void setPercent(double percent) {
     positionControlMode = false;
+    lastCloseLoopExecutionTime = -1.0;
     lead_talon.set(ControlMode.PercentOutput, percent);
   }
 
