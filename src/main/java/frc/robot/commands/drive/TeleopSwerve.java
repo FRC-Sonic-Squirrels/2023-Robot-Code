@@ -99,14 +99,14 @@ public class TeleopSwerve extends CommandBase implements OverrideDrivetrainStop 
         && (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
         && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
 
-      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
-      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      xMultiplier = drivetrain.elevatorAndStingerOutTranslationMultiplier.get();
+      yMultiplier = drivetrain.elevatorAndStingerOutTranslationMultiplier.get();
 
       rotMultiplier = drivetrain.elevatorAndstingerOutRotationalMultiplier.get();
     } else if (!isElevatorTargetHeightZero
         && elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
-      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
-      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      xMultiplier = drivetrain.elevatorUpTranslationMultiplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMultiplier.get();
 
       rotMultiplier = drivetrain.elevatorUpRotationalMultiplier.get();
     }

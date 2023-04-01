@@ -103,12 +103,12 @@ public class DriveWithSetRotation extends CommandBase {
     if ((elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN)
         && stinger.getExtensionInches() > Drivetrain.STINGER_EXTENSION_SLOW_DOWN) {
 
-      xMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
-      yMultiplier = drivetrain.elevatorAndstingerOutTranslationMuliplier.get();
+      xMultiplier = drivetrain.elevatorAndStingerOutTranslationMultiplier.get();
+      yMultiplier = drivetrain.elevatorAndStingerOutTranslationMultiplier.get();
 
     } else if (elevator.getHeightInches() > Drivetrain.ELEVATOR_HEIGHT_SLOW_DOWN) {
-      xMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
-      yMultiplier = drivetrain.elevatorUpTranslationMuliplier.get();
+      xMultiplier = drivetrain.elevatorUpTranslationMultiplier.get();
+      yMultiplier = drivetrain.elevatorUpTranslationMultiplier.get();
     }
 
     Logger.getInstance().recordOutput("DriveWithSetRotation/xMultiplier", xMultiplier);
