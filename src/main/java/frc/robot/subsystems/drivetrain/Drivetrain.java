@@ -68,12 +68,12 @@ public class Drivetrain extends SubsystemBase {
   private final TunableNumber autoTurnKd =
       new TunableNumber("AutoDrive/TurnKd", AUTO_TURN_D_CONTROLLER);
 
-  public final TunableNumber elevatorUpTranslationMuliplier =
+  public final TunableNumber elevatorUpTranslationMultiplier =
       new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.35);
   public final TunableNumber elevatorUpRotationalMultiplier =
       new TunableNumber("teleopSwerve/elevatorUpRotationalMultiplier", 0.25);
 
-  public final TunableNumber elevatorAndstingerOutTranslationMuliplier =
+  public final TunableNumber elevatorAndStingerOutTranslationMultiplier =
       new TunableNumber("teleopSwerve/ElevatorAndstingerOutTranslationMuliplier", 0.25);
 
   public final TunableNumber elevatorAndstingerOutRotationalMultiplier =
@@ -254,7 +254,9 @@ public class Drivetrain extends SubsystemBase {
    * @return the pose of the robot
    */
   public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    synchronized (poseEstimator) {
+      return poseEstimator.getEstimatedPosition();
+    }
   }
 
   /**
@@ -274,10 +276,13 @@ public class Drivetrain extends SubsystemBase {
 
     estimatedPoseWithoutGyro =
         new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
-    poseEstimator.resetPosition(
-        this.getRotation(),
-        swerveModulePositions,
-        new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
+
+    synchronized (poseEstimator) {
+      poseEstimator.resetPosition(
+          this.getRotation(),
+          swerveModulePositions,
+          new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation));
+    }
   }
 
   public void resetOdometry(Pose2d pose) {
@@ -288,10 +293,13 @@ public class Drivetrain extends SubsystemBase {
     }
 
     estimatedPoseWithoutGyro = new Pose2d(pose.getTranslation(), pose.getRotation());
-    poseEstimator.resetPosition(
-        this.getRotation(),
-        swerveModulePositions,
-        new Pose2d(pose.getTranslation(), pose.getRotation()));
+
+    synchronized (poseEstimator) {
+      poseEstimator.resetPosition(
+          this.getRotation(),
+          swerveModulePositions,
+          new Pose2d(pose.getTranslation(), pose.getRotation()));
+    }
   }
 
   /**
@@ -434,9 +442,61 @@ public class Drivetrain extends SubsystemBase {
 
       estimatedPoseWithoutGyro = estimatedPoseWithoutGyro.exp(twist);
     }
+    Pose2d poseEstimatorPose;
 
-    poseEstimator.updateWithTime(
-        Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
+    // FIXME: synchronize
+    synchronized (poseEstimator) {
+      poseEstimator.updateWithTime(
+          Timer.getFPGATimestamp(), this.getRotation(), swerveModulePositions);
+
+      // if out of bounds, clamp to field
+      if (poseEstimator.getEstimatedPosition().getY() <= 0.43) {
+        poseEstimator.resetPosition(
+            this.getRotation(),
+            swerveModulePositions,
+            new Pose2d(
+                poseEstimator.getEstimatedPosition().getX(),
+                0.46,
+                poseEstimator.getEstimatedPosition().getRotation()));
+      }
+
+      if (poseEstimator.getEstimatedPosition().getY() > 8.35) {
+        poseEstimator.resetPosition(
+            this.getRotation(),
+            swerveModulePositions,
+            new Pose2d(
+                poseEstimator.getEstimatedPosition().getX(),
+                7.73,
+                poseEstimator.getEstimatedPosition().getRotation()));
+      }
+
+      if (DriverStation.getAlliance() == Alliance.Blue) {
+        if (poseEstimator.getEstimatedPosition().getX() > 15.82
+            || poseEstimator.getEstimatedPosition().getX() < 0.9) {
+          poseEstimator.resetPosition(
+              this.getRotation(),
+              swerveModulePositions,
+              new Pose2d(
+                  MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 1.81, 15.82),
+                  poseEstimator.getEstimatedPosition().getY(),
+                  poseEstimator.getEstimatedPosition().getRotation()));
+        }
+      } else {
+        if (poseEstimator.getEstimatedPosition().getX() > 15.6
+            || poseEstimator.getEstimatedPosition().getX() < 0.71) {
+          poseEstimator.resetPosition(
+              this.getRotation(),
+              swerveModulePositions,
+              new Pose2d(
+                  MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 0.71, 14.71),
+                  poseEstimator.getEstimatedPosition().getY(),
+                  poseEstimator.getEstimatedPosition().getRotation()));
+        }
+      }
+
+      // log poses, 3D geometry, and swerve module states, gyro offset
+      poseEstimatorPose = poseEstimator.getEstimatedPosition();
+    }
 
     // update the brake mode based on the robot's velocity and state (enabled/disabled)
     updateBrakeMode();
@@ -450,53 +510,6 @@ public class Drivetrain extends SubsystemBase {
       autoThetaController.setPID(autoTurnKp.get(), autoTurnKi.get(), autoTurnKd.get());
     }
 
-    // if out of bounds, clamp to field
-    if (poseEstimator.getEstimatedPosition().getY() <= 0.43) {
-      poseEstimator.resetPosition(
-          this.getRotation(),
-          swerveModulePositions,
-          new Pose2d(
-              poseEstimator.getEstimatedPosition().getX(),
-              0.46,
-              poseEstimator.getEstimatedPosition().getRotation()));
-    }
-
-    if (poseEstimator.getEstimatedPosition().getY() > 8.35) {
-      poseEstimator.resetPosition(
-          this.getRotation(),
-          swerveModulePositions,
-          new Pose2d(
-              poseEstimator.getEstimatedPosition().getX(),
-              7.73,
-              poseEstimator.getEstimatedPosition().getRotation()));
-    }
-
-    if (DriverStation.getAlliance() == Alliance.Blue) {
-      if (poseEstimator.getEstimatedPosition().getX() > 15.82
-          || poseEstimator.getEstimatedPosition().getX() < 0.9) {
-        poseEstimator.resetPosition(
-            this.getRotation(),
-            swerveModulePositions,
-            new Pose2d(
-                MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 1.81, 15.82),
-                poseEstimator.getEstimatedPosition().getY(),
-                poseEstimator.getEstimatedPosition().getRotation()));
-      }
-    } else {
-      if (poseEstimator.getEstimatedPosition().getX() > 15.6
-          || poseEstimator.getEstimatedPosition().getX() < 0.71) {
-        poseEstimator.resetPosition(
-            this.getRotation(),
-            swerveModulePositions,
-            new Pose2d(
-                MathUtil.clamp(poseEstimator.getEstimatedPosition().getX(), 0.71, 14.71),
-                poseEstimator.getEstimatedPosition().getY(),
-                poseEstimator.getEstimatedPosition().getRotation()));
-      }
-    }
-
-    // log poses, 3D geometry, and swerve module states, gyro offset
-    Pose2d poseEstimatorPose = poseEstimator.getEstimatedPosition();
     Logger.getInstance().recordOutput("Odometry/RobotNoGyro", estimatedPoseWithoutGyro);
     Logger.getInstance().recordOutput("Odometry/Robot", poseEstimatorPose);
     Logger.getInstance().recordOutput("3DField", new Pose3d(poseEstimatorPose));
@@ -521,8 +534,11 @@ public class Drivetrain extends SubsystemBase {
           .recordOutput(
               "driverView/viewPose3d", driverView.getInstance().getDriverPose(this.getPose()));
 
-    field.setRobotPose(poseEstimator.getEstimatedPosition());
-    //  SmartDashboard.putData(field);
+    // log poses, 3D geometry, and swerve module states, gyro offset
+    // synchronize(poseEstimator) {
+    //   field.setRobotPose(poseEstimator.getEstimatedPosition());
+    //   SmartDashboard.putData(field);
+    // }
   }
 
   /**
