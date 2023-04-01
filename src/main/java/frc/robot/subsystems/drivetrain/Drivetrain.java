@@ -535,10 +535,10 @@ public class Drivetrain extends SubsystemBase {
               "driverView/viewPose3d", driverView.getInstance().getDriverPose(this.getPose()));
 
     // log poses, 3D geometry, and swerve module states, gyro offset
-    // synchronize(poseEstimator) {
-    //   field.setRobotPose(poseEstimator.getEstimatedPosition());
-    //   SmartDashboard.putData(field);
-    // }
+    synchronized (poseEstimator) {
+      field.setRobotPose(poseEstimator.getEstimatedPosition());
+      SmartDashboard.putData(field);
+    }
   }
 
   /**
