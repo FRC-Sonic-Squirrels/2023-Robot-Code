@@ -43,7 +43,7 @@ public class MechanismPositions {
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
   private static final TunableNumber elevatorHeightThreshold =
-      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 20);
+      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 25);
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 20);
 
@@ -212,6 +212,22 @@ public class MechanismPositions {
   public static Command scoreConeHigh(Elevator elevator, Stinger stinger, Intake intake) {
 
     return scoreConeHighLogic(elevator, stinger, intake, () -> new InstantCommand());
+  }
+
+  public static Command scoreConeHighAuto(Elevator elevator, Stinger stinger, Intake intake) {
+
+    return new SequentialCommandGroup(
+        goToPositionParallelWithSuck(
+            elevator,
+            stinger,
+            NODE_DISTANCES.HEIGHT_HIGH_CONE - 0.75,
+            NODE_DISTANCES.EXTENSION_HIGH_CONE - 1,
+            () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.8)),
+        // --
+        new IntakeScoreCone(intake).withTimeout(0.2),
+        // --
+        aggressiveZero(elevator, stinger)
+            .deadlineWith(new IntakeScoreCone(intake).withTimeout(0.5)));
   }
 
   private static Command scoreConeHighLogic(
