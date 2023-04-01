@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 7.11,
-        "y": 4.44
+        "y": 4.55
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.991471388657064,
-        "y": 4.539550419100839
+        "y": 4.649550419100838
       },
       "holonomicAngle": -6.52,
       "isReversal": false,
