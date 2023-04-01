@@ -29,6 +29,7 @@ import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.drive.GenerateAndFollowPath;
+import frc.robot.commands.drive.GenerateContinuouslyAndFollowPath;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
@@ -382,12 +383,17 @@ public class DriverAssistAutos {
     // }
 
     return new SequentialCommandGroup(
-        new GenerateAndFollowPath(
-                drivetrain,
-                pointsToFollow,
-                new PathConstraints(normalVel.get(), normalAccel.get()),
-                firstPose,
-                true)
+        // new GenerateAndFollowPath(
+        //         drivetrain,
+        //         pointsToFollow,
+        //         new PathConstraints(normalVel.get(), normalAccel.get()),
+        //         firstPose,
+        //         true)
+        //     .deadlineWith(
+        //         elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
+
+        new GenerateContinuouslyAndFollowPath(
+                drivetrain, lastCheckpoint, new PathConstraints(normalVel.get(), normalAccel.get()))
             .deadlineWith(
                 elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
         // extend elevator

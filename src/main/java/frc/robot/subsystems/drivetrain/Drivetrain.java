@@ -117,6 +117,8 @@ public class Drivetrain extends SubsystemBase {
 
   private ChassisSpeeds chassisSpeeds;
 
+  private ChassisSpeeds currentForwardKinematicSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
   private static final String SUBSYSTEM_NAME = "Drivetrain";
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
@@ -526,8 +528,17 @@ public class Drivetrain extends SubsystemBase {
 
     var speeds = KINEMATICS.toChassisSpeeds(states);
 
+    this.currentForwardKinematicSpeeds = speeds;
+
     Logger.getInstance().recordOutput("Odometry/xvel", speeds.vxMetersPerSecond);
     Logger.getInstance().recordOutput("Odometry/yvel", speeds.vyMetersPerSecond);
+
+    var linearVel =
+        Math.sqrt(
+            (speeds.vxMetersPerSecond * speeds.vxMetersPerSecond)
+                + (speeds.vyMetersPerSecond * speeds.vyMetersPerSecond));
+
+    Logger.getInstance().recordOutput("Odometry/linearVel", linearVel);
 
     if (Constants.getRobot() == RobotType.ROBOT_SIMBOT)
       Logger.getInstance()
@@ -669,6 +680,10 @@ public class Drivetrain extends SubsystemBase {
 
   public ChassisSpeeds getCurrentChassisSpeeds() {
     return chassisSpeeds;
+  }
+
+  public ChassisSpeeds getCurrentForwardKinematicsChassisSpeeds() {
+    return currentForwardKinematicSpeeds;
   }
 
   public ChassisSpeeds getModuleChassisSpeeds() {

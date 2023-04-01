@@ -506,7 +506,7 @@ public class RobotContainer {
     //                     .alongWith(new LedSetColor(leds, colors.BLUE_STROBE))));
 
     operatorController
-        .leftTrigger()
+        .leftTrigger(0.75)
         .whileTrue(
             new ParallelCommandGroup(
                 new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
