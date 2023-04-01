@@ -72,7 +72,7 @@ public class SnapToGrid extends CommandBase {
 
   private TunableNumber maxdiffY = new TunableNumber("snapToGrid/mindiffy", 0.2);
 
-  private TunableNumber checkPointDistX = new TunableNumber("snapToGrid/checkpointDistX", 0.5);
+  private TunableNumber checkPointDistX = new TunableNumber("snapToGrid/checkpointDistX", 0.35);
   // private double rotationOutput;
 
   // private Trajectory trajectory;
