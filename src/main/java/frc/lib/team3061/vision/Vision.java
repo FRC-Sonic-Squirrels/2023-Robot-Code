@@ -190,9 +190,7 @@ public class Vision extends SubsystemBase {
     boolean pnpFailed = false;
 
     SwerveDrivePoseEstimator poseEstimator = RobotOdometry.getInstance().getPoseEstimator();
-
-    Pose2d prevEstimatedRobotPose =
-        RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+    Pose2d prevEstimatedRobotPose = poseEstimator.getEstimatedPosition();
     double timestamp = 0;
     double distance = 0.0;
     PhotonPipelineResult cameraResult = null;
@@ -287,13 +285,15 @@ public class Vision extends SubsystemBase {
         updated = true;
 
         // -1 = error when calculating deviation
-        if (standardDeviation == -1) {
-          poseEstimator.addVisionMeasurement(robotPose.toPose2d(), timestamp, defaultDeviation);
-        } else {
-          poseEstimator.addVisionMeasurement(
-              robotPose.toPose2d(),
-              timestamp,
-              VecBuilder.fill(standardDeviation, standardDeviation, 0.9));
+        synchronized (poseEstimator) {
+          if (standardDeviation == -1) {
+            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), timestamp, defaultDeviation);
+          } else {
+            poseEstimator.addVisionMeasurement(
+                robotPose.toPose2d(),
+                timestamp,
+                VecBuilder.fill(standardDeviation, standardDeviation, 0.9));
+          }
         }
       }
     }
