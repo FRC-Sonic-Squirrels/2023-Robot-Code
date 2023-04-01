@@ -63,11 +63,11 @@ public class Vision extends SubsystemBase {
   private static double MAX_ALLOWABLE_ROLL = 3;
 
   private static TunableNumber twoTargetDeviation =
-      new TunableNumber("Vision/deviations/twoTarget", 0.4);
+      new TunableNumber("Vision/deviations/twoTarget", 0.6);
   private static TunableNumber threeTargetDeviation =
-      new TunableNumber("Vision/deviations/threeTarget", 0.2);
+      new TunableNumber("Vision/deviations/threeTarget", 0.4);
   private static TunableNumber fourTargetDeviation =
-      new TunableNumber("Vision/deviations/fourTarget", 0.05);
+      new TunableNumber("Vision/deviations/fourTarget", 0.2);
 
   private static Matrix<N3, N1> defaultDeviation = VecBuilder.fill(0.9, 0.9, 0.9);
 
@@ -387,11 +387,11 @@ public class Vision extends SubsystemBase {
       return threeTargetDeviation.get();
     }
 
-    if (numTargets == 3) {
+    if (numTargets > 3) {
       return fourTargetDeviation.get();
     }
 
-    return -1;
+    return 1.2;
   }
 }
 
