@@ -423,10 +423,11 @@ public class DriverAssistAutos {
                 Commands.run(() -> drivetrain.drive(driveBackSpeed.get(), 0.0, 0.0), drivetrain),
                 Commands.run(() -> drivetrain.drive(-driveBackSpeed.get(), 0.0, 0.0), drivetrain),
                 () -> DriverStation.getAlliance() == Alliance.Red)
-            .withTimeout(0.3)
+            .withTimeout(0.5)
             .alongWith(
                 new SequentialCommandGroup(
-                    Commands.waitSeconds(0.2), retractSequence.withTimeout(0.1)))
+                    Commands.waitSeconds(0.2),
+                    getRetractSequenceForHumanPlayerStation().withTimeout(0.4)))
             .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
   }
 
@@ -481,7 +482,7 @@ public class DriverAssistAutos {
   }
 
   public Command getRetractSequenceForHumanPlayerStation() {
-    return new IntakeStop(intake).andThen(MechanismPositions.stowPosition(elevator, stinger));
+    return new IntakeStop(intake).alongWith(MechanismPositions.stowPosition(elevator, stinger));
   }
 
   // replace with better implementation of controller rumble
@@ -514,6 +515,6 @@ public class DriverAssistAutos {
   }
 
   private Command elevatorUpSlowPrep() {
-    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 28, () -> 0.4);
+    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 50, () -> 0.4);
   }
 }
