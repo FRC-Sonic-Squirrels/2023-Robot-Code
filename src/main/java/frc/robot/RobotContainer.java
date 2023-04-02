@@ -537,6 +537,21 @@ public class RobotContainer {
                 MechanismPositions.substationPickupPositionCube(elevator, stinger, intake),
                 () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
+    // operatorController
+    //     .y()
+    //     .onTrue(
+    //         MechanismPositions.substationPickupPositionCone(elevator, stinger, intake)
+    //             .alongWith(
+    //                 Commands.runOnce(
+    //                     () -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)))
+    //             .alongWith(new IntakeGrabCone(intake))
+    //             .alongWith(
+    //                 new ConditionalCommand(
+    //                         new LedSetColorNoEnd(leds, colors.YELLOW_STROBE).asProxy(),
+    //                         new InstantCommand(),
+    //                         () -> intake.isStalledForCone())
+    //                     .repeatedly()));
+
     operatorController
         .povUp()
         .onTrue(
