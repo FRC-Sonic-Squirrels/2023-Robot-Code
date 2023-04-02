@@ -39,9 +39,10 @@ public class MechanismPositions {
   static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
   static final double groundPickupExtension = 11;
-  static final double substationPickupHeight = 20;
+  public static final double substationPickupHeight = 45.7;
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
+
   private static final TunableNumber elevatorHeightThreshold =
       new TunableNumber("MechPosCommand/elevatorHeightThreshold", 25);
   private static final TunableNumber stingerExtensionThreshold =
@@ -110,7 +111,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake).withTimeout(0.2),
+        new IntakeScoreCube(intake).withTimeout(0.35),
         safeZero(elevator, stinger));
   }
 
@@ -184,7 +185,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake, 1.0).withTimeout(0.2),
+        new IntakeScoreCube(intake, 1.0).withTimeout(0.35),
         // --
         aggressiveZero(elevator, stinger));
   }

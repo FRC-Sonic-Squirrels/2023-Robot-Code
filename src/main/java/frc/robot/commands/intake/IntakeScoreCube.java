@@ -14,7 +14,7 @@ public class IntakeScoreCube extends CommandBase {
   double speed;
 
   public IntakeScoreCube(Intake intake) {
-    this(intake, 0.5);
+    this(intake, 1.0);
   }
 
   public IntakeScoreCube(Intake intake, double speed) {

@@ -29,7 +29,6 @@ import frc.lib.team2930.lib.controller_rumble.ControllerRumbleUntilButtonPress;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.commands.drive.GenerateAndFollowPath;
-import frc.robot.commands.drive.GenerateContinuouslyAndFollowPath;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCone;
@@ -71,7 +70,8 @@ public class DriverAssistAutos {
   private static TunableNumber driveBackSpeed = new TunableNumber("driverassist/driveBackSpeed", 3);
 
   private static TunableNumber elevatorSlowUpPrepHeight =
-      new TunableNumber("driverassist/elevatorUpSlowPrepHeight", 20);
+      new TunableNumber(
+          "driverassist/elevatorUpSlowPrepHeight", MechanismPositions.substationPickupHeight);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
@@ -383,19 +383,20 @@ public class DriverAssistAutos {
     // }
 
     return new SequentialCommandGroup(
-        // new GenerateAndFollowPath(
-        //         drivetrain,
-        //         pointsToFollow,
-        //         new PathConstraints(normalVel.get(), normalAccel.get()),
-        //         firstPose,
-        //         true)
-        //     .deadlineWith(
-        //         elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
-
-        new GenerateContinuouslyAndFollowPath(
-                drivetrain, lastCheckpoint, new PathConstraints(normalVel.get(), normalAccel.get()))
+        new GenerateAndFollowPath(
+                drivetrain,
+                pointsToFollow,
+                new PathConstraints(normalVel.get(), normalAccel.get()),
+                firstPose,
+                true)
             .deadlineWith(
                 elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
+
+        // new GenerateContinuouslyAndFollowPath(
+        //         drivetrain, lastCheckpoint, new PathConstraints(normalVel.get(),
+        // normalAccel.get()))
+        //     .deadlineWith(
+        //         elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
@@ -513,6 +514,6 @@ public class DriverAssistAutos {
   }
 
   private Command elevatorUpSlowPrep() {
-    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 15, () -> 0.75);
+    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 28, () -> 0.4);
   }
 }
