@@ -523,7 +523,7 @@ public class RobotContainer {
                 .deadlineWith(new IntakeGrabCube(intake))
                 .andThen(
                     MechanismPositions.stowPosition(elevator, stinger)
-                        .deadlineWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())));
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())));
 
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
