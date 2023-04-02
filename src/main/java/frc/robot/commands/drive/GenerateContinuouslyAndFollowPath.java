@@ -208,10 +208,14 @@ public class GenerateContinuouslyAndFollowPath extends CommandBase {
 
         Logger.getInstance()
             .recordOutput("PathFollowing/continuouslyRegeneratingPath", displayTrajectory);
+
         regenerationTimer.reset();
         timer.reset();
       }
     }
+
+    Logger.getInstance()
+        .recordOutput("PathFollowing/pathTotalTime", trajectory.getTotalTimeSeconds());
 
     double currentTime = this.timer.get();
     PathPlannerState desiredState = (PathPlannerState) this.trajectory.sample(currentTime);
