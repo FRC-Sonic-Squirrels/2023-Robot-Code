@@ -174,7 +174,7 @@ public final class Constants {
     // all these measurements are in INCHES
     public static final double EXTENSION_LOW = 7; // half the depth of the hybrid node
     public static final double EXTENSION_MID_CUBE = 16.3;
-    public static final double EXTENSION_MID_CONE = 12.5;
+    public static final double EXTENSION_MID_CONE = 13.0;
     public static final double EXTENSION_HIGH_CONE = Stinger.MAX_EXTENSION_INCHES;
     public static final double EXTENSION_HIGH_CUBE = Stinger.MAX_EXTENSION_INCHES;
 
@@ -182,7 +182,7 @@ public final class Constants {
     // over
     public static final double HEIGHT_LOW = 11;
     public static final double HEIGHT_MID_CUBE = 30;
-    public static final double HEIGHT_MID_CONE = 37;
+    public static final double HEIGHT_MID_CONE = 35;
     public static final double HEIGHT_HIGH_CUBE = 46.5;
     public static final double HEIGHT_HIGH_CONE = Elevator.MAX_HEIGHT_INCHES;
 
