@@ -28,6 +28,11 @@ public class Intake extends SubsystemBase {
   private TunableNumber velocityThreshold = new TunableNumber("intake/velocityThreshold", 200);
   private TunableNumber currentThreshold = new TunableNumber("intake/currentThreshold", 100);
 
+  private TunableNumber velocityThresholdCone =
+      new TunableNumber("intake/CONEvelocityThreshold", 200);
+  private TunableNumber currentThresholdCone =
+      new TunableNumber("intake/CONEcurrentThreshold", 100);
+
   private double filteredVelocity = 0.0;
   private double filteredStatorCurrent = 0.0;
 
@@ -49,6 +54,8 @@ public class Intake extends SubsystemBase {
     Logger.getInstance().recordOutput("Intake/filteredVelocity", filteredVelocity);
 
     Logger.getInstance().recordOutput("Intake/isStalled", isStalled());
+
+    Logger.getInstance().recordOutput("Intake/CONEIsStalled", isStalledForCone());
   }
 
   /** Run the intake intake at the specified percentage. */
@@ -92,6 +99,12 @@ public class Intake extends SubsystemBase {
 
     return (filteredVelocity <= velocityThreshold.get()
         && (filteredStatorCurrent >= currentThreshold.get() || filteredStatorCurrent <= -2));
+  }
+
+  public boolean isStalledForCone() {
+
+    return (filteredVelocity <= velocityThresholdCone.get()
+        && (filteredStatorCurrent >= currentThresholdCone.get() || filteredStatorCurrent <= -2));
   }
 
   public void outtakeConeWithRPM(double speed) {}
