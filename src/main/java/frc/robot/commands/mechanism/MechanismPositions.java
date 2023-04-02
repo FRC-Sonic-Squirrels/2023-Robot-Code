@@ -74,7 +74,7 @@ public class MechanismPositions {
         rumbleButtonConfirmation(rumbleController),
         new ConditionalCommand(
             new IntakeScoreCone(intake).withTimeout(0.2),
-            new IntakeScoreCube(intake, 1.0).withTimeout(0.3),
+            new IntakeScoreCube(intake, 0.8).withTimeout(0.3),
             () -> gamepiece == GamePiece.CONE),
         safeZero(elevator, stinger));
   }
@@ -330,11 +330,11 @@ public class MechanismPositions {
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
-        avoidBumper(elevator, stinger),
+        // avoidBumper(elevator, stinger),
         new ConditionalCommand(
-            new ElevatorSetHeight(elevator, 4),
+            new ElevatorSetHeight(elevator, 5.5),
             new InstantCommand(),
-            () -> (elevator.getHeightInches() <= elevatorAboveBumberHeight)),
+            () -> (elevator.getHeightInches() < 5.5)),
         new StingerSetExtension(stinger, groundPickupExtension),
         new ElevatorSetHeight(elevator, groundPickupHeight));
   }
@@ -351,7 +351,7 @@ public class MechanismPositions {
 
   public static Command substationPickupPositionCone(
       Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionSimple(elevator, stinger, 45.7, 0);
+    return goToPositionParallel(elevator, stinger, 45.7, 1.5);
     // .alongWith(new IntakeGrabCone(intake));
   }
 
