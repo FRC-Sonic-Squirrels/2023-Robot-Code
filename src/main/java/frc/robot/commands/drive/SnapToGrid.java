@@ -262,6 +262,24 @@ public class SnapToGrid extends CommandBase {
     //     driveController.calculate(
     //         drive.getPose(), trajectory.sample(runTime.get()), targetPose.getRotation()));
 
+    if (xKp.get() != xController.getP()
+        || xKi.get() != xController.getI()
+        || xKd.get() != xController.getD()) {
+
+      xController.setP(xKp.get());
+      xController.setI(xKi.get());
+      xController.setD(xKd.get());
+    }
+
+    if (yKp.get() != yController.getP()
+        || yKi.get() != yController.getI()
+        || yKd.get() != yController.getD()) {
+
+      yController.setP(yKp.get());
+      yController.setI(yKi.get());
+      yController.setD(yKd.get());
+    }
+
     Logger.getInstance().recordOutput("ActiveCommands/SnapToGrid", true);
   }
 
