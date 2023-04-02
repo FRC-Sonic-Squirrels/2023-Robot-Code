@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   private TunableNumber currentThreshold = new TunableNumber("intake/currentThreshold", 100);
 
   private TunableNumber velocityThresholdCone =
-      new TunableNumber("intake/CONEvelocityThreshold", 200);
+      new TunableNumber("intake/CONEvelocityThreshold", 400);
   private TunableNumber currentThresholdCone =
       new TunableNumber("intake/CONEcurrentThreshold", 100);
 
