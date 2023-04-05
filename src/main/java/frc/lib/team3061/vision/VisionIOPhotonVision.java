@@ -22,6 +22,8 @@ public class VisionIOPhotonVision implements VisionIO {
     camera = new PhotonCamera(cameraName);
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
+    camera.setDriverMode(false);
+
     /*
      * based on https://docs.wpilib.org/en/latest/docs/software/networktables/listening-for-change.html#listening-for-changes
      * and https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/subsystems/vision/VisionIOPhotonVision.java

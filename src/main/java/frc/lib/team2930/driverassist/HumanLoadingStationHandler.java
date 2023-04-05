@@ -10,9 +10,9 @@ import org.littletonrobotics.junction.Logger;
 public class HumanLoadingStationHandler {
 
   // this checkpoint is where the elevator will extend up
-  private static final double LAST_CHECKPOINT_X = 15.15;
-  private static final double LEFT_SIDE_Y = 7.5;
-  private static final double RIGHT_SIDE_Y = 6.1;
+  private static final double LAST_CHECKPOINT_X = 15.0;
+  private static final double LEFT_SIDE_Y = 7.7;
+  private static final double RIGHT_SIDE_Y = 5.95;
 
   private static final String ROOT_TABLE = "DriverAssist/HumanPlayerAuto";
 

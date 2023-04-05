@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import frc.lib.team2930.lib.util.MotorUtils;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
@@ -43,6 +44,8 @@ public class ElevatorReal2023 implements ElevatorIO {
   private TrapezoidProfile profile = new TrapezoidProfile(constraints, goal);
 
   private boolean positionControlMode = true;
+
+  private double lastCloseLoopExecutionTime = -1.0;
 
   public ElevatorReal2023() {
     lead_talon.configFactoryDefault();
@@ -157,10 +160,19 @@ public class ElevatorReal2023 implements ElevatorIO {
         return;
       }
 
+      if (lastCloseLoopExecutionTime == -1.0) {
+        lastCloseLoopExecutionTime = Timer.getFPGATimestamp();
+      }
+
       // update profile
       profile = new TrapezoidProfile(constraints, goal, setpoint);
 
-      setpoint = profile.calculate(0.02);
+      var currentTime = Timer.getFPGATimestamp();
+
+      Logger.getInstance()
+          .recordOutput("Elevator/lastClosedLoopExecutionTime", lastCloseLoopExecutionTime);
+
+      setpoint = profile.calculate(currentTime - lastCloseLoopExecutionTime);
 
       // TODO: maybe zero feed forward when going down? (setpoint < currentheight)
       lead_talon.set(
@@ -168,8 +180,11 @@ public class ElevatorReal2023 implements ElevatorIO {
           inchesToTicks(setpoint.position),
           DemandType.ArbitraryFeedForward,
           Constants.Elevator.ARBITRARY_FEED_FORWARD);
+
+      lastCloseLoopExecutionTime = currentTime;
     } else {
       targetHeightInches = 0.0;
+      lastCloseLoopExecutionTime = -1.0;
     }
   }
 
@@ -227,6 +242,7 @@ public class ElevatorReal2023 implements ElevatorIO {
   @Override
   public void setPercent(double percent) {
     positionControlMode = false;
+    lastCloseLoopExecutionTime = -1.0;
     lead_talon.set(ControlMode.PercentOutput, percent);
   }
 

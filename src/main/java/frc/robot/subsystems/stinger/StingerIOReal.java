@@ -16,6 +16,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.CanId;
 import org.littletonrobotics.junction.Logger;
@@ -46,6 +47,8 @@ public class StingerIOReal implements StingerIO {
   private TrapezoidProfile profile = new TrapezoidProfile(constraints, goal);
 
   private boolean positionControlMode = true;
+
+  private double lastCloseLoopExecutionTime = -1.0;
 
   public StingerIOReal() {
     motor.configFactoryDefault();
@@ -126,6 +129,26 @@ public class StingerIOReal implements StingerIO {
   }
 
   public void updateProfilePosition() {
+    // if (positionControlMode) {
+    //   if ((targetExtensionInches <= 0.0) && (motor.isRevLimitSwitchClosed() == 1)) {
+    //     // we are on the limit switch and target is zero height, turn off motor
+    //     positionControlMode = false;
+    //     setPercent(0.0);
+    //     return;
+    //   }
+
+    //   // update profile
+    //   profile = new TrapezoidProfile(constraints, goal, setpoint);
+
+    //   setpoint = profile.calculate(0.02);
+
+    //   motor.set(
+    //       TalonFXControlMode.Position,
+    //       inchesToTicks(setpoint.position),
+    //       DemandType.ArbitraryFeedForward,
+    //       Constants.Stinger.ARBITRARY_FEED_FORWARD);
+    // }
+
     if (positionControlMode) {
       if ((targetExtensionInches <= 0.0) && (motor.isRevLimitSwitchClosed() == 1)) {
         // we are on the limit switch and target is zero height, turn off motor
@@ -134,16 +157,31 @@ public class StingerIOReal implements StingerIO {
         return;
       }
 
+      if (lastCloseLoopExecutionTime == -1.0) {
+        lastCloseLoopExecutionTime = Timer.getFPGATimestamp();
+      }
+
       // update profile
       profile = new TrapezoidProfile(constraints, goal, setpoint);
 
-      setpoint = profile.calculate(0.02);
+      var currentTime = Timer.getFPGATimestamp();
 
+      Logger.getInstance()
+          .recordOutput("Stinger/lastClosedLoopExecutionTime", lastCloseLoopExecutionTime);
+
+      setpoint = profile.calculate(currentTime - lastCloseLoopExecutionTime);
+
+      // TODO: maybe zero feed forward when going down? (setpoint < currentheight)
       motor.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),
           DemandType.ArbitraryFeedForward,
-          Constants.Stinger.ARBITRARY_FEED_FORWARD);
+          Constants.Elevator.ARBITRARY_FEED_FORWARD);
+
+      lastCloseLoopExecutionTime = currentTime;
+    } else {
+      targetExtensionInches = 0.0;
+      lastCloseLoopExecutionTime = -1.0;
     }
   }
 
@@ -153,6 +191,7 @@ public class StingerIOReal implements StingerIO {
 
   public void setPercent(double percent) {
     positionControlMode = false;
+    lastCloseLoopExecutionTime = -1.0;
     motor.set(ControlMode.PercentOutput, percent);
   }
 

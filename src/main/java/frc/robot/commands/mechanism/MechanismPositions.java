@@ -39,11 +39,12 @@ public class MechanismPositions {
   static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
   static final double groundPickupExtension = 11;
-  static final double substationPickupHeight = 20;
+  public static final double substationPickupHeight = 45.7;
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
+
   private static final TunableNumber elevatorHeightThreshold =
-      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 20);
+      new TunableNumber("MechPosCommand/elevatorHeightThreshold", 25);
   private static final TunableNumber stingerExtensionThreshold =
       new TunableNumber("MechPosCommand/stingerExtensionThreshold", 20);
 
@@ -73,7 +74,7 @@ public class MechanismPositions {
         rumbleButtonConfirmation(rumbleController),
         new ConditionalCommand(
             new IntakeScoreCone(intake).withTimeout(0.2),
-            new IntakeScoreCube(intake, 1.0).withTimeout(0.3),
+            new IntakeScoreCube(intake, 0.8).withTimeout(0.3),
             () -> gamepiece == GamePiece.CONE),
         safeZero(elevator, stinger));
   }
@@ -110,7 +111,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake).withTimeout(0.2),
+        new IntakeScoreCube(intake).withTimeout(0.35),
         safeZero(elevator, stinger));
   }
 
@@ -184,7 +185,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake, 1.0).withTimeout(0.2),
+        new IntakeScoreCube(intake, 1.0).withTimeout(0.35),
         // --
         aggressiveZero(elevator, stinger));
   }
@@ -212,6 +213,22 @@ public class MechanismPositions {
   public static Command scoreConeHigh(Elevator elevator, Stinger stinger, Intake intake) {
 
     return scoreConeHighLogic(elevator, stinger, intake, () -> new InstantCommand());
+  }
+
+  public static Command scoreConeHighAuto(Elevator elevator, Stinger stinger, Intake intake) {
+
+    return new SequentialCommandGroup(
+        goToPositionParallelWithSuck(
+            elevator,
+            stinger,
+            NODE_DISTANCES.HEIGHT_HIGH_CONE - 0.75,
+            NODE_DISTANCES.EXTENSION_HIGH_CONE - 1,
+            () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.8)),
+        // --
+        new IntakeScoreCone(intake).withTimeout(0.2),
+        // --
+        aggressiveZero(elevator, stinger)
+            .deadlineWith(new IntakeScoreCone(intake).withTimeout(0.5)));
   }
 
   private static Command scoreConeHighLogic(
@@ -313,11 +330,11 @@ public class MechanismPositions {
 
   public static Command groundPickupPosition(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
-        avoidBumper(elevator, stinger),
+        // avoidBumper(elevator, stinger),
         new ConditionalCommand(
-            new ElevatorSetHeight(elevator, 4),
+            new ElevatorSetHeight(elevator, 5.5),
             new InstantCommand(),
-            () -> (elevator.getHeightInches() <= elevatorAboveBumberHeight)),
+            () -> (elevator.getHeightInches() < 5.5)),
         new StingerSetExtension(stinger, groundPickupExtension),
         new ElevatorSetHeight(elevator, groundPickupHeight));
   }
@@ -334,7 +351,7 @@ public class MechanismPositions {
 
   public static Command substationPickupPositionCone(
       Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionSimple(elevator, stinger, 45.7, 0);
+    return goToPositionParallel(elevator, stinger, 45.7, 1.5);
     // .alongWith(new IntakeGrabCone(intake));
   }
 

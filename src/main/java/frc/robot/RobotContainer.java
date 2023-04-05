@@ -506,7 +506,7 @@ public class RobotContainer {
     //                     .alongWith(new LedSetColor(leds, colors.BLUE_STROBE))));
 
     operatorController
-        .leftTrigger()
+        .leftTrigger(0.75)
         .whileTrue(
             new ParallelCommandGroup(
                 new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
@@ -523,7 +523,7 @@ public class RobotContainer {
                 .deadlineWith(new IntakeGrabCube(intake))
                 .andThen(
                     MechanismPositions.stowPosition(elevator, stinger)
-                        .deadlineWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())));
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())));
 
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
@@ -536,6 +536,21 @@ public class RobotContainer {
                 MechanismPositions.substationPickupPositionCone(elevator, stinger, intake),
                 MechanismPositions.substationPickupPositionCube(elevator, stinger, intake),
                 () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
+
+    // operatorController
+    //     .y()
+    //     .onTrue(
+    //         MechanismPositions.substationPickupPositionCone(elevator, stinger, intake)
+    //             .alongWith(
+    //                 Commands.runOnce(
+    //                     () -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE)))
+    //             .alongWith(new IntakeGrabCone(intake))
+    //             .alongWith(
+    //                 new ConditionalCommand(
+    //                         new LedSetColorNoEnd(leds, colors.YELLOW_STROBE).asProxy(),
+    //                         new InstantCommand(),
+    //                         () -> intake.isStalledForCone())
+    //                     .repeatedly()));
 
     operatorController
         .povUp()

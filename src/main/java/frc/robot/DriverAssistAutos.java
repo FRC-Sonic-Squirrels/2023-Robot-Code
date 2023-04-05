@@ -70,7 +70,8 @@ public class DriverAssistAutos {
   private static TunableNumber driveBackSpeed = new TunableNumber("driverassist/driveBackSpeed", 3);
 
   private static TunableNumber elevatorSlowUpPrepHeight =
-      new TunableNumber("driverassist/elevatorUpSlowPrepHeight", 20);
+      new TunableNumber(
+          "driverassist/elevatorUpSlowPrepHeight", MechanismPositions.substationPickupHeight);
 
   public DriverAssistAutos(
       Drivetrain drivetrain,
@@ -390,6 +391,12 @@ public class DriverAssistAutos {
                 true)
             .deadlineWith(
                 elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
+
+        // new GenerateContinuouslyAndFollowPath(
+        //         drivetrain, lastCheckpoint, new PathConstraints(normalVel.get(),
+        // normalAccel.get()))
+        //     .deadlineWith(
+        //         elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
         // extend elevator
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
@@ -416,10 +423,11 @@ public class DriverAssistAutos {
                 Commands.run(() -> drivetrain.drive(driveBackSpeed.get(), 0.0, 0.0), drivetrain),
                 Commands.run(() -> drivetrain.drive(-driveBackSpeed.get(), 0.0, 0.0), drivetrain),
                 () -> DriverStation.getAlliance() == Alliance.Red)
-            .withTimeout(0.3)
+            .withTimeout(0.5)
             .alongWith(
                 new SequentialCommandGroup(
-                    Commands.waitSeconds(0.2), retractSequence.withTimeout(0.1)))
+                    Commands.waitSeconds(0.2),
+                    getRetractSequenceForHumanPlayerStation().withTimeout(0.4)))
             .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()));
   }
 
@@ -474,7 +482,7 @@ public class DriverAssistAutos {
   }
 
   public Command getRetractSequenceForHumanPlayerStation() {
-    return new IntakeStop(intake).andThen(MechanismPositions.stowPosition(elevator, stinger));
+    return new IntakeStop(intake).alongWith(MechanismPositions.stowPosition(elevator, stinger));
   }
 
   // replace with better implementation of controller rumble
@@ -507,6 +515,6 @@ public class DriverAssistAutos {
   }
 
   private Command elevatorUpSlowPrep() {
-    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 15, () -> 0.75);
+    return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 50, () -> 0.4);
   }
 }

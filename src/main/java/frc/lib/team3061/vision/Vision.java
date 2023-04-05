@@ -3,17 +3,22 @@ package frc.lib.team3061.vision;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.io.IOException;
@@ -56,6 +61,15 @@ public class Vision extends SubsystemBase {
 
   private static double MAX_ALLOWABLE_PITCH = 3;
   private static double MAX_ALLOWABLE_ROLL = 3;
+
+  private static TunableNumber twoTargetDeviation =
+      new TunableNumber("Vision/deviations/twoTarget", 0.6);
+  private static TunableNumber threeTargetDeviation =
+      new TunableNumber("Vision/deviations/threeTarget", 0.4);
+  private static TunableNumber fourTargetDeviation =
+      new TunableNumber("Vision/deviations/fourTarget", 0.2);
+
+  private static Matrix<N3, N1> defaultDeviation = VecBuilder.fill(0.9, 0.9, 0.9);
 
   public Vision(
       VisionIO L_VisionIO, VisionIO R_VisionIO, VisionIO B_VisionIO, Drivetrain drivetrain) {
@@ -176,13 +190,13 @@ public class Vision extends SubsystemBase {
     boolean pnpFailed = false;
 
     SwerveDrivePoseEstimator poseEstimator = RobotOdometry.getInstance().getPoseEstimator();
-
-    Pose2d prevEstimatedRobotPose =
-        RobotOdometry.getInstance().getPoseEstimator().getEstimatedPosition();
+    Pose2d prevEstimatedRobotPose = poseEstimator.getEstimatedPosition();
     double timestamp = 0;
     double distance = 0.0;
     PhotonPipelineResult cameraResult = null;
     Pose3d robotPose = null;
+
+    double standardDeviation = -1.0;
 
     // Synchronize read/write on camera data, this is getting written asynchronously
     synchronized (io) {
@@ -213,11 +227,15 @@ public class Vision extends SubsystemBase {
 
       if (estimatedRobotPose != null) {
         robotPose = estimatedRobotPose.estimatedPose;
+
+        standardDeviation = getDeviationForNumTargets(targetsSeen);
+
         Logger.getInstance()
             .recordOutput("Vision/" + name + "/CameraPose", robotPose.transformBy(cameraToRobot));
       } else {
         pnpFailed = true;
       }
+
       Logger.getInstance().recordOutput("Vision/" + name + "/Ambiguity", 0.0);
 
     } else {
@@ -235,6 +253,12 @@ public class Vision extends SubsystemBase {
 
           robotPose = cameraPose.transformBy(cameraToRobot.inverse());
 
+          standardDeviation = cameraToTarget.getTranslation().getNorm() / 2.0;
+
+          Logger.getInstance()
+              .recordOutput(
+                  "Vision/" + name + "/distanceNorm3D", cameraToTarget.getTranslation().getNorm());
+
           Logger.getInstance()
               .recordOutput("Vision/" + name + "/Ambiguity", target.getPoseAmbiguity());
           Logger.getInstance().recordOutput("Vision/" + name + "/CameraPose", cameraPose);
@@ -250,6 +274,7 @@ public class Vision extends SubsystemBase {
 
       Logger.getInstance().recordOutput("Vision/" + name + "/DistanceFromRobot", distance);
       Logger.getInstance().recordOutput("Vision/" + name + "/RobotPose", robotPose.toPose2d());
+      Logger.getInstance().recordOutput("Vision/" + name + "/3DRobotPose", robotPose);
 
       // distance from vision estimate to last position estimate
       if ((useMaxValidDistanceAway)
@@ -258,12 +283,24 @@ public class Vision extends SubsystemBase {
       } else {
         // we passed all the checks, update the pose
         updated = true;
-        poseEstimator.addVisionMeasurement(robotPose.toPose2d(), timestamp);
+
+        // -1 = error when calculating deviation
+        synchronized (poseEstimator) {
+          if (standardDeviation == -1) {
+            poseEstimator.addVisionMeasurement(robotPose.toPose2d(), timestamp, defaultDeviation);
+          } else {
+            poseEstimator.addVisionMeasurement(
+                robotPose.toPose2d(),
+                timestamp,
+                VecBuilder.fill(standardDeviation, standardDeviation, 0.9));
+          }
+        }
       }
     }
 
     Logger.getInstance().recordOutput("Vision/" + name + "/Updated", updated);
     Logger.getInstance().recordOutput("Vision/" + name + "/pnpFailed", pnpFailed);
+    Logger.getInstance().recordOutput("Vision/" + name + "/standardDeviation", standardDeviation);
   }
 
   public boolean tagVisible(int id, PhotonPipelineResult result) {
@@ -339,6 +376,22 @@ public class Vision extends SubsystemBase {
   public void disableUpdatePoseWithVisionReadings() {
     Logger.getInstance().recordOutput("Vision/updatePoseWithVisionReadings", false);
     updatePoseWithVisionReadings = false;
+  }
+
+  private double getDeviationForNumTargets(int numTargets) {
+    if (numTargets == 2) {
+      return twoTargetDeviation.get();
+    }
+
+    if (numTargets == 3) {
+      return threeTargetDeviation.get();
+    }
+
+    if (numTargets > 3) {
+      return fourTargetDeviation.get();
+    }
+
+    return 1.2;
   }
 }
 

@@ -24,28 +24,31 @@ public class SnapToGrid extends CommandBase {
   /** Creates a new snapToGrid. */
   private final Drivetrain drive;
 
+  private static final double blueX = 1.86;
+  private static final double redX = 14.64;
+
   private static final Pose2d[] bluePos = {
-    new Pose2d(1.93, 0.51, new Rotation2d(Math.toRadians(180))), // CONE /\   WALL SIDE
-    new Pose2d(1.93, 1.08, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 1.62, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 2.18, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 2.74, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 3.31, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 3.86, new Rotation2d(Math.toRadians(180))), // CONE /\
-    new Pose2d(1.93, 4.42, new Rotation2d(Math.toRadians(180))), // CUBE []
-    new Pose2d(1.93, 4.98, new Rotation2d(Math.toRadians(180))) // CONE /\   HUMAN PLAYER SIDE
+    new Pose2d(blueX, 0.51, new Rotation2d(Math.toRadians(180))), // CONE /\   WALL SIDE
+    new Pose2d(blueX, 1.08, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(blueX, 1.62, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(blueX, 2.18, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(blueX, 2.74, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(blueX, 3.31, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(blueX, 3.86, new Rotation2d(Math.toRadians(180))), // CONE /\
+    new Pose2d(blueX, 4.42, new Rotation2d(Math.toRadians(180))), // CUBE []
+    new Pose2d(blueX, 4.98, new Rotation2d(Math.toRadians(180))) // CONE /\   HUMAN PLAYER SIDE
   };
 
   private static final Pose2d[] redPos = {
-    new Pose2d(14.64, 0.51, new Rotation2d(Math.toRadians(0))), // CONE /\   WALL SIDE
-    new Pose2d(14.64, 1.08, new Rotation2d(Math.toRadians(0))), // CUBE []
-    new Pose2d(14.64, 1.62, new Rotation2d(Math.toRadians(0))), // CONE /\
-    new Pose2d(14.64, 2.18, new Rotation2d(Math.toRadians(0))), // CONE /\
-    new Pose2d(14.64, 2.74, new Rotation2d(Math.toRadians(0))), // CUBE []
-    new Pose2d(14.64, 3.31, new Rotation2d(Math.toRadians(0))), // CONE /\
-    new Pose2d(14.64, 3.86, new Rotation2d(Math.toRadians(0))), // CONE /\
-    new Pose2d(14.64, 4.42, new Rotation2d(Math.toRadians(0))), // CUBE []
-    new Pose2d(14.64, 4.98, new Rotation2d(Math.toRadians(0))) // CONE /\   HUMAN PLAYER SIDE
+    new Pose2d(redX, 0.51, new Rotation2d(Math.toRadians(0))), // CONE /\   WALL SIDE
+    new Pose2d(redX, 1.08, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(redX, 1.62, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(redX, 2.18, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(redX, 2.74, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(redX, 3.31, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(redX, 3.86, new Rotation2d(Math.toRadians(0))), // CONE /\
+    new Pose2d(redX, 4.42, new Rotation2d(Math.toRadians(0))), // CUBE []
+    new Pose2d(redX, 4.98, new Rotation2d(Math.toRadians(0))) // CONE /\   HUMAN PLAYER SIDE
   };
 
   private static final int[] cubeIndex = {1, 4, 7};
@@ -56,16 +59,20 @@ public class SnapToGrid extends CommandBase {
 
   private Pose2d targetPose = new Pose2d(1000.0, 1000.0, new Rotation2d(0.0));
 
-  private TunableNumber xKp = new TunableNumber("snapToGrid/xKp", 4.0);
-  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 6.0);
+  private TunableNumber xKp = new TunableNumber("snapToGrid/xKp", 3.2);
+  private TunableNumber yKp = new TunableNumber("snapToGrid/yKp", 3.2);
 
-  private TunableNumber xKi = new TunableNumber("snapToGrid/xKi", 0.5);
-  private TunableNumber yKi = new TunableNumber("snapToGrid/yKi", 0.5);
+  private TunableNumber xKi = new TunableNumber("snapToGrid/xKi", 0.0);
+  private TunableNumber yKi = new TunableNumber("snapToGrid/yKi", 0.0);
 
-  private TunableNumber xKd = new TunableNumber("snapToGrid/xKi", 0);
-  private TunableNumber yKd = new TunableNumber("snapToGrid/yKi", 0);
+  private TunableNumber xKd = new TunableNumber("snapToGrid/xKd", 0);
+  private TunableNumber yKd = new TunableNumber("snapToGrid/yKd", 0);
 
   private TunableNumber rotationKp = new TunableNumber("snapToGrid/rotationKp", 4.9);
+
+  private TunableNumber maxdiffY = new TunableNumber("snapToGrid/mindiffy", 0.2);
+
+  private TunableNumber checkPointDistX = new TunableNumber("snapToGrid/checkpointDistX", 0.35);
   // private double rotationOutput;
 
   // private Trajectory trajectory;
@@ -92,6 +99,8 @@ public class SnapToGrid extends CommandBase {
   private static double feedForward = 0.2;
   private static double xFeedForward;
   private static double yFeedForward;
+
+  private double checkPointX;
 
   public static Timer runTime = new Timer();
 
@@ -188,28 +197,28 @@ public class SnapToGrid extends CommandBase {
     Logger.getInstance().recordOutput("snapToGrid/targetPos", targetPose);
     // Logger.getInstance().recordOutput("snapToGrid/trajectory", trajectory);
 
-    if (drive.getPose().getX() <= targetPose.getX()) {
-      xFeedForward = feedForward;
-    } else {
-      xFeedForward = -feedForward;
-    }
+    // if (drive.getPose().getX() <= targetPose.getX()) {
+    //   xFeedForward = feedForward;
+    // } else {
+    //   xFeedForward = -feedForward;
+    // }
 
-    if (drive.getPose().getY() <= targetPose.getY()) {
-      yFeedForward = feedForward;
-    } else {
-      yFeedForward = -feedForward;
-    }
+    // if (drive.getPose().getY() <= targetPose.getY()) {
+    //   yFeedForward = feedForward;
+    // } else {
+    //   yFeedForward = -feedForward;
+    // }
 
-    xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get() + xFeedForward;
+    // xVel = (targetPose.getX() - drive.getPose().getX()) * xKp.get() + xFeedForward;
 
-    yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get() + yFeedForward;
+    // yVel = (targetPose.getY() - drive.getPose().getY()) * yKp.get() + yFeedForward;
 
-    if (Math.abs(drive.getPose().getX() - targetPose.getX()) <= 0.05) {
-      xVel = 0;
-    }
-    if (Math.abs(drive.getPose().getY() - targetPose.getY()) <= 0.05) {
-      yVel = 0;
-    }
+    // if (Math.abs(drive.getPose().getX() - targetPose.getX()) <= 0.05) {
+    //   xVel = 0;
+    // }
+    // if (Math.abs(drive.getPose().getY() - targetPose.getY()) <= 0.05) {
+    //   yVel = 0;
+    // }
 
     if (rotationController.getGoal().position != targetPose.getRotation().getRadians()) {
       rotationController.setGoal(targetPose.getRotation().getRadians());
@@ -222,8 +231,30 @@ public class SnapToGrid extends CommandBase {
     // }
 
     // rotationOutput = rotationController.calculate(drive.getPose().getRotation().getRadians());
-    xVel = xController.calculate(drive.getPose().getX(), targetPose.getX());
+
     yVel = yController.calculate(drive.getPose().getY(), targetPose.getY());
+
+    var currentPose = drive.getPose();
+
+    var distanceY = targetPose.getY() - currentPose.getY();
+    var distanceX = targetPose.getX() - currentPose.getX();
+
+    Logger.getInstance().recordOutput("snapToGrid/deltaY", Math.abs(distanceY));
+    Logger.getInstance().recordOutput("snapToGrid/deltaX", Math.abs(distanceX));
+
+    if (DriverStation.getAlliance() == Alliance.Blue) {
+      checkPointX = blueX + checkPointDistX.get();
+    } else {
+      checkPointX = redX - checkPointDistX.get();
+    }
+
+    if (Math.abs(distanceY) > maxdiffY.get()) {
+      xVel = xController.calculate(drive.getPose().getX(), checkPointX);
+    } else {
+      xVel = xController.calculate(drive.getPose().getX(), targetPose.getX());
+    }
+
+    Logger.getInstance().recordOutput("snapToGrid/checkpointX", checkPointX);
 
     Logger.getInstance().recordOutput("snapToGrid/xVel", xVel);
     Logger.getInstance().recordOutput("snapToGrid/yVel", yVel);
@@ -234,6 +265,24 @@ public class SnapToGrid extends CommandBase {
     // drive.drive(
     //     driveController.calculate(
     //         drive.getPose(), trajectory.sample(runTime.get()), targetPose.getRotation()));
+
+    if (xKp.get() != xController.getP()
+        || xKi.get() != xController.getI()
+        || xKd.get() != xController.getD()) {
+
+      xController.setP(xKp.get());
+      xController.setI(xKi.get());
+      xController.setD(xKd.get());
+    }
+
+    if (yKp.get() != yController.getP()
+        || yKi.get() != yController.getI()
+        || yKd.get() != yController.getD()) {
+
+      yController.setP(yKp.get());
+      yController.setI(yKi.get());
+      yController.setD(yKd.get());
+    }
 
     Logger.getInstance().recordOutput("ActiveCommands/SnapToGrid", true);
   }
