@@ -357,7 +357,7 @@ public class MechanismPositions {
 
   public static Command substationPickupPositionCube(
       Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionSimple(elevator, stinger, 42, 0);
+    return goToPositionParallel(elevator, stinger, 44, 1.5);
     // .alongWith(new IntakeGrabCone(intake));
   }
 
