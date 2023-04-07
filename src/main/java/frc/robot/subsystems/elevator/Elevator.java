@@ -6,6 +6,7 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -22,6 +23,8 @@ public class Elevator extends SubsystemBase {
   private double MAX_VOLTAGE = 10.0;
   public static final double toleranceInches = 0.025;
   private boolean zeroed = false;
+
+  private Trigger zeroedTrigger;
 
   public final TunableNumber Kf = new TunableNumber("Elevator/Kf", Constants.Elevator.F_CONTROLLER);
   // for simulator use kP 2.0
@@ -49,15 +52,18 @@ public class Elevator extends SubsystemBase {
     if (Constants.getMode() == Mode.SIM) {
       io.setPIDConstraints(Kf.get(), 2.0, Ki.get(), Kd.get());
     }
+
+    zeroedTrigger = new Trigger(() -> inputs.ElevatorAtLowerLimit ).debounce(0.25);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Elevator", inputs);
+    Logger.getInstance().recordOutput("Elevator/zeroedTrigger", zeroedTrigger.getAsBoolean());
 
     // limit switch
-    if (inputs.ElevatorAtLowerLimit) {
+    if (zeroedTrigger.getAsBoolean()) {
       if (!zeroed
           || ((inputs.ElevatorTargetHeightInches <= 0.0)
               && (inputs.ElevatorHeightInches < -0.01))) {
