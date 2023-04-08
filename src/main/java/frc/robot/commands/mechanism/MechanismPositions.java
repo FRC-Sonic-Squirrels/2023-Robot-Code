@@ -107,7 +107,7 @@ public class MechanismPositions {
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
 
     return new SequentialCommandGroup(
-        cubeMidPosition(elevator, stinger, intake),
+        cubeMidPosition(elevator, stinger, intake).deadlineWith(new IntakeGrabCube(intake, 0.35)),
         // --
         confirmationCommand.get(),
         // --
@@ -116,12 +116,7 @@ public class MechanismPositions {
   }
 
   public static Command cubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionWithSuck(
-        elevator,
-        stinger,
-        Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
-        Constants.NODE_DISTANCES.EXTENSION_MID_CUBE,
-        () -> intakeGrabPiece(intake, GamePiece.CUBE, 0.25));
+    return goToPositionParallelThreshold(elevator, stinger, Constants.NODE_DISTANCES.HEIGHT_MID_CUBE, Constants.NODE_DISTANCES.EXTENSION_MID_CUBE, Constants.NODE_DISTANCES.HEIGHT_MID_CUBE - 15.0);
   }
 
   // --------CUBE MID -------------
@@ -143,7 +138,7 @@ public class MechanismPositions {
   private static Command scoreConeMidLogic(
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
     return new SequentialCommandGroup(
-        coneMidPosition(elevator, stinger, intake),
+        coneMidPosition(elevator, stinger, intake).deadlineWith(new IntakeGrabCone(intake, 0.8)),
         // --
         confirmationCommand.get(),
         // --
@@ -153,12 +148,7 @@ public class MechanismPositions {
   }
 
   public static Command coneMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionWithSuck(
-        elevator,
-        stinger,
-        Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
-        Constants.NODE_DISTANCES.EXTENSION_MID_CONE,
-        () -> intakeGrabPiece(intake, GamePiece.CONE, 0.25));
+    return goToPositionParallelThreshold(elevator, stinger, Constants.NODE_DISTANCES.HEIGHT_MID_CONE, Constants.NODE_DISTANCES.EXTENSION_MID_CONE, Constants.NODE_DISTANCES.HEIGHT_MID_CONE - 20);
   }
 
   // --------CONE MID -------------
@@ -423,6 +413,25 @@ public class MechanismPositions {
             new SequentialCommandGroup(
                 Commands.waitUntil(
                     () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                new StingerSetExtension(stinger, extensionInches))),
+        () -> elevator.getHeightInches() >= heightInches);
+  }
+
+  public static Command goToPositionParallelThreshold(
+      Elevator elevator, Stinger stinger, double heightInches, double extensionInches, double elevatorThresholdInches) {
+
+    return new ConditionalCommand(
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, extensionInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (stinger.getExtensionInches() <= stingerExtensionThreshold.get())),
+                new ElevatorSetHeight(elevator, heightInches))),
+        new ParallelCommandGroup(
+            new ElevatorSetHeight(elevator, heightInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (elevator.getHeightInches() >= elevatorThresholdInches)),
                 new StingerSetExtension(stinger, extensionInches))),
         () -> elevator.getHeightInches() >= heightInches);
   }
