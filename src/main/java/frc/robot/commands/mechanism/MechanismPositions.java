@@ -111,7 +111,7 @@ public class MechanismPositions {
         // --
         confirmationCommand.get(),
         // --
-        new IntakeScoreCube(intake).withTimeout(0.35),
+        new IntakeScoreCube(intake).withTimeout(0.45),
         safeZero(elevator, stinger));
   }
 
