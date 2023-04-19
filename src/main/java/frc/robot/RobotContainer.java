@@ -479,7 +479,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    -90)
+                    -30.0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     driverController
@@ -491,7 +491,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    90)
+                    22)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     // TODO: test this to see if it works
@@ -542,7 +542,7 @@ public class RobotContainer {
                 MechanismPositions.groundPickupPositionConeTeleop(elevator, stinger)
                     .andThen(
                         Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
-                    .deadlineWith(new IntakeGrabCube(intake))
+                    .deadlineWith(new IntakeGrabCone(intake))
                     .andThen(
                         MechanismPositions.stowPosition(elevator, stinger)
                             .deadlineWith(

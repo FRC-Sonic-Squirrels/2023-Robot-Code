@@ -39,8 +39,8 @@ public class MechanismPositions {
   static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
   static final double groundPickupExtension = 11;
-  static final double groundPickupHeightCone = 3.0;
-  static final double groundPickupExtensionCone = 11.0;
+  static final double groundPickupHeightCone = 5.4;
+  static final double groundPickupExtensionCone = 11;
   public static final double substationPickupHeight = 45.7;
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
