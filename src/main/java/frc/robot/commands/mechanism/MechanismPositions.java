@@ -39,6 +39,8 @@ public class MechanismPositions {
   static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
   static final double groundPickupExtension = 11;
+  static final double groundPickupHeightCone = 3.0;
+  static final double groundPickupExtensionCone = 11.0;
   public static final double substationPickupHeight = 45.7;
   static final double substationPickupExtension = 20;
   static final double elevatorAboveBumberHeight = 3;
@@ -116,7 +118,12 @@ public class MechanismPositions {
   }
 
   public static Command cubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionParallelThreshold(elevator, stinger, Constants.NODE_DISTANCES.HEIGHT_MID_CUBE, Constants.NODE_DISTANCES.EXTENSION_MID_CUBE, Constants.NODE_DISTANCES.HEIGHT_MID_CUBE - 15.0);
+    return goToPositionParallelThreshold(
+        elevator,
+        stinger,
+        Constants.NODE_DISTANCES.HEIGHT_MID_CUBE,
+        Constants.NODE_DISTANCES.EXTENSION_MID_CUBE,
+        Constants.NODE_DISTANCES.HEIGHT_MID_CUBE - 15.0);
   }
 
   // --------CUBE MID -------------
@@ -148,7 +155,12 @@ public class MechanismPositions {
   }
 
   public static Command coneMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
-    return goToPositionParallelThreshold(elevator, stinger, Constants.NODE_DISTANCES.HEIGHT_MID_CONE, Constants.NODE_DISTANCES.EXTENSION_MID_CONE, Constants.NODE_DISTANCES.HEIGHT_MID_CONE - 20);
+    return goToPositionParallelThreshold(
+        elevator,
+        stinger,
+        Constants.NODE_DISTANCES.HEIGHT_MID_CONE,
+        Constants.NODE_DISTANCES.EXTENSION_MID_CONE,
+        Constants.NODE_DISTANCES.HEIGHT_MID_CONE - 20);
   }
 
   // --------CONE MID -------------
@@ -326,7 +338,18 @@ public class MechanismPositions {
             new InstantCommand(),
             () -> (elevator.getHeightInches() < 5.5)),
         new StingerSetExtension(stinger, groundPickupExtension),
-        new ElevatorSetHeight(elevator, groundPickupHeight));
+        new ElevatorSetHeight(elevator, groundPickupExtensionCone));
+  }
+
+  public static Command groundPickupPositionConeTeleop(Elevator elevator, Stinger stinger) {
+    return new SequentialCommandGroup(
+        // avoidBumper(elevator, stinger),
+        new ConditionalCommand(
+            new ElevatorSetHeight(elevator, 5.5),
+            new InstantCommand(),
+            () -> (elevator.getHeightInches() < 5.5)),
+        new StingerSetExtension(stinger, groundPickupExtensionCone),
+        new ElevatorSetHeight(elevator, groundPickupHeightCone));
   }
 
   // public static Command substationPickupPosition(Elevator elevator, Stinger stinger) {
@@ -418,7 +441,11 @@ public class MechanismPositions {
   }
 
   public static Command goToPositionParallelThreshold(
-      Elevator elevator, Stinger stinger, double heightInches, double extensionInches, double elevatorThresholdInches) {
+      Elevator elevator,
+      Stinger stinger,
+      double heightInches,
+      double extensionInches,
+      double elevatorThresholdInches) {
 
     return new ConditionalCommand(
         new ParallelCommandGroup(
@@ -430,8 +457,7 @@ public class MechanismPositions {
         new ParallelCommandGroup(
             new ElevatorSetHeight(elevator, heightInches),
             new SequentialCommandGroup(
-                Commands.waitUntil(
-                    () -> (elevator.getHeightInches() >= elevatorThresholdInches)),
+                Commands.waitUntil(() -> (elevator.getHeightInches() >= elevatorThresholdInches)),
                 new StingerSetExtension(stinger, extensionInches))),
         () -> elevator.getHeightInches() >= heightInches);
   }
