@@ -547,7 +547,7 @@ public class RobotContainer {
                         MechanismPositions.stowPosition(elevator, stinger)
                             .deadlineWith(
                                 new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())),
-                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CUBE));
 
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 

@@ -338,7 +338,7 @@ public class MechanismPositions {
             new InstantCommand(),
             () -> (elevator.getHeightInches() < 5.5)),
         new StingerSetExtension(stinger, groundPickupExtension),
-        new ElevatorSetHeight(elevator, groundPickupExtensionCone));
+        new ElevatorSetHeight(elevator, groundPickupHeight));
   }
 
   public static Command groundPickupPositionConeTeleop(Elevator elevator, Stinger stinger) {
