@@ -630,10 +630,12 @@ public class SwerveAutos {
 
   public AutoChooserElement wall3PieceYeetScore() {
     PathPlannerTrajectory path = loadPath("wall3PieceYeetScore");
+    PathPlannerTrajectory finalPath = loadPath("wallFinalExit");
 
     return wall3PieceYeet()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(true, GamePiece.CUBE));
+        .setNext(score(true, GamePiece.CUBE))
+        .setNext(finalPath, false, drivetrain, getEventMap());
   }
 
   public AutoChooserElement wall3PieceYeetEngage() {
@@ -701,10 +703,12 @@ public class SwerveAutos {
 
   public AutoChooserElement hp3PieceYeetScore() {
     PathPlannerTrajectory path = loadPath("Hp3PieceYeetScore");
+    PathPlannerTrajectory finalPath = loadPath("hpFinalExit");
 
     return hp3PieceYeet()
         .setNext(path, false, drivetrain, getEventMap())
-        .setNext(score(true, GamePiece.CUBE));
+        .setNext(score(true, GamePiece.CUBE))
+        .setNext(finalPath, false, drivetrain, getEventMap());
   }
 
   public AutoChooserElement hp3PieceYeetEngage() {
