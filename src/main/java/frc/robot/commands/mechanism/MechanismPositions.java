@@ -34,7 +34,6 @@ import java.util.function.Supplier;
 // We'll need: low, mid, high, portal pickup, ground pickup
 public class MechanismPositions {
 
-  // TODO: find the proper stow and pickup positions based off robot measurements
   static final double stowHeight = Constants.NODE_DISTANCES.STOW_HEIGHT;
   static final double stowExtension = Constants.NODE_DISTANCES.STOW_EXTENSION;
   static final double groundPickupHeight = 3;
@@ -43,7 +42,7 @@ public class MechanismPositions {
   static final double groundPickupExtensionCone = 11;
   public static final double substationPickupHeight = 45.7;
   static final double substationPickupExtension = 20;
-  static final double elevatorAboveBumberHeight = 3;
+  static final double elevatorAboveBumperHeight = 3;
 
   private static final TunableNumber elevatorHeightThreshold =
       new TunableNumber("MechPosCommand/elevatorHeightThreshold", 25);
@@ -400,7 +399,7 @@ public class MechanismPositions {
                     // new ElevatorSetHeight(elevator, heightInches),
                     // new SequentialCommandGroup(
                     //     Commands.waitUntil(
-                    //         () -> (elevator.getHeightInches() >= elevatorAboveBumberHeight)),
+                    //         () -> (elevator.getHeightInches() >= elevatorAboveBumperHeight)),
                     //     new StingerSetExtension(stinger, 4.5)
                     //         .until(() -> elevator.getHeightInches() >= 29.2),
                     //     // --
@@ -501,7 +500,6 @@ public class MechanismPositions {
         new InstantCommand(() -> movementTimer.start()),
         new ConditionalCommand(
             new SequentialCommandGroup(
-                // FIXME: not having aviod bumper seems scary
                 // avoidBumper(elevator, stinger),
                 new ElevatorSetHeight(elevator, heightInches),
                 new StingerSetExtension(stinger, extensionInches)),
@@ -509,17 +507,16 @@ public class MechanismPositions {
                 // avoidBumper(elevator, stinger),
                 new StingerSetExtension(stinger, extensionInches),
                 new ElevatorSetHeight(elevator, heightInches)),
-            // FIXME: i think this is wrong gpk had weird behavior
             () -> (elevator.getHeightInches() <= heightInches)),
         new InstantCommand(() -> movementTimer.stop()));
   }
 
   public static Command avoidBumper(Elevator elevator, Stinger stinger) {
     return new ConditionalCommand(
-        new ElevatorSetHeight(elevator, elevatorAboveBumberHeight),
+        new ElevatorSetHeight(elevator, elevatorAboveBumperHeight),
         new InstantCommand(),
         (() ->
-            (elevator.getHeightInches() < elevatorAboveBumberHeight)
+            (elevator.getHeightInches() < elevatorAboveBumperHeight)
                 && stinger.getExtensionInches() >= 2));
   }
 

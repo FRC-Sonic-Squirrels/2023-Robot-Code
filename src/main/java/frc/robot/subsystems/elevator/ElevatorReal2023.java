@@ -56,7 +56,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     leadConfig.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
-    // TODO: PIDF values are set later with setPIDConstraints() from Elevator class?
+    // NOTE: closed loop pid constants live in top level elevator class
     leadConfig.slot0.integralZone = inchesToTicks(0.5);
     leadConfig.slot0.closedLoopPeakOutput = 1.0;
 
@@ -71,12 +71,11 @@ public class ElevatorReal2023 implements ElevatorIO {
     // use pid from slot 0 for motion magic
     lead_talon.selectProfileSlot(0, 0);
 
-    // FIXME: set to Brake mode after testing
     lead_talon.setNeutralMode(NeutralMode.Brake);
     follow_talon.setNeutralMode(NeutralMode.Brake);
 
     // config hard limit switch for full down position
-    // TODO: remember to configure
+
     lead_talon.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
@@ -85,7 +84,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     //     LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled, 0);
 
     follow_talon.follow(lead_talon);
-    // TODO: check to see whether inverted or not
+
     lead_talon.setInverted(true);
     follow_talon.setInverted(true);
 
@@ -108,7 +107,6 @@ public class ElevatorReal2023 implements ElevatorIO {
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 41);
     follow_talon.setStatusFramePeriod(StatusFrame.Status_1_General, 201);
 
-    // TODO: make sure this works
     lead_talon.configForwardSoftLimitThreshold(inchesToTicks(Constants.Elevator.MAX_HEIGHT_INCHES));
     lead_talon.configForwardSoftLimitEnable(true);
   }
@@ -174,7 +172,6 @@ public class ElevatorReal2023 implements ElevatorIO {
 
       setpoint = profile.calculate(currentTime - lastCloseLoopExecutionTime);
 
-      // TODO: maybe zero feed forward when going down? (setpoint < currentheight)
       lead_talon.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),

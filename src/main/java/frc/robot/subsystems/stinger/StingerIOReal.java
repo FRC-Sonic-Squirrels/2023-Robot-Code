@@ -57,12 +57,12 @@ public class StingerIOReal implements StingerIO {
     config.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
-    // FIXME: FPID values need to be set by calling setPIDConstraints()
-
     // JVN calculator w/ suggested kFF, kP, velocity, and acceleration
     // https://ss2930.sharepoint.com/:x:/r/sites/Programming/_layouts/15/Doc.aspx?sourcedoc=%7B318D8C0F-AC95-43F3-B4DB-0964BE9A2FD1%7D&file=elevator%202023%20howdybots%20version.xlsx&action=default&mobileredirect=true
 
     config.slot0.allowableClosedloopError = Stinger.toleranceInches / ticks2Inches;
+    // we don't use I why is this here? also it should live in Stinger top level in
+    // setPIDConstraints()
     config.slot0.integralZone = inchesToTicks(0.2);
 
     // set config
@@ -81,7 +81,6 @@ public class StingerIOReal implements StingerIO {
     motor.configReverseLimitSwitchSource(
         LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
-    // TODO: check if motor should be inverted or not
     motor.setInverted(true);
 
     // JVN calculator predicts 12 A under load
@@ -94,7 +93,8 @@ public class StingerIOReal implements StingerIO {
 
     setSensorPosition(0.0);
 
-    // TODO: see if we need this soft limit, since we already have a limit switch
+    // TODO: look into increasing our stinger reach to place those super sucked in cones a bit
+    // easier
     motor.configForwardSoftLimitThreshold(inchesToTicks(maxExtensionInches));
     motor.configForwardSoftLimitEnable(true);
   }
@@ -171,7 +171,6 @@ public class StingerIOReal implements StingerIO {
 
       setpoint = profile.calculate(currentTime - lastCloseLoopExecutionTime);
 
-      // TODO: maybe zero feed forward when going down? (setpoint < currentheight)
       motor.set(
           TalonFXControlMode.Position,
           inchesToTicks(setpoint.position),

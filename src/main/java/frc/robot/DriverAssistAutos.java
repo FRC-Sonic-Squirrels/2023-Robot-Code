@@ -108,13 +108,10 @@ public class DriverAssistAutos {
       GridPositionHandler.DesiredGridEntrance entranceSide,
       Command scoringSequence) {
 
-    // TODO define all the bounding boxes for where auto is allowed to start from need to do this
     // for human player station
 
-    // TODO obstacle avoidance boxes are not mirrored for red alliance
     Alliance alliance = DriverStation.getAlliance();
 
-    // FIXME: ADD THIS BACK
     boolean validStart = GridPositionHandler.isValidPointToStart(drivetrain.getPose(), alliance);
 
     if (!validStart) {
@@ -150,7 +147,6 @@ public class DriverAssistAutos {
     boolean shouldSkipEntranceCheckpoints =
         GridPositionHandler.shouldSkipEntranceCheckpoints(currentPose.getTranslation(), alliance);
 
-    // FIXME
     // if its inside the alliance community ignore the checkpoints
     if (!shouldSkipEntranceCheckpoints) {
 
@@ -247,7 +243,6 @@ public class DriverAssistAutos {
             physicalBay.lineup.pose.getY() - poseBeforeLineup.getY(),
             physicalBay.lineup.pose.getX() - poseBeforeLineup.getX());
 
-    // FIXME
     points.add(
         new PathPoint(
             physicalBay.lineup.pose.getTranslation(),
@@ -403,7 +398,6 @@ public class DriverAssistAutos {
 
         humanPlayerStationElevatorUp(),
 
-        // TODO: do we want this automated or human input?
         // new GenerateAndFollowPath(drivetrain, secondPathPoints, constraints, finalPose.pose,
         // false),
         defaultDriveCommandFactory()
@@ -411,14 +405,6 @@ public class DriverAssistAutos {
             .alongWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())
             .raceWith(new WaitUntilCommand(() -> intake.isStalled()))
             .raceWith(driverConfirmationCommand()),
-
-        // -- this can become back away and safe distance and then immediately give driver control
-        // new GenerateAndFollowPath(
-        //     drivetrain,
-        //     retractingPathPoints,
-        //     new PathConstraints(elevatorUpVel.get(), elevatorUpAccel.get()),
-        //     rawSequence[rawSequence.length - 1].pose,
-        //     false),
         new ConditionalCommand(
                 Commands.run(() -> drivetrain.drive(driveBackSpeed.get(), 0.0, 0.0), drivetrain),
                 Commands.run(() -> drivetrain.drive(-driveBackSpeed.get(), 0.0, 0.0), drivetrain),
@@ -500,7 +486,6 @@ public class DriverAssistAutos {
   }
 
   private Command ledsSignalGoodToGo() {
-    // FIXME: replace with GREEN STROBE
     return new LedSetColorForSeconds(leds, colors.GREEN, 0.5);
   }
 

@@ -356,15 +356,6 @@ public class RobotContainer {
             driverController::getLeftX,
             driverController::getRightX));
 
-    // TODO: TEST THIS TO SEE IF IT WORKS
-    // intake.setDefaultCommand(
-    //     new SequentialCommandGroup(
-    //             new WaitCommand(0.5),
-    //             new IntakeAutoGrabDesiredGamePiece(intake)
-    //                 .until(() -> intake.isStalled())
-    //                 .withTimeout(0.25))
-    //         .repeatedly());
-
     intake.setDefaultCommand(
         new IntakeAutoGrabDesiredGamePiece(intake).withTimeout(0.15).repeatedly());
 
@@ -672,6 +663,10 @@ public class RobotContainer {
     //               cmd.schedule();
     //             }));
 
+    // Post Season reflection (PSR) it would have been better to use a command that has a
+    // Supplier<Trajectory> parameter instead of having to do weirdness with creating new command
+    // objects every time
+    // https://github.com/Mechanical-Advantage/RobotCode2023/blob/main/src/main/java/org/littletonrobotics/frc2023/commands/DriveTrajectory.java
     driverController
         .leftBumper()
         .onTrue(

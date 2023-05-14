@@ -65,13 +65,6 @@ public class SwerveAutos {
     this.stinger = stinger;
     // this.led = led;
 
-    //
-    // Add named commands here.
-    //
-
-    // FIXME: temporarily make this the default command for testing vision
-    // addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
-
     // NOTE: doNothing command needs to be first so that it is always the default in chooser
     addCommand("Do Nothing", () -> doNothing());
 
