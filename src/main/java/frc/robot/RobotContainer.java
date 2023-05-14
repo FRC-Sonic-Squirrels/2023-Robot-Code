@@ -479,7 +479,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    -90)
+                    -30.0)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     driverController
@@ -491,7 +491,7 @@ public class RobotContainer {
                     stinger,
                     driverController::getLeftY,
                     driverController::getLeftX,
-                    90)
+                    22)
                 .until(() -> Math.abs(driverController.getRightX()) > 0.3));
 
     // TODO: test this to see if it works
@@ -512,18 +512,42 @@ public class RobotContainer {
                 new ElevatorManualControl(elevator, () -> -operatorController.getLeftY()),
                 new StingerManualControl(stinger, elevator, operatorController::getRightX)));
 
+    // operatorController
+    //     .x()
+    //     .onTrue(
+    //         MechanismPositions.groundPickupPosition(elevator, stinger)
+    //             .alongWith(
+    //                 Commands.runOnce(
+    //                     () -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)))
+    //             .andThen(Commands.waitUntil(new Trigger(() ->
+    // intake.isStalled()).debounce(0.05)))
+    //             .deadlineWith(new IntakeGrabCube(intake))
+    //             .andThen(
+    //                 MechanismPositions.stowPosition(elevator, stinger)
+    //                     .deadlineWith(new LedSetColorNoEnd(leds,
+    // colors.BLUE_STROBE).asProxy())));
+
     operatorController
         .x()
         .onTrue(
-            MechanismPositions.groundPickupPosition(elevator, stinger)
-                .alongWith(
-                    Commands.runOnce(
-                        () -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE)))
-                .andThen(Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
-                .deadlineWith(new IntakeGrabCube(intake))
-                .andThen(
-                    MechanismPositions.stowPosition(elevator, stinger)
-                        .deadlineWith(new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())));
+            new ConditionalCommand(
+                MechanismPositions.groundPickupPosition(elevator, stinger)
+                    .andThen(
+                        Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                    .deadlineWith(new IntakeGrabCube(intake))
+                    .andThen(
+                        MechanismPositions.stowPosition(elevator, stinger)
+                            .deadlineWith(
+                                new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())),
+                MechanismPositions.groundPickupPositionConeTeleop(elevator, stinger)
+                    .andThen(
+                        Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                    .deadlineWith(new IntakeGrabCone(intake))
+                    .andThen(
+                        MechanismPositions.stowPosition(elevator, stinger)
+                            .deadlineWith(
+                                new LedSetColorNoEnd(leds, colors.BLUE_STROBE).asProxy())),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CUBE));
 
     operatorController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
