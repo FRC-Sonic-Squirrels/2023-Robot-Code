@@ -2,25 +2,52 @@
 
 This repository contains FRC team 2930's 2023 Charged Up Competition code
 
-Our Robots call *Rober* and includes features such as:
+Our Robot, named *Rober*, and includes features such as:
 
 **Autonomous**
+- 3 Piece smooth side 
+- 3 Piece bump side 
+- 2 Piece balance smooth side 
+- 1 Piece center balance + mobility 
 
-1. Autonomous
-    1. score from pre-set position at start of autonomous.
+------------------------------------
+- fully automated aligment to human player feeder station 
+- fully automated aligment to grid 
+-------------------------------------
+- Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5 
+- Multi-tag PNP support 
+------------------------------------------
+- Simulated vision  (note: Does not support multi tag) 
+- Simluated swerve (per 3061-lib)
+- Simluated Vertical and Horizontal Elevators
+------------------------------------------
+- Logging and replay via [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/README.md)
 
-**Features**
-----
+------------------------------
+-------------------------------
 
-* multiple robots, including a simulated robot with basic simulation of swerve modules
-* logging and replay via [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/README.md)
-* CAN FD (CANivore) to reduce CAN bus utilization
-* reports devices missing from the CAN bus
-* swerve-specific features
-  * robot-relative and field-relative driving modes
-  * current limiting configuration for motors
-  * x-stance
-  * leave wheels rotated in last direction when not driving to enable smooth continuation of motion
-  * switch drive motors to coast mode when robot is disabled and has stopped moving to facilitate manual pushing
+## Noteable Files 
+- [`.Robot.java`](/src/main/java/frc/robot/Robot.java)
 
-## remember to copy 3061 readme credits into the main credits section here
+- [`SwerveAutos.java`](/src/main/java/frc/robot/autonomous/SwerveAutos.java) - Competation autos 
+
+- [`DriverAssistAutos.java`](/src/main/java/frc/robot/DriverAssistAutos.java) - Teleop driver assist features  
+
+- [`/vision/`](/src/main/java/frc/lib/team3061/vision) - Vision system 
+
+TODO: add vision pipelines to this repo and link it here 
+
+------------------------------------
+------------------------------------
+
+## Credits & Refernces  | remember to copy 3061 readme credits into the main credits section here
+- 3061-lib for swerve support and basic advantage kit structuring 
+- Team 6328 Mechanical Advantage build [thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2023-build-thread/420691)
+
+**3061-lib credits**
+* MK4/MK4i code initially from Team 364's [BaseFalconSwerve](https://github.com/Team364/BaseFalconSwerve)
+* general AdvantageKit logging code, AdvantageKit-enabled Gyro classes, swerve module simulation, and drive characterization from Mechanical Advantage's [SwerveDevelopment](https://github.com/Mechanical-Advantage/SwerveDevelopment)
+* AdvantageKit-enabled pneumatics classes from Mechanical Advantage's 2022 [robot code](https://github.com/Mechanical-Advantage/RobotCode2022)
+* Talon factories from Citrus Circuits 2022 [robot code](https://github.com/frc1678/C2022)
+* CAN device finder code from team 3620 2020 [robot code](https://github.com/FRC3620/FRC3620_2020_GalacticSenate)
+* Setting up Spotless code linting [WPILib Spotless setup](https://docs.wpilib.org/en/latest/docs/software/advanced-gradlerio/code-formatting.html#spotless)
