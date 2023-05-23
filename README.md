@@ -2,17 +2,15 @@
 
 This repository contains FRC team 2930's 2023 Charged Up Competition code
 
-Our Robot, named *Rober*, and includes features such as:
+Our Robot, named *Rober*, includes features such as:
 
 **Autonomous**
-- 3 Piece smooth side 
+- 3 Piece smooth side
 - 3 Piece bump side 
 - 2 Piece balance smooth side 
-- 1 Piece center balance + mobility 
-
 ------------------------------------
-- fully automated aligment to human player feeder station 
-- fully automated aligment to grid 
+- Fully automated aligment to human player feeder station 
+- Fully automated aligment to grid 
 -------------------------------------
 - Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5 
 - Multi-tag PNP support 
@@ -35,13 +33,11 @@ Our Robot, named *Rober*, and includes features such as:
 
 - [`/vision/`](/src/main/java/frc/lib/team3061/vision) - Vision system 
 
-TODO: add vision pipelines to this repo and link it here 
-
 ------------------------------------
 ------------------------------------
 
-## Credits & Refernces  | remember to copy 3061 readme credits into the main credits section here
-- 3061-lib for swerve support and basic advantage kit structuring 
+## Credits & Refernces  
+- 3061-lib for swerve library and base advantage kit structuring 
 - Team 6328 Mechanical Advantage build [thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2023-build-thread/420691)
 
 **3061-lib credits**
