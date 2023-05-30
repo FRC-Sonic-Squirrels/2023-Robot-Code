@@ -31,6 +31,8 @@ Our Robot, named *Rober*, includes features such as:
 
 - [`DriverAssistAutos.java`](/src/main/java/frc/robot/DriverAssistAutos.java) - Teleop driver assist features  
 
+- [`SimulatedMechanism`](src/main/java/frc/robot/subsystems/SimMechanism/SimulatedMechanism.java) - Simulated Elevators
+
 - [`/vision/`](/src/main/java/frc/lib/team3061/vision) - Vision system 
 
 ------------------------------------
