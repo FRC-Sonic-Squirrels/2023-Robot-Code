@@ -4,18 +4,16 @@ This repository contains FRC team 2930's 2023 Charged Up Competition code
 
 Our Robot, named *Rober*, includes features such as:
 
-**Autonomous**
-- 3 Piece smooth side
-- 3 Piece bump side 
-- 2 Piece balance smooth side 
+- 4 times Autonomous Award Winner
 ------------------------------------
+- 3 Game piece autonomous modes
 - Fully automated aligment to human player feeder station 
 - Fully automated aligment to grid 
 -------------------------------------
 - Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5 
 - Multi-tag PNP support 
 ------------------------------------------
-- Simulated vision  (note: Does not support multi tag) 
+- Simulated vision  (note: does not support multi tag) 
 - Simluated swerve (per 3061-lib)
 - Simluated Vertical and Horizontal Elevators
 ------------------------------------------
@@ -39,7 +37,7 @@ Our Robot, named *Rober*, includes features such as:
 ------------------------------------
 
 ## Credits & Refernces  
-- 3061-lib for swerve library and base advantage kit structuring 
+- 3061-lib for the swerve library and base advantage kit structuring 
 - Team 6328 Mechanical Advantage build [thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2023-build-thread/420691)
 
 **3061-lib credits**
