@@ -53,7 +53,7 @@ public class Elevator extends SubsystemBase {
       io.setPIDConstraints(Kf.get(), 2.0, Ki.get(), Kd.get());
     }
 
-    zeroedTrigger = new Trigger(() -> inputs.ElevatorAtLowerLimit ).debounce(0.25);
+    zeroedTrigger = new Trigger(() -> inputs.ElevatorAtLowerLimit).debounce(0.25);
   }
 
   @Override

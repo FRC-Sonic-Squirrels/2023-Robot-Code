@@ -53,7 +53,6 @@ public class AutoEngage extends CommandBase {
     // Uncomment the line below this to simulate the gyroscope axis with a controller joystick
     // currentPitch = -1 * -modifyAxis(y_supplier.getAsDouble()) * 45;
 
-    // FIXME: we are climbing facing backwards, this might been to be negated
     this.currentPitch = drivetrain.getGyroPitch();
 
     error = currentPitch;
@@ -83,7 +82,7 @@ public class AutoEngage extends CommandBase {
       drivetrain.drive(drivePower, 0, 0);
     }
 
-    // Debugging Print Statments
+    // Debugging Print Statements
     Logger.getInstance().recordOutput("AutoEngage/Current Angle", currentPitch);
     Logger.getInstance().recordOutput("AutoEngage/Error", error);
     Logger.getInstance().recordOutput("AutoEngage/Drive Power", drivePower);

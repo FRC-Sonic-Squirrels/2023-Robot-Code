@@ -89,15 +89,17 @@ public class StingerSetExtension extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // dont stop because that ends positional control
+    // don't stop because that ends positional control
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // TODO add this back in
-    // make sure that the default command kicking in doesnt cause issues
     // return stinger.isAtExtension(extensionInches);
+
+    // Post Season reflection (PSR) it would have been nice to moving forward have 2 different
+    // tolerances, one for the closed loop, one for if the mechanism is at the right height
+    // so that we can use isAtExtension()
     return Math.abs(stinger.getExtensionInches() - extensionInches) < 0.3;
   }
 }

@@ -114,7 +114,7 @@ public enum BoundingBoxes {
       var currentPoint = points[i];
       var prevPoint = points[j];
 
-      // the pointToCheck has to be inbetween the Y of 2 points, doesnt work if they are both
+      // the pointToCheck has to be in between the Y of 2 points, doesn't work if they are both
       // below/above/the same
       if ((currentPoint.getY() > pointToCheck.getY()) != (prevPoint.getY() > pointToCheck.getY())) {
 

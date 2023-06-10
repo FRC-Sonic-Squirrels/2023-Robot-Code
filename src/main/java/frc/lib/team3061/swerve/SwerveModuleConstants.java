@@ -19,7 +19,7 @@ public final class SwerveModuleConstants {
   public static final double MK4I_L2_WHEEL_CIRCUMFERENCE_THEORETICAL =
       MK4I_L2_WHEEL_DIAMETER_METERS * Math.PI;
   public static final double MK4I_L2_WHEEL_CIRCUMFERENCE =
-      0.316; //0.31115; // 0.309 black worn tread // measured 2/24/2023 90% tread
+      0.316; // 0.31115; // 0.309 black worn tread // measured 2/24/2023 90% tread
 
   public static final double MK4I_L2_DRIVE_GEAR_RATIO =
       1 / ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));

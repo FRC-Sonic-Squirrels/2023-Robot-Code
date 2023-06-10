@@ -53,9 +53,6 @@ public class Robot extends LoggedRobot {
       // Do stuff here that needs to know the alliance
       System.out.println("Robot: Alliance Color Changed to: " + DriverStation.getAlliance().name());
 
-      // FIXME: change vision AprilTag map, or maybe that needs to live in the Vision subsystem?
-      // https://www.chiefdelphi.com/t/getalliance-always-returning-red/425782/39
-
       // re-configure autonomous commands to update trajectories
       robotContainer.configureAutoCommands();
       alliance = currentAlliance;

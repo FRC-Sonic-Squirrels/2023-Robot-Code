@@ -178,9 +178,9 @@ public class Vision extends SubsystemBase {
     updatePose(
         B_VisionIO, ioBack, backPhotonPoseEstimator, VisionConstants.BACK_ROBOT_TO_CAMERA, "Back");
 
-    Logger.getInstance().recordOutput("Vision/BackConnected", ioBack.lastTimestamp >0.0);
-    Logger.getInstance().recordOutput("Vision/LeftConnected", ioLeft.lastTimestamp >0.0);
-    Logger.getInstance().recordOutput("Vision/RightConnected", ioRight.lastTimestamp >0.0);
+    Logger.getInstance().recordOutput("Vision/BackConnected", ioBack.lastTimestamp > 0.0);
+    Logger.getInstance().recordOutput("Vision/LeftConnected", ioLeft.lastTimestamp > 0.0);
+    Logger.getInstance().recordOutput("Vision/RightConnected", ioRight.lastTimestamp > 0.0);
   }
 
   private void updatePose(

@@ -46,7 +46,7 @@ public class ElevatorReal2022 implements ElevatorIO {
   private double feedForwardClimbing = 0.025734; // from JVM calculator
   private double feedForwardDescending = 0.0257; // 0.001;
   private final double ticks2distance = gearRatio * winchCircumference / 2048;
-  // TODO make sure conversion is correct
+
   private final double ticks2rotation = 1 / 2048;
   private boolean zeroed = false;
 
@@ -115,7 +115,7 @@ public class ElevatorReal2022 implements ElevatorIO {
     follow_talon.setInverted(true);
 
     // JVN calculator predicts 41.2 A per motor under load
-    // TODO: Check new JVN prediction
+
     SupplyCurrentLimitConfiguration currentLimit =
         new SupplyCurrentLimitConfiguration(true, 20, 25, 0.1);
     lead_talon.configSupplyCurrentLimit(currentLimit);

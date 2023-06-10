@@ -1,8 +1,0 @@
-DELETE THIS FILE AFTER DONE WITH ALL TASKS 
-
-create commands: 
-Intake grab cube 
-
-intake score cone 
-
-intake score cube 
