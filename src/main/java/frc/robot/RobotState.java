@@ -93,4 +93,11 @@ public class RobotState {
     CONE,
     CUBE;
   }
+
+  public enum ScoringRow {
+    Hybrid,
+    Mid,
+    High
+  }
+
 }
