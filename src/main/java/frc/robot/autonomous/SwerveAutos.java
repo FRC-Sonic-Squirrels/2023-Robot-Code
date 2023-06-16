@@ -192,7 +192,7 @@ public class SwerveAutos {
     eventMap.put("mechStow", MechanismPositions.stowPosition(elevator, stinger));
     eventMap.put("mechZero", MechanismPositions.safeZero(elevator, stinger));
     eventMap.put("mechHighCube", MechanismPositions.cubeHighPosition(elevator, stinger, intake));
-    eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger, intake));
+    eventMap.put("mechMidCube", MechanismPositions.cubeMidPosition(elevator, stinger));
     eventMap.put("mechYeet", MechanismPositions.yeetCubeAuto(elevator, stinger, intake));
     eventMap.put(
         "mechYeetPrep",
@@ -435,8 +435,8 @@ public class SwerveAutos {
         new SequentialCommandGroup(
             new ConditionalCommand(
                 new ConditionalCommand(
-                    MechanismPositions.coneMidPosition(elevator, stinger, intake),
-                    MechanismPositions.cubeMidPosition(elevator, stinger, intake),
+                    MechanismPositions.coneMidPosition(elevator, stinger),
+                    MechanismPositions.cubeMidPosition(elevator, stinger),
                     () -> (gamepiece == GamePiece.CONE)),
                 new InstantCommand(),
                 () -> goUp),

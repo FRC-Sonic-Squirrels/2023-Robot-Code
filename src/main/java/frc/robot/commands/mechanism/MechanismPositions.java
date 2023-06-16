@@ -108,7 +108,7 @@ public class MechanismPositions {
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
 
     return new SequentialCommandGroup(
-        cubeMidPosition(elevator, stinger, intake).deadlineWith(new IntakeGrabCube(intake, 0.35)),
+        cubeMidPosition(elevator, stinger).deadlineWith(new IntakeGrabCube(intake, 0.35)),
         // --
         confirmationCommand.get(),
         // --
@@ -116,7 +116,7 @@ public class MechanismPositions {
         safeZero(elevator, stinger));
   }
 
-  public static Command cubeMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command cubeMidPosition(Elevator elevator, Stinger stinger) {
     return goToPositionParallelThreshold(
         elevator,
         stinger,
@@ -144,7 +144,7 @@ public class MechanismPositions {
   private static Command scoreConeMidLogic(
       Elevator elevator, Stinger stinger, Intake intake, Supplier<Command> confirmationCommand) {
     return new SequentialCommandGroup(
-        coneMidPosition(elevator, stinger, intake).deadlineWith(new IntakeGrabCone(intake, 0.8)),
+        coneMidPosition(elevator, stinger).deadlineWith(new IntakeGrabCone(intake, 0.8)),
         // --
         confirmationCommand.get(),
         // --
@@ -153,7 +153,7 @@ public class MechanismPositions {
         safeZero(elevator, stinger));
   }
 
-  public static Command coneMidPosition(Elevator elevator, Stinger stinger, Intake intake) {
+  public static Command coneMidPosition(Elevator elevator, Stinger stinger) {
     return goToPositionParallelThreshold(
         elevator,
         stinger,
@@ -198,6 +198,14 @@ public class MechanismPositions {
         Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
         Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE,
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CUBE, 0.25));
+  }
+
+  public static Command cubeHighPosition(Elevator elevator, Stinger stinger) {
+    return goToPositionParallel(
+        elevator,
+        stinger,
+        Constants.NODE_DISTANCES.HEIGHT_HIGH_CUBE,
+        Constants.NODE_DISTANCES.EXTENSION_HIGH_CUBE);
   }
 
   // --------CUBE HIGH -------------
@@ -253,6 +261,11 @@ public class MechanismPositions {
         NODE_DISTANCES.HEIGHT_HIGH_CONE,
         NODE_DISTANCES.EXTENSION_HIGH_CONE,
         () -> intakeGrabPieceNoTimeout(intake, GamePiece.CONE, 0.8));
+  }
+
+  public static Command coneHighPosition(Elevator elevator, Stinger stinger) {
+    return goToPositionParallel(
+        elevator, stinger, NODE_DISTANCES.HEIGHT_HIGH_CONE, NODE_DISTANCES.EXTENSION_HIGH_CONE);
   }
 
   public static Command yeetCubeAuto(Elevator elevator, Stinger stinger, Intake intake) {
