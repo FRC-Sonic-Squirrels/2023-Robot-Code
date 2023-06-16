@@ -585,7 +585,11 @@ public class MechanismPositions {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
         goToPositionParallel(elevator, stinger, 8, 0),
-        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5));
+        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5)
+        // new ElevatorGoUntilLimitSwitch(elevator, 0.2),
+        // new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.STOW_HEIGHT)
+
+        );
   }
 
   public static Command safeStowPosition(Elevator elevator, Stinger stinger) {
