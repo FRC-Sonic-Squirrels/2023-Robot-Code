@@ -4,8 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.team2930.driverassist.GridPositionHandler;
 import frc.lib.team2930.driverassist.LogicalGridLocation;
+import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.stinger.Stinger;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
@@ -15,6 +21,8 @@ public class RobotState {
   private GamePiece desiredGamePiece;
 
   private LogicalGridLocation desiredLogicalGrid;
+
+  private ScoringRow desiredScoringHeight;
 
   public static RobotState getInstance() {
     if (instance == null) {
@@ -27,6 +35,7 @@ public class RobotState {
   private RobotState() {
     setDesiredGamePiece(GamePiece.CUBE);
     setDesiredLogicalGrid(LogicalGridLocation.LOGICAL_BAY_1);
+    setDesiredScoringHeight(ScoringRow.High);
   }
 
   public LogicalGridLocation getDesiredLogicalGrid() {
@@ -45,6 +54,12 @@ public class RobotState {
   public void setDesiredLogicalGrid(LogicalGridLocation gridLocation) {
     Logger.getInstance().recordOutput("RobotState/DesiredLogicalGridLocation", gridLocation.name());
     desiredLogicalGrid = gridLocation;
+  }
+
+  public void setDesiredScoringHeight(ScoringRow height) {
+    Logger.getInstance()
+        .recordOutput("RobotState/DesiredScoringHeight", desiredScoringHeight.name());
+    desiredScoringHeight = height;
   }
 
   public void incrementDesiredBay() {
@@ -100,4 +115,30 @@ public class RobotState {
     High
   }
 
+  public Command getScoringCommandBasedOnCurrentRobotState(
+      Elevator elevator, Stinger stinger, Intake intake, CommandXboxController driverController) {
+    if (desiredGamePiece == GamePiece.CONE) {
+      switch (desiredScoringHeight) {
+        case Hybrid:
+          return MechanismActions.scoreConeHybrid(elevator, stinger, intake, driverController);
+        case Mid:
+          return MechanismActions.scoreConeMid(elevator, stinger, intake, driverController);
+        case High:
+          return MechanismActions.scoreConeHigh(elevator, stinger, intake, driverController);
+        default:
+          return null;
+      }
+    } else {
+      switch (desiredScoringHeight) {
+        case Hybrid:
+          return MechanismActions.scoreCubeHybrid(elevator, stinger, intake, driverController);
+        case Mid:
+          return MechanismActions.scoreCubeMid(elevator, stinger, intake, driverController);
+        case High:
+          return MechanismActions.scoreCubeHigh(elevator, stinger, intake, driverController);
+        default:
+          return null;
+      }
+    }
+  }
 }
