@@ -61,6 +61,7 @@ import frc.robot.commands.drive.SnapToGrid;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.intake.IntakeAutoGrabDesiredGamePiece;
+import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.leds.LedSetColor;
 import frc.robot.commands.leds.LedSetColorNoEnd;
@@ -482,13 +483,15 @@ public class RobotContainer {
 
     driverController.b().onTrue(MechanismPositions.stowPosition(elevator, stinger));
 
-    // driverController
-    //     .y()
-    //     .onTrue(
-    //         new ConditionalCommand(
-    //             MechanismPositions.substationPickupPositionCone(elevator, stinger, intake),
-    //             MechanismPositions.substationPickupPositionCube(elevator, stinger, intake),
-    //             () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
+    driverController
+        .y()
+        .onTrue(
+            new ConditionalCommand(
+                MechanismPositions.substationPickupPositionCone(elevator, stinger, intake)
+                    .alongWith(new IntakeGrabCone(intake)),
+                MechanismPositions.substationPickupPositionCube(elevator, stinger, intake)
+                    .alongWith(new IntakeGrabCube(intake)),
+                () -> RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE));
 
     operatorController
         .leftTrigger(0.75)
