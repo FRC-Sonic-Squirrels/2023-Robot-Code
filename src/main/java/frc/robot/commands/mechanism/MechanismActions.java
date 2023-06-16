@@ -96,6 +96,10 @@ public class MechanismActions {
     return gamePiece == GamePiece.CONE ? new IntakeScoreCone(intake) : new IntakeScoreCube(intake);
   }
 
+  public static Command grabForGamePiceCommand(GamePiece gamePiece, Intake intake) {
+    return gamePiece == GamePiece.CONE ? new IntakeGrabCone(intake) : new IntakeGrabCube(intake);
+  }
+
   private static Command getPositionCommand(
       GamePiece gamePiece, ScoringRow scoringRow, Elevator elevator, Stinger stinger) {
     if (gamePiece == GamePiece.CONE) {
