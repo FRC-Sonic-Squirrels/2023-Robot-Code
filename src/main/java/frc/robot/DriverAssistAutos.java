@@ -487,7 +487,7 @@ public class DriverAssistAutos {
 
   public Command driverConfirmationCommand() {
     return new ControllerRumbleUntilButtonPress(
-        driverController, () -> driverController.y().getAsBoolean(), 0.5);
+        driverController, () -> driverController.a().getAsBoolean(), 0.5);
   }
 
   private Command ledsSignalGoodToGo() {
