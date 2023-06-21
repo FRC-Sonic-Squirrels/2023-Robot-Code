@@ -57,8 +57,7 @@ public class RobotState {
   }
 
   public void setDesiredScoringHeight(ScoringRow height) {
-    Logger.getInstance()
-        .recordOutput("RobotState/DesiredScoringHeight", desiredScoringHeight.name());
+    Logger.getInstance().recordOutput("RobotState/DesiredScoringHeight", height.name());
     desiredScoringHeight = height;
   }
 
