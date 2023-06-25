@@ -12,6 +12,7 @@ public interface VisionIO {
     PhotonPipelineResult lastResult = new PhotonPipelineResult(0, new ArrayList<>());
     double lastTimestamp = 0.0;
     boolean hasNewResult = false;
+    boolean connected = false;
 
     public void toLog(LogTable table) {
       byte[] photonPacketBytes = new byte[lastResult.getPacketSize()];
@@ -20,6 +21,7 @@ public interface VisionIO {
 
       table.put("lastTimestamp", lastTimestamp);
       table.put("hasNewResult", hasNewResult);
+      table.put("connected", connected);
     }
 
     public void fromLog(LogTable table) {
@@ -29,6 +31,7 @@ public interface VisionIO {
 
       lastTimestamp = table.getDouble("lastTimestamp", 0.0);
       hasNewResult = table.getBoolean("hasNewResult", false);
+      connected = table.getBoolean("connected", false);
     }
   }
 
