@@ -208,7 +208,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.stopAll();
-    robotContainer.vision.disableMaxDistanceAwayForTags();
+    robotContainer.vision.useMaxDistanceAwayFromExistingEstimate(false);
   }
 
   /**
@@ -218,7 +218,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     double startTimeAuto = System.currentTimeMillis();
-    robotContainer.vision.enableMaxDistanceAwayForTags();
+    robotContainer.vision.useMaxDistanceAwayFromExistingEstimate(true);
     autonomousCommand = null;
     checkDSUpdate();
     checkForUpdatedAutonomous();
@@ -253,7 +253,7 @@ public class Robot extends LoggedRobot {
      * out.
      */
 
-    robotContainer.vision.enableMaxDistanceAwayForTags();
+    robotContainer.vision.useMaxDistanceAwayFromExistingEstimate(true);
 
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
