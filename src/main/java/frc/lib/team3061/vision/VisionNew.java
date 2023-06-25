@@ -9,15 +9,21 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
+import frc.robot.Constants;
+import frc.robot.Constants.RobotType;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -39,6 +45,12 @@ public class VisionNew extends SubsystemBase {
 
   private static double MAX_ALLOWABLE_PITCH = 3;
   private static double MAX_ALLOWABLE_ROLL = 3;
+
+  private static double MAX_TAG_LOG_TIME = 0.1;
+
+  private HashMap<Integer, Double> lastTagDetectionTimes = new HashMap<Integer, Double>();
+
+  private List<Pose3d> actualPosesUsedInPoseEstimator = new ArrayList<>();
 
   private Alert noAprilTagLayoutAlert = new Alert("No AprilTag layout file found", AlertType.ERROR);
 
@@ -73,6 +85,8 @@ public class VisionNew extends SubsystemBase {
     for (AprilTag tag : aprilTagLayout.getTags()) {
       Logger.getInstance().recordOutput("Vision/AllAprilTags3D/" + tag.ID, tag.pose);
     }
+
+    aprilTagLayout.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, -1.0));
   }
 
   @Override
@@ -87,28 +101,71 @@ public class VisionNew extends SubsystemBase {
     boolean processVision = true;
     if (!useVisionForPoseEstimation) {
       processVision = false;
-      setAllCameraPackageStatus(VisionProcessingStatus.NOT_PROCESSING_VISION);
+      setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus.NOT_PROCESSING_VISION);
     }
 
     if (Math.abs(drivetrain.getGyroPitch()) >= MAX_ALLOWABLE_PITCH
         || Math.abs(drivetrain.getGyroRoll()) >= MAX_ALLOWABLE_ROLL) {
 
       processVision = false;
-      setAllCameraPackageStatus(VisionProcessingStatus.GYRO_ANGLE_NOT_VALID);
+      setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus.GYRO_ANGLE_NOT_VALID);
     }
-
-    setAllCameraPackageFieldsToLog(VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES);
 
     if (processVision) {
       for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
         var fieldsToLog = processVision(cameraPackage);
-        cameraPackage.fieldsToLog = fieldsToLog;
+        cameraPackage.loggedFields = fieldsToLog;
       }
     }
 
     for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
-      logVisionProcessingFieldsAndStatus(cameraPackage);
+      logVisionProcessingStatusAndFields(cameraPackage);
     }
+
+    List<Pose3d> allAtThisVeryMomentVisibleTags = new ArrayList<>();
+
+    for (Map.Entry<Integer, Double> detectionEntry : lastTagDetectionTimes.entrySet()) {
+      if (detectionEntry.getValue() == Timer.getFPGATimestamp()) {
+        var tagPose = aprilTagLayout.getTagPose(detectionEntry.getKey());
+        allAtThisVeryMomentVisibleTags.add(tagPose.get());
+      }
+    }
+
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/currentVisibleTags_EXACT_MOMENT",
+            allAtThisVeryMomentVisibleTags.toArray(
+                new Pose3d[allAtThisVeryMomentVisibleTags.size()]));
+
+    List<Pose3d> allVisibleTagsForHumanViewable = new ArrayList<>();
+
+    for (Map.Entry<Integer, Double> detectionEntry : lastTagDetectionTimes.entrySet()) {
+      if (Timer.getFPGATimestamp() - detectionEntry.getValue() < MAX_TAG_LOG_TIME) {
+        var tagPose = aprilTagLayout.getTagPose(detectionEntry.getKey());
+        allVisibleTagsForHumanViewable.add(tagPose.get());
+      }
+    }
+
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/currentVisibleTags_HUMAN_VIEWABLE",
+            allVisibleTagsForHumanViewable.toArray(
+                new Pose3d[allVisibleTagsForHumanViewable.size()]));
+
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/actual_poses_used_in_pose_estimator",
+            actualPosesUsedInPoseEstimator.toArray(
+                new Pose3d[actualPosesUsedInPoseEstimator.size()]));
+
+    actualPosesUsedInPoseEstimator.clear();
+
+    Logger.getInstance().recordOutput("Vision/useVision", useVisionForPoseEstimation);
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/useMaxDistanceAwayFromExistingEstimate",
+            useMaxDistanceAwayFromExistingEstimate);
+    Logger.getInstance().recordOutput("Vision/useMaxPitchRoll", useMaxPitchRoll);
 
     // isconnected
     // clean logging
@@ -129,7 +186,6 @@ public class VisionNew extends SubsystemBase {
     // storing fields to log
     double tagAmbiguity;
     double distanceFromTag;
-
     Pose3d cameraPose;
 
     synchronized (cameraPackage.visionIOInputs) {
@@ -138,8 +194,8 @@ public class VisionNew extends SubsystemBase {
     }
 
     if (cameraPackage.lastProcessedResultTimeStamp >= currentResultTimeStamp) {
-      cameraPackage.status = VisionProcessingStatus.NOT_A_NEW_RESULT;
-      return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+      return VisionProcessingLoggedFields.unsuccessfulStatus(
+          VisionProcessingStatus.NOT_A_NEW_RESULT);
     }
 
     cameraPackage.lastProcessedResultTimeStamp = currentResultTimeStamp;
@@ -149,11 +205,12 @@ public class VisionNew extends SubsystemBase {
     var numTargetsSeen = cameraResult.getTargets().size();
 
     if (numTargetsSeen == 0) {
-      cameraPackage.status = VisionProcessingStatus.NO_TARGETS_VISIBLE;
-      return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+      return VisionProcessingLoggedFields.unsuccessfulStatus(
+          VisionProcessingStatus.NO_TARGETS_VISIBLE);
     }
 
-    if (numTargetsSeen > 1) { // 2 or more targets
+    if (numTargetsSeen > 1
+        && !Constants.getRobot().equals(RobotType.ROBOT_SIMBOT)) { // 2 or more targets
       // more than one target seen, use PNP with PV estimator
       Optional<EstimatedRobotPose> photonPoseEstimatorOptionalResult;
 
@@ -161,8 +218,8 @@ public class VisionNew extends SubsystemBase {
       photonPoseEstimatorOptionalResult = cameraPackage.photonPoseEstimator.update(cameraResult);
 
       if (photonPoseEstimatorOptionalResult.isEmpty()) {
-        cameraPackage.status = VisionProcessingStatus.PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY;
-        return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+        return VisionProcessingLoggedFields.unsuccessfulStatus(
+            VisionProcessingStatus.PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY);
       }
 
       newCalculatedRobotPose = photonPoseEstimatorOptionalResult.get().estimatedPose;
@@ -190,26 +247,26 @@ public class VisionNew extends SubsystemBase {
 
     } else { // 1 target
 
-      if (cameraResult.getTargets().size() > 1) {
-        cameraPackage.status = VisionProcessingStatus.LOGIC_ERROR_EXPECTED_1_TARGET;
-        return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
-      }
+      // FIX ME: removed for simulation
+      // if (cameraResult.getTargets().size() > 1) {
+      //   return VisionProcessingLoggedFields.unsuccessfulStatus(
+      //       VisionProcessingStatus.LOGIC_ERROR_EXPECTED_1_TARGET);
+      // }
 
       PhotonTrackedTarget singularTag = cameraResult.getTargets().get(0);
 
       if (!isValidTarget(singularTag)) {
-        cameraPackage.status =
-            (singularTag.getPoseAmbiguity() >= VisionConstants.MAXIMUM_AMBIGUITY)
-                ? VisionProcessingStatus.INVALID_TAG_AMBIGUITY_TOO_HIGH
-                : VisionProcessingStatus.INVALID_TAG;
-        return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+        return (singularTag.getPoseAmbiguity() >= VisionConstants.MAXIMUM_AMBIGUITY)
+            ? VisionProcessingLoggedFields.unsuccessfulStatus(
+                VisionProcessingStatus.INVALID_TAG_AMBIGUITY_TOO_HIGH)
+            : VisionProcessingLoggedFields.unsuccessfulStatus(VisionProcessingStatus.INVALID_TAG);
       }
 
       Optional<Pose3d> tagPoseOptional = aprilTagLayout.getTagPose(singularTag.getFiducialId());
 
       if (tagPoseOptional.isEmpty()) {
-        cameraPackage.status = VisionProcessingStatus.TAG_NOT_IN_LAYOUT;
-        return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+        return VisionProcessingLoggedFields.unsuccessfulStatus(
+            VisionProcessingStatus.TAG_NOT_IN_LAYOUT);
       }
 
       Pose3d tagPose = tagPoseOptional.get();
@@ -237,8 +294,8 @@ public class VisionNew extends SubsystemBase {
     if (useMaxDistanceAwayFromExistingEstimate
         && (distanceFromExistingPoseEstimate
             > (VisionConstants.MAX_VALID_DISTANCE_AWAY_METERS * numTargetsSeen))) {
-      cameraPackage.status = VisionProcessingStatus.TOO_FAR_FROM_EXISTING_ESTIMATE;
-      return VisionProcessingLoggedFields.UNSUCCESSFUL_DEFAULT_LOG_VALUES;
+      return VisionProcessingLoggedFields.unsuccessfulStatus(
+          VisionProcessingStatus.TOO_FAR_FROM_EXISTING_ESTIMATE);
     }
 
     synchronized (globalPoseEstimator) {
@@ -248,8 +305,16 @@ public class VisionNew extends SubsystemBase {
           VecBuilder.fill(xyStandardDeviation, xyStandardDeviation, thetaStandardDeviation));
     }
 
-    cameraPackage.status = VisionProcessingStatus.SUCCESSFUL;
+    cameraResult
+        .getTargets()
+        .forEach(
+            (PhotonTrackedTarget tag) ->
+                lastTagDetectionTimes.put(tag.getFiducialId(), Timer.getFPGATimestamp()));
+
+    actualPosesUsedInPoseEstimator.add(newCalculatedRobotPose);
+
     return new VisionProcessingLoggedFields(
+        VisionProcessingStatus.SUCCESSFUL,
         numTargetsSeen,
         tagAmbiguity,
         distanceFromTag,
@@ -258,35 +323,35 @@ public class VisionNew extends SubsystemBase {
         thetaStandardDeviation,
         currentResultTimeStamp,
         cameraPose,
-        newCalculatedRobotPose,
-        true,
-        false);
+        newCalculatedRobotPose);
 
     // log num targets seen
 
   }
 
-  public void setAllCameraPackageStatus(VisionProcessingStatus status) {
+  public void setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus status) {
     for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
-      cameraPackage.status = status;
+      cameraPackage.loggedFields = VisionProcessingLoggedFields.unsuccessfulStatus(status);
     }
   }
 
-  public void setAllCameraPackageFieldsToLog(VisionProcessingLoggedFields fieldsToLog) {
-    for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
-      cameraPackage.fieldsToLog = fieldsToLog;
-    }
-  }
+  // public void setAllCameraPackageFieldsToLog(VisionProcessingLoggedFields fieldsToLog) {
+  //   for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
+  //     cameraPackage.fieldsToLog = fieldsToLog;
+  //   }
+  // }
 
-  public void logVisionProcessingFieldsAndStatus(CameraResultProcessingPackage cameraPackage) {
+  public void logVisionProcessingStatusAndFields(CameraResultProcessingPackage cameraPackage) {
 
     String ROOT_TABLE_PATH = "Vision/" + cameraPackage.name + "/";
 
-    var fieldsToLog = cameraPackage.fieldsToLog;
+    var fieldsToLog = cameraPackage.loggedFields;
 
     Logger logger = Logger.getInstance();
 
-    logger.recordOutput(ROOT_TABLE_PATH + "*STATUS", cameraPackage.status.logOutput);
+    logger.recordOutput(
+        ROOT_TABLE_PATH + "*STATUS",
+        fieldsToLog.status().name() + ": " + fieldsToLog.status().logOutput);
 
     logger.recordOutput(ROOT_TABLE_PATH + "calculated_robotPose_3d", fieldsToLog.robotPose3d());
     logger.recordOutput(
@@ -303,10 +368,13 @@ public class VisionNew extends SubsystemBase {
         ROOT_TABLE_PATH + "xy_standard_deviation", fieldsToLog.xyStandardDeviation());
     logger.recordOutput(
         ROOT_TABLE_PATH + "theta_standard_deviation", fieldsToLog.thetaStandardDeviation());
+
+    boolean addedVisionEstimateToPoseEstimator =
+        (fieldsToLog.status().equals(VisionProcessingStatus.SUCCESSFUL)) ? true : false;
+
     logger.recordOutput(
-        ROOT_TABLE_PATH + "added_vision_measurement_to_pose_estimator(SUCCESSFUL)",
-        fieldsToLog.addedVisionMeasurementToPoseEstimator());
-    logger.recordOutput(ROOT_TABLE_PATH + "PNP_failed", fieldsToLog.PNPFailed());
+        ROOT_TABLE_PATH + "added_vision_measurement_to_pose_estimator(AKA SUCCESSFUL?)",
+        addedVisionEstimateToPoseEstimator);
   }
 
   public boolean isValidTarget(PhotonTrackedTarget target) {
@@ -316,16 +384,8 @@ public class VisionNew extends SubsystemBase {
         && aprilTagLayout.getTagPose(target.getFiducialId()).isPresent();
   }
 
-  public class VisionIOConfig {
-    public final VisionIO visionIO;
-    public final String name;
-    public final Transform3d robotToCamera;
-
-    public VisionIOConfig(VisionIO visionIO, String name, Transform3d robotToCamera) {
-      this.visionIO = visionIO;
-      this.name = name;
-      this.robotToCamera = robotToCamera;
-    }
+  public void useMaxDistanceAwayFromExistingEstimate(boolean value) {
+    useMaxDistanceAwayFromExistingEstimate = value;
   }
 
   private class CameraResultProcessingPackage {
@@ -335,9 +395,8 @@ public class VisionNew extends SubsystemBase {
     final Transform3d RobotToCamera;
     final String name;
 
-    public VisionProcessingStatus status;
-    public VisionProcessingLoggedFields fieldsToLog;
     public double lastProcessedResultTimeStamp;
+    public VisionProcessingLoggedFields loggedFields;
 
     public CameraResultProcessingPackage(
         VisionIOConfig config, AprilTagFieldLayout aprilTagFieldLayout) {
@@ -353,12 +412,12 @@ public class VisionNew extends SubsystemBase {
               aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, visionIO.getCamera(), RobotToCamera);
       photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
 
-      this.status = VisionProcessingStatus.UNKNOWN;
       lastProcessedResultTimeStamp = 0.0;
     }
   }
 
   private record VisionProcessingLoggedFields(
+      VisionProcessingStatus status,
       double numSeenTargets,
       double tagAmbiguity,
       double distanceFromTag,
@@ -367,14 +426,23 @@ public class VisionNew extends SubsystemBase {
       double thetaStandardDeviation,
       double processedTimeStamp,
       Pose3d cameraPose,
-      Pose3d robotPose3d,
-      boolean addedVisionMeasurementToPoseEstimator,
-      boolean PNPFailed) {
-    public static VisionProcessingLoggedFields UNSUCCESSFUL_DEFAULT_LOG_VALUES =
+      Pose3d robotPose3d) {
+
+    private VisionProcessingLoggedFields {}
+
+    private VisionProcessingLoggedFields(VisionProcessingStatus status) {
+      this(status, -1, -1, -1, -1, -1, -1, -1, new Pose3d(), new Pose3d());
+    }
+
+    public static VisionProcessingLoggedFields DEFAULT_LOG_VALUES =
         new VisionProcessingLoggedFields(
             // probably make the poses like -10, -10, 0 to move them off screen and make it obvious
             // its bad results
-            -1, -1, -1, -1, -1, -1, -1, new Pose3d(), new Pose3d(), false, false);
+            VisionProcessingStatus.UNKNOWN, -1, -1, -1, -1, -1, -1, -1, new Pose3d(), new Pose3d());
+
+    public static VisionProcessingLoggedFields unsuccessfulStatus(VisionProcessingStatus status) {
+      return new VisionProcessingLoggedFields(status);
+    }
   }
 
   private enum VisionProcessingStatus {
