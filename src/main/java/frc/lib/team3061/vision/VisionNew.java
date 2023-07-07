@@ -48,6 +48,9 @@ public class VisionNew extends SubsystemBase {
 
   private static double MAX_TAG_LOG_TIME = 0.1;
 
+  private static double thetaStdDevCoefficient = 0.05;
+  private static double xyStdDevCoefficient = 0.05;
+
   private HashMap<Integer, Double> lastTagDetectionTimes = new HashMap<Integer, Double>();
 
   private List<Pose3d> actualPosesUsedInPoseEstimator = new ArrayList<>();
@@ -180,8 +183,8 @@ public class VisionNew extends SubsystemBase {
 
     Pose3d newCalculatedRobotPose = null;
 
-    double xyStandardDeviation = 0.9;
-    double thetaStandardDeviation = 0.9;
+    double xyStandardDeviation;
+    double thetaStandardDeviation;
 
     // storing fields to log
     double tagAmbiguity;
@@ -223,10 +226,6 @@ public class VisionNew extends SubsystemBase {
       }
 
       newCalculatedRobotPose = photonPoseEstimatorOptionalResult.get().estimatedPose;
-
-      // TODO: work on formula for this
-      xyStandardDeviation = -1;
-      thetaStandardDeviation = -1;
 
       // logged fields
       tagAmbiguity = 0.0;
@@ -276,10 +275,6 @@ public class VisionNew extends SubsystemBase {
 
       newCalculatedRobotPose = cameraPose.transformBy(cameraPackage.RobotToCamera.inverse());
 
-      // TODO: implement standardDeviation
-      xyStandardDeviation = cameraToTarget.getTranslation().getNorm() / 2.0;
-      thetaStandardDeviation = -1;
-
       // logged fields
       tagAmbiguity = singularTag.getPoseAmbiguity();
       distanceFromTag = cameraToTarget.getTranslation().getNorm();
@@ -297,6 +292,11 @@ public class VisionNew extends SubsystemBase {
       return VisionProcessingLoggedFields.unsuccessfulStatus(
           VisionProcessingStatus.TOO_FAR_FROM_EXISTING_ESTIMATE);
     }
+
+    xyStandardDeviation =
+        (xyStdDevCoefficient * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
+    thetaStandardDeviation =
+        (thetaStdDevCoefficient * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
 
     synchronized (globalPoseEstimator) {
       globalPoseEstimator.addVisionMeasurement(
