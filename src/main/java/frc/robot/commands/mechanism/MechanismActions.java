@@ -75,7 +75,8 @@ public class MechanismActions {
         scoreForGamePieceCommand(gamePiece, intake).withTimeout(scoringTime),
         // --
         MechanismPositions.aggressiveZero(elevator, stinger)
-            .deadlineWith(scoreForGamePieceCommand(gamePiece, intake).withTimeout(2.0)));
+            .deadlineWith(scoreForGamePieceCommand(gamePiece, intake).withTimeout(0.5)),
+        MechanismPositions.stowPosition(elevator, stinger));
   }
 
   private static Command intakeSuckWhileScoringCone(Intake intake) {
