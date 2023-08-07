@@ -47,6 +47,7 @@ import frc.lib.team3061.swerve.SwerveModuleIO;
 import frc.lib.team3061.swerve.SwerveModuleIOSim;
 import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.VisionConstants;
+import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOConfig;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.lib.team3061.vision.VisionNew;
@@ -274,6 +275,7 @@ public class RobotContainer {
             SwerveModule brModule =
                 new SwerveModule(new SwerveModuleIOSim(), 3, MAX_VELOCITY_METERS_PER_SECOND);
             drivetrain = new Drivetrain(new GyroIO() {}, flModule, frModule, blModule, brModule);
+
             AprilTagFieldLayout layout;
             try {
               layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
@@ -361,7 +363,25 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
       leds = new LED(new LEDIO() {});
       //   vision = new Vision(new VisionIO() {}, new VisionIO() {}, new VisionIO() {}, drivetrain);
-      vision = null;
+
+      // !!!!!!!!!!!!!!!!!!!
+      // TODO:
+      // WARNING:
+      // ERROR:
+      // FIXME:
+      // THE NAME VALUE FOR THESE VISION CONFIGS IS WRONG!!! IT SHOULD BE FRONTLEFT NOT LEFT. IT IS
+      // LEFT BECAUSE AT THE TIME WE WERE TRYING TO REPLAY WITH A OLD LOG FILE
+      // IF YOU ARE NOT TRYING TO REPLAY A OLD 2023 FILE FIX THIS ISSUE NOWW!!!
+      VisionIOConfig frontLeftConfig =
+          new VisionIOConfig(new VisionIO() {}, "Left", VisionConstants.LEFT_ROBOT_TO_CAMERA);
+
+      VisionIOConfig frontRightConfig =
+          new VisionIOConfig(new VisionIO() {}, "Right", VisionConstants.RIGHT_ROBOT_TO_CAMERA);
+
+      VisionIOConfig backConfig =
+          new VisionIOConfig(new VisionIO() {}, "Back", VisionConstants.BACK_ROBOT_TO_CAMERA);
+
+      vision = new VisionNew(drivetrain, frontLeftConfig, frontRightConfig, backConfig);
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
