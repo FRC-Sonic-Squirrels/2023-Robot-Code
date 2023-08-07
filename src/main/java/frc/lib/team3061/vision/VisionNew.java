@@ -16,7 +16,7 @@ import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
 import frc.robot.Constants;
-import frc.robot.Constants.RobotType;
+import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
@@ -107,12 +107,12 @@ public class VisionNew extends SubsystemBase {
       setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus.NOT_PROCESSING_VISION);
     }
 
-    if (Math.abs(drivetrain.getGyroPitch()) >= MAX_ALLOWABLE_PITCH
-        || Math.abs(drivetrain.getGyroRoll()) >= MAX_ALLOWABLE_ROLL) {
+    // if (Math.abs(drivetrain.getGyroPitch()) >= MAX_ALLOWABLE_PITCH
+    //     || Math.abs(drivetrain.getGyroRoll()) >= MAX_ALLOWABLE_ROLL) {
 
-      processVision = false;
-      setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus.GYRO_ANGLE_NOT_VALID);
-    }
+    //   processVision = false;
+    //   setAllCameraPackageUnsuccessfulStatus(VisionProcessingStatus.GYRO_ANGLE_NOT_VALID);
+    // }
 
     if (processVision) {
       for (CameraResultProcessingPackage cameraPackage : allCameraResultProcessingPackages) {
@@ -205,15 +205,26 @@ public class VisionNew extends SubsystemBase {
 
     // String ROOT_LOG_PATH = "Vision/" + cameraPackage.name + "/";
 
-    var numTargetsSeen = cameraResult.getTargets().size();
+    ArrayList<PhotonTrackedTarget> cleanTargets = new ArrayList<PhotonTrackedTarget>();
+
+    for (PhotonTrackedTarget target : cameraResult.getTargets()) {
+      if (aprilTagLayout.getTagPose(target.getFiducialId()).isPresent()) {
+        cleanTargets.add(target);
+      }
+    }
+
+    cleanTargets.forEach(
+        (PhotonTrackedTarget tag) ->
+            lastTagDetectionTimes.put(tag.getFiducialId(), Timer.getFPGATimestamp()));
+
+    var numTargetsSeen = cleanTargets.size();
 
     if (numTargetsSeen == 0) {
       return VisionProcessingLoggedFields.unsuccessfulStatus(
           VisionProcessingStatus.NO_TARGETS_VISIBLE);
     }
 
-    if (numTargetsSeen > 1
-        && !Constants.getRobot().equals(RobotType.ROBOT_SIMBOT)) { // 2 or more targets
+    if (numTargetsSeen > 1 && Constants.getMode().equals(Mode.REAL)) { // 2 or more targets
       // more than one target seen, use PNP with PV estimator
       Optional<EstimatedRobotPose> photonPoseEstimatorOptionalResult;
 
@@ -231,7 +242,7 @@ public class VisionNew extends SubsystemBase {
       tagAmbiguity = 0.0;
       cameraPose = newCalculatedRobotPose.transformBy(cameraPackage.RobotToCamera);
 
-      var allSeenTags = cameraResult.getTargets();
+      var allSeenTags = cleanTargets;
       double totalDistance = 0.0;
       for (PhotonTrackedTarget tag : allSeenTags) {
         totalDistance +=
@@ -304,12 +315,6 @@ public class VisionNew extends SubsystemBase {
           currentResultTimeStamp,
           VecBuilder.fill(xyStandardDeviation, xyStandardDeviation, thetaStandardDeviation));
     }
-
-    cameraResult
-        .getTargets()
-        .forEach(
-            (PhotonTrackedTarget tag) ->
-                lastTagDetectionTimes.put(tag.getFiducialId(), Timer.getFPGATimestamp()));
 
     actualPosesUsedInPoseEstimator.add(newCalculatedRobotPose);
 
