@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
 import frc.robot.subsystems.stinger.StingerIO.StingerIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,6 +40,8 @@ public class Stinger extends SubsystemBase {
   private final TunableNumber desiredTime =
       new TunableNumber("Stinger/desired time", Constants.Stinger.DESIRED_TIME_TO_SPEED);
 
+  SimulatedMechanism sim;
+
   /** Creates a new Stinger. */
   public Stinger(StingerIO io) {
     this.io = io;
@@ -52,11 +55,16 @@ public class Stinger extends SubsystemBase {
     if (Constants.getMode() == Mode.SIM) {
       io.setPIDConstraints(feedForwardTunable.get(), 1.0, kItunable.get(), kDtunable.get());
     }
+
+    sim = SimulatedMechanism.getInstance();
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+
+    sim.setStingerLengthInches(inputs.StingerExtensionInches);
+
     Logger.getInstance().processInputs("Stinger", inputs);
 
     // update TunableNumbers and change PID accordingly

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.SimMechanism.SimulatedMechanism;
 import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,6 +40,8 @@ public class Elevator extends SubsystemBase {
   public final TunableNumber desiredTimeToSpeed =
       new TunableNumber("Elevator/desiredTimeToSpeed", Constants.Elevator.DESIRED_TIME_TO_SPEED);
 
+  SimulatedMechanism sim;
+
   public Elevator(ElevatorIO io) {
     this.io = io;
     io.resetSensorHeight(0.0);
@@ -54,11 +57,16 @@ public class Elevator extends SubsystemBase {
     }
 
     zeroedTrigger = new Trigger(() -> inputs.ElevatorAtLowerLimit).debounce(0.25);
+
+    sim = SimulatedMechanism.getInstance();
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+
+    sim.setElevatorLengthInches(inputs.ElevatorHeightInches);
+
     Logger.getInstance().processInputs("Elevator", inputs);
     Logger.getInstance().recordOutput("Elevator/zeroedTrigger", zeroedTrigger.getAsBoolean());
 
