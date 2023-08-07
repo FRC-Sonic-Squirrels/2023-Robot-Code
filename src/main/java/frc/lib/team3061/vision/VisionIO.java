@@ -29,9 +29,11 @@ public interface VisionIO {
       lastResult = new PhotonPipelineResult();
       lastResult.createFromPacket(new Packet(photonPacketBytes));
 
-      lastTimestamp = table.getDouble("lastTimestamp", 0.0);
+      lastTimestamp = table.getDouble("lastTimestamp", -1.0);
       hasNewResult = table.getBoolean("hasNewResult", false);
       connected = table.getBoolean("connected", false);
+
+      lastResult.setTimestampSeconds(lastTimestamp);
     }
   }
 
