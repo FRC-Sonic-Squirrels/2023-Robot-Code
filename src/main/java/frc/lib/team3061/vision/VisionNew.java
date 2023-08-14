@@ -140,21 +140,6 @@ public class VisionNew extends SubsystemBase {
             allAtThisVeryMomentVisibleTags.toArray(
                 new Pose3d[allAtThisVeryMomentVisibleTags.size()]));
 
-    List<Pose3d> allVisibleTagsForHumanViewable = new ArrayList<>();
-
-    for (Map.Entry<Integer, Double> detectionEntry : lastTagDetectionTimes.entrySet()) {
-      if (Timer.getFPGATimestamp() - detectionEntry.getValue() < MAX_TAG_LOG_TIME) {
-        var tagPose = aprilTagLayout.getTagPose(detectionEntry.getKey());
-        allVisibleTagsForHumanViewable.add(tagPose.get());
-      }
-    }
-
-    Logger.getInstance()
-        .recordOutput(
-            "Vision/currentVisibleTags_HUMAN_VIEWABLE",
-            allVisibleTagsForHumanViewable.toArray(
-                new Pose3d[allVisibleTagsForHumanViewable.size()]));
-
     Logger.getInstance()
         .recordOutput(
             "Vision/actual_poses_used_in_pose_estimator",
