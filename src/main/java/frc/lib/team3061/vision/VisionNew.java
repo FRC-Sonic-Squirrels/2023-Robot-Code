@@ -15,8 +15,7 @@ import frc.lib.team3061.util.RobotOdometry;
 import frc.lib.team3061.vision.VisionIO.VisionIOInputs;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
-import frc.robot.Constants;
-import frc.robot.Constants.Mode;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.ArrayList;
@@ -48,8 +47,10 @@ public class VisionNew extends SubsystemBase {
 
   private static double MAX_TAG_LOG_TIME = 0.1;
 
-  private static double thetaStdDevCoefficient = 0.05;
-  private static double xyStdDevCoefficient = 0.05;
+  private static TunableNumber thetaStdDevCoefficient =
+      new TunableNumber("vision/thetaStdDevCoefficient", 0.075);
+  private static TunableNumber xyStdDevCoefficient =
+      new TunableNumber("vision/xyStdDevCoefficient", 0.075);
 
   private HashMap<Integer, Double> lastTagDetectionTimes = new HashMap<Integer, Double>();
 
@@ -209,45 +210,9 @@ public class VisionNew extends SubsystemBase {
           VisionProcessingStatus.NO_TARGETS_VISIBLE);
     }
 
-    if (numTargetsSeen > 1 && Constants.getMode().equals(Mode.REAL)) { // 2 or more targets
-      // more than one target seen, use PNP with PV estimator
-      Optional<EstimatedRobotPose> photonPoseEstimatorOptionalResult;
+    // --------------------- EXPERIMENTAL
 
-      cameraPackage.photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-      photonPoseEstimatorOptionalResult = cameraPackage.photonPoseEstimator.update(cameraResult);
-
-      if (photonPoseEstimatorOptionalResult.isEmpty()) {
-        return VisionProcessingLoggedFields.unsuccessfulStatus(
-            VisionProcessingStatus.PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY);
-      }
-
-      newCalculatedRobotPose = photonPoseEstimatorOptionalResult.get().estimatedPose;
-
-      // logged fields
-      tagAmbiguity = 0.0;
-      cameraPose = newCalculatedRobotPose.transformBy(cameraPackage.RobotToCamera);
-
-      var allSeenTags = cleanTargets;
-      double totalDistance = 0.0;
-      for (PhotonTrackedTarget tag : allSeenTags) {
-        totalDistance +=
-            aprilTagLayout
-                .getTagPose(tag.getFiducialId())
-                .get()
-                .getTranslation()
-                .getDistance(newCalculatedRobotPose.getTranslation());
-      }
-
-      distanceFromTag = totalDistance / (double) allSeenTags.size();
-
-    } else { // 1 target
-
-      // FIX ME: removed for simulation
-      // if (cameraResult.getTargets().size() > 1) {
-      //   return VisionProcessingLoggedFields.unsuccessfulStatus(
-      //       VisionProcessingStatus.LOGIC_ERROR_EXPECTED_1_TARGET);
-      // }
-
+    if (numTargetsSeen == 1) {
       PhotonTrackedTarget singularTag = cameraResult.getTargets().get(0);
 
       if (!isValidTarget(singularTag)) {
@@ -256,25 +221,105 @@ public class VisionNew extends SubsystemBase {
                 VisionProcessingStatus.INVALID_TAG_AMBIGUITY_TOO_HIGH)
             : VisionProcessingLoggedFields.unsuccessfulStatus(VisionProcessingStatus.INVALID_TAG);
       }
-
-      Optional<Pose3d> tagPoseOptional = aprilTagLayout.getTagPose(singularTag.getFiducialId());
-
-      if (tagPoseOptional.isEmpty()) {
-        return VisionProcessingLoggedFields.unsuccessfulStatus(
-            VisionProcessingStatus.TAG_NOT_IN_LAYOUT);
-      }
-
-      Pose3d tagPose = tagPoseOptional.get();
-
-      Transform3d cameraToTarget = singularTag.getBestCameraToTarget();
-      cameraPose = tagPose.transformBy(cameraToTarget.inverse());
-
-      newCalculatedRobotPose = cameraPose.transformBy(cameraPackage.RobotToCamera.inverse());
-
-      // logged fields
-      tagAmbiguity = singularTag.getPoseAmbiguity();
-      distanceFromTag = cameraToTarget.getTranslation().getNorm();
     }
+
+    Optional<EstimatedRobotPose> photonPoseEstimatorOptionalResult;
+
+    cameraPackage.photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+    photonPoseEstimatorOptionalResult = cameraPackage.photonPoseEstimator.update(cameraResult);
+
+    if (photonPoseEstimatorOptionalResult.isEmpty()) {
+      return VisionProcessingLoggedFields.unsuccessfulStatus(
+          VisionProcessingStatus.PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY);
+    }
+
+    newCalculatedRobotPose = photonPoseEstimatorOptionalResult.get().estimatedPose;
+
+    // logged fields
+    tagAmbiguity = 0.0;
+    cameraPose = newCalculatedRobotPose.transformBy(cameraPackage.RobotToCamera);
+
+    double totalDistance = 0.0;
+    for (PhotonTrackedTarget tag : cleanTargets) {
+      totalDistance +=
+          aprilTagLayout
+              .getTagPose(tag.getFiducialId())
+              .get()
+              .getTranslation()
+              .getDistance(newCalculatedRobotPose.getTranslation());
+    }
+
+    distanceFromTag = totalDistance / (double) cleanTargets.size();
+
+    // ---------------------------EXPERIMENTAL
+
+    // if (numTargetsSeen > 1 && Constants.getMode().equals(Mode.REAL)) { // 2 or more targets
+    //   // more than one target seen, use PNP with PV estimator
+    //   Optional<EstimatedRobotPose> photonPoseEstimatorOptionalResult;
+
+    //   cameraPackage.photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+    //   photonPoseEstimatorOptionalResult = cameraPackage.photonPoseEstimator.update(cameraResult);
+
+    //   if (photonPoseEstimatorOptionalResult.isEmpty()) {
+    //     return VisionProcessingLoggedFields.unsuccessfulStatus(
+    //         VisionProcessingStatus.PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY);
+    //   }
+
+    //   newCalculatedRobotPose = photonPoseEstimatorOptionalResult.get().estimatedPose;
+
+    //   // logged fields
+    //   tagAmbiguity = 0.0;
+    //   cameraPose = newCalculatedRobotPose.transformBy(cameraPackage.RobotToCamera);
+
+    //   var allSeenTags = cleanTargets;
+    //   double totalDistance = 0.0;
+    //   for (PhotonTrackedTarget tag : allSeenTags) {
+    //     totalDistance +=
+    //         aprilTagLayout
+    //             .getTagPose(tag.getFiducialId())
+    //             .get()
+    //             .getTranslation()
+    //             .getDistance(newCalculatedRobotPose.getTranslation());
+    //   }
+
+    //   distanceFromTag = totalDistance / (double) allSeenTags.size();
+
+    // } else { // 1 target
+
+    //   // FIX ME: removed for simulation
+    //   // if (cameraResult.getTargets().size() > 1) {
+    //   //   return VisionProcessingLoggedFields.unsuccessfulStatus(
+    //   //       VisionProcessingStatus.LOGIC_ERROR_EXPECTED_1_TARGET);
+    //   // }
+
+    //   PhotonTrackedTarget singularTag = cameraResult.getTargets().get(0);
+
+    //   if (!isValidTarget(singularTag)) {
+    //     return (singularTag.getPoseAmbiguity() >= VisionConstants.MAXIMUM_AMBIGUITY)
+    //         ? VisionProcessingLoggedFields.unsuccessfulStatus(
+    //             VisionProcessingStatus.INVALID_TAG_AMBIGUITY_TOO_HIGH)
+    //         :
+    // VisionProcessingLoggedFields.unsuccessfulStatus(VisionProcessingStatus.INVALID_TAG);
+    //   }
+
+    //   Optional<Pose3d> tagPoseOptional = aprilTagLayout.getTagPose(singularTag.getFiducialId());
+
+    //   if (tagPoseOptional.isEmpty()) {
+    //     return VisionProcessingLoggedFields.unsuccessfulStatus(
+    //         VisionProcessingStatus.TAG_NOT_IN_LAYOUT);
+    //   }
+
+    //   Pose3d tagPose = tagPoseOptional.get();
+
+    //   Transform3d cameraToTarget = singularTag.getBestCameraToTarget();
+    //   cameraPose = tagPose.transformBy(cameraToTarget.inverse());
+
+    //   newCalculatedRobotPose = cameraPose.transformBy(cameraPackage.RobotToCamera.inverse());
+
+    //   // logged fields
+    //   tagAmbiguity = singularTag.getPoseAmbiguity();
+    //   distanceFromTag = cameraToTarget.getTranslation().getNorm();
+    // }
 
     var distanceFromExistingPoseEstimate =
         prevEstimatedRobotPose
@@ -290,9 +335,9 @@ public class VisionNew extends SubsystemBase {
     }
 
     xyStandardDeviation =
-        (xyStdDevCoefficient * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
+        (xyStdDevCoefficient.get() * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
     thetaStandardDeviation =
-        (thetaStdDevCoefficient * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
+        (thetaStdDevCoefficient.get() * Math.pow(distanceFromTag, 2)) / ((double) numTargetsSeen);
 
     synchronized (globalPoseEstimator) {
       globalPoseEstimator.addVisionMeasurement(
