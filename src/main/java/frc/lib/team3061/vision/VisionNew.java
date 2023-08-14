@@ -167,7 +167,7 @@ public class VisionNew extends SubsystemBase {
     SwerveDrivePoseEstimator globalPoseEstimator = RobotOdometry.getInstance().getPoseEstimator();
     Pose2d prevEstimatedRobotPose = globalPoseEstimator.getEstimatedPosition();
 
-    Pose3d newCalculatedRobotPose = null;
+    Pose3d newCalculatedRobotPose;
 
     double xyStandardDeviation;
     double thetaStandardDeviation;
