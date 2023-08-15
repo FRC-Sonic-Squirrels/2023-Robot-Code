@@ -8,6 +8,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.team6328.util.Alert;
 import frc.lib.team6328.util.Alert.AlertType;
@@ -207,5 +208,11 @@ public final class Constants {
   public static class FIELD_DIMENSIONS {
     // FIXME: This is wrong
     public static double FIELD_LENGTH_METERS = 16.4592;
+  }
+
+  public static class Limelight {
+    // FIXME: Confirm values
+    public static Translation2d FOV = new Translation2d(59.6, 49.7);
+    public static Translation2d RESOLUTION = new Translation2d(320, 240);
   }
 }
