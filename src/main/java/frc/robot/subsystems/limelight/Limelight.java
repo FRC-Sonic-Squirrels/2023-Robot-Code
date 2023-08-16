@@ -74,6 +74,37 @@ public class Limelight extends SubsystemBase {
     Logger.getInstance().recordOutput("Limelight/cubePoseMeters", cubePoseMeters);
   }
 
+  /**
+   * Changes the mode of the leds
+   *
+   * <ul>
+   *   <ln>
+   * </ul>
+   *
+   * 0: use the LED Mode set in the current pipeline
+   *
+   * <ul>
+   *   <ln>
+   * </ul>
+   *
+   * 1: force off
+   *
+   * <ul>
+   *   <ln>
+   * </ul>
+   *
+   * 2: force blink
+   *
+   * <ul>
+   *   <ln>
+   * </ul>
+   *
+   * 3: force on
+   */
+  public void ledMode(double mode) {
+    io.ledMode(mode);
+  }
+
   public boolean isValidTarget() {
     return inputs.validTarget;
   }

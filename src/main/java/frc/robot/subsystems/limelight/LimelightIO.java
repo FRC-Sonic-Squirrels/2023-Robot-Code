@@ -38,4 +38,6 @@ public interface LimelightIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(LimelightIOInputs inputs) {}
+
+  public default void ledMode(double mode) {}
 }

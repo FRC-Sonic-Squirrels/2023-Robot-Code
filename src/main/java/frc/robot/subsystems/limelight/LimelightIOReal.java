@@ -31,4 +31,9 @@ public class LimelightIOReal implements LimelightIO {
     inputs.totalLatencyMs = ta.getDouble(0.0) + tl.getDouble(0.0);
     inputs.classID = tclass.getDouble(0.0);
   }
+
+  @Override
+  public void ledMode(double mode) {
+    table.getEntry("ledMode").setNumber(mode);
+  }
 }
