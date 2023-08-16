@@ -8,6 +8,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.team6328.util.Alert;
@@ -207,12 +209,17 @@ public final class Constants {
 
   public static class FIELD_DIMENSIONS {
     // FIXME: This is wrong
-    public static double FIELD_LENGTH_METERS = 16.4592;
+    public static final double FIELD_LENGTH_METERS = 16.4592;
+  }
+
+  public static class GAME_PIECE_DIMENSIONS {
+    public static final double CUBE_LENGTH_METERS = 0.24;
   }
 
   public static class Limelight {
     // FIXME: Confirm values
-    public static Translation2d FOV = new Translation2d(59.6, 49.7);
-    public static Translation2d RESOLUTION = new Translation2d(320, 240);
+    public static final Translation2d FOV = new Translation2d(59.6, 49.7);
+    public static final Translation2d RESOLUTION = new Translation2d(320, 240);
+    public static final Pose3d LIMELIGHT_POSE = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
   }
 }
