@@ -49,6 +49,7 @@ import frc.lib.team3061.swerve.SwerveModuleIOTalonFX;
 import frc.lib.team3061.vision.VisionConstants;
 import frc.lib.team3061.vision.VisionIO;
 import frc.lib.team3061.vision.VisionIOConfig;
+import frc.lib.team3061.vision.VisionIOPhotonVision;
 import frc.lib.team3061.vision.VisionIOSim;
 import frc.lib.team3061.vision.VisionNew;
 import frc.lib.team6328.util.TunableNumber;
@@ -246,14 +247,34 @@ public class RobotContainer {
             intake = new Intake(new IntakeIO2023());
             leds = new LED(new LEDIOReal());
 
-            // vision =
-            //     new Vision(
-            //         new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
-            //         new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
-            //         new VisionIOPhotonVision(Constants.BACK_CAMERA_NAME),
-            //         drivetrain);
+            AprilTagFieldLayout layout;
+            try {
+              layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+            } catch (IOException e) {
+              layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
+            }
 
-            vision = null;
+            VisionIOConfig frontLeftConfig =
+                new VisionIOConfig(
+                    new VisionIOPhotonVision(Constants.LEFT_CAMERA_NAME),
+                    "frontLeft",
+                    VisionConstants.LEFT_ROBOT_TO_CAMERA);
+
+            VisionIOConfig frontRightConfig =
+                new VisionIOConfig(
+                    new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
+                    "frontRight",
+                    VisionConstants.RIGHT_ROBOT_TO_CAMERA);
+
+            VisionIOConfig backConfig =
+                new VisionIOConfig(
+                    new VisionIOPhotonVision(Constants.BACK_CAMERA_NAME),
+                    "back",
+                    VisionConstants.BACK_ROBOT_TO_CAMERA);
+
+            vision = new VisionNew(drivetrain, frontLeftConfig, frontRightConfig, backConfig);
+
+            // vision = null;
 
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
