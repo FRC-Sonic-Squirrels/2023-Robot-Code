@@ -56,6 +56,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
+import frc.robot.commands.drive.IntakeCube;
 import frc.robot.commands.drive.SnapToGrid;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -80,6 +81,8 @@ import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIO;
 import frc.robot.subsystems.led.LEDIOReal;
+import frc.robot.subsystems.limelight.Limelight;
+import frc.robot.subsystems.limelight.LimelightIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
 import frc.robot.subsystems.stinger.StingerIOReal;
@@ -114,6 +117,7 @@ public class RobotContainer {
   private Elevator elevator;
   private LED leds;
   public Vision vision;
+  private Limelight limelight;
 
   private DriverAssistAutos driverAssist;
   public final GridPositionHandler gridPositionHandler = GridPositionHandler.getInstance();
@@ -252,6 +256,8 @@ public class RobotContainer {
                     new VisionIOPhotonVision(Constants.RIGHT_CAMERA_NAME),
                     new VisionIOPhotonVision(Constants.BACK_CAMERA_NAME),
                     drivetrain);
+
+            limelight = new Limelight(new LimelightIOReal(), drivetrain);
 
             RobotState.getInstance().setDesiredGamePiece(GamePiece.CONE);
             leds.setColor(colors.YELLOW);
@@ -729,6 +735,14 @@ public class RobotContainer {
                     () -> yeetHeight.get(),
                     () -> yeetExtensionThreshold.get())
                 .andThen(MechanismPositions.aggressiveZero(elevator, stinger)));
+
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
+                .andThen(
+                    new IntakeCube(limelight, drivetrain, elevator, stinger, intake)
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy())));
 
     // driverAssistController
     //     .povRight()

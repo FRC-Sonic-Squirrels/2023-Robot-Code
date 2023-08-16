@@ -7,13 +7,14 @@ Our Robot, named *Rober*, includes features such as:
 - 4 times Autonomous Award Winner
 ------------------------------------
 - 3 Game piece autonomous modes
-- Fully automated aligment to human player feeder station 
-- Fully automated aligment to grid 
+- Fully automated alignment to human player feeder station
+- Fully automated alignment to grid
+- Fully automated cube pickup (neural gamepiece detection)
 -------------------------------------
-- Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5 
-- Multi-tag PNP support 
+- Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5
+- Multi-tag PNP support
 ------------------------------------------
-- Simulated vision  (note: does not support multi tag) 
+- Simulated vision  (note: does not support multi tag)
 - Simluated swerve (per 3061-lib)
 - Simluated Vertical and Horizontal Elevators
 ------------------------------------------
@@ -22,22 +23,22 @@ Our Robot, named *Rober*, includes features such as:
 ------------------------------
 -------------------------------
 
-## Noteable Files 
+## Noteable Files
 - [`.Robot.java`](/src/main/java/frc/robot/Robot.java)
 
-- [`SwerveAutos.java`](/src/main/java/frc/robot/autonomous/SwerveAutos.java) - Competation autos 
+- [`SwerveAutos.java`](/src/main/java/frc/robot/autonomous/SwerveAutos.java) - Competation autos
 
-- [`DriverAssistAutos.java`](/src/main/java/frc/robot/DriverAssistAutos.java) - Teleop driver assist features  
+- [`DriverAssistAutos.java`](/src/main/java/frc/robot/DriverAssistAutos.java) - Teleop driver assist features
 
 - [`SimulatedMechanism`](src/main/java/frc/robot/subsystems/SimMechanism/SimulatedMechanism.java) - Simulated Elevators
 
-- [`/vision/`](/src/main/java/frc/lib/team3061/vision) - Vision system 
+- [`/vision/`](/src/main/java/frc/lib/team3061/vision) - Vision system
 
 ------------------------------------
 ------------------------------------
 
-## Credits & Refernces  
-- 3061-lib for the swerve library and base advantage kit structuring 
+## Credits & Refernces
+- 3061-lib for the swerve library and base advantage kit structuring
 - Team 6328 Mechanical Advantage build [thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2023-build-thread/420691)
 
 **3061-lib credits**
