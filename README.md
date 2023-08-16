@@ -15,8 +15,8 @@ Our Robot, named *Rober*, includes features such as:
 - Multi-tag PNP support
 ------------------------------------------
 - Simulated vision  (note: does not support multi tag)
-- Simluated swerve (per 3061-lib)
-- Simluated Vertical and Horizontal Elevators
+- Simulated swerve (per 3061-lib)
+- Simulated Vertical and Horizontal Elevators
 ------------------------------------------
 - Logging and replay via [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/README.md)
 
