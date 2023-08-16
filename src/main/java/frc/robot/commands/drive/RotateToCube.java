@@ -4,32 +4,22 @@
 
 package frc.robot.commands.drive;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.limelight.Limelight;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class DriveToCube extends CommandBase {
-  /** Creates a new DriveToCube. */
-  private final Limelight limelight;
-
-  private final Drivetrain drive;
+public class RotateToCube extends CommandBase {
+  Limelight limelight;
+  Drivetrain drive;
 
   private TunableNumber rotationKp = new TunableNumber("DriveToCube/rotationKp", 4.9);
-
-  private TunableNumber xKp = new TunableNumber("DriveToCube/xKp", 3.2);
-  private TunableNumber yKp = new TunableNumber("DriveToCube/yKp", 3.2);
-
-  private TunableNumber xKi = new TunableNumber("DriveToCube/xKi", 0.0);
-  private TunableNumber yKi = new TunableNumber("DriveToCube/yKi", 0.0);
-
-  private TunableNumber xKd = new TunableNumber("DriveToCube/xKd", 0);
-  private TunableNumber yKd = new TunableNumber("DriveToCube/yKd", 0);
 
   private ProfiledPIDController rotationController =
       new ProfiledPIDController(
@@ -40,17 +30,17 @@ public class DriveToCube extends CommandBase {
               DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
               DrivetrainConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * 0.9));
 
-  private PIDController xController = new PIDController(xKp.get(), xKi.get(), xKd.get());
-  private PIDController yController = new PIDController(yKp.get(), yKi.get(), yKd.get());
-
-  private double rotationalErrorDegrees;
-  private double xVel;
-  private double yVel;
-  private TunableNumber allowedRotationalErrorDegrees =
-      new TunableNumber("DriveToCube/allowedRotationalErrorDegrees", 20);
-
-  public DriveToCube(Limelight limelight, Drivetrain drive) {
+  private DoubleSupplier translationXSupplier;
+  private DoubleSupplier translationYSupplier;
+  /** Creates a new DriveToCubeSimple. */
+  public RotateToCube(
+      DoubleSupplier translationXSupplier,
+      DoubleSupplier translationYSupplier,
+      Limelight limelight,
+      Drivetrain drive) {
     // Use addRequirements() here to declare subsystem dependencies.
+    this.translationXSupplier = translationXSupplier;
+    this.translationYSupplier = translationYSupplier;
     this.limelight = limelight;
     this.drive = drive;
   }
@@ -62,54 +52,68 @@ public class DriveToCube extends CommandBase {
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
     rotationController.setTolerance(2);
     rotationController.setGoal(limelight.getTargetYaw().getRadians());
-
-    xController.reset();
-    xController.setTolerance(0.01);
-
-    yController.reset();
-    yController.setTolerance(0.01);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     if (rotationController.getGoal().position != limelight.getTargetYaw().getRadians()
         && limelight.isValidTarget()) {
       rotationController.setGoal(limelight.getTargetYaw().getRadians());
     }
 
-    rotationalErrorDegrees =
-        Math.abs(
-            drive.getPose().getRotation().getDegrees()
-                - limelight.getCubePoseMeters().getRotation().getDegrees());
-    Logger.getInstance().recordOutput("rotationalErrorDegrees", rotationalErrorDegrees);
-
-    xVel =
-        rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
-            ? xController.calculate(drive.getPose().getX(), limelight.getCubePoseMeters().getX())
-            : 0.0;
-    yVel =
-        rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
-            ? yController.calculate(drive.getPose().getY(), limelight.getCubePoseMeters().getY())
-            : 0.0;
-
     drive.drive(
-        xVel, yVel, rotationController.calculate(drive.getPose().getRotation().getRadians()));
-
-    Logger.getInstance().recordOutput("ActiveCommands/DriveToCube", true);
+        -modifyAxis(translationXSupplier.getAsDouble())
+            * drive.elevatorAndStingerOutTranslationMultiplier.get()
+            * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND
+            * (DriverStation.getAlliance() == DriverStation.Alliance.Red ? -1 : 1),
+        -modifyAxis(translationYSupplier.getAsDouble())
+            * drive.elevatorAndStingerOutTranslationMultiplier.get()
+            * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND
+            * (DriverStation.getAlliance() == DriverStation.Alliance.Red ? -1 : 1),
+        rotationController.calculate(drive.getPose().getRotation().getRadians()));
+    Logger.getInstance().recordOutput("ActiveCommands/RotateToCube", true);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drive.drive(0, 0, 0);
-    Logger.getInstance().recordOutput("ActiveCommands/DriveToCube", false);
+    Logger.getInstance().recordOutput("ActiveCommands/RotateToCube", false);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  /**
+   * Squares the specified value, while preserving the sign. This method is used on all joystick
+   * inputs. This is useful as a non-linear range is more natural for the driver.
+   *
+   * @param value
+   * @return
+   */
+  private static double modifyAxis(double value) {
+    // Deadband
+    value = deadband(value, DrivetrainConstants.DEADBAND);
+
+    // Square the axis
+    value = Math.copySign(value * value, value);
+
+    return value;
+  }
+
+  private static double deadband(double value, double deadband) {
+    if (Math.abs(value) > deadband) {
+      if (value > 0.0) {
+        return (value - deadband) / (1.0 - deadband);
+      } else {
+        return (value + deadband) / (1.0 - deadband);
+      }
+    } else {
+      return 0.0;
+    }
   }
 }

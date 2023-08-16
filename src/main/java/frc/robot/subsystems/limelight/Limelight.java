@@ -114,7 +114,8 @@ public class Limelight extends SubsystemBase {
   }
 
   public Rotation2d getTargetYaw() {
-    return new Rotation2d(Math.toRadians(targetYawDegrees));
+    return new Rotation2d(3.88 - drive.getPose().getX(), 2.74 - drive.getPose().getY());
+    // return new Rotation2d(Math.toRadians(targetYawDegrees));
   }
 
   public Rotation2d getTargetPitch() {
@@ -126,6 +127,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public Pose2d getCubePoseMeters() {
-    return cubePoseMeters;
+    return new Pose2d(3.88, 2.74, new Rotation2d(0));
+    // return cubePoseMeters;
   }
 }
