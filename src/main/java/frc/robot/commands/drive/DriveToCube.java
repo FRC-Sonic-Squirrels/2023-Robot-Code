@@ -8,27 +8,17 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team6328.util.TunableNumber;
-import frc.robot.commands.intake.IntakeGrabCube;
-import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.limelight.Limelight;
-import frc.robot.subsystems.stinger.Stinger;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeCube extends CommandBase {
+public class DriveToCube extends CommandBase {
   /** Creates a new IntakeCube. */
   private final Limelight limelight;
 
   private final Drivetrain drive;
-  private final Elevator elevator;
-  private final Stinger stinger;
-  private final Intake intake;
 
   private TunableNumber rotationKp = new TunableNumber("intakeCube/rotationKp", 4.9);
 
@@ -59,14 +49,10 @@ public class IntakeCube extends CommandBase {
   private TunableNumber allowedRotationalErrorDegrees =
       new TunableNumber("intakeCube/allowedRotationalErrorDegrees", 20);
 
-  public IntakeCube(
-      Limelight limelight, Drivetrain drive, Elevator elevator, Stinger stinger, Intake intake) {
+  public DriveToCube(Limelight limelight, Drivetrain drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.limelight = limelight;
     this.drive = drive;
-    this.elevator = elevator;
-    this.stinger = stinger;
-    this.intake = intake;
   }
 
   // Called when the command is initially scheduled.
@@ -110,11 +96,6 @@ public class IntakeCube extends CommandBase {
 
     drive.drive(
         xVel, yVel, rotationController.calculate(drive.getPose().getRotation().getRadians()));
-
-    MechanismPositions.groundPickupPosition(elevator, stinger)
-        .andThen(Commands.waitUntil(new Trigger(() -> intake.isStalled()).debounce(0.05)))
-        .deadlineWith(new IntakeGrabCube(intake))
-        .andThen(MechanismPositions.stowPosition(elevator, stinger));
 
     Logger.getInstance().recordOutput("ActiveCommands/IntakeCube", true);
   }

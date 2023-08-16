@@ -55,8 +55,8 @@ import frc.lib.team6328.util.TunableNumber;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
+import frc.robot.commands.drive.DriveToCube;
 import frc.robot.commands.drive.DriveWithSetRotation;
-import frc.robot.commands.drive.IntakeCube;
 import frc.robot.commands.drive.SnapToGrid;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -82,6 +82,7 @@ import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIO;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.limelight.Limelight;
+import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
@@ -308,6 +309,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
+            limelight = new Limelight(new LimelightIO() {}, drivetrain);
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
@@ -741,8 +743,16 @@ public class RobotContainer {
         .whileTrue(
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
                 .andThen(
-                    new IntakeCube(limelight, drivetrain, elevator, stinger, intake)
-                        .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy())));
+                    (new DriveToCube(limelight, drivetrain)
+                            .deadlineWith(
+                                new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
+                        .alongWith(
+                            MechanismPositions.groundPickupPosition(elevator, stinger)
+                                .andThen(
+                                    Commands.waitUntil(
+                                        new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                                .deadlineWith(new IntakeGrabCube(intake))
+                                .andThen(MechanismPositions.stowPosition(elevator, stinger)))));
 
     // driverAssistController
     //     .povRight()
