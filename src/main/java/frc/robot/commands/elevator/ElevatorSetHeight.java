@@ -81,7 +81,7 @@ public class ElevatorSetHeight extends CommandBase {
       elevator.setMotionProfileConstraints(
           motionProfileVelocity.getAsDouble(), motionProfileDesiredTime.getAsDouble());
     }
-    elevator.setHeightInches(targetHeightInches);
+    elevator.setHeightInches(targetHeightInches, endVelocity);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
