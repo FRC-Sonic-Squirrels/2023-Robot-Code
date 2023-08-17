@@ -19,6 +19,8 @@ public class ElevatorSetHeight extends CommandBase {
   DoubleSupplier motionProfileVelocity;
   DoubleSupplier motionProfileDesiredTime;
 
+  double endVelocity;
+
   double debounceSeconds = 0.1;
 
   Trigger isFinishedTrigger;
@@ -27,6 +29,17 @@ public class ElevatorSetHeight extends CommandBase {
     this(
         elevator,
         targetHeightInches,
+        0,
+        true,
+        elevator::getCruiseVelocity,
+        elevator::getDesiredTimeToSpeed);
+  }
+
+  public ElevatorSetHeight(Elevator elevator, double targetHeightInches, double endVelocity) {
+    this(
+        elevator,
+        targetHeightInches,
+        endVelocity,
         true,
         elevator::getCruiseVelocity,
         elevator::getDesiredTimeToSpeed);
@@ -38,18 +51,20 @@ public class ElevatorSetHeight extends CommandBase {
       DoubleSupplier motionProfileVelocity,
       DoubleSupplier motionProfileDesiredTime) {
 
-    this(elevator, targetHeightInches, true, motionProfileVelocity, motionProfileDesiredTime);
+    this(elevator, targetHeightInches, 0, true, motionProfileVelocity, motionProfileDesiredTime);
   }
 
   private ElevatorSetHeight(
       Elevator elevator,
       double targetHeightInches,
+      double endVelocity,
       boolean changeMotionProfile,
       DoubleSupplier motionProfileVelocity,
       DoubleSupplier motionProfileDesiredTime) {
 
     this.elevator = elevator;
     this.targetHeightInches = targetHeightInches;
+    this.endVelocity = endVelocity;
 
     this.changeMotionProfile = changeMotionProfile;
     this.motionProfileVelocity = motionProfileVelocity;

@@ -452,6 +452,29 @@ public class MechanismPositions {
         () -> elevator.getHeightInches() >= heightInches);
   }
 
+  public static Command goToPositionParallel(
+      Elevator elevator,
+      Stinger stinger,
+      double heightInches,
+      double elevatorEndVelocity,
+      double extensionInches) {
+
+    return new ConditionalCommand(
+        new ParallelCommandGroup(
+            new StingerSetExtension(stinger, extensionInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (stinger.getExtensionInches() <= stingerExtensionThreshold.get())),
+                new ElevatorSetHeight(elevator, heightInches, elevatorEndVelocity))),
+        new ParallelCommandGroup(
+            new ElevatorSetHeight(elevator, heightInches),
+            new SequentialCommandGroup(
+                Commands.waitUntil(
+                    () -> (elevator.getHeightInches() >= elevatorHeightThreshold.get())),
+                new StingerSetExtension(stinger, extensionInches))),
+        () -> elevator.getHeightInches() >= heightInches);
+  }
+
   public static Command goToPositionParallelThreshold(
       Elevator elevator,
       Stinger stinger,
@@ -584,12 +607,12 @@ public class MechanismPositions {
   public static Command aggressiveZero(Elevator elevator, Stinger stinger) {
     return new SequentialCommandGroup(
         avoidBumper(elevator, stinger),
-        goToPositionParallel(elevator, stinger, 8, 0),
-        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5)
+        goToPositionParallel(elevator, stinger, 8, 5, 0),
+        // new ParallelCommandGroup(
+        //     new ElevatorSetHeight(elevator, 8, 5), new StingerSetExtension(stinger, 0)),
+        new ElevatorSetHeight(elevator, 0.0, () -> 15, () -> 0.5),
         // new ElevatorGoUntilLimitSwitch(elevator, 0.2),
-        // new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.STOW_HEIGHT)
-
-        );
+        new ElevatorSetHeight(elevator, Constants.NODE_DISTANCES.STOW_HEIGHT));
   }
 
   public static Command safeStowPosition(Elevator elevator, Stinger stinger) {
