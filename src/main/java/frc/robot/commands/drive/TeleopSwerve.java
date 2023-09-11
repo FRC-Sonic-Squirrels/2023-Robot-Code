@@ -3,6 +3,7 @@ package frc.robot.commands.drive;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.team6328.util.TunableNumber;
 import frc.robot.OverrideDrivetrainStop;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
@@ -33,6 +34,10 @@ public class TeleopSwerve extends CommandBase implements OverrideDrivetrainStop 
   private final Elevator elevator;
   private final Stinger stinger;
 
+  private final TunableNumber defaultMultiplierXY =
+      new TunableNumber("Drive/defaultMultiplierXY", 0.5);
+  private final TunableNumber defaultMultiplierRot =
+      new TunableNumber("Drive/defaultMultiplierRot", 0.3);
   // private final TunableNumber elevatorUpTranslationMuliplier =
   //     new TunableNumber("teleopSwerve/elevatorUpTranslationMuliplier", 0.75);
   // private final TunableNumber elevatorUpRotationalMultiplier =
@@ -81,10 +86,10 @@ public class TeleopSwerve extends CommandBase implements OverrideDrivetrainStop 
     double yPercentage = -modifyAxis(translationYSupplier.getAsDouble());
     double rotationPercentage = -modifyAxis(rotationSupplier.getAsDouble());
 
-    double xMultiplier = 1.0;
-    double yMultiplier = 1.0;
+    double xMultiplier = defaultMultiplierXY.get();
+    double yMultiplier = defaultMultiplierXY.get();
     // 0.6 driver starting preference
-    double rotMultiplier = 0.6;
+    double rotMultiplier = defaultMultiplierRot.get();
 
     boolean isElevatorTargetHeightZero = elevator.getTargetHeightInches() < 10.1;
     boolean isStingerTargetExtensionZero = stinger.getTargetExtensionInches() < 0.1;

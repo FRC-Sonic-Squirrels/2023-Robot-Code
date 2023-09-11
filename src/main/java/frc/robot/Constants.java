@@ -146,7 +146,7 @@ public final class Constants {
     // Holding voltage is between 0.25-0.45 Volts. Convert to percent output.
     public static final double ARBITRARY_FEED_FORWARD = 0.18 / 12.0;
     public static final double CRUISE_VELOCITY_INCHES_PER_SEC =
-        100.0; // 40 is slower but accurate // fast movement but inaccurate is 90.0;
+        30.0; // 40 is slower but accurate // fast movement but inaccurate is 90.0;
     public static final double DESIRED_TIME_TO_SPEED = 0.35;
   }
 
@@ -161,7 +161,7 @@ public final class Constants {
     public static final double STINGER_KI = 0.0;
     public static final double STINGER_KD = 0.0;
 
-    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 100;
+    public static final double CRUISE_VELOCITY_INCHES_PER_SEC = 30.0;
     public static final double DESIRED_TIME_TO_SPEED = 0.3;
 
     // Arbitrary feed forward is in percent output (volts/12.0)
