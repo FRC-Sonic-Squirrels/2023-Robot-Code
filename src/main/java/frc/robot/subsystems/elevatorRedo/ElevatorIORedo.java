@@ -40,8 +40,11 @@ public interface ElevatorIORedo {
   // Runs the Elevator open loop at a specified voltage
   public default void setElevatorVoltage(double volts) {}
 
-  public default void setMotorPercent(double percent) {}
+  public default void setPercent(double percent) {}
 
-  public default void setElevatorHeight(double height) {}
+  public default void setHeightInches(double heightInches) {}
 
+  public default void breakOff() {}
+
+  public default void breakOn() {}
 }
