@@ -451,6 +451,7 @@ public class VisionNew extends SubsystemBase {
     }
   }
 
+  // NOTE: the record keyword below requires using Java Version 17 or later. change in build.gradle
   private record VisionProcessingLoggedFields(
       VisionProcessingStatus status,
       double numSeenTargets,
