@@ -63,6 +63,8 @@ import frc.robot.commands.elevator.ElevatorManualControl;
 import frc.robot.commands.intake.IntakeAutoGrabDesiredGamePiece;
 import frc.robot.commands.intake.IntakeGrabCone;
 import frc.robot.commands.intake.IntakeGrabCube;
+import frc.robot.commands.intake.IntakeScoreCone;
+import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.leds.LedSetColor;
 import frc.robot.commands.leds.LedSetColorNoEnd;
 import frc.robot.commands.mechanism.MechanismPositions;
@@ -526,6 +528,21 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> RobotState.getInstance().setDesiredScoringHeight(ScoringRow.Hybrid)));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeGrabCone(intake, 1.0),
+                new IntakeGrabCube(intake, 0.4),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
+    operatorController
+        .leftBumper()
+        .whileTrue(
+            new ConditionalCommand(
+                new IntakeScoreCone(intake, 0.8),
+                new IntakeScoreCube(intake, 0.5),
+                () -> (RobotState.getInstance().getDesiredGamePiece() == GamePiece.CONE)));
 
     // operatorController
     //     .x()
