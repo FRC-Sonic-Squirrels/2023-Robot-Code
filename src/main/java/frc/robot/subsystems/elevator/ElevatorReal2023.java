@@ -95,7 +95,7 @@ public class ElevatorReal2023 implements ElevatorIO {
     follow_talon.configSupplyCurrentLimit(currentLimit);
 
     // lead_talon.configPeakOutputForward(0.2);
-    lead_talon.configPeakOutputReverse(-0.5);
+    // lead_talon.configPeakOutputReverse(-0.75);
 
     // NOTE: only effects manual control
     lead_talon.configOpenloopRamp(0.1);
@@ -253,9 +253,14 @@ public class ElevatorReal2023 implements ElevatorIO {
 
   @Override
   public void setHeightInches(double targetHeightInches) {
+    setHeightInches(targetHeightInches, 0);
+  }
+
+  @Override
+  public void setHeightInches(double targetHeightInches, double targetGoalVelocity) {
     this.targetHeightInches = targetHeightInches;
     positionControlMode = true;
-    goal = new TrapezoidProfile.State(targetHeightInches, 0);
+    goal = new TrapezoidProfile.State(targetHeightInches, targetGoalVelocity);
 
     // starting setpoint is our current position and velocity
     setpoint =

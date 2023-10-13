@@ -105,6 +105,11 @@ public class ElevatorSim implements ElevatorIO {
   }
 
   @Override
+  public void setHeightInches(double targetHeightInches, double targetGoalVelocity) {
+    setHeightInches(targetHeightInches);
+  }
+
+  @Override
   public void setPIDConstraints(double kF, double kP, double kI, double kD) {
     controller.setP(kP);
     controller.setI(kI);

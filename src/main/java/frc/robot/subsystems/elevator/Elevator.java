@@ -100,10 +100,14 @@ public class Elevator extends SubsystemBase {
     io.setElevatorVoltage(voltage);
   }
 
-  public void setHeightInches(double targetHeightInches) {
+  public void setHeightInches(double targetHeightInches, double endVelocity) {
     MathUtil.clamp(targetHeightInches, 0, Constants.Elevator.MAX_HEIGHT_INCHES);
 
-    io.setHeightInches(targetHeightInches);
+    io.setHeightInches(targetHeightInches, endVelocity);
+  }
+
+  public void setHeightInches(double TargetHeightInches) {
+    setHeightInches(TargetHeightInches, 0.0);
   }
 
   public double getHeightInches() {

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
+import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.elevator.Elevator;
@@ -177,7 +178,8 @@ public class DriveWithSetRotation extends CommandBase {
   @Override
   public boolean isFinished() {
 
-    if (!drivetrain.getGyroConnected()) {
+    if (!drivetrain.getGyroConnected()
+        && !Constants.getRobot().equals(Constants.RobotType.ROBOT_SIMBOT)) {
       DriverStation.reportWarning("NO IMU/GYRO, drive with set rotation disabled.", false);
       return true;
     }

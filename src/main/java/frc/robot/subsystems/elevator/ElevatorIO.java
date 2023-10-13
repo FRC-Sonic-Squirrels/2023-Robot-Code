@@ -61,6 +61,8 @@ public interface ElevatorIO {
 
   public default void brakeOn() {}
 
+  public default void setHeightInches(double targetHeightInches, double targetGoalVelocity) {}
+
   public default void setMaxHeightInches(double inches) {}
 
   public default void setMotionProfileConstraints(
