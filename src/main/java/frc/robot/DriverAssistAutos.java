@@ -38,6 +38,7 @@ import frc.robot.commands.intake.IntakeScoreCube;
 import frc.robot.commands.intake.IntakeStop;
 import frc.robot.commands.leds.LedSetColorForSeconds;
 import frc.robot.commands.leds.LedSetColorNoEnd;
+import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -385,7 +386,9 @@ public class DriverAssistAutos {
                 firstPose,
                 true)
             .deadlineWith(
-                elevatorUpSlowPrep(), new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
+                elevatorUpSlowPrepForCurrentGamePice(
+                    RobotState.getInstance().getDesiredGamePiece()),
+                new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()),
 
         // new GenerateContinuouslyAndFollowPath(
         //         drivetrain, lastCheckpoint, new PathConstraints(normalVel.get(),
@@ -396,12 +399,14 @@ public class DriverAssistAutos {
         // might be better to parrellel a slow path with a extension
         // rather than a fast path that stops and then \
 
-        humanPlayerStationElevatorUp(),
+        elevatorUpForGamePiece(RobotState.getInstance().getDesiredGamePiece()),
 
         // new GenerateAndFollowPath(drivetrain, secondPathPoints, constraints, finalPose.pose,
         // false),
         defaultDriveCommandFactory()
-            .alongWith(new IntakeGrabCone(intake))
+            .alongWith(
+                MechanismActions.grabForGamePiceCommand(
+                    RobotState.getInstance().getDesiredGamePiece(), intake))
             .alongWith(new LedSetColorNoEnd(leds, colors.RED_STROBE).asProxy())
             .raceWith(new WaitUntilCommand(() -> intake.isStalled()))
             .raceWith(driverConfirmationCommand()),
@@ -482,7 +487,7 @@ public class DriverAssistAutos {
 
   public Command driverConfirmationCommand() {
     return new ControllerRumbleUntilButtonPress(
-        driverController, () -> driverController.y().getAsBoolean(), 0.5);
+        driverController, () -> driverController.a().getAsBoolean(), 0.5);
   }
 
   private Command ledsSignalGoodToGo() {
@@ -501,5 +506,17 @@ public class DriverAssistAutos {
 
   private Command elevatorUpSlowPrep() {
     return new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 50, () -> 0.4);
+  }
+
+  private Command elevatorUpSlowPrepForCurrentGamePice(GamePiece gamePiece) {
+    return gamePiece == GamePiece.CONE
+        ? new ElevatorSetHeight(elevator, elevatorSlowUpPrepHeight.get(), () -> 50, () -> 0.4)
+        : new ElevatorSetHeight(elevator, 44, () -> 50, () -> 0.4);
+  }
+
+  private Command elevatorUpForGamePiece(GamePiece gamePiece) {
+    return gamePiece == GamePiece.CONE
+        ? MechanismPositions.substationPickupPositionCone(elevator, stinger, intake)
+        : MechanismPositions.substationPickupPositionCube(elevator, stinger, intake);
   }
 }
