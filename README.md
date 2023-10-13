@@ -9,6 +9,7 @@ Our Robot, named *Rober*, includes features such as:
 - 3 Game piece autonomous modes
 - Fully automated aligment to human player feeder station
 - Fully automated aligment to grid
+
 -------------------------------------
 - Full field vision using PhotonVision, 3 cameras, 2 Orange pi 5
 - Multi-tag PNP support
@@ -27,6 +28,7 @@ Our Robot, named *Rober*, includes features such as:
 
 - [`SwerveAutos.java`](/src/main/java/frc/robot/autonomous/SwerveAutos.java) - Competation autos
 
+
 - [`DriverAssistAutos.java`](/src/main/java/frc/robot/DriverAssistAutos.java) - Teleop driver assist features
 
 - [`SimulatedMechanism`](src/main/java/frc/robot/subsystems/SimMechanism/SimulatedMechanism.java) - Simulated Elevators
@@ -37,6 +39,7 @@ Our Robot, named *Rober*, includes features such as:
 ------------------------------------
 
 ## Credits & Refernces
+
 - 3061-lib for the swerve library and base advantage kit structuring
 - Team 6328 Mechanical Advantage build [thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2023-build-thread/420691)
 
