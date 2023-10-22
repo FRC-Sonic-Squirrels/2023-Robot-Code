@@ -25,8 +25,6 @@ import frc.robot.commands.auto.FollowPath;
 import frc.robot.commands.auto.FollowPathWithEvents;
 import frc.robot.commands.drive.AutoEngage;
 import frc.robot.commands.drive.DriveWithSetRotation;
-import frc.robot.commands.drive.FeedForwardCharacterization;
-import frc.robot.commands.drive.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGrabCube;
 import frc.robot.commands.intake.IntakeScoreCone;
@@ -95,34 +93,34 @@ public class SwerveAutos {
     addCommand("wall2Piece", () -> wall2Piece());
     addCommand("wall2PieceEngage", () -> wall2PieceEngage());
     // addCommand("wall2.5PieceEngage", () -> wall25PieceEngage());
-    addCommand("wall3Piece", () -> wall3Piece());
+    // addCommand("wall3Piece", () -> wall3Piece());
     addCommand("wall3PieceYeetScore", () -> wall3PieceYeetScore());
-    addCommand("wall3PieceYeetEngage", () -> wall3PieceYeetEngage());
+    // addCommand("wall3PieceYeetEngage", () -> wall3PieceYeetEngage());
     // addCommand("wall4Piece", () -> wall4Piece());
     addCommand("hp1PieceTaxi", () -> hp1PieceTaxi());
     addCommand("hp2Piece", () -> hp2Piece());
     addCommand("hp2PieceEngage", () -> hp2PieceEngage());
     // addCommand("hp2.5PieceEngage", () -> hp25PieceEngage());
-    addCommand("hp3Piece", () -> hp3Piece());
+    // addCommand("hp3Piece", () -> hp3Piece());
     // addCommand("hp3PieceYeet", () -> hp3PieceYeet());
     addCommand("hp3PieceYeetScore", () -> hp3PieceYeetScore());
-    addCommand("hp3PieceYeetEngage", () -> hp3PieceYeetEngage());
+    // addCommand("hp3PieceYeetEngage", () -> hp3PieceYeetEngage());
     // addCommand("hp4Piece", () -> hp4Piece());
 
-    addCommand("driveAutoEngage", () -> driveAutoEngage(false));
+    // addCommand("driveAutoEngage", () -> driveAutoEngage(false));
 
-    addCommand(
-        "Characterization",
-        () ->
-            new AutoChooserElement(
-                null,
-                new SequentialCommandGroup(
-                    new FeedForwardCharacterization(
-                        drivetrain,
-                        true,
-                        new FeedForwardCharacterizationData("swerve data"),
-                        drivetrain::runCharacterizationVolts,
-                        drivetrain::getCharacterizationVelocity))));
+    // addCommand(
+    //     "Characterization",
+    //     () ->
+    //         new AutoChooserElement(
+    //             null,
+    //             new SequentialCommandGroup(
+    //                 new FeedForwardCharacterization(
+    //                     drivetrain,
+    //                     true,
+    //                     new FeedForwardCharacterizationData("swerve data"),
+    //                     drivetrain::runCharacterizationVolts,
+    //                     drivetrain::getCharacterizationVelocity))));
 
     // addCommand("test score cone fast", () -> score(true, GamePiece.CONE));
   }
