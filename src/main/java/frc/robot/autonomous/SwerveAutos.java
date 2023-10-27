@@ -75,6 +75,7 @@ public class SwerveAutos {
       addCommand("2m Forward w/ 180", () -> testPath2mForward180());
       addCommand("3m Forward 2/ 360", () -> testPath3mForward360());
       addCommand("forwardLeft", () -> forwardLeft());
+      addCommand("testScoreCube", () -> score(true, GamePiece.CUBE));
       addCommand(
           "Yeet",
           () ->
@@ -416,7 +417,7 @@ public class SwerveAutos {
                 () -> goUp),
             new ConditionalCommand(
                 new IntakeScoreCone(intake).withTimeout(0.4),
-                new IntakeScoreCube(intake, 0.75).withTimeout(0.2),
+                new IntakeScoreCube(intake, 0.75).withTimeout(0.4),
                 () -> (gamepiece == GamePiece.CONE)),
             MechanismPositions.aggressiveZero(elevator, stinger)
                 .until(() -> elevator.getHeightInches() <= 45)
