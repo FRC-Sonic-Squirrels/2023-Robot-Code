@@ -1,5 +1,9 @@
 package frc.robot.subsystems.SimMechanism;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -116,6 +120,47 @@ public class SimulatedMechanism extends SubsystemBase {
 
     // wristMech2d.setAngle(wristAngleDegrees);
 
+    Pose3d elevatorSlider =
+        new Pose3d(
+            Units.inchesToMeters(
+                (elevatorLength - elevatorMinLengthInches)
+                    * (1.0 / 2.0)
+                    * Math.cos(Math.toRadians(70))),
+            0.0,
+            Units.inchesToMeters(
+                (elevatorLength - elevatorMinLengthInches)
+                    * (1.0 / 2.0)
+                    * Math.sin(Math.toRadians(70))),
+            new Rotation3d(0, 0, 0));
+
+    Pose3d stingerApparatus =
+        new Pose3d(
+            Units.inchesToMeters(
+                (elevatorLength - elevatorMinLengthInches) * Math.cos(Math.toRadians(70))),
+            0.0,
+            Units.inchesToMeters(
+                (elevatorLength - elevatorMinLengthInches) * Math.sin(Math.toRadians(70))),
+            new Rotation3d(0, 0, 0));
+
+    Pose3d stingerSlider =
+        stingerApparatus.transformBy(
+            new Transform3d(
+                new Translation3d(
+                    Units.inchesToMeters((stingerlength - stingerMinLengthInches) * 0.45),
+                    0.0,
+                    0.0),
+                new Rotation3d(0, 0, 0)));
+
+    Pose3d stingerIntake =
+        stingerApparatus.transformBy(
+            new Transform3d(
+                new Translation3d(
+                    Units.inchesToMeters((stingerlength - stingerMinLengthInches) * 0.9), 0.0, 0.0),
+                new Rotation3d(0, 0, 0)));
+
     Logger.getInstance().recordOutput("MainMech", mainMech);
+    Logger.getInstance()
+        .recordOutput(
+            "samplePos3d", elevatorSlider, stingerApparatus, stingerSlider, stingerIntake);
   }
 }
