@@ -41,28 +41,30 @@ public class Limelight extends SubsystemBase {
     detectedGamePiece = inputs.classID != 0 ? GamePiece.CUBE : GamePiece.CONE;
 
     targetYawDegrees =
-        inputs.xOffset / Constants.Limelight.RESOLUTION.getX() * Constants.Limelight.FOV.getX()
+        -inputs.xOffset
+            // / Constants.Limelight.RESOLUTION.getX() * Constants.Limelight.FOV.getX()
             + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getZ());
     targetPitchDegrees =
-        inputs.yOffset / Constants.Limelight.RESOLUTION.getY() * Constants.Limelight.FOV.getY()
-            + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getY());
+        inputs.yOffset
+            +
+            // / Constants.Limelight.RESOLUTION.getY() * Constants.Limelight.FOV.getY()
+            (90.0 + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getY()));
+    if (inputs.validTarget) {
+      cubeDistanceMeters =
+          (Constants.Limelight.LIMELIGHT_POSE.getZ()
+                  - Constants.GAME_PIECE_DIMENSIONS.CUBE_LENGTH_METERS / 2)
+              * Math.tan(Math.toRadians(targetPitchDegrees));
 
-    cubeDistanceMeters =
-        (Constants.GAME_PIECE_DIMENSIONS.CUBE_LENGTH_METERS / 2
-                - Constants.Limelight.LIMELIGHT_POSE.getZ())
-            / Math.tan(
-                Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getY())
-                    + targetPitchDegrees);
-
-    cubePoseMeters =
-        drive
-            .getPose()
-            .transformBy(
-                new Transform2d(
-                    new Translation2d(
-                        cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
-                        cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
-                    new Rotation2d(0)));
+      cubePoseMeters =
+          drive
+              .getPose()
+              .transformBy(
+                  new Transform2d(
+                      new Translation2d(
+                          cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
+                          cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
+                      new Rotation2d(0)));
+    }
 
     Logger.getInstance()
         .recordOutput(
@@ -70,8 +72,18 @@ public class Limelight extends SubsystemBase {
     Logger.getInstance().recordOutput("Limelight/detectedGamePiece", detectedGamePiece.toString());
     Logger.getInstance().recordOutput("Limelight/targetAngleDegrees", targetYawDegrees);
     Logger.getInstance().recordOutput("Limelight/targetPitchDegrees", targetPitchDegrees);
-    Logger.getInstance().recordOutput("Limelight/cubeDistanceMeters", cubeDistanceMeters);
-    Logger.getInstance().recordOutput("Limelight/cubePoseMeters", cubePoseMeters);
+    if (inputs.validTarget) {
+      Logger.getInstance().recordOutput("Limelight/cubeDistanceMeters", cubeDistanceMeters);
+      Logger.getInstance().recordOutput("Limelight/cubePoseMeters", cubePoseMeters);
+      Logger.getInstance()
+          .recordOutput(
+              "Limelight/cubeOffset",
+              new Pose2d(
+                  new Translation2d(
+                      cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
+                      cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
+                  new Rotation2d(0)));
+    }
   }
 
   /**

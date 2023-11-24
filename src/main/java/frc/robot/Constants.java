@@ -219,7 +219,8 @@ public final class Constants {
   public static class Limelight {
     // FIXME: Confirm values
     public static final Translation2d FOV = new Translation2d(59.6, 49.7);
-    public static final Translation2d RESOLUTION = new Translation2d(320, 240);
-    public static final Pose3d LIMELIGHT_POSE = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
+    public static final Translation2d RESOLUTION = new Translation2d(960, 720);
+    public static final Pose3d LIMELIGHT_POSE =
+        new Pose3d(0, 0, 0.96, new Rotation3d(0, Math.toRadians(-45.0), 0)); // bogus values for sim
   }
 }

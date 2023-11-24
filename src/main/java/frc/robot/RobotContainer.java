@@ -82,7 +82,6 @@ import frc.robot.subsystems.led.LED.colors;
 import frc.robot.subsystems.led.LEDIO;
 import frc.robot.subsystems.led.LEDIOReal;
 import frc.robot.subsystems.limelight.Limelight;
-import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIOReal;
 import frc.robot.subsystems.stinger.Stinger;
 import frc.robot.subsystems.stinger.StingerIO;
@@ -309,7 +308,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeIO() {});
             elevator = new Elevator(new ElevatorSim());
             stinger = new Stinger(new StingerSim());
-            limelight = new Limelight(new LimelightIO() {}, drivetrain);
+            limelight = new Limelight(new LimelightIOReal(), drivetrain);
 
             DriverStation.silenceJoystickConnectionWarning(true);
             break;
