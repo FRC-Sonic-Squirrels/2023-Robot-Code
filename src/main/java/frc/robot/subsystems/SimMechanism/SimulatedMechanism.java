@@ -158,9 +158,36 @@ public class SimulatedMechanism extends SubsystemBase {
                     Units.inchesToMeters((stingerlength - stingerMinLengthInches) * 0.9), 0.0, 0.0),
                 new Rotation3d(0, 0, 0)));
 
-    Logger.getInstance().recordOutput("MainMech", mainMech);
+    Pose3d stingerJaw;
+    if (elevatorLength - elevatorMinLengthInches <= 5
+        && stingerlength - stingerMinLengthInches <= 15) {
+      stingerJaw =
+          stingerIntake.transformBy(
+              new Transform3d(
+                  new Translation3d(
+                      (elevatorLength - elevatorMinLengthInches) / 5 * -0.045,
+                      0.0,
+                      (elevatorLength - elevatorMinLengthInches) / 5 * 0.136),
+                  new Rotation3d(
+                      0,
+                      Units.degreesToRadians((elevatorLength - elevatorMinLengthInches) / 5 * 40),
+                      0)));
+    } else {
+      stingerJaw =
+          stingerIntake.transformBy(
+              new Transform3d(
+                  new Translation3d(-0.045, 0.0, 0.136),
+                  new Rotation3d(0, Units.degreesToRadians(40), 0)));
+    }
+
+    Logger.getInstance().recordOutput("Mechanism/MainMechSimple", mainMech);
     Logger.getInstance()
         .recordOutput(
-            "samplePos3d", elevatorSlider, stingerApparatus, stingerSlider, stingerIntake);
+            "Mechanism/MainMech",
+            elevatorSlider,
+            stingerApparatus,
+            stingerSlider,
+            stingerIntake,
+            stingerJaw);
   }
 }
