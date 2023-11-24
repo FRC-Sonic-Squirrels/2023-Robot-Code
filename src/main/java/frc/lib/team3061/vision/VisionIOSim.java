@@ -20,7 +20,8 @@ public class VisionIOSim implements VisionIO {
   private static final double DIAGONAL_FOV = 70; // FOV in degrees
   private static final int IMG_WIDTH = 1280; // image width in px
   private static final int IMG_HEIGHT = 720; // image heigh in px
-  private static final double MIN_TARGET_AREA = 1000.0; // change if width/height changes
+  private static final double MIN_TARGET_AREA =
+      500.0; // change if width/height changes //TODO: Find a good number for this
   private final PhotonCamera camera;
 
   private double lastTimestamp = 0;
@@ -45,7 +46,7 @@ public class VisionIOSim implements VisionIO {
             networkName,
             DIAGONAL_FOV,
             robotToCamera, // .inverse(),
-            9000,
+            18000, // TODO: FIND A GOOD NUMBER FOR THIS
             IMG_WIDTH,
             IMG_HEIGHT,
             MIN_TARGET_AREA);
@@ -82,6 +83,7 @@ public class VisionIOSim implements VisionIO {
 
     inputs.lastTimestamp = this.lastTimestamp;
     inputs.lastResult = this.lastResult;
+    inputs.connected = camera.isConnected();
   }
 
   private void updateSimInputs() {

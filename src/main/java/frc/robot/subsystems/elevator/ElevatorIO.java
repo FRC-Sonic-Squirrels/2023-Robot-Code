@@ -42,6 +42,8 @@ public interface ElevatorIO {
       ElevatorAppliedVolts = table.getDouble("ElevatorAppliedVolts", ElevatorAppliedVolts);
       ElevatorCurrentAmps = table.getDoubleArray("ElevatorCurrentAmps", ElevatorCurrentAmps);
       ElevatorTempCelsius = table.getDoubleArray("ElevatorTempCelsius", ElevatorTempCelsius);
+
+      ElevatorHeightInches = table.getDouble("ElevatorHeightInches", ElevatorHeightInches);
     }
   }
 

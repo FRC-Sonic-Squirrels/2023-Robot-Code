@@ -77,7 +77,8 @@
     "unpassed",
     "Vandermonde",
     "WPILOG",
-    "Xstance"
+    "Xstance",
+    "yeet"
   ],
   "[java]": {
     "editor.defaultFormatter": "redhat.java"

@@ -51,6 +51,8 @@ public interface StingerIO {
       StingerAppliedVolts = table.getDouble("StingerAppliedVolts", StingerAppliedVolts);
       StingerCurrentAmps = table.getDoubleArray("StingerCurrentAmps", StingerCurrentAmps);
       StingerTempCelsius = table.getDoubleArray("StingerTempCelsius", StingerTempCelsius);
+
+      StingerExtensionInches = table.getDouble("StingerExtensionInches", StingerExtensionInches);
     }
   }
 

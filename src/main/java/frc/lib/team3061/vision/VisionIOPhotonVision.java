@@ -50,6 +50,7 @@ public class VisionIOPhotonVision implements VisionIO {
   public synchronized void updateInputs(VisionIOInputs inputs) {
     inputs.lastTimestamp = this.lastTimestamp;
     inputs.lastResult = this.lastResult;
+    inputs.connected = camera.isConnected();
 
     noCameraConnectedAlert.set(!camera.isConnected());
   }
