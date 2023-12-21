@@ -35,7 +35,7 @@ public final class Constants {
   public static final String RIGHT_CAMERA_NAME = "RightCamera";
   public static final String BACK_CAMERA_NAME = "Arducam_OV9281_Camera_4";
 
-  private static final RobotType ROBOT = RobotType.ROBOT_SIMBOT;
+  private static final RobotType ROBOT = RobotType.ROBOT_2023_COMPBOT;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
