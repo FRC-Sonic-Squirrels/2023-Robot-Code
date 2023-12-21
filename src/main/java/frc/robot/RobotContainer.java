@@ -56,7 +56,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.RobotState.GamePiece;
 import frc.robot.autonomous.SwerveAutos;
 import frc.robot.commands.drive.DriveWithSetRotation;
-import frc.robot.commands.drive.RotateToCube;
+import frc.robot.commands.drive.OrbitCube;
 import frc.robot.commands.drive.SnapToGrid;
 import frc.robot.commands.drive.TeleopSwerve;
 import frc.robot.commands.elevator.ElevatorManualControl;
@@ -753,34 +753,14 @@ public class RobotContainer {
     //                 //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
     //                 ));
 
-    driverController
-        .rightTrigger()
-        .whileTrue(
-            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
-                .andThen(
-                    (new RotateToCube(
-                            driverController::getLeftY,
-                            driverController::getLeftX,
-                            limelight,
-                            drivetrain)
-                        .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
-                    // .alongWith(
-                    //     MechanismPositions.groundPickupPosition(elevator, stinger)
-                    //         .andThen(
-                    //             Commands.waitUntil(
-                    //                 new Trigger(() -> intake.isStalled()).debounce(0.05)))
-                    //         .deadlineWith(new IntakeGrabCube(intake))
-                    //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
-                    ));
-
     // driverController
     //     .rightTrigger()
     //     .whileTrue(
     //         Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
     //             .andThen(
-    //                 (new OrbitCube(
-    //                         driverController::getLeftX,
+    //                 (new RotateToCube(
     //                         driverController::getLeftY,
+    //                         driverController::getLeftX,
     //                         limelight,
     //                         drivetrain)
     //                     .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
@@ -792,6 +772,26 @@ public class RobotContainer {
     //                 //         .deadlineWith(new IntakeGrabCube(intake))
     //                 //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
     //                 ));
+
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
+                .andThen(
+                    (new OrbitCube(
+                            driverController::getLeftX,
+                            driverController::getLeftY,
+                            limelight,
+                            drivetrain)
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
+                    // .alongWith(
+                    //     MechanismPositions.groundPickupPosition(elevator, stinger)
+                    //         .andThen(
+                    //             Commands.waitUntil(
+                    //                 new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                    //         .deadlineWith(new IntakeGrabCube(intake))
+                    //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
+                    ));
 
     // driverAssistController
     //     .povRight()

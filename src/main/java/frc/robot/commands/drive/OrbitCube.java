@@ -5,6 +5,7 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
@@ -34,6 +35,8 @@ public class OrbitCube extends CommandBase {
 
   private double xVel;
   private double yVel;
+  private double rotVelCorrection;
+  private double rotVel;
 
   /** Creates a new OrbitCube. */
   public OrbitCube(
@@ -82,12 +85,30 @@ public class OrbitCube extends CommandBase {
                     * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND)
                 * Math.sin(limelight.getTargetYaw().getRadians() + Math.PI / 2);
 
-    drive.drive(
-        xVel,
-        yVel,
+    rotVelCorrection =
+        Math.hypot(xVel, yVel)
+            * Math.cos(
+                limelight.getTargetYaw().getRadians()
+                    - new Rotation2d(xVel, yVel).getRadians()
+                    - Math.PI / 2)
+            / limelight.getDistanceToGroundCube();
+
+    Logger.getInstance()
+        .recordOutput("OrbitCube/robotMotionAngle", new Rotation2d(xVel, yVel).getDegrees());
+
+    rotVel =
         rotationController.calculate(
-            drive.getPose().getRotation().getRadians(),
-            limelight.getTargetYaw().getRadians() + Math.PI));
+                drive.getPose().getRotation().getRadians(),
+                limelight.getTargetYaw().getRadians() + Math.PI)
+            + rotVelCorrection;
+
+    drive.drive(xVel, yVel, rotVel);
+
+    Logger.getInstance().recordOutput("OrbitCube/xVel", xVel);
+    Logger.getInstance().recordOutput("OrbitCube/yVel", yVel);
+    Logger.getInstance().recordOutput("OrbitCube/rotVelCorrection", rotVelCorrection);
+    Logger.getInstance().recordOutput("OrbitCube/rotVel", rotVel);
+
     Logger.getInstance().recordOutput("ActiveCommands/OrbitCube", true);
   }
 

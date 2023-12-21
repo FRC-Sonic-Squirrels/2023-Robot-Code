@@ -85,18 +85,16 @@ public class Limelight extends SubsystemBase {
     Logger.getInstance().recordOutput("Limelight/detectedGamePiece", detectedGamePiece.toString());
     Logger.getInstance().recordOutput("Limelight/targetAngleDegrees", targetYawDegrees);
     Logger.getInstance().recordOutput("Limelight/targetPitchDegrees", targetPitchDegrees);
-    if (inputs.validTarget) {
-      Logger.getInstance().recordOutput("Limelight/cubeDistanceMeters", cubeDistanceMeters);
-      Logger.getInstance().recordOutput("Limelight/cubePoseMeters", cubePoseMeters);
-      Logger.getInstance()
-          .recordOutput(
-              "Limelight/cubeOffset",
-              new Pose2d(
-                  new Translation2d(
-                      cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
-                      cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
-                  new Rotation2d(0)));
-    }
+    Logger.getInstance().recordOutput("Limelight/cubeDistanceMeters", cubeDistanceMeters);
+    Logger.getInstance().recordOutput("Limelight/cubePoseMeters", cubePoseMeters);
+    Logger.getInstance()
+        .recordOutput(
+            "Limelight/cubeOffset",
+            new Pose2d(
+                new Translation2d(
+                    cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
+                    cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
+                new Rotation2d(0)));
   }
 
   /**
