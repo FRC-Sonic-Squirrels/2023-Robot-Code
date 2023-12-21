@@ -18,7 +18,7 @@ public class OrbitCube extends CommandBase {
   Limelight limelight;
   Drivetrain drive;
 
-  private TunableNumber rotationKp = new TunableNumber("RotateToCube/rotationKp", 4.9);
+  private TunableNumber rotationKp = new TunableNumber("OrbitCube/rotationKp", 4.9);
 
   private ProfiledPIDController rotationController =
       new ProfiledPIDController(
@@ -88,14 +88,14 @@ public class OrbitCube extends CommandBase {
         rotationController.calculate(
             drive.getPose().getRotation().getRadians(),
             limelight.getTargetYaw().getRadians() + Math.PI));
-    Logger.getInstance().recordOutput("ActiveCommands/RotateToCube", true);
+    Logger.getInstance().recordOutput("ActiveCommands/OrbitCube", true);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drive.drive(0, 0, 0);
-    Logger.getInstance().recordOutput("ActiveCommands/RotateToCube", false);
+    Logger.getInstance().recordOutput("ActiveCommands/OrbitCube", false);
   }
 
   // Returns true when the command should end.
