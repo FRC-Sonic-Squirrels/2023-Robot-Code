@@ -6,7 +6,6 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.team6328.util.TunableNumber;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -15,7 +14,7 @@ import frc.robot.subsystems.limelight.Limelight;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class RotateToCube extends CommandBase {
+public class OrbitCube extends CommandBase {
   Limelight limelight;
   Drivetrain drive;
 
@@ -32,8 +31,12 @@ public class RotateToCube extends CommandBase {
 
   private DoubleSupplier translationXSupplier;
   private DoubleSupplier translationYSupplier;
-  /** Creates a new RotateToCube. */
-  public RotateToCube(
+
+  private double xVel;
+  private double yVel;
+
+  /** Creates a new OrbitCube. */
+  public OrbitCube(
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       Limelight limelight,
@@ -60,16 +63,28 @@ public class RotateToCube extends CommandBase {
   @Override
   public void execute() {
 
+    xVel =
+        (-modifyAxis(translationYSupplier.getAsDouble())
+                    // * drive.elevatorAndStingerOutTranslationMultiplier.get() TODO: decide if this
+                    // is
+                    // necessary
+                    * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND)
+                * Math.cos(limelight.getTargetYaw().getRadians())
+            + (-modifyAxis(translationXSupplier.getAsDouble())
+                    * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND)
+                * Math.cos(limelight.getTargetYaw().getRadians() + Math.PI / 2);
+
+    yVel =
+        (-modifyAxis(translationYSupplier.getAsDouble())
+                    * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND)
+                * Math.sin(limelight.getTargetYaw().getRadians())
+            + (-modifyAxis(translationXSupplier.getAsDouble())
+                    * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND)
+                * Math.sin(limelight.getTargetYaw().getRadians() + Math.PI / 2);
+
     drive.drive(
-        -modifyAxis(translationXSupplier.getAsDouble())
-            // * drive.elevatorAndStingerOutTranslationMultiplier.get() TODO: decide if this is
-            // necessary
-            * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND
-            * (DriverStation.getAlliance() == DriverStation.Alliance.Red ? -1 : 1),
-        -modifyAxis(translationYSupplier.getAsDouble())
-            // * drive.elevatorAndStingerOutTranslationMultiplier.get()
-            * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND
-            * (DriverStation.getAlliance() == DriverStation.Alliance.Red ? -1 : 1),
+        xVel,
+        yVel,
         rotationController.calculate(
             drive.getPose().getRotation().getRadians(),
             limelight.getTargetYaw().getRadians() + Math.PI));

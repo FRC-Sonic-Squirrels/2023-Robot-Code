@@ -46,13 +46,19 @@ public class DriveToCube extends CommandBase {
   private double rotationalErrorDegrees;
   private double xVel;
   private double yVel;
+  private double rotVel;
   private TunableNumber allowedRotationalErrorDegrees =
       new TunableNumber("DriveToCube/allowedRotationalErrorDegrees", 20);
+
+  private TunableNumber advancedMode =
+      new TunableNumber("DriveToCube/advancedMode/doAdvancedMotion", 0);
 
   public DriveToCube(Limelight limelight, Drivetrain drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.limelight = limelight;
     this.drive = drive;
+
+    addRequirements(drive);
   }
 
   // Called when the command is initially scheduled.
@@ -74,28 +80,42 @@ public class DriveToCube extends CommandBase {
   @Override
   public void execute() {
 
-    if (rotationController.getGoal().position != limelight.getTargetYaw().getRadians()
-        && limelight.isValidTarget()) {
-      rotationController.setGoal(limelight.getTargetYaw().getRadians());
-    }
-
     rotationalErrorDegrees =
         Math.abs(
-            drive.getPose().getRotation().getDegrees()
-                - limelight.getCubePoseMeters().getRotation().getDegrees());
+            limelight.getTargetYaw().getDegrees()
+                - 180.0
+                - drive.getPose().getRotation().getDegrees());
     Logger.getInstance().recordOutput("rotationalErrorDegrees", rotationalErrorDegrees);
 
-    xVel =
-        rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
-            ? xController.calculate(drive.getPose().getX(), limelight.getCubePoseMeters().getX())
-            : 0.0;
-    yVel =
-        rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
-            ? yController.calculate(drive.getPose().getY(), limelight.getCubePoseMeters().getY())
-            : 0.0;
+    if (advancedMode.get() == 0) {
+      xVel =
+          rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
+              ? xController.calculate(drive.getPose().getX(), limelight.getCubePoseMeters().getX())
+              : 0.0;
+      yVel =
+          rotationalErrorDegrees < allowedRotationalErrorDegrees.get()
+              ? yController.calculate(drive.getPose().getY(), limelight.getCubePoseMeters().getY())
+              : 0.0;
+    } else {
+      xVel =
+          xController.calculate(drive.getPose().getX(), limelight.getCubePoseMeters().getX())
+              / Math.max(rotationalErrorDegrees / allowedRotationalErrorDegrees.get(), 1.0);
+      yVel =
+          yController.calculate(drive.getPose().getY(), limelight.getCubePoseMeters().getY())
+              / Math.max(rotationalErrorDegrees / allowedRotationalErrorDegrees.get(), 1.0);
+    }
 
-    drive.drive(
-        xVel, yVel, rotationController.calculate(drive.getPose().getRotation().getRadians()));
+    rotVel =
+        rotationController.calculate(
+            drive.getPose().getRotation().getRadians(),
+            limelight.getTargetYaw().getRadians() + Math.PI);
+
+    drive.drive(xVel, yVel, rotVel);
+
+    Logger.getInstance().recordOutput("DriveToCube/rotationalErrorDegrees", rotationalErrorDegrees);
+    Logger.getInstance().recordOutput("DriveToCube/xVel", xVel);
+    Logger.getInstance().recordOutput("DriveToCube/yVel", yVel);
+    Logger.getInstance().recordOutput("DriveToCube/rotVel", rotVel);
 
     Logger.getInstance().recordOutput("ActiveCommands/DriveToCube", true);
   }

@@ -6,7 +6,6 @@ package frc.robot.subsystems.limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -40,30 +39,44 @@ public class Limelight extends SubsystemBase {
 
     detectedGamePiece = inputs.classID != 0 ? GamePiece.CUBE : GamePiece.CONE;
 
-    targetYawDegrees =
-        -inputs.xOffset
-            // / Constants.Limelight.RESOLUTION.getX() * Constants.Limelight.FOV.getX()
-            + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getZ());
-    targetPitchDegrees =
-        inputs.yOffset
-            +
-            // / Constants.Limelight.RESOLUTION.getY() * Constants.Limelight.FOV.getY()
-            (90.0 + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getY()));
+    cubePoseMeters = new Pose2d(7.08, 2.15, new Rotation2d(0.0));
     if (inputs.validTarget) {
+
+      targetYawDegrees =
+          -inputs.xOffset
+              // / Constants.Limelight.RESOLUTION.getX() * Constants.Limelight.FOV.getX()
+              + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getZ());
+      targetPitchDegrees =
+          inputs.yOffset
+              +
+              // / Constants.Limelight.RESOLUTION.getY() * Constants.Limelight.FOV.getY()
+              (90.0 + Math.toDegrees(Constants.Limelight.LIMELIGHT_POSE.getRotation().getY()));
+
       cubeDistanceMeters =
           (Constants.Limelight.LIMELIGHT_POSE.getZ()
                   - Constants.GAME_PIECE_DIMENSIONS.CUBE_LENGTH_METERS / 2)
               * Math.tan(Math.toRadians(targetPitchDegrees));
 
-      cubePoseMeters =
-          drive
-              .getPose()
-              .transformBy(
-                  new Transform2d(
-                      new Translation2d(
-                          cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
-                          cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
-                      new Rotation2d(0)));
+      // cubePoseMeters =
+      //     drive
+      //         .getPose()
+      //         .transformBy(
+      //             new Transform2d(
+      //                 new Translation2d(
+      //                     cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
+      //                     cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
+      //                 new Rotation2d(0)));
+
+    } else {
+      targetYawDegrees =
+          new Rotation2d(
+                  cubePoseMeters.getX() - drive.getPose().getX(),
+                  cubePoseMeters.getY() - drive.getPose().getY())
+              .getDegrees();
+      cubeDistanceMeters =
+          Math.sqrt(
+              Math.pow(drive.getPose().getX() - cubePoseMeters.getX(), 2)
+                  + Math.pow(drive.getPose().getY() - cubePoseMeters.getY(), 2));
     }
 
     Logger.getInstance()
@@ -126,7 +139,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public Rotation2d getTargetYaw() {
-    return new Rotation2d(3.88 - drive.getPose().getX(), 2.74 - drive.getPose().getY());
+    return new Rotation2d(Math.toRadians(targetYawDegrees));
     // return new Rotation2d(Math.toRadians(targetYawDegrees));
   }
 
@@ -139,7 +152,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public Pose2d getCubePoseMeters() {
-    return new Pose2d(3.88, 2.74, new Rotation2d(0));
+    return cubePoseMeters;
     // return cubePoseMeters;
   }
 }

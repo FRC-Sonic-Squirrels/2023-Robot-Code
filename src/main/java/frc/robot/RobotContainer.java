@@ -743,15 +743,15 @@ public class RobotContainer {
     //         Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
     //             .andThen(
     //                 (new DriveToCube(limelight, drivetrain)
-    //                         .deadlineWith(
-    //                             new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
-    //                     .alongWith(
-    //                         MechanismPositions.groundPickupPosition(elevator, stinger)
-    //                             .andThen(
-    //                                 Commands.waitUntil(
-    //                                     new Trigger(() -> intake.isStalled()).debounce(0.05)))
-    //                             .deadlineWith(new IntakeGrabCube(intake))
-    //                             .andThen(MechanismPositions.stowPosition(elevator, stinger)))));
+    //                     .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
+    //                 // .alongWith(
+    //                 //     MechanismPositions.groundPickupPosition(elevator, stinger)
+    //                 //         .andThen(
+    //                 //             Commands.waitUntil(
+    //                 //                 new Trigger(() -> intake.isStalled()).debounce(0.05)))
+    //                 //         .deadlineWith(new IntakeGrabCube(intake))
+    //                 //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
+    //                 ));
 
     driverController
         .rightTrigger()
@@ -759,19 +759,39 @@ public class RobotContainer {
             Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
                 .andThen(
                     (new RotateToCube(
-                                driverController::getLeftY,
-                                driverController::getLeftX,
-                                limelight,
-                                drivetrain)
-                            .deadlineWith(
-                                new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
-                        .alongWith(
-                            MechanismPositions.groundPickupPosition(elevator, stinger)
-                                .andThen(
-                                    Commands.waitUntil(
-                                        new Trigger(() -> intake.isStalled()).debounce(0.05)))
-                                .deadlineWith(new IntakeGrabCube(intake))
-                                .andThen(MechanismPositions.stowPosition(elevator, stinger)))));
+                            driverController::getLeftY,
+                            driverController::getLeftX,
+                            limelight,
+                            drivetrain)
+                        .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
+                    // .alongWith(
+                    //     MechanismPositions.groundPickupPosition(elevator, stinger)
+                    //         .andThen(
+                    //             Commands.waitUntil(
+                    //                 new Trigger(() -> intake.isStalled()).debounce(0.05)))
+                    //         .deadlineWith(new IntakeGrabCube(intake))
+                    //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
+                    ));
+
+    // driverController
+    //     .rightTrigger()
+    //     .whileTrue(
+    //         Commands.runOnce(() -> RobotState.getInstance().setDesiredGamePiece(GamePiece.CUBE))
+    //             .andThen(
+    //                 (new OrbitCube(
+    //                         driverController::getLeftX,
+    //                         driverController::getLeftY,
+    //                         limelight,
+    //                         drivetrain)
+    //                     .deadlineWith(new LedSetColorNoEnd(leds, colors.WHITE_STROBE).asProxy()))
+    //                 // .alongWith(
+    //                 //     MechanismPositions.groundPickupPosition(elevator, stinger)
+    //                 //         .andThen(
+    //                 //             Commands.waitUntil(
+    //                 //                 new Trigger(() -> intake.isStalled()).debounce(0.05)))
+    //                 //         .deadlineWith(new IntakeGrabCube(intake))
+    //                 //         .andThen(MechanismPositions.stowPosition(elevator, stinger)))
+    //                 ));
 
     // driverAssistController
     //     .povRight()
