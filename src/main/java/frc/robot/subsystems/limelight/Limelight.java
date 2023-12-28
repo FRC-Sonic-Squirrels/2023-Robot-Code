@@ -6,6 +6,7 @@ package frc.robot.subsystems.limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -56,15 +57,15 @@ public class Limelight extends SubsystemBase {
                   - Constants.GAME_PIECE_DIMENSIONS.CUBE_LENGTH_METERS / 2)
               * Math.tan(Math.toRadians(targetPitchDegrees));
 
-      // cubePoseMeters =
-      //     drive
-      //         .getPose()
-      //         .transformBy(
-      //             new Transform2d(
-      //                 new Translation2d(
-      //                     cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
-      //                     cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
-      //                 new Rotation2d(0)));
+      cubePoseMeters =
+          drive
+              .getPose()
+              .transformBy(
+                  new Transform2d(
+                      new Translation2d(
+                          cubeDistanceMeters * Math.cos(Math.toRadians(targetYawDegrees)),
+                          cubeDistanceMeters * Math.sin(Math.toRadians(targetYawDegrees))),
+                      new Rotation2d(0)));
 
     } else {
       targetYawDegrees =
