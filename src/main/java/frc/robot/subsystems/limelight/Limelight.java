@@ -39,7 +39,6 @@ public class Limelight extends SubsystemBase {
 
     detectedGamePiece = inputs.classID != 0 ? GamePiece.CUBE : GamePiece.CONE;
 
-    cubePoseMeters = new Pose2d(7.08, 2.15, new Rotation2d(0.0));
     if (inputs.validTarget) {
 
       targetYawDegrees =
